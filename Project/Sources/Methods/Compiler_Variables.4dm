@@ -1,0 +1,4 @@
+//%attributes = {"invisible":true}
+C_TEXT:C284(WSDETAILS)
+C_TEXT:C284(WSMESSAGE)
+C_TEXT:C284(WSTITLE)

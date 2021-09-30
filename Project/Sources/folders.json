@@ -1,0 +1,35 @@
+{
+	"Classes par défaut": {
+		"classes": [
+			"Provider",
+			"Token"
+		]
+	},
+	"Dossier par défaut": {
+		"groups": [
+			"Classes par défaut",
+			"Formulaires par défaut",
+			"Méthodes projet par défaut",
+			"Tables par défaut"
+		]
+	},
+	"Formulaires par défaut": {},
+	"Méthodes projet par défaut": {
+		"methods": [
+			"_camelCase",
+			"_ErrorHandler",
+			"_getDefaultRedirectURI",
+			"_getPathFromURL",
+			"_getPortFromURL",
+			"_OnWebConnection",
+			"_StartWebServer",
+			"_StopWebServer",
+			"_urlEscape",
+			"Compiler_Methods",
+			"Compiler_Variables",
+			"New OAuth2 provider"
+		]
+	},
+	"Tables par défaut": {},
+	"trash": {}
+}

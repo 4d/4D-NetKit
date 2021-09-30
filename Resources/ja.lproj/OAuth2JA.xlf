@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Translation file for 4D products.
+   Copyright (C) 2007-2013 4D SAS.
+   This file is distributed under the same license as the 4D product package.
+-->
+
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN"
+"http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+
+<xliff version="1.0">
+  <file datatype="x-STR#" original="undefined" source-language="en-US" target-language="ja" product-version="v14">
+    <header>
+      <note>The character &quot;%&quot; (out of a numerical context) is a meta-character that will be replaced (often by a numeric value) before the string is displayed</note>
+      <note>Text between less than (&lt;) and greater than (&gt;) symbols is a variable&apos;s name and must not be localised</note>
+      <note>\r, \t and \n are meta-characters.</note>
+    </header>
+    <body>
+      <group resname="OAuth2 Messages">
+        <trans-unit resname="OAuth2_Undefined_parameters">
+          <source>Undefined or null parameters object.</source>
+          <target>未定義またはnullの引数オブジェクトです。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Unsupported_provider">
+          <source>Unsupported value in "provider" attribute.</source>
+          <target>"provider"属性にサポートされていない値があります</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Unsupported_permission">
+          <source>Unsupported value in "permission" attribute.</source>
+          <target>"permission"属性にサポートされていない値があります</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Empty_authorizationCode">
+          <source>"authorizationCode" attribute is empty.</source>
+          <target>"authorizationCode"属性が空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_provider">
+          <source>"provider" attribute is not defined or is empty.</source>
+          <target>"provider"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_clientId">
+          <source>"clientId" attribute is not defined or is empty.</source>
+          <target>"clientId"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_authenticateURI">
+          <source>"authenticateURI" attribute is not defined or is empty.</source>
+          <target>"authenticateURI"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_redirectURI">
+          <source>"redirectURI" attribute is not defined or is empty.</source>
+          <target>"redirectURI"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_tokenURI">
+          <source>"tokenURI" attribute is not defined or is empty.</source>
+          <target>"tokenURI"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_scope">
+          <source>"scope" attribute is not defined or is empty.</source>
+          <target>"scope"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Undefined_permission">
+          <source>"permission" attribute is not defined or is empty.</source>
+          <target>"permission"属性が定義されていないか空です。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Error_Wrong_Status_Code">
+          <source>Get Token request returned status code : </source>
+          <target>Get Token リクエストが次のステータスコードを返しました: </target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Error_Empty_Token_Response">
+          <source>Get Token request returned an empty response.</source>
+          <target>Get Token リクエストが空のレスポンスを返しました。</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Title">
+          <source>OAuth2 Component</source>
+          <target>OAuth2 コンポーネント</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Message">
+          <source>Verification code received</source>
+          <target>認証コードを受信</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Error_Message">
+          <source>Undefined error</source>
+          <target>未定義のエラー</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Details">
+          <source>You may now close this window</source>
+          <target>このウィンドウを閉じてもかまいません</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Port_Already_Used">
+          <source>The port {PORT} is already used.</source>
+          <target>{PORT}番のポートは既に使用されています</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
