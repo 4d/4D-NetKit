@@ -16,62 +16,42 @@
       <note>\r, \t and \n are meta-characters.</note>
     </header>
     <body>
-      <group resname="OAuth2 Messages">
-        <trans-unit resname="OAuth2_Undefined_parameters">
+      <group resname="4D NetKit Messages">
+        <trans-unit resname="ERR_4DNK_1">
           <source>Undefined or null parameters object.</source>
-          <target>Objet paramêtre null ou indéfini.</target>
+          <target>Paramètre Objet null ou indéfini.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Unsupported_provider">
-          <source>Unsupported provider in "provider" attribute.</source>
-          <target>Fournisseur non supporté dans l'attribut "provider".</target>
+        <trans-unit resname="ERR_4DNK_2">
+          <source>"{attribute}" attribute is not defined or is empty.</source>
+          <target>L'attribut "{attribute}" n'est pas défini ou est vide.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Unsupported_permission">
-          <source>Unsupported value in "permission" attribute.</source>
-          <target>Valeur non supportée dans l'attribut "permission".</target>
+        <trans-unit resname="ERR_4DNK_3">
+          <source>Unsupported value in "{attribute}" attribute.</source>
+          <target>Valeur non supportée dans l'attribut "{attribute}".</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Empty_authorizationCode">
-          <source>"authorizationCode" attribute is empty.</source>
-          <target>L'attribut "authorizationCode" est vide.</target>
+        <trans-unit resname="ERR_4DNK_4">
+          <source>'GetToken' request returned an empty response.</source>
+          <target>La requête 'GetToken' a retourné une réponse vide.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_provider">
-          <source>"provider" attribute is not defined or is empty.</source>
-          <target>L'attribut "provider" n'est pas défini, ou est vide.</target>
+        <trans-unit resname="ERR_4DNK_5">
+          <source>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</source>
+          <target>La requête 'GetToken' a retourné un code de statut inattendu (reçu: {received} attendu: {expected}).</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_clientId">
-          <source>"clientId" attribute is not defined or is empty.</source>
-          <target>L'attribut "clientId" n'est pas défini, ou est vide.</target>
+        <trans-unit resname="ERR_4DNK_6">
+          <source>'GetToken' request returned an empty 'authorizationCode'.</source>
+          <target>La requête 'GetToken' a retourné un 'authorizationCode' vide.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_authenticateURI">
-          <source>"authenticateURI" attribute is not defined or is empty.</source>
-          <target>L'attribut "authenticateURI" n'est pas défini, ou est vide.</target>
+        <trans-unit resname="ERR_4DNK_7">
+          <source>The port {port} is already used.</source>
+          <target>Le port {port} est déjà utilisé.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_redirectURI">
-          <source>"redirectURI" attribute is not defined or is empty.</source>
-          <target>L'attribut "redirectURI" n'est pas défini, ou est vide.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_tokenURI">
-          <source>"tokenURI" attribute is not defined or is empty.</source>
-          <target>L'attribut "tokenURI" n'est pas défini, ou est vide.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_scope">
-          <source>"scope" attribute is not defined or is empty.</source>
-          <target>L'attribut "scope" n'est pas défini, ou est vide.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_permission">
-          <source>"permission" attribute is not defined or is empty.</source>
-          <target>L'attribut "permission" n'est pas défini, ou est vide.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Error_Wrong_Status_Code">
-          <source>Get Token request returned status code : </source>
-          <target>Get Token request returned status code : </target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Error_Empty_Token_Response">
-          <source>Get Token request returned an empty response.</source>
-          <target>La requete 'Get Token' retourne une réponse vide.</target>
+        <trans-unit resname="ERR_4DNK_8">
+          <source>Request returned an unexpected response ({status} {explanation}: {message}).</source>
+          <target>La requête a retourné une réponse inattendue ({status} {explanation}: {message}).</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
-          <target>OAuth2 Component</target>
-          <source>Composant OAuth2 </source>
+          <target>4D NetKit Component</target>
+          <source>Composant 4D NetKit</source>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Message">
           <source>Verification code received</source>
@@ -84,10 +64,6 @@
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>
           <target>Vous pouvez maintenant fermer la fenêtre</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Port_Already_Used">
-          <source>The port {PORT} is already used.</source>
-          <target>Le port {PORT} est déjà utilisé.</target>
         </trans-unit>
       </group>
     </body>

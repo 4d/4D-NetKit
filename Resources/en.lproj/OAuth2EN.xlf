@@ -16,62 +16,42 @@
       <note>\r, \t and \n are meta-characters.</note>
     </header>
     <body>
-      <group resname="OAuth2 Messages">
-        <trans-unit resname="OAuth2_Undefined_parameters">
+      <group resname="4D NetKit Messages">
+        <trans-unit resname="ERR_4DNK_1">
           <source>Undefined or null parameters object.</source>
           <target>Undefined or null parameters object.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Unsupported_provider">
-          <source>Unsupported value in "provider" attribute.</source>
-          <target>Unsupported value in "provider" attribute.</target>
+        <trans-unit resname="ERR_4DNK_2">
+          <source>"{attribute}" attribute is not defined or is empty.</source>
+          <target>"{attribute}" attribute is not defined or is empty.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Unsupported_permission">
-          <source>Unsupported value in "permission" attribute.</source>
-          <target>Unsupported value in "permission" attribute.</target>
+        <trans-unit resname="ERR_4DNK_3">
+          <source>Unsupported value in "{attribute}" attribute.</source>
+          <target>Unsupported value in "{attribute}" attribute.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Empty_authorizationCode">
-          <source>"authorizationCode" attribute is empty.</source>
-          <target>"authorizationCode" attribute is empty.</target>
+        <trans-unit resname="ERR_4DNK_4">
+          <source>'GetToken' request returned an empty response.</source>
+          <target>'GetToken' request returned an empty response.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_provider">
-          <source>"provider" attribute is not defined or is empty.</source>
-          <target>"provider" attribute is not defined or is empty.</target>
+        <trans-unit resname="ERR_4DNK_5">
+          <source>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</source>
+          <target>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_clientId">
-          <source>"clientId" attribute is not defined or is empty.</source>
-          <target>"clientId" attribute is not defined or is empty.</target>
+        <trans-unit resname="ERR_4DNK_6">
+          <source>'GetToken' request returned an empty 'authorizationCode'.</source>
+          <target>'GetToken' request returned an empty 'authorizationCode'.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_authenticateURI">
-          <source>"authenticateURI" attribute is not defined or is empty.</source>
-          <target>"authenticateURI" attribute is not defined or is empty.</target>
+        <trans-unit resname="ERR_4DNK_7">
+          <source>The port {port} is already used.</source>
+          <target>The port {port} is already used.</target>
         </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_redirectURI">
-          <source>"redirectURI" attribute is not defined or is empty.</source>
-          <target>"redirectURI" attribute is not defined or is empty.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_tokenURI">
-          <source>"tokenURI" attribute is not defined or is empty.</source>
-          <target>"tokenURI" attribute is not defined or is empty.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_scope">
-          <source>"scope" attribute is not defined or is empty.</source>
-          <target>"scope" attribute is not defined or is empty.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Undefined_permission">
-          <source>"permission" attribute is not defined or is empty.</source>
-          <target>"permission" attribute is not defined or is empty.</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Error_Wrong_Status_Code">
-          <source>Get Token request returned status code : </source>
-          <target>Get Token request returned status code : </target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Error_Empty_Token_Response">
-          <source>Get Token request returned an empty response.</source>
-          <target>Get Token request returned an empty response.</target>
+        <trans-unit resname="ERR_4DNK_8">
+          <source>Request returned an unexpected response ({status} {explanation}: {message}).</source>
+          <target>Request returned an unexpected response ({status} {explanation}: {message}).</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
-          <source>OAuth2 Component</source>
-          <target>OAuth2 Component</target>
+          <target>4D NetKit Component</target>
+          <source>4D NetKit Component</source>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Message">
           <source>Verification code received</source>
@@ -84,10 +64,6 @@
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>
           <target>You may now close this window</target>
-        </trans-unit>
-        <trans-unit resname="OAuth2_Port_Already_Used">
-          <source>The port {PORT} is already used.</source>
-          <target>The port {PORT} is already used.</target>
         </trans-unit>
       </group>
     </body>

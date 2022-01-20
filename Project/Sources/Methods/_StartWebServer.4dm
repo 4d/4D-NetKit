@@ -1,7 +1,7 @@
 //%attributes = {"invisible":true}
 #DECLARE($inPort : Integer)->$OK : Boolean
 
-var $WS : 4D:C1709.WebServer
+var $ws : 4D:C1709.WebServer
 var $port : Integer
 var $settings; $status : Object
 
@@ -16,21 +16,21 @@ $settings.HTTPEnabled:=True:C214
 $settings.HTTPSEnabled:=False:C215
 $settings.HTTPPort:=$port
 
-$WS:=WEB Server:C1674(Web server database:K73:30)
+$ws:=WEB Server:C1674(Web server database:K73:30)
 
-If ($WS.isRunning & ($WS.HTTPPort#$port))
+If ($ws.isRunning & ($ws.HTTPPort#$port))
 	
-	$WS.stop()
+	$ws.stop()
 	
 	DELAY PROCESS:C323(Current process:C322; 20)
 	
 End if 
 
 
-If (Not:C34($WS.isRunning))
+If (Not:C34($ws.isRunning))
 	
-	$status:=$WS.start($settings)
+	$status:=$ws.start($settings)
 	
 End if 
 
-$OK:=$WS.isRunning
+$OK:=$ws.isRunning

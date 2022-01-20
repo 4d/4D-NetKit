@@ -1,4 +1,10 @@
+Class extends _BaseClass
+
 Class constructor($parameters : Object)
+	
+	Super:C1705()
+	
+	This:C1470._try()
 	
 	// Sanity check
 	If (This:C1470._checkPrerequisites($parameters))
@@ -78,6 +84,8 @@ The application secret that you created in the app registration portal for your 
 		
 	End if 
 	
+	This:C1470._finally()
+	
 	
 	// ----------------------------------------------------
 	
@@ -85,77 +93,71 @@ The application secret that you created in the app registration portal for your 
 	// [Private]
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
-	var $provider : Text
-	
-	$provider:=Choose:C955(OB Is defined:C1231(This:C1470; "name"); OB Get:C1224(This:C1470; "name"; Is text:K8:3); "")
-	
-	If (Asserted:C1132($provider="Microsoft"; $provider+" : "+Get localized string:C991("OAuth2_Unsupported_Provider")))
-		
-		// Sanity check
-		Case of 
-				
-			: (Not:C34(OB Is defined:C1231(This:C1470; "clientId")) | (Length:C16(OB Get:C1224(This:C1470; "clientId"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_clientId"))
-				
-			: (Not:C34(OB Is defined:C1231(This:C1470; "authenticateURI")) | (Length:C16(OB Get:C1224(This:C1470; "authenticateURI"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_authenticateURI"))
-				
-			: (Not:C34(OB Is defined:C1231(This:C1470; "scope")) | (Length:C16(OB Get:C1224(This:C1470; "scope"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_scope"))
-				
-			: (Not:C34(OB Is defined:C1231(This:C1470; "tenant")) | (Length:C16(OB Get:C1224(This:C1470; "tenant"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_tenant"))
-				
-			: ((OB Is defined:C1231(This:C1470; "permission") & (OB Get:C1224(This:C1470; "permission"; Is text:K8:3)="signedIn")) & \
-				(Not:C34(OB Is defined:C1231(This:C1470; "redirectURI")) | (Length:C16(OB Get:C1224(This:C1470; "redirectURI"; Is text:K8:3))=0))\
-				)
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_redirectURI"))
-				
-			Else 
-				
-				// See: https://docs.microsoft.com/en-us/graph/auth-v2-service
-				var $url; $redirectURI; $state : Text
-				
-				$state:=Generate UUID:C1066
-				This:C1470.authenticateURI:=Replace string:C233(This:C1470.authenticateURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
-				$url:=This:C1470.authenticateURI
-				$redirectURI:=Choose:C955((Length:C16(This:C1470.redirectURI)>0); This:C1470.redirectURI; "https://login.microsoftonline.com/common/oauth2/nativeclient")
-				
-				$url:=$url+"?client_id="+This:C1470.clientId+\
-					"&response_type=code"+\
-					"&redirect_uri="+_urlEscape($redirectURI)+\
-					"&response_mode=query"+\
-					"&scope="+_urlEscape(This:C1470.scope)+\
-					"&state="+String:C10($state)
-				
-				Use (Storage:C1525)
+	// Sanity check
+	Case of 
+			
+		: (Length:C16(String:C10(This:C1470.clientId))=0)
+			This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+			
+		: (Length:C16(String:C10(This:C1470.authenticateURI))=0)
+			This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
+			
+		: (Length:C16(String:C10(This:C1470.scope))=0)
+			This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+			
+		: (Length:C16(String:C10(This:C1470.tenant))=0)
+			This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
+			
+		: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10(This:C1470.redirectURI))=0))
+			This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
+			
+		: (Not:C34(String:C10(This:C1470.name)="Microsoft"))
+			This:C1470._throwError(3; New object:C1471("attribute"; "name"))
+			
+			
+		Else 
+			
+			// See: https://docs.microsoft.com/en-us/graph/auth-v2-service
+			var $url; $redirectURI; $state : Text
+			
+			$state:=Generate UUID:C1066
+			This:C1470.authenticateURI:=Replace string:C233(This:C1470.authenticateURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
+			$url:=This:C1470.authenticateURI
+			$redirectURI:=Choose:C955((Length:C16(This:C1470.redirectURI)>0); This:C1470.redirectURI; "https://login.microsoftonline.com/common/oauth2/nativeclient")
+			
+			$url:=$url+"?client_id="+This:C1470.clientId+\
+				"&response_type=code"+\
+				"&redirect_uri="+_urlEscape($redirectURI)+\
+				"&response_mode=query"+\
+				"&scope="+_urlEscape(This:C1470.scope)+\
+				"&state="+String:C10($state)
+			
+			Use (Storage:C1525)
+				OB REMOVE:C1226(Storage:C1525; "token")
+				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI)
+			End use 
+			
+			OPEN URL:C673($url; *)
+			
+			//TRACE
+			var $endTime : Integer
+			$endTime:=Milliseconds:C459+(This:C1470.timeout*1000)
+			While ((Milliseconds:C459<=$endTime) & (Not:C34(OB Is defined:C1231(Storage:C1525; "token")) | (Storage:C1525.token=Null:C1517)))
+				DELAY PROCESS:C323(Current process:C322; 10)
+			End while 
+			
+			Use (Storage:C1525)
+				If (OB Is defined:C1231(Storage:C1525; "token"))
+					$authorizationCode:=Storage:C1525.token.code
+					//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
+					//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
+					//End if 
 					OB REMOVE:C1226(Storage:C1525; "token")
-					Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI)
-				End use 
-				
-				OPEN URL:C673($url; *)
-				
-				//TRACE
-				var $endTime : Integer
-				$endTime:=Milliseconds:C459+(This:C1470.timeout*1000)
-				While ((Milliseconds:C459<=$endTime) & (Not:C34(OB Is defined:C1231(Storage:C1525; "token")) | (Storage:C1525.token=Null:C1517)))
-					DELAY PROCESS:C323(Current process:C322; 10)
-				End while 
-				
-				Use (Storage:C1525)
-					If (OB Is defined:C1231(Storage:C1525; "token"))
-						$authorizationCode:=Storage:C1525.token.code
-						//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
-						//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
-						//End if 
-						OB REMOVE:C1226(Storage:C1525; "token")
-						OB REMOVE:C1226(Storage:C1525; "params")
-					End if 
-				End use 
-				
-		End case 
-		
-	End if 
+					OB REMOVE:C1226(Storage:C1525; "params")
+				End if 
+			End use 
+			
+	End case 
 	
 	
 	// ----------------------------------------------------
@@ -193,12 +195,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 				
 			Else 
 				
-				ASSERT:C1129(False:C215; Replace string:C233(Get localized string:C991("OAuth2_Port_Already_Used"); "{PORT}"; String:C10($port)))
+				This:C1470._throwError(7; New object:C1471("port"; $port))
 				
 			End if 
 		End if 
 		
-		If (Asserted:C1132(Length:C16($authorizationCode)>0; "authorizationCode is empty!"))
+		If (Length:C16($authorizationCode)>0)
 			
 			$params:="client_id="+This:C1470.clientId+\
 				"&scope="+_urlEscape(This:C1470.scope)+\
@@ -212,6 +214,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		Else 
 			
 			$bSendRequest:=False:C215
+			This:C1470._throwError(6)
 			
 		End if 
 		
@@ -243,21 +246,18 @@ Function _getToken_Service()->$result : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function getToken()->$result : Object
 	
-	var $provider : Text
+	This:C1470._try()
 	
-	$provider:=Choose:C955(OB Is defined:C1231(This:C1470; "name"); OB Get:C1224(This:C1470; "name"; Is text:K8:3); "")
-	
-	If (Asserted:C1132($provider="Microsoft"; $provider+" : "+Get localized string:C991("OAuth2_Unsupported_Provider")))
+	If (String:C10(This:C1470.name)="Microsoft")
 		
 		var $bUseRefreshToken : Boolean
 		
 		$bUseRefreshToken:=False:C215
 		If (This:C1470.token#Null:C1517)
-			var $token : cs:C1710.OAuth2Token
-			$token:=cs:C1710.OAuth2Token.new(This:C1470)
+			var $token : cs:C1710._OAuth2Token
+			$token:=cs:C1710._OAuth2Token.new(This:C1470)
 			If (Not:C34($token._Expired(This:C1470.tokenExpiration)))
 				// Token is still valid.. Simply return it
 				$result:=$token
@@ -273,31 +273,30 @@ Function getToken()->$result : Object
 			// Sanity check
 			Case of 
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "clientId")) | (Length:C16(OB Get:C1224(This:C1470; "clientId"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_clientId"))
+				: (Length:C16(String:C10(This:C1470.clientId))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "authenticateURI")) | (Length:C16(OB Get:C1224(This:C1470; "authenticateURI"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_authenticateURI"))
+				: (Length:C16(String:C10(This:C1470.authenticateURI))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "scope")) | (Length:C16(OB Get:C1224(This:C1470; "scope"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_scope"))
+				: (Length:C16(String:C10(This:C1470.scope))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "tokenURI")) | (Length:C16(OB Get:C1224(This:C1470; "tokenURI"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_tokenURI"))
+				: (Length:C16(String:C10(This:C1470.tokenURI))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "tokenURI"))
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "tenant")) | (Length:C16(OB Get:C1224(This:C1470; "tenant"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_tenant"))
+				: (Length:C16(String:C10(This:C1470.tenant))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
 					
-				: (Not:C34(OB Is defined:C1231(This:C1470; "permission")) | (Length:C16(OB Get:C1224(This:C1470; "permission"; Is text:K8:3))=0))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_permission"))
+				: (Length:C16(String:C10(This:C1470.permission))=0)
+					This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
 					
-				: (Not:C34(This:C1470.permission="signedIn") & Not:C34(This:C1470.permission="service"))
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Unsupported_permission"))
+				: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10(This:C1470.redirectURI))=0))
+					This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
 					
-				: ((OB Is defined:C1231(This:C1470; "permission") & (OB Get:C1224(This:C1470; "permission"; Is text:K8:3)="signedIn")) & \
-					(Not:C34(OB Is defined:C1231(This:C1470; "redirectURI")) | (Length:C16(OB Get:C1224(This:C1470; "redirectURI"; Is text:K8:3))=0))\
-					)
-					ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_redirectURI"))
+				: (Not:C34(String:C10(This:C1470.permission)="signedIn") & Not:C34(String:C10(This:C1470.permission)="service"))
+					This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+					
 				Else 
 					
 					If (This:C1470.permission="signedIn")  // signedIn Mode
@@ -322,7 +321,12 @@ Function getToken()->$result : Object
 			
 		End if 
 		
+	Else 
+		This:C1470._throwError(3; New object:C1471("attribute"; "name"))
+		
 	End if 
+	
+	This:C1470._finally()
 	
 	
 	// ----------------------------------------------------
@@ -333,35 +337,37 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 	$OK:=False:C215
 	
-	If (Asserted:C1132(($obj#Null:C1517) & (Type:C295($obj)=Is object:K8:27); \
-		Get localized string:C991("OAuth2_Undefined_parameters")))
+	If (($obj#Null:C1517) & (Value type:C1509($obj)=Is object:K8:27))
 		
 		Case of 
 				
-			: (Not:C34(OB Is defined:C1231($obj; "name")) | (Length:C16(OB Get:C1224($obj; "name"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_provider"))
+			: (Length:C16(String:C10($obj.name))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "name"))
 				
-			: (Not:C34(OB Is defined:C1231($obj; "clientId")) | (Length:C16(OB Get:C1224($obj; "clientId"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_clientId"))
+			: (Length:C16(String:C10($obj.clientId))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
 				
-			: (Not:C34(OB Is defined:C1231($obj; "scope")) | (Length:C16(OB Get:C1224($obj; "scope"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_scope"))
+			: (Length:C16(String:C10($obj.scope))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 				
-			: (Not:C34(OB Is defined:C1231($obj; "permission")) | (Length:C16(OB Get:C1224($obj; "permission"; Is text:K8:3))=0))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_permission"))
+			: (Length:C16(String:C10($obj.permission))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
 				
-			: (Not:C34(OB Get:C1224($obj; "permission"; Is text:K8:3)="signedIn") & Not:C34(OB Get:C1224($obj; "permission"; Is text:K8:3)="service"))
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Unsupported_permission"))
+			: (Not:C34(String:C10($obj.permission)="signedIn") & Not:C34(String:C10($obj.permission)="service"))
+				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
 				
-			: ((OB Is defined:C1231($obj; "permission") & (OB Get:C1224($obj; "permission"; Is text:K8:3)="signedIn")) & \
-				(Not:C34(OB Is defined:C1231($obj; "redirectURI")) | (Length:C16(OB Get:C1224($obj; "redirectURI"; Is text:K8:3))=0))\
-				)
-				ASSERT:C1129(False:C215; Get localized string:C991("OAuth2_Undefined_redirectURI"))
+			: ((String:C10($obj.permission)="signedIn") & (Length:C16(String:C10($obj.redirectURI))=0))
+				This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
 				
 			Else 
 				$OK:=True:C214
 				
 		End case 
+		
+		
+	Else 
+		
+		This:C1470._throwError(1)
 		
 	End if 
 	
@@ -373,31 +379,39 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 Function _sendTokenRequest($params : Text)->$result : Object
 	
 	var $response; $savedMethod : Text
-	var $request : Blob
 	var $status : Integer
+	
+	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
+	
+	var $requestBody : Blob
+	
 	ARRAY TEXT:C222($names; 0)
 	ARRAY TEXT:C222($values; 0)
 	
-	CONVERT FROM TEXT:C1011($params; "utf-8"; $request)
+	CONVERT FROM TEXT:C1011($params; "utf-8"; $requestBody)
 	
 	APPEND TO ARRAY:C911($names; "Content-Type")
 	APPEND TO ARRAY:C911($values; "application/x-www-form-urlencoded")
 	
 	$savedMethod:=Method called on error:C704
-	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
 	ON ERR CALL:C155("_ErrorHandler")
-	$status:=HTTP Request:C1158(HTTP POST method:K71:2; This:C1470.tokenURI; $request; $response; $names; $values)
+	$status:=HTTP Request:C1158(HTTP POST method:K71:2; This:C1470.tokenURI; $requestBody; $response; $names; $values)
 	ON ERR CALL:C155($savedMethod)
 	
-	If (Asserted:C1132(($status=200); Get localized string:C991("OAuth2_Error_Wrong_Status_Code")+String:C10($status)+"\r\n"+\
-		$response))
+	If ($status=200)
 		
-		If (Asserted:C1132(Length:C16($response)>0; Get localized string:C991("OAuth2_Error_Empty_Token_Response")))
+		If (Length:C16($response)>0)
 			
-			$result:=cs:C1710.OAuth2Token.new()
+			$result:=cs:C1710._OAuth2Token.new()
 			$result._loadFromResponse($response)
 			
+		Else 
+			This:C1470._throwError(4)
+			
 		End if 
+		
+	Else 
+		This:C1470._throwError(5; New object:C1471("received"; $status; "expected"; 200))
 		
 	End if 
 	

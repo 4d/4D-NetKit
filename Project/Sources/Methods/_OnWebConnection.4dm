@@ -5,7 +5,7 @@ var $redirectURI : Text
 
 If (OB Is defined:C1231(Storage:C1525; "params"))
 	Use (Storage:C1525.params)
-		$redirectURI:=Choose:C955(OB Is defined:C1231(Storage:C1525.params; "redirectURI"); Storage:C1525.params.redirectURI; "")
+		$redirectURI:=String:C10(Storage:C1525.params.redirectURI)
 		If (Length:C16($redirectURI)>0)
 			$redirectURI:=_getPathFromURL($redirectURI)+"@"
 		End if 
