@@ -19,7 +19,7 @@ the tenant ID or domain name. By default "common"
 	This:C1470.redirectURI:="https://login.microsoftonline.com/common/oauth2/nativeclient"
 	
 /*
-This function is a callback that will be called in the OAuth2Provider class to verify that the data are correct
+This function is a callback that will be called in the OAuth2 class to verify that the data are correct
 */
 Function checkPrerequisites()->$OK : Boolean
 	

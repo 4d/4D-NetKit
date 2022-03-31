@@ -73,7 +73,7 @@ mandatory
 	This:C1470.timeout:=120  // optional. 120 seconds by default
 	
 /*
-This function is a callback that will be called in the OAuth2Provider class to verify that the data are correct
+This function is a callback that will be called in the OAuth2 class to verify that the data are correct
 	
 This function can be overrided in the children class if needed
 */
