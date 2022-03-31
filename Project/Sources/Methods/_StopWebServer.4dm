@@ -1,8 +1,9 @@
 //%attributes = {"invisible":true}
-var $ws : 4D:C1709.WebServer
+var $WS : 4D:C1709.WebServer
 
-$ws:=WEB Server:C1674(Web server database:K73:30)
+$WS:=WEB Server:C1674(Web server database:K73:30)
 
-If ($ws.isRunning)
-	$ws.stop()
+If ($WS.isRunning)
+	$WS.stop()
+	ASSERT:C1129($WS.isRunning=False:C215)
 End if 
