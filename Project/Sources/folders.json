@@ -1,33 +1,30 @@
 {
-	"4D NetKit": {
+	"Classes par défaut": {},
+	"Dossier par défaut": {
 		"groups": [
-			"Classes",
-			"Project Methods"
+			"Classes par défaut",
+			"Formulaires par défaut",
+			"Méthodes projet par défaut",
+			"Tables par défaut"
 		]
 	},
-	"Classes": {
-		"classes": [
-			"OAuth2Provider",
-			"_OAuth2Token"
-		]
-	},
-	"Project Methods": {
+	"Formulaires par défaut": {},
+	"Méthodes projet par défaut": {
 		"methods": [
 			"_camelCase",
-			"_catch",
 			"_ErrorHandler",
 			"_getDefaultRedirectURI",
 			"_getPathFromURL",
 			"_getPortFromURL",
-			"_noError",
 			"_OnWebConnection",
 			"_StartWebServer",
 			"_StopWebServer",
 			"_urlEscape",
 			"Compiler_Methods",
 			"Compiler_Variables",
-			"New OAuth2 provider"
+			"New OAuth2"
 		]
 	},
+	"Tables par défaut": {},
 	"trash": {}
 }
