@@ -49,6 +49,14 @@
           <source>Request returned an unexpected response ({status} {explanation}: {message}).</source>
           <target>La requête a retourné une réponse inattendue ({status} {explanation}: {message}).</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_9">
+          <source>Undefined or empty parameter {which} in function {function}.</source>
+          <target>Le paramètre {which} dans la fonction {function} est vide ou indéfini.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_10">
+          <source>Unsupported parameter type {which} in function {function}.</source>
+          <target>Le type du paramètre {which} dans la fonction {function} n'est pas supporté.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>Composant 4D NetKit</source>
@@ -64,6 +72,14 @@
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>
           <target>Vous pouvez maintenant fermer la fenêtre</target>
+        </trans-unit>
+        <trans-unit resname="User_List_No_Next_Page">
+          <source>No next page.</source>
+          <target>Pas de page suivante.</target>
+        </trans-unit>
+        <trans-unit resname="User_List_No_Previous_Page">
+          <source>No previous page.</source>
+          <target>Pas de page précédente.</target>
         </trans-unit>
       </group>
     </body>

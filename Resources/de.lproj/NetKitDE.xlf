@@ -12,6 +12,9 @@
       <note>Text between less than (&lt;) and greater than (&gt;) symbols is a variable's name and must not be localised</note>
       <note>\r, \t and \n are meta-characters.</note>
     </header>
+
+
+
     <body>
       <group resname="4D NetKit Messages">
         <trans-unit resname="ERR_4DNK_1">
@@ -46,6 +49,14 @@
           <source>Request returned an unexpected response ({status} {explanation}: {message}).</source>
           <target>Anfrage hat eine unerwartete Antwort erhalten ({status} {explanation}: {message}).</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_9">
+          <source>Undefined or empty parameter {which} in function {function}.</source>
+          <target>Undefinierter oder leerer Parameter {which} in Funktion {function}.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_10">
+          <source>Unsupported parameter type {which} in function {function}.</source>
+          <target>Nicht unterstützter Parametertyp {which} in Funktion {function}.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>
@@ -61,6 +72,14 @@
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>
           <target>Sie können dieses Fenster nun schließen</target>
+        </trans-unit>
+        <trans-unit resname="User_List_No_Next_Page">
+          <source>No next page.</source>
+          <target>Keine nächste Seite.</target>
+        </trans-unit>
+        <trans-unit resname="User_List_No_Previous_Page">
+          <source>No previous page.</source>
+          <target>Keine vorherige Seite.</target>
         </trans-unit>
       </group>
     </body>
