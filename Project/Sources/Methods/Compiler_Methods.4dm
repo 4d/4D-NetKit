@@ -33,7 +33,3 @@ C_TEXT:C284(_getPathFromURL; $1)
 // _camelCase
 C_TEXT:C284(_camelCase; $0)
 C_TEXT:C284(_camelCase; $1)
-
-// New Office365 provider
-C_OBJECT:C1216(New Office365 provider; $0)
-C_OBJECT:C1216(New Office365 provider; $1)
