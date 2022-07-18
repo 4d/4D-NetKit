@@ -57,7 +57,7 @@ If ($1=$redirectURI)
 		
 	End if 
 	
-	WEB SEND FILE:C619(Get 4D folder:C485(Current resources folder:K5:16)+"Response_Template.html")
+	WEB SEND FILE:C619(Folder:C1567(fk resources folder:K87:11).file("Response_Template.html").platformPath)
 	
 Else 
 	

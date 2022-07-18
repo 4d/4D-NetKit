@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!--
+   Translation file for 4D products.
+   Copyright (C) 2007-2013 4D SAS.
+   This file is distributed under the same license as the 4D product package.
+-->
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+<xliff version="1.0">
+  <file datatype="x-STR#" original="undefined" product-version="v14" source-language="en-US" target-language="pt">
+    <header>
+      <note>The character "%" (out of a numerical context) is a meta-character that will be replaced (often by a numeric value) before the string is displayed</note>
+      <note>Text between less than (&lt;) and greater than (&gt;) symbols is a variable's name and must not be localised</note>
+      <note>\r, \t and \n are meta-characters.</note>
+    </header>
+    <body>
+      <group resname="4D NetKit Messages">
+        <trans-unit resname="ERR_4DNK_1">
+          <source>Undefined or null parameters object.</source>
+          <target>Parâmetro Objeto null ou indefinido.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_2">
+          <source>"{attribute}" attribute is not defined or is empty.</source>
+          <target>O atributo "{attribute}" não está definido ou está vazio.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_3">
+          <source>Unsupported value in "{attribute}" attribute.</source>
+          <target>Valor não suportado no atributo "{attribute}".</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_4">
+          <source>'GetToken' request returned an empty response.</source>
+          <target>O pedido 'GetToken' retornou uma resposta vazia.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_5">
+          <source>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</source>
+          <target>O pedido 'GetToken' devolveu um código de status inesperado (recebido: {received} esperado: {expected}).</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_6">
+          <source>'GetToken' request returned an empty 'authorizationCode'.</source>
+          <target>O pedido 'GetToken' devolveu um 'authorizationCode' vazio.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_7">
+          <source>The port {port} is already used.</source>
+          <target>A porta {port} já está em uso.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_8">
+          <source>Request returned an unexpected response ({status} {explanation}: {message}).</source>
+          <target>O pedido retornou uma resposta inesperada ({status} {explanation}: {message}).</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Title">
+          <target>4D NetKit Component</target>
+          <source>4D NetKit Component</source>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Message">
+          <source>Verification code received</source>
+          <target>Código de verificação recebido</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Error_Message">
+          <source>Undefined error</source>
+          <target>Erro indefinido</target>
+        </trans-unit>
+        <trans-unit resname="OAuth2_Response_Details">
+          <source>You may now close this window</source>
+          <target>Agora você pode fechar esta janela</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

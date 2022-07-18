@@ -1,45 +1,45 @@
 Class extends _BaseClass
 
-Class constructor($parameters : Object)
+Class constructor($inParams : Object)
 	
 	Super:C1705()
 	
 	This:C1470._try()
 	
 	// Sanity check
-	If (This:C1470._checkPrerequisites($parameters))
+	If (This:C1470._checkPrerequisites($inParams))
 		
 /*
 Only currently supported value : "Microsoft"
 No default value, no prefered provider but, a different value from "Microsoft" will throw an error
 */
-		This:C1470.name:=String:C10($parameters.name)
+		This:C1470.name:=String:C10($inParams.name)
 		
 /*
 "signedIn": Azure AD will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
 "service": call Microsoft Graph with their own identity.
 */
-		This:C1470.permission:=String:C10($parameters.permission)
+		This:C1470.permission:=String:C10($inParams.permission)
 		
 /*
 The Application ID that the registration portal assigned the app
 */
-		This:C1470.clientId:=String:C10($parameters.clientId)
+		This:C1470.clientId:=String:C10($inParams.clientId)
 		
 /*
 The redirect_uri of your app, where authentication responses can be sent and received by your app.
 */
-		This:C1470.redirectURI:=String:C10($parameters.redirectURI)
+		This:C1470.redirectURI:=String:C10($inParams.redirectURI)
 		
 /*
 A space-separated list of the Microsoft Graph permissions that you want the user to consent to.
 collection: collection of Microsoft Graph permissions
 */
-		If (Value type:C1509($parameters.scope)=Is collection:K8:32)
-			This:C1470.scope:=$parameters.scope.join(" ")
+		If (Value type:C1509($inParams.scope)=Is collection:K8:32)
+			This:C1470.scope:=$inParams.scope.join(" ")
 			
 		Else 
-			This:C1470.scope:=String:C10($parameters.scope)
+			This:C1470.scope:=String:C10($inParams.scope)
 			
 		End if 
 		
@@ -49,38 +49,38 @@ The allowed values are "common" for both Microsoft accounts and work or school a
 for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as 
 the tenant ID or domain name. By default "common"
 */
-		This:C1470.tenant:=Choose:C955(Value type:C1509($parameters.tenant)=Is undefined:K8:13; "common"; String:C10($parameters.tenant))
+		This:C1470.tenant:=Choose:C955(Value type:C1509($inParams.tenant)=Is undefined:K8:13; "common"; String:C10($inParams.tenant))
 		
 /*
 Uri used to do the Authorization request.
 */
-		This:C1470.authenticateURI:=Choose:C955(Value type:C1509($parameters.authenticateURI)=Is undefined:K8:13; \
+		This:C1470.authenticateURI:=Choose:C955(Value type:C1509($inParams.authenticateURI)=Is undefined:K8:13; \
 			"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize"; \
-			String:C10($parameters.authenticateURI))
+			String:C10($inParams.authenticateURI))
 		
 /*
 Uri used to request an access token.
 */
-		This:C1470.tokenURI:=Choose:C955(Value type:C1509($parameters.tokenURI)=Is undefined:K8:13; \
+		This:C1470.tokenURI:=Choose:C955(Value type:C1509($inParams.tokenURI)=Is undefined:K8:13; \
 			"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token"; \
-			String:C10($parameters.tokenURI))
+			String:C10($inParams.tokenURI))
 		
 /*
 The application secret that you created in the app registration portal for your app. Required for web apps.
 */
-		This:C1470.clientSecret:=String:C10($parameters.clientSecret)
+		This:C1470.clientSecret:=String:C10($inParams.clientSecret)
 		
 /*
 */
-		This:C1470.token:=Choose:C955(Value type:C1509($parameters.token)=Is object:K8:27; $parameters.token; Null:C1517)
+		This:C1470.token:=Choose:C955(Value type:C1509($inParams.token)=Is object:K8:27; $inParams.token; Null:C1517)
 		
 /*
 */
-		This:C1470.tokenExpiration:=Choose:C955(Value type:C1509($parameters.tokenExpiration)=Is text:K8:3; $parameters.tokenExpiration; Null:C1517)
+		This:C1470.tokenExpiration:=Choose:C955(Value type:C1509($inParams.tokenExpiration)=Is text:K8:3; $inParams.tokenExpiration; Null:C1517)
 		
 /*
 */
-		This:C1470.timeout:=Choose:C955(Value type:C1509($parameters.timeout)=Is undefined:K8:13; 120; Num:C11($parameters.timeout))
+		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
 		
 	End if 
 	
@@ -383,20 +383,22 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	
 	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
 	
-	var $requestBody : Blob
+	var $options : Object
+	var $request : 4D:C1709.HTTPRequest
 	
-	ARRAY TEXT:C222($names; 0)
-	ARRAY TEXT:C222($values; 0)
-	
-	CONVERT FROM TEXT:C1011($params; "utf-8"; $requestBody)
-	
-	APPEND TO ARRAY:C911($names; "Content-Type")
-	APPEND TO ARRAY:C911($values; "application/x-www-form-urlencoded")
+	$options:=New object:C1471
+	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded")
+	$options.method:=HTTP POST method:K71:2
+	$options.body:=$params
+	$options.dataType:="text"
 	
 	$savedMethod:=Method called on error:C704
 	ON ERR CALL:C155("_ErrorHandler")
-	$status:=HTTP Request:C1158(HTTP POST method:K71:2; This:C1470.tokenURI; $requestBody; $response; $names; $values)
+	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
+	$request.wait(30)
 	ON ERR CALL:C155($savedMethod)
+	$status:=$request["response"]["status"]
+	$response:=$request["response"]["body"]
 	
 	If ($status=200)
 		

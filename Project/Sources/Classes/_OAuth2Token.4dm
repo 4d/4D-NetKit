@@ -1,10 +1,10 @@
-Class constructor($inParameter : Object)
+Class constructor($inParams : Object)
 	
 	var $params : Object
 	$params:=Null:C1517
 	If (Count parameters:C259>0)
-		If ((Type:C295($inParameter)=Is object:K8:27) & (Not:C34(OB Is empty:C1297($inParameter))))
-			$params:=$inParameter
+		If ((Type:C295($inParams)=Is object:K8:27) & (Not:C34(OB Is empty:C1297($inParams))))
+			$params:=$inParams
 		End if 
 	End if 
 	
@@ -76,10 +76,10 @@ Function _loadFromResponse($inResponseString : Text)
 	
 	
 	// [Private]
-Function _Expired($param : Text)->$result : Boolean
+Function _Expired($inParams : Text)->$result : Boolean
 	
 	var $expiration : Text
-	$expiration:=Choose:C955((Count parameters:C259>0); $param; This:C1470.tokenExpiration)
+	$expiration:=Choose:C955((Count parameters:C259>0); $inParams; This:C1470.tokenExpiration)
 	
 	$result:=True:C214
 	If (Length:C16($expiration)>0)

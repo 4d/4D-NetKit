@@ -7,16 +7,24 @@
 	},
 	"Classes": {
 		"classes": [
+			"_BaseClass",
+			"_GraphAPI",
+			"_GraphMail",
+			"_GraphUser",
+			"_OAuth2Token",
+			"_UserInformationList",
 			"OAuth2Provider",
-			"_OAuth2Token"
+			"Office365Provider"
 		]
 	},
 	"Project Methods": {
 		"methods": [
 			"_camelCase",
 			"_catch",
+			"_convertToGraphAttachment",
 			"_ErrorHandler",
 			"_getDefaultRedirectURI",
+			"_getHeaderValueParameter",
 			"_getPathFromURL",
 			"_getPortFromURL",
 			"_OnWebConnection",
@@ -26,7 +34,8 @@
 			"_urlEscape",
 			"Compiler_Methods",
 			"Compiler_Variables",
-			"New OAuth2 provider"
+			"New OAuth2 provider",
+			"New Office365 provider"
 		]
 	},
 	"trash": {}
