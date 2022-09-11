@@ -174,7 +174,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		$params:="client_id="+This:C1470.clientId+\
 			"&scope="+_urlEscape(This:C1470.scope)+\
-			"&refresh_token="+This:C1470.token.refreshToken+\
+			"&refresh_token="+This:C1470.token.refresh_token+\
 			"&grant_type=refresh_token"
 		If (Length:C16(This:C1470.clientSecret)>0)
 			$params:=$params+"&client_secret="+This:C1470.clientSecret
@@ -262,9 +262,7 @@ Function getToken()->$result : Object
 				// Token is still valid.. Simply return it
 				$result:=$token
 			Else 
-				If (OB Is defined:C1231(This:C1470.token; "refreshToken"))
-					$bUseRefreshToken:=(Length:C16(This:C1470.token.refreshToken)>0)
-				End if 
+				$bUseRefreshToken:=(Length:C16(String:C10(This:C1470.token.refresh_token))>0)
 			End if 
 		End if 
 		
@@ -414,6 +412,21 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	Else 
 		This:C1470._throwError(5; New object:C1471("received"; $status; "expected"; 200))
+		
+		var $error : Object
+		
+		$error:=JSON Parse:C1218($response)
+		If ($error#Null:C1517)
+			var $errorCode : Integer
+			var $errorDescription : Text
+			
+			If (Num:C11($error.error_codes.length)>0)
+				$errorCode:=Num:C11($error.error_codes[0])
+			End if 
+			$errorDescription:=String:C10($error.error_description)
+			
+			This:C1470._pushInErrorStack($errorCode; $errorDescription)
+		End if 
 		
 	End if 
 	

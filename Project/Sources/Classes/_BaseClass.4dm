@@ -12,7 +12,6 @@ Class constructor()
 Function _pushError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack without throwing it
-	var $error : Object
 	var $description : Text
 	
 	$description:=Get localized string:C991("ERR_4DNK_"+String:C10($inCode))
@@ -24,7 +23,19 @@ Function _pushError($inCode : Integer; $inParameters : Object)
 		End for each 
 	End if 
 	
-	$error:=New object:C1471("errCode"; $inCode; "componentSignature"; "4DNK"; "message"; $description)
+	This:C1470._pushInErrorStack($inCode; $description)
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
+Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
+	
+	// Push error into errorStack without throwing it
+	var $error : Object
+	
+	$error:=New object:C1471("errCode"; $inErrorCode; "componentSignature"; "4DNK"; "message"; $inErrorDescription)
 	If (This:C1470._internals._errorStack=Null:C1517)
 		This:C1470._internals._errorStack:=New collection:C1472
 	End if 
