@@ -14,7 +14,7 @@
 			"_OAuth2Token",
 			"_UserInformationList",
 			"OAuth2Provider",
-			"Office365Provider"
+			"Office365"
 		]
 	},
 	"Project Methods": {
