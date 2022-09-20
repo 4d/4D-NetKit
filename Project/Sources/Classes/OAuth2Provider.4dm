@@ -406,7 +406,18 @@ Function _sendTokenRequest($params : Text)->$result : Object
 			$result._loadFromResponse($response)
 			
 		Else 
-			This:C1470._throwError(4)
+			
+			var $licenseAvailable : Boolean
+			If (Application type:C494=4D Remote mode:K5:5)
+				$licenseAvailable:=Is license available:C714(4D Client Web license:K44:6)
+			Else 
+				$licenseAvailable:=(Is license available:C714(4D Web license:K44:3) | Is license available:C714(4D Web local license:K44:14) | Is license available:C714(4D Web one connection license:K44:15))
+			End if 
+			If ($licenseAvailable)
+				This:C1470._throwError(4)  // Timeout error
+			Else 
+				This:C1470._throwError(11)  // License error
+			End if 
 			
 		End if 
 		

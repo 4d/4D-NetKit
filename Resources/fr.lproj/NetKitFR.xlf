@@ -30,8 +30,8 @@
           <target>Valeur non supportée dans l'attribut "{attribute}".</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_4">
-          <source>'GetToken' request returned an empty response.</source>
-          <target>La requête 'GetToken' a retourné une réponse vide.</target>
+          <source>The authorization code was not received within the time limit (timeout error).</source>
+          <target>Le code d'autorisation n'as pas été reçu dans le temps imparti (erreur de timeout).</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_5">
           <source>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</source>
@@ -56,6 +56,10 @@
         <trans-unit resname="ERR_4DNK_10">
           <source>Unsupported parameter type {which} in function {function}.</source>
           <target>Le type du paramètre {which} dans la fonction {function} n'est pas supporté.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_11">
+          <source>You have reached the limit of the number of requests per minute that 4D can serve without a license.</source>
+          <target>Vous avez atteint la limite du nombre de requêtes par minute que 4D peut servir sans licence.</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
