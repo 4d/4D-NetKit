@@ -136,3 +136,31 @@ Function _returnStatus()->$status : Object
 		$status.statusText:=Super:C1706._getStatusLine()
 	End if 
 	
+	
+	// ----------------------------------------------------
+	
+Function getFolderList($includeHiddenFolders : Boolean) : Object
+	
+	If (Not:C34(_4D With feature:C1524("WITH_MAIL_FOLDER_LIST")))
+		return Null:C1517
+	End if 
+	
+	var $result : Object
+	var $urlParams; $URL; $userPrincipalNameOrId : Text
+	
+	$userPrincipalNameOrId:=This:C1470.userId
+	If (Length:C16(String:C10($userPrincipalNameOrId))>0)
+		$urlParams:="users/"+$userPrincipalNameOrId
+	Else 
+		$urlParams:="me"
+	End if 
+	$urlParams+="/mailFolders"
+	If ($includeHiddenFolders)
+		$urlParams+="/?includeHiddenFolders=true"
+	End if 
+	
+	$URL:=Super:C1706._getURL()+$urlParams
+	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	
+	return $result
+	
