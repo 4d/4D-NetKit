@@ -163,7 +163,7 @@ Function getFolderList($includeHiddenFolders : Boolean) : Object
 	// ----------------------------------------------------
 	
 	
-Function delete($mailId : Integer; $folderId : Integer) : Object
+Function delete($mailId : Text; $folderId : Text) : Object
 	
 	var $urlParams; $URL : Text
 	
@@ -172,10 +172,10 @@ Function delete($mailId : Integer; $folderId : Integer) : Object
 	Else 
 		$urlParams:="me"
 	End if 
-	If ($folderId>0)
-		$urlParams+="/mailFolder/"+String:C10($folderId)
+	If (Length:C16($folderId)>0)
+		$urlParams+="/mailFolder/"+$folderId
 	End if 
-	$urlParams+="/messages/"+String:C10($mailId)
+	$urlParams+="/messages/"+$mailId
 	
 	$URL:=Super:C1706._getURL()+$urlParams
 	Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
