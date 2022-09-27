@@ -22,11 +22,10 @@ Function send($inMail : Variant) : Object
 	Super:C1706._throwErrors(False:C215)
 	Super:C1706._getErrorStack().clear()
 	
-	var $urlParams; $URL; $userPrincipalNameOrId : Text
+	var $urlParams; $URL : Text
 	
-	$userPrincipalNameOrId:=This:C1470.userId
-	If (Length:C16(String:C10($userPrincipalNameOrId))>0)
-		$urlParams:="users/"+$userPrincipalNameOrId+"/sendMail"
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$urlParams:="users/"+This:C1470.userId+"/sendMail"
 	Else 
 		$urlParams:="me/sendMail"
 	End if 
@@ -139,18 +138,14 @@ Function _returnStatus()->$status : Object
 	
 	// ----------------------------------------------------
 	
+	
 Function getFolderList($includeHiddenFolders : Boolean) : Object
 	
-	If (Not:C34(_4D With feature:C1524("WITH_MAIL_FOLDER_LIST")))
-		return Null:C1517
-	End if 
-	
 	var $result : Object
-	var $urlParams; $URL; $userPrincipalNameOrId : Text
+	var $urlParams; $URL : Text
 	
-	$userPrincipalNameOrId:=This:C1470.userId
-	If (Length:C16(String:C10($userPrincipalNameOrId))>0)
-		$urlParams:="users/"+$userPrincipalNameOrId
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$urlParams:="users/"+This:C1470.userId
 	Else 
 		$urlParams:="me"
 	End if 
@@ -163,4 +158,27 @@ Function getFolderList($includeHiddenFolders : Boolean) : Object
 	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
 	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function delete($mailId : Integer; $folderId : Integer) : Object
+	
+	var $urlParams; $URL : Text
+	
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$urlParams:="users/"+This:C1470.userId
+	Else 
+		$urlParams:="me"
+	End if 
+	If ($folderId>0)
+		$urlParams+="/mailFolder/"+String:C10($folderId)
+	End if 
+	$urlParams+="/messages/"+String:C10($mailId)
+	
+	$URL:=Super:C1706._getURL()+$urlParams
+	Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
+	
+	return This:C1470._returnStatus()
 	
