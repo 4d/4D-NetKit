@@ -69,11 +69,11 @@
           <source>You may now close this window</source>
           <target>このウィンドウを閉じてもかまいません</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Next_Page">
+        <trans-unit resname="List_No_Next_Page">
           <source>No next page.</source>
           <target>次のページはありません。</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Previous_Page">
+        <trans-unit resname="List_No_Previous_Page">
           <source>No previous page.</source>
           <target>前のページはありません。</target>
         </trans-unit>

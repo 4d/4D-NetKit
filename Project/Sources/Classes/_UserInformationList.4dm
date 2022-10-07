@@ -29,7 +29,7 @@ Function next() : Boolean
 		End if 
 		return $bIsOK
 	Else 
-		This:C1470.statusText:=Get localized string:C991("User_List_No_Next_Page")
+		This:C1470.statusText:=Get localized string:C991("List_No_Next_Page")
 		return False:C215
 	End if 
 	
@@ -54,7 +54,7 @@ Function previous() : Boolean
 			return $bIsOK
 		End if 
 	Else 
-		This:C1470.statusText:=Get localized string:C991("User_List_No_Previous_Page")
+		This:C1470.statusText:=Get localized string:C991("List_No_Previous_Page")
 		return False:C215
 	End if 
 	

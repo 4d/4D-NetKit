@@ -77,11 +77,11 @@
           <source>You may now close this window</source>
           <target>You may now close this window</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Next_Page">
+        <trans-unit resname="List_No_Next_Page">
           <source>No next page.</source>
           <target>No next page.</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Previous_Page">
+        <trans-unit resname="List_No_Previous_Page">
           <source>No previous page.</source>
           <target>No previous page.</target>
         </trans-unit>

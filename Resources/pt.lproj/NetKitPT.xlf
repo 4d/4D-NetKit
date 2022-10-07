@@ -70,11 +70,11 @@
           <source>You may now close this window</source>
           <target>Agora você pode fechar esta janela</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Next_Page">
+        <trans-unit resname="List_No_Next_Page">
           <source>No next page.</source>
           <target>Não é próxima página.</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Previous_Page">
+        <trans-unit resname="List_No_Previous_Page">
           <source>No previous page.</source>
           <target>Nenhuma página anterior.</target>
         </trans-unit>

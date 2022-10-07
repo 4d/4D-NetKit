@@ -77,11 +77,11 @@
           <source>You may now close this window</source>
           <target>Vous pouvez maintenant fermer la fenêtre</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Next_Page">
+        <trans-unit resname="List_No_Next_Page">
           <source>No next page.</source>
           <target>Pas de page suivante.</target>
         </trans-unit>
-        <trans-unit resname="User_List_No_Previous_Page">
+        <trans-unit resname="List_No_Previous_Page">
           <source>No previous page.</source>
           <target>Pas de page précédente.</target>
         </trans-unit>
