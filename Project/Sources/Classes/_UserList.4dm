@@ -8,7 +8,7 @@ Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inURL : Text; $i
 	// ----------------------------------------------------
 	
 	
-Function get mails() : Collection
+Function get users() : Collection
 	
 	return This:C1470._internals.list
 	

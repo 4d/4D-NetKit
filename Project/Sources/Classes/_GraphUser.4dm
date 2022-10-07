@@ -94,5 +94,6 @@ see: https://devblogs.microsoft.com/microsoft365dev/microsoft-graph-advanced-que
 	
 	$URL:=This:C1470._getURL()+$urlParams
 	
-	return cs:C1710._UserInformationList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710._UserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	
 	

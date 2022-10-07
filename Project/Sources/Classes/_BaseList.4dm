@@ -10,7 +10,7 @@ Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inURL : Text; $i
 	This:C1470.page:=1
 	This:C1470.isLastPage:=False:C215
 	
-	This:C1470._getUserList($inURL)
+	This:C1470._getList($inURL)
 	
 	
 	// ----------------------------------------------------
@@ -22,7 +22,7 @@ Function next() : Boolean
 	$URL:=String:C10(This:C1470._internals.nextLink)
 	If (Length:C16($URL)>0)
 		var $bIsOK : Boolean
-		$bIsOK:=This:C1470._getUserList($URL)
+		$bIsOK:=This:C1470._getList($URL)
 		If ($bIsOK)
 			This:C1470._internals.history.push($URL)
 			This:C1470.page+=1
@@ -46,7 +46,7 @@ Function previous() : Boolean
 		$URL:=String:C10(This:C1470._internals.history[$index-1])
 		If (Length:C16($URL)>0)
 			var $bIsOK : Boolean
-			$bIsOK:=This:C1470._getUserList($URL)
+			$bIsOK:=This:C1470._getList($URL)
 			If ($bIsOK)
 				This:C1470.page-=1
 				This:C1470._internals.history.resize(This:C1470.page)
@@ -63,7 +63,7 @@ Function previous() : Boolean
 	
 	
 	// [Private]
-Function _getUserList($inURL : Text) : Boolean
+Function _getList($inURL : Text) : Boolean
 	
 	var $response : Object
 	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL; This:C1470._internals.headers)
@@ -77,9 +77,9 @@ Function _getUserList($inURL : Text) : Boolean
 		var $result : Collection
 		var $object : Object
 		$result:=$response["value"]
-		This:C1470.users:=New collection:C1472
+		This:C1470._internals.list:=New collection:C1472
 		For each ($object; $result)
-			This:C1470.users.push(Super:C1706._cleanResponseObject($object))
+			This:C1470._internals.list.push(Super:C1706._cleanResponseObject($object))
 		End for each 
 		This:C1470.success:=True:C214
 		This:C1470._internals.nextLink:=String:C10($response["@odata.nextLink"])
