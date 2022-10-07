@@ -141,7 +141,7 @@ Function _returnStatus()->$status : Object
 	
 Function getFolderList($includeHiddenFolders : Boolean) : Object
 	
-	var $result : Object
+	var $response : Object
 	var $urlParams; $URL : Text
 	
 	If (Length:C16(String:C10(This:C1470.userId))>0)
@@ -155,9 +155,9 @@ Function getFolderList($includeHiddenFolders : Boolean) : Object
 	End if 
 	
 	$URL:=Super:C1706._getURL()+$urlParams
-	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
-	return $result
+	return $response["value"]
 	
 	
 	// ----------------------------------------------------
