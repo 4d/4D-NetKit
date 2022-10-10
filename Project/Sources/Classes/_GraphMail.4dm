@@ -139,7 +139,7 @@ Function _returnStatus()->$status : Object
 	// ----------------------------------------------------
 	
 	
-Function getFolderList($includeHiddenFolders : Boolean) : Object
+Function getFolderList($includeHiddenFolders : Boolean) : Collection
 	
 	var $response : Object
 	var $urlParams; $URL : Text
@@ -157,7 +157,10 @@ Function getFolderList($includeHiddenFolders : Boolean) : Object
 	$URL:=Super:C1706._getURL()+$urlParams
 	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
-	return $response["value"]
+	If ($response#Null:C1517)
+		return $response["value"]
+	End if 
+	return Null:C1517
 	
 	
 	// ----------------------------------------------------
@@ -175,7 +178,7 @@ Function getMails($inParameters : Object) : Object
 		$urlParams:="me"
 	End if 
 	If (Length:C16(String:C10($inParameters.folderId))>0)
-		$urlParams+="mailFolders/"+$inParameters.folderId
+		$urlParams+="/mailFolders/"+$inParameters.folderId
 	End if 
 	$urlParams+="/messages"
 	
