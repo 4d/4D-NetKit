@@ -61,7 +61,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	$savedMethod:=Method called on error:C704
 	ON ERR CALL:C155("_ErrorHandler")
 	$request:=4D:C1709.HTTPRequest.new($inURL; $options)
-	$request.wait(30)
+	$request.wait()
 	ON ERR CALL:C155($savedMethod)
 	
 	var $status : Integer
