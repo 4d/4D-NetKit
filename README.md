@@ -188,7 +188,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 
 | Property | Type | Description |
 |---|---|---|
-| attachment |[attachment](#attachment-object) collection | The attachments for the email. | 
+| attachments |[attachment](#attachment-object) collection | The attachments for the email. | 
 | bccRecipients |[recipient](#recipient-object) collection | The Bcc: recipients for the message. | 
 | body |itemBody object| The body of the message. It can be in HTML or text format.| 
 | ccRecipients |[recipient](#recipient-object) collection | The Cc: recipients for the message. |  
