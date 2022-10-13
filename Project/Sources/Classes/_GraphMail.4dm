@@ -213,7 +213,7 @@ Function getMails($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function delete($mailId : Text; $folderId : Text) : Object
+Function delete($mailId : Text) : Object
 	
 	var $urlParams; $URL : Text
 	
@@ -221,9 +221,6 @@ Function delete($mailId : Text; $folderId : Text) : Object
 		$urlParams:="users/"+This:C1470.userId
 	Else 
 		$urlParams:="me"
-	End if 
-	If (Length:C16($folderId)>0)
-		$urlParams+="/mailFolder/"+$folderId
 	End if 
 	$urlParams+="/messages/"+$mailId
 	
