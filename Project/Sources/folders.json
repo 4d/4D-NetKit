@@ -8,13 +8,14 @@
 	"Classes": {
 		"classes": [
 			"_BaseClass",
-			"_BaseList",
 			"_GraphAPI",
+			"_GraphBaseList",
+			"_GraphFileAttachment",
 			"_GraphMail",
+			"_GraphMailList",
 			"_GraphUser",
-			"_MailList",
+			"_GraphUserList",
 			"_OAuth2Token",
-			"_UserList",
 			"OAuth2Provider",
 			"Office365"
 		]

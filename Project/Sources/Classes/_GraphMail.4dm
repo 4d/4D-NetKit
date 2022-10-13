@@ -1,8 +1,8 @@
 Class extends _GraphAPI
 
-Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
-	Super:C1705($inOAuth2Provider; "https://graph.microsoft.com/v1.0/")
+	Super:C1705($inProvider)
 	
 	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "Microsoft"
 	This:C1470.userId:=(Length:C16(String:C10($inParameters.userId))>0) ? String:C10($inParameters.userId) : ""
@@ -210,7 +210,7 @@ Function getMails($inParameters : Object) : Object
 	
 	$URL:=Super:C1706._getURL()+$urlParams
 	
-	return cs:C1710._MailList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710._GraphMailList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------

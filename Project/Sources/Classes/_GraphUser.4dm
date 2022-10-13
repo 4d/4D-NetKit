@@ -1,8 +1,8 @@
 Class extends _GraphAPI
 
-Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider)
+Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
-	Super:C1705($inOAuth2Provider; "https://graph.microsoft.com/v1.0/")
+	Super:C1705($inProvider)
 	
 	
 	// ----------------------------------------------------
@@ -94,6 +94,6 @@ see: https://devblogs.microsoft.com/microsoft365dev/microsoft-graph-advanced-que
 	
 	$URL:=This:C1470._getURL()+$urlParams
 	
-	return cs:C1710._UserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710._GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	

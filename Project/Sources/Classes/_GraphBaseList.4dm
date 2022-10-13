@@ -1,8 +1,8 @@
 Class extends _GraphAPI
 
-Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
-	Super:C1705($inOAuth2Provider; $inURL)
+	Super:C1705($inProvider)
 	
 	This:C1470._internals.headers:=$inHeaders
 	This:C1470._internals.history:=New collection:C1472

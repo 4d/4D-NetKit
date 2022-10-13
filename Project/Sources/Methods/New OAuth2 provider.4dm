@@ -1,4 +1,4 @@
 //%attributes = {"invisible":true,"shared":true}
-#DECLARE($inParameters : Object)->$provider : Object
+#DECLARE($inParameters : Object) : Object
 
-$provider:=cs:C1710.OAuth2Provider.new($inParameters)
+return cs:C1710.OAuth2Provider.new($inParameters)

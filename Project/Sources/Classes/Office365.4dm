@@ -1,7 +1,7 @@
-Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 	This:C1470._internals:=New object:C1471
-	This:C1470._internals._OAuth2Provider:=$inOAuth2Provider
+	This:C1470._internals._OAuth2Provider:=$inProvider
 	This:C1470._internals._user:=Null:C1517
 	This:C1470._internals._mail:=Null:C1517
 	This:C1470._internals._parameters:=$inParameters

@@ -1,12 +1,12 @@
 Class extends _BaseClass
 
-Class constructor($inOAuth2Provider : cs:C1710.OAuth2Provider; $inURL : Text)
+Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
 	Super:C1705()
 	
 	// [Private]
-	This:C1470._internals._URL:=$inURL
-	This:C1470._internals._OAuth2Provider:=$inOAuth2Provider
+	This:C1470._internals._URL:="https://graph.microsoft.com/v1.0/"
+	This:C1470._internals._OAuth2Provider:=$inProvider
 	This:C1470._internals._statusLine:=""
 	
 	
