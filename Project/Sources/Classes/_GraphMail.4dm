@@ -139,7 +139,7 @@ Function _returnStatus()->$status : Object
 	// ----------------------------------------------------
 	
 	
-Function getFolderList($includeHiddenFolders : Boolean) : Collection
+Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean) : Collection
 	
 	var $response : Object
 	var $urlParams; $URL : Text
@@ -150,6 +150,9 @@ Function getFolderList($includeHiddenFolders : Boolean) : Collection
 		$urlParams:="me"
 	End if 
 	$urlParams+="/mailFolders"
+	If (Length:C16($inParentFolderId)>0)
+		$urlParams+="/mailFolders/"+$inParentFolderId+"/childFolders"
+	End if 
 	If ($includeHiddenFolders)
 		$urlParams+="/?includeHiddenFolders=true"
 	End if 
