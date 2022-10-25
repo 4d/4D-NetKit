@@ -151,7 +151,7 @@ Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean
 	End if 
 	$urlParams+="/mailFolders"
 	If (Length:C16($inParentFolderId)>0)
-		$urlParams+="/mailFolders/"+$inParentFolderId+"/childFolders"
+		$urlParams+="/"+$inParentFolderId+"/childFolders"
 	End if 
 	If ($includeHiddenFolders)
 		$urlParams+="/?includeHiddenFolders=true"
