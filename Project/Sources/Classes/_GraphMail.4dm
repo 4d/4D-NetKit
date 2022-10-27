@@ -210,7 +210,7 @@ Function getMails($inParameters : Object) : Object
 	
 	$URL:=Super:C1706._getURL()+$urlParams
 	
-	return cs:C1710._GraphMailList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710._GraphMailList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------

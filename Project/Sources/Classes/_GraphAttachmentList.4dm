@@ -4,27 +4,27 @@ Class constructor($inMail : cs:C1710._GraphMail; $inProvider : cs:C1710.OAuth2Pr
 	
 	Super:C1705($inProvider; $inURL; $inHeaders)
 	This:C1470._internals._mail:=$inMail
-	This:C1470._internals._mails:=Null:C1517
+	This:C1470._internals._attachments:=Null:C1517
 	
 	// ----------------------------------------------------
 	
 	
-Function get mails() : Collection
+Function get attachments() : Collection
 	
-	If (This:C1470._internals._mails=Null:C1517)
+	If (This:C1470._internals._attachments=Null:C1517)
 		var $object : Object
 		var $mail : cs:C1710._GraphMail
 		var $provider : cs:C1710.OAuth2Provider
 		
 		$provider:=This:C1470._internals._OAuth2Provider
 		
-		This:C1470._internals._mails:=New collection:C1472
+		This:C1470._internals._attachments:=New collection:C1472
 		For each ($object; This:C1470._internals.list)
-			$mail:=cs:C1710._GraphMessage.new($provider; New object:C1471("userId"; This:C1470._internals._mail.userId))
+			$mail:=cs:C1710._GraphAttachment.new($provider; New object:C1471("userId"; This:C1470._internals._mail.userId))
 			$mail._loadFromObject($object)
-			This:C1470._internals._mails.push($mail)
+			This:C1470._internals._attachments.push($mail)
 		End for each 
 	End if 
 	
-	return This:C1470._internals._mails
+	return This:C1470._internals._attachments
 	

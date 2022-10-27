@@ -7,6 +7,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeade
 	This:C1470._internals.headers:=$inHeaders
 	This:C1470._internals.history:=New collection:C1472
 	This:C1470._internals.history.push($inURL)
+	This:C1470._internals.list:=Null:C1517
 	This:C1470.page:=1
 	This:C1470.isLastPage:=False:C215
 	

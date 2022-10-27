@@ -9,10 +9,12 @@
 		"classes": [
 			"_BaseClass",
 			"_GraphAPI",
+			"_GraphAttachment",
+			"_GraphAttachmentList",
 			"_GraphBaseList",
-			"_GraphFileAttachment",
 			"_GraphMail",
 			"_GraphMailList",
+			"_GraphMessage",
 			"_GraphUser",
 			"_GraphUserList",
 			"_OAuth2Token",
