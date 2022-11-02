@@ -12,10 +12,10 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-Function get attachments() : Object
+Function get attachments() : Collection
 	
 	
-	If (This:C1470._attachments=Null:C1517)
+	If (This:C1470._internals._attachments=Null:C1517)
 		If (Bool:C1537(This:C1470.hasAttachments))
 			var $urlParams; $URL : Text
 			
@@ -27,10 +27,23 @@ Function get attachments() : Object
 			$urlParams+="/messages/"+String:C10(This:C1470.id)+"/attachments/"
 			
 			$URL:=Super:C1706._getURL()+$urlParams
-			This:C1470._attachments:=cs:C1710._GraphAttachmentList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL)
+			var $response; $iter : Object
+			$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+			
+			This:C1470._internals._attachments:=New collection:C1472
+			If ($response#Null:C1517)
+				var $attachments : Collection
+				$attachments:=$response["value"]
+				For each ($iter; $attachments)
+					var $attachment : Object
+					$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); New object:C1471("userId"; This:C1470._internals._mail.userId))
+					$attachment._loadFromObject($iter)
+					This:C1470._internals._attachments.push($attachment)
+				End for each 
+			End if 
 			
 		End if 
 	End if 
 	
-	return This:C1470._attachments
+	return This:C1470._internals._attachments
 	
