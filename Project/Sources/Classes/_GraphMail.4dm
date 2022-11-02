@@ -163,7 +163,8 @@ Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean
 	If ($response#Null:C1517)
 		return $response["value"]
 	End if 
-	return Null:C1517
+	
+	return New collection:C1472
 	
 	
 	// ----------------------------------------------------
