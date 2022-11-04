@@ -139,10 +139,11 @@ Function _returnStatus()->$status : Object
 	// ----------------------------------------------------
 	
 	
-Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean) : Collection
+Function getFolderList($inParameters : Object) : Collection
 	
 	var $response : Object
-	var $urlParams; $URL : Text
+	var $urlParams; $URL; $delimiter : Text
+	var $headers : Object
 	
 	If (Length:C16(String:C10(This:C1470.userId))>0)
 		$urlParams:="users/"+This:C1470.userId
@@ -150,11 +151,36 @@ Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean
 		$urlParams:="me"
 	End if 
 	$urlParams+="/mailFolders"
-	If (Length:C16($inParentFolderId)>0)
-		$urlParams+="/"+$inParentFolderId+"/childFolders"
+	If (Length:C16($inParameters.parentFolderId)>0)
+		$urlParams+="/"+$inParameters.parentFolderId+"/childFolders"
 	End if 
-	If ($includeHiddenFolders)
-		$urlParams+="/?includeHiddenFolders=true"
+	
+	$delimiter:="?"
+	If (Bool:C1537($inParameters.includeHiddenFolders))
+		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.search))>0)
+		$urlParams+=$delimiter+"$search="+$inParameters.search
+		$delimiter:="&"
+		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+	End if 
+	If (Length:C16(String:C10($inParameters.filter))>0)
+		$urlParams+=$delimiter+"$filter="+$inParameters.filter
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.select))>0)
+		$urlParams+=$delimiter+"$select="+$inParameters.select
+		$delimiter:="&"
+	End if 
+	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
+		$urlParams+=$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
+			$inParameters.top; String:C10($inParameters.top))
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.orderBy))>0)
+		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
 	End if 
 	
 	$URL:=Super:C1706._getURL()+$urlParams
@@ -165,6 +191,8 @@ Function getFolderList($inParentFolderId : Text; $includeHiddenFolders : Boolean
 	End if 
 	
 	return New collection:C1472
+	// TODO: Use a paginate list object (_GraphFolderList) and use an Object as returned value
+	//return cs._GraphFolderList.new(This._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------

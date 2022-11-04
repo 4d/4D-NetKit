@@ -24,7 +24,7 @@ Function get attachments() : Collection
 			Else 
 				$urlParams:="me"
 			End if 
-			$urlParams+="/messages/"+String:C10(This:C1470.id)+"/attachments/"
+			$urlParams+="/messages/"+String:C10(This:C1470.id)+"/attachments/?$top=999"
 			
 			$URL:=Super:C1706._getURL()+$urlParams
 			var $response; $iter : Object

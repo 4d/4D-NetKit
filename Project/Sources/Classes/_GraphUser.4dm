@@ -69,9 +69,6 @@ Function list($inParameters : Object) : Object
 	If (Length:C16(String:C10($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
 		$delimiter:="&"
-/*
-see: https://devblogs.microsoft.com/microsoft365dev/microsoft-graph-advanced-queries-for-directory-objects-are-now-generally-available/
-*/
 		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
 	End if 
 	If (Length:C16(String:C10($inParameters.filter))>0)
