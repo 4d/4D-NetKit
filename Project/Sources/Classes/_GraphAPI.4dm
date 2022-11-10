@@ -152,18 +152,38 @@ Function _cleanResponseObject($ioObject : Object) : Object
 	
 	
 	// [Private]
-Function _loadFromObject($inObject : Object)
+Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
-		
-		var $key : Text
-		var $keys : Collection
-		
-		$keys:=OB Keys:C1719($inObject)
-		
-		For each ($key; $keys)
-			This:C1470[$key]:=$inObject[$key]
-		End for each 
-		
+	var $urlParams; $delimiter : Text
+	
+	$urlParams:=""
+	$delimiter:="?"
+	If (Bool:C1537($inParameters.includeHiddenFolders))
+		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
+		$delimiter:="&"
 	End if 
+	If (Length:C16(String:C10($inParameters.search))>0)
+		$urlParams+=$delimiter+"$search="+$inParameters.search
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.filter))>0)
+		$urlParams+=$delimiter+"$filter="+$inParameters.filter
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.select))>0)
+		$urlParams+=$delimiter+"$select="+$inParameters.select
+		$delimiter:="&"
+	End if 
+	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
+		$urlParams+=$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
+			$inParameters.top; String:C10($inParameters.top))
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.orderBy))>0)
+		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
+	End if 
+	
+	return $urlParams
+	
 	

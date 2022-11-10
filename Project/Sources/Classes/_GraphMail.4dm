@@ -142,48 +142,26 @@ Function _returnStatus()->$status : Object
 Function getFolderList($inParameters : Object) : Collection
 	
 	var $response : Object
-	var $urlParams; $URL; $delimiter : Text
+	var $urlParams; $URL : Text
 	var $headers : Object
 	
+	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
+		$URL+="users/"+This:C1470.userId
 	Else 
-		$urlParams:="me"
+		$URL+="me"
 	End if 
-	$urlParams+="/mailFolders"
+	$URL+="/mailFolders"
 	If (Length:C16(String:C10($inParameters.folderId))>0)
-		$urlParams+="/"+$inParameters.folderId+"/childFolders"
+		$URL+="/"+$inParameters.folderId+"/childFolders"
 	End if 
 	
-	$delimiter:="?"
-	If (Bool:C1537($inParameters.includeHiddenFolders))
-		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
-		$delimiter:="&"
-	End if 
 	If (Length:C16(String:C10($inParameters.search))>0)
-		$urlParams+=$delimiter+"$search="+$inParameters.search
-		$delimiter:="&"
 		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
 	End if 
-	If (Length:C16(String:C10($inParameters.filter))>0)
-		$urlParams+=$delimiter+"$filter="+$inParameters.filter
-		$delimiter:="&"
-	End if 
-	If (Length:C16(String:C10($inParameters.select))>0)
-		$urlParams+=$delimiter+"$select="+$inParameters.select
-		$delimiter:="&"
-	End if 
-	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
-		$urlParams+=$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
-			$inParameters.top; String:C10($inParameters.top))
-		$delimiter:="&"
-	End if 
-	If (Length:C16(String:C10($inParameters.orderBy))>0)
-		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
-		$delimiter:="&"
-	End if 
 	
-	$URL:=Super:C1706._getURL()+$urlParams
+	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
+	$URL+=$urlParams
 	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
 	If ($response#Null:C1517)
@@ -200,44 +178,26 @@ Function getFolderList($inParameters : Object) : Collection
 	
 Function getMails($inParameters : Object) : Object
 	
-	var $urlParams; $URL; $delimiter : Text
+	var $urlParams; $URL : Text
 	var $headers : Object
 	
-	$delimiter:="?"
+	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
+		$URL+="users/"+This:C1470.userId
 	Else 
-		$urlParams:="me"
+		$URL+="me"
 	End if 
 	If (Length:C16(String:C10($inParameters.folderId))>0)
-		$urlParams+="/mailFolders/"+$inParameters.folderId
+		$URL+="/mailFolders/"+$inParameters.folderId
 	End if 
-	$urlParams+="/messages"
+	$URL+="/messages"
 	
 	If (Length:C16(String:C10($inParameters.search))>0)
-		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
-		$delimiter:="&"
 		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
 	End if 
-	If (Length:C16(String:C10($inParameters.filter))>0)
-		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
-		$delimiter:="&"
-	End if 
-	If (Length:C16(String:C10($inParameters.select))>0)
-		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
-		$delimiter:="&"
-	End if 
-	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
-		$urlParams:=$urlParams+$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
-			$inParameters.top; String:C10($inParameters.top))
-		$delimiter:="&"
-	End if 
-	If (Length:C16(String:C10($inParameters.orderBy))>0)
-		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
-		$delimiter:="&"
-	End if 
 	
-	$URL:=Super:C1706._getURL()+$urlParams
+	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
+	$URL+=$urlParams
 	
 	return cs:C1710._GraphMailList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
 	
