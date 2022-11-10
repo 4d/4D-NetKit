@@ -151,8 +151,8 @@ Function getFolderList($inParameters : Object) : Collection
 		$urlParams:="me"
 	End if 
 	$urlParams+="/mailFolders"
-	If (Length:C16($inParameters.parentFolderId)>0)
-		$urlParams+="/"+$inParameters.parentFolderId+"/childFolders"
+	If (Length:C16(String:C10($inParameters.folderId))>0)
+		$urlParams+="/"+$inParameters.folderId+"/childFolders"
 	End if 
 	
 	$delimiter:="?"
