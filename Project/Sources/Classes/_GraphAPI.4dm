@@ -152,6 +152,26 @@ Function _cleanResponseObject($ioObject : Object) : Object
 	
 	
 	// [Private]
+Function _loadFromObject($inObject : Object)
+	
+	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
+		
+		var $key : Text
+		var $keys : Collection
+		
+		$keys:=OB Keys:C1719($inObject)
+		
+		For each ($key; $keys)
+			This:C1470[$key]:=$inObject[$key]
+		End for each 
+		
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $urlParams; $delimiter : Text
