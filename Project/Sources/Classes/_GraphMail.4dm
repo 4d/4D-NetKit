@@ -139,7 +139,7 @@ Function _returnStatus()->$status : Object
 	// ----------------------------------------------------
 	
 	
-Function getFolderList($inParameters : Object) : Collection
+Function getFolderList($inParameters : Object) : Object
 	
 	var $response : Object
 	var $urlParams; $URL : Text
@@ -162,15 +162,8 @@ Function getFolderList($inParameters : Object) : Collection
 	
 	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
 	$URL+=$urlParams
-	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
-	If ($response#Null:C1517)
-		return $response["value"]
-	End if 
-	
-	return New collection:C1472
-	// TODO: Use a paginate list object (_GraphFolderList) and use an Object as returned value
-	//return cs._GraphFolderList.new(This._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710._GraphFolderList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------
