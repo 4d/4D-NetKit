@@ -1,19 +1,19 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object; $inObject : Object)
 	
 	Super:C1705($inProvider)
 	
-	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "Microsoft"
-	This:C1470.userId:=(Length:C16(String:C10($inParameters.userId))>0) ? String:C10($inParameters.userId) : ""
+	This:C1470._internals._mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? $inParameters.mailType : "Microsoft"
+	This:C1470._internals._userId:=String:C10($inParameters.userId)
 	This:C1470._internals._attachments:=Null:C1517
+	Super:C1706._loadFromObject($inObject)
 	
 	
 	// ----------------------------------------------------
 	
 	
 Function get attachments() : Collection
-	
 	
 	If (This:C1470._internals._attachments=Null:C1517)
 /*
@@ -25,8 +25,8 @@ See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-re
 */
 		var $urlParams; $URL : Text
 		
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$urlParams:="users/"+This:C1470.userId
+		If (Length:C16(String:C10(This:C1470._internals._userId))>0)
+			$urlParams:="users/"+This:C1470._internals._userId
 		Else 
 			$urlParams:="me"
 		End if 
@@ -42,8 +42,9 @@ See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-re
 			$attachments:=$response["value"]
 			For each ($iter; $attachments)
 				var $attachment : Object
-				$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); New object:C1471("userId"; String:C10(This:C1470.userId)))
-				$attachment._loadFromObject($iter)
+				$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); \
+					New object:C1471("userId"; String:C10(This:C1470._internals._userId); "messageId"; String:C10(This:C1470.id)); \
+					$iter)
 				This:C1470._internals._attachments.push($attachment)
 			End for each 
 		End if 
