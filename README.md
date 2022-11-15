@@ -1,13 +1,14 @@
 # 4D NetKit
 
 ## Overview
+
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
 ## Table of contents
 
 * [OAuth2Provider class](#oauth2provider)
 * [Office365 class](#office365)
-    * [Sending emails](#handling-emails)
+    * [Handling emails](#handling-emails)
     * [Getting information on users](#getting-user-information)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
@@ -140,7 +141,40 @@ The returned `Office365` object has a `mail` property used to handle emails:
 
 ## Handling emails
 
-This section groups the tools that allow you to send emails using the Office365 class.
+This section groups the tools that allow you to handle emails using the Office365 class.
+
+### Office365.mail.getFolderList()
+
+**Office365.mail.getFolderList**( *options* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|options|Object|->| Description of folders to get|
+|Result|Object|<-| Status object that contains folder list and other information|
+
+`Office365.mail.getFolderList()` allows you to get a mail folder collection of the signed-in user. 
+
+In *options*, pass an object to define the folders to get. The available properties for that object are:
+
+| Property | Type | Description |
+|---|---|---|
+|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <li>If parent folder id, get the folder collection under the specified folder (children folders)</li> <li>If property omitted or "", get the mail folder collection directly under the root folder.</li>|
+|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
+|filter|text|Allows retrieving just a subset of foders. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
+|select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
+|top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
+|orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc". (replace "fieldname" with the name of the field to be arranged).|
+|includeHiddenFolders|boolean|True to include hidden folders in the response. False (default) to not return hidden folders. |
+
+
+
+
+
+
+#### Well-known folder names
+Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
+
 
 ### Office365.mail.send()
 
@@ -161,7 +195,7 @@ In `email`, pass the email to be sent. Possible types:
 * Text or Blob: the email is sent using the MIME format
 * Object: the email is sent using the JSON format, in accordance with either: 
     * the [Microsoft mail object properties](#microsoft-mail-object-properties)
-    * the [4D email object format](https://developer.4d.com/docs/en/API/EmailObjectClass.html#email-object), which follows the JMAP specification
+    * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
 
 The [`Office365.mail.type` property](#returned-object-1) must be compatible with the data type passed in `email`. In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties): 
 
@@ -320,6 +354,7 @@ The following methods allow you to retrieve information on Office365 users.
 #### Description
 
 `Office365.user.get()` returns information on the user whose ID matches the *id* parameter, or whose User Principal Name (UPN) matches the *userPrincipalName* parameter. 
+
 
 > The UPN is an Internet-style login name for the user based on the Internet standard RFC 822. By convention, it should correspond to the user's email name.
 
