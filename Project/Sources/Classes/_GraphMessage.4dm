@@ -36,7 +36,7 @@ Function get attachments() : Collection
 				$attachments:=$response["value"]
 				For each ($iter; $attachments)
 					var $attachment : Object
-					$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); New object:C1471("userId"; This:C1470._internals._mail.userId))
+					$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); New object:C1471("userId"; String:C10(This:C1470.userId)))
 					$attachment._loadFromObject($iter)
 					This:C1470._internals._attachments.push($attachment)
 				End for each 
