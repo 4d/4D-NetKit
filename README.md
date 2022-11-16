@@ -7,9 +7,18 @@
 ## Table of contents
 
 * [OAuth2Provider class](#oauth2provider)
+	- [New OAuth2 provider](#new-oauth2-provider)
+	- [OAuth2ProviderObject.getToken()](#oauth2providerobjectgettoken)
 * [Office365 class](#office365)
-    * [Handling emails](#handling-emails)
-    * [Getting information on users](#getting-user-information)
+	- [New Office365 provider](#new-office365-provider)
+	- [Office365.mail.delete()](#office365maildelete)
+	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
+	- [Office365.mail.getMails()](#office365mailgetmails)
+	- [Office365.mail.send()](#office365mailsend)
+	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+	- [Office365.user.get()](#office365userget)
+	- [Office365.user.getCurrent()](#office365usergetcurrent)
+	- [Office365.user.list()](#office365userlist)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
 
@@ -139,10 +148,6 @@ The returned `Office365` object has a `mail` property used to handle emails:
 |send()|Function|Sends an email|
 |type|Text|Mail type used to send emails (read-only)|
 |userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
-
-## Handling emails
-
-This section groups the tools that allow you to handle emails using the Office365 class.
 
 
 ### Office365.mail.delete()
@@ -448,9 +453,6 @@ $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
 
-## Getting user information
-
-The following methods allow you to retrieve information on Office365 users.
 
 ### Office365.user.get()
 
