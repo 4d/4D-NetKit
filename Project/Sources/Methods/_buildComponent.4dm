@@ -14,7 +14,7 @@ End if
 
 If ($error.success=False:C215)
 	ALERT:C41(JSON Stringify:C1217($error; *))
-	SET TEXT TO PASTEBOARD:C523(JSON Stringify:C1217($error; *))
+Else 
+	RESTART 4D:C1292
 End if 
 
-RESTART 4D:C1292
