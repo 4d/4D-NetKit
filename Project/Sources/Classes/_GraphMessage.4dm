@@ -30,7 +30,8 @@ See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-re
 		Else 
 			$urlParams:="me"
 		End if 
-		$urlParams+="/messages/"+String:C10(This:C1470.id)+"/attachments/?$top=999"
+		$urlParams+="/messages/"+String:C10(This:C1470.id)+\
+			"/attachments/?select=id,contentType,isInline,name,size,lastModifiedDateTime&$top=999"
 		
 		$URL:=Super:C1706._getURL()+$urlParams
 		var $response; $iter : Object

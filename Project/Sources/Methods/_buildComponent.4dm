@@ -1,4 +1,10 @@
 //%attributes = {}
+/*
+Used by Dev Only and with a sources hierarchy such as:
+- //repos/4D-NetKit/Project/Sources/ (source folder)
+- //repos/4edimension/4DComponents/User Components/4D NetKit/Project/Sources/ (target folder)
+*/
+
 var $error : Object
 $error:=Compile project:C1760
 
@@ -24,7 +30,6 @@ If ($error.success=True:C214)
 		End if 
 	End for each 
 	
-	
 	$folders:=$sourceFolder.folders()
 	For each ($folder; $folders)
 		$result:=$folder.copyTo($targetFolder; fk overwrite:K87:5)
@@ -37,4 +42,3 @@ If ($error.success=True:C214)
 End if 
 
 ALERT:C41(JSON Stringify:C1217($error; *))
-

@@ -4,10 +4,10 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParams : Object; $in
 	
 	Super:C1705($inProvider)
 	
-	This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
 	This:C1470._internals._userId:=String:C10($inParams.userId)
 	This:C1470._internals._messageId:=String:C10($inParams.messageId)
-	Super:C1706._loadFromObject($inObject)
+	Super:C1706._loadFromObject(Super:C1706._cleanResponseObject($inObject))
+	This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
 	
 	
 	// ----------------------------------------------------
