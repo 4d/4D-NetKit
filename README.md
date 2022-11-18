@@ -22,6 +22,9 @@
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
 
+**Warning:** Shared objects are not supported by the 4D NetKit API.
+
+
 ## OAuth2Provider
 
 The `OAuth2Provider` class allows you to request authentication tokens to third-party web services providers in order to use their APIs in your application. This is done in two steps:
@@ -176,8 +179,15 @@ The method returns a status object with the following properties:
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
 
+#### Example
 
+You want to delete all mails in the *$mails* collection:
 
+```4d
+For each($mail;$mails)
+	$office365.mail.delete($mail.id)
+End for each
+```
 
 ### Office365.mail.getFolderList()
 
@@ -236,6 +246,18 @@ The method returns an empty collection in the `folders` property if:
 - no folders are found at the defined location
 - an error is thrown
 
+#### Example
+
+You want to :
+
+```4d  
+//get the mail folder collection under the root folder
+$folders:=$office365.mail.getFolderList()
+
+//get the mail subfolder collection under the 9th folder
+$subfolders:=$office365.mail.getFolderList($folder[8].id)
+```
+
 
 ### Office365.mail.getMails()
 
@@ -275,12 +297,12 @@ The method returns a status object containing the following properties:
 ||[].message|Text|Description of the 4D error|
 ||[].componentSignature|Text|Signature of the internal component that returned the error|
 | isLastPage | |  Boolean | `True` if the last page is reached |
-| page ||   Integer | Mail information page number. Starts at 1. By default, each page holds 100 results. Page size limit can be set in the `top` option. |
+| page ||   Integer | Mail information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` option. |
 | next() ||   Function | Function that updates the `mails` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
 | previous() ||   Function | Function that updates the `folders` collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
 | statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
-| mails ||  Collection | Collection of [Microsoft mail objects](#microsoft-mail-object-properties). The mail type depends of the `mailType` defined during the class instanciation (it can be MIME, JMAP, or Microsoft). If no mail is returned, the collection is empty|
+| mails ||  Collection | Collection of [Microsoft mail objects](#microsoft-mail-object-properties). If no mail is returned, the collection is empty|
 
 #### Permissions
 
@@ -292,6 +314,16 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
+#### Example
+
+You want to retrieve all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
+
+```4d
+$param:=new object
+$param.folderId:="inbox"
+
+$mails:=$office365.mail.getMails($param)
+```
 
 ### Office365.mail.send()
 
