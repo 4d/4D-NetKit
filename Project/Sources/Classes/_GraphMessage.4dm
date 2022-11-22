@@ -6,7 +6,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object;
 	
 	This:C1470._internals._mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? $inParameters.mailType : "Microsoft"
 	This:C1470._internals._userId:=String:C10($inParameters.userId)
-	This:C1470._internals._withAttachments:=String:C10($inParameters.withAttachments)
+	This:C1470._internals._withAttachments:=Bool:C1537($inParameters.withAttachments)
 	This:C1470._internals._attachments:=Null:C1517
 	Super:C1706._loadFromObject($inObject)
 	
