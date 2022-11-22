@@ -188,6 +188,7 @@ Function getMails($inParameters : Object) : Object
 	If (Length:C16(String:C10($inParameters.search))>0)
 		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
 	End if 
+	This:C1470.withAttachments:=(OB Is defined:C1231($inParameters; "withAttachments")) ? $inParameters.withAttachments : True:C214
 	
 	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
 	$URL+=$urlParams

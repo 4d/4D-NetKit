@@ -21,7 +21,8 @@ Function get mails() : Collection
 		This:C1470._internals._mails:=New collection:C1472
 		For each ($iter; This:C1470._internals.list)
 			$mail:=cs:C1710._GraphMessage.new($provider; \
-				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
+				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId); \
+				"withAttachments"; Bool:C1537(This:C1470._internals._mail.withAttachments)); \
 				$iter)
 			This:C1470._internals._mails.push($mail)
 		End for each 
