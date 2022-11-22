@@ -165,9 +165,20 @@ The returned `Office365` object has a `mail` property used to handle emails:
 
 #### Description
 
-`Office365.mail.send()` deletes the *mailId* email.
+`Office365.mail.delete()` deletes the *mailId* email.
 
-**Note:** You may not be able to delete items in the recoverable items deletions folder (represented by the [well-known folder name](#well-known-folder-name) `recoverableitemsdeletions`).
+
+#### Permissions
+
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|MMail.ReadWrite|
+
 
 #### Returned object 
 
@@ -178,6 +189,10 @@ The method returns a status object with the following properties:
 |success|Boolean| True if the email is successfully deleted|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+
+
+**Note:** You may not be able to delete items in the recoverable items deletions folder (for more information, see the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http)).
+
 
 #### Example
 
@@ -213,8 +228,17 @@ In *options*, pass an object to define the folders to get. The available propert
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
 |includeHiddenFolders|boolean|True to include hidden folders in the response. False (default) to not return hidden folders. |
 
-#### Well-known folder names
-Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
+
 
 #### Returned object 
 
@@ -251,11 +275,13 @@ The method returns an empty collection in the `folders` property if:
 You want to :
 
 ```4d  
-//get the mail folder collection under the root folder
-$folders:=$office365.mail.getFolderList()
+//get the mail folder collection under the root folder (in $result.folders)
+var $result : Object
+$result:=$office365.mail.getFolderList()
 
 //get the mail subfolder collection under the 9th folder
-$subfolders:=$office365.mail.getFolderList($folder[8].id)
+var $subfolders : Collection
+$subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 ```
 
 
@@ -269,9 +295,9 @@ $subfolders:=$office365.mail.getFolderList($folder[8].id)
 |options|Object|->| Description of mails to get|
 |Result|Object|<-| Status object that contains mail list and other information|
 
-`Office365.mail.getMails()` allows you to get messages in the signed-in user's mailbox (including the Deleted Items and Clutter folders). 
+`Office365.mail.getMails()` allows you to get messages in the signed-in user's mailbox (for detailed information, please refer to the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0&tabs=http)).  
 
-This method returns mail bodies only in HTML format. A [permission](#permisions) is required to call this API.
+This method returns mail bodies in HTML format only.
 
 In *options*, pass an object to define the mails to get. The available properties for that object are (all properties are optional):
 
@@ -283,7 +309,7 @@ In *options*, pass an object to define the mails to get. The available propertie
 |select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
 |top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
-|withAttachments|boolean|If True (default), the mails contain a collection of [attachment](#attachment-object) objects. The `contentBytes` attribute of the attachment object is a getter that downloads the contents the first time this attribute is called in the code.|
+|withAttachments|boolean|If True (default), the mails contain a collection of [attachment](#attachment-object) objects. |
 
 
 #### Returned object 
@@ -365,6 +391,11 @@ The method returns a status object with the following properties:
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
 
+### Well-known folder names
+
+Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
+
+
 ### "Microsoft" mail object properties
 
 When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. The available properties for that object are:
@@ -390,8 +421,8 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 #### Attachment object
 | Property |  Type | Description |
 |---|---|---|
-|@odata.type|Text|always "#microsoft.graph.fileAttachment"|
-|contentBytes|Text| The base64-encoded contents of the file. |
+|@odata.type|Text|always "#microsoft.graph.fileAttachment" (note that the property name requires that you use the `[""]` syntax)|
+|contentBytes|Text| The base64-encoded contents of the file (only to send mails) |
 |contentId|	Text|	The ID of the attachment in the Exchange store.|
 |contentType |Text|	The content type of the attachment.|
 |id |Text|The attachment ID. (cid)|
