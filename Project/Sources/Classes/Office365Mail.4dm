@@ -261,3 +261,39 @@ Function copy($mailId : Text; $folderId : Text) : Object
 	
 	return This:C1470._returnStatus()
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
+	
+	var $urlParams; $URL; $format : Text
+	var $result : Variant
+	
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$urlParams:="users/"+This:C1470.userId
+	Else 
+		$urlParams:="me"
+	End if 
+	$urlParams+="/messages/"+$inMailId
+	
+	$format:=(Length:C16($inFormat)>0) ? $inFormat : This:C1470.mailType
+	If (($format="JMAP") || ($format="MIME"))
+		$urlParams+="/$value"
+	End if 
+	
+	$URL:=Super:C1706._getURL()+$urlParams
+	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	If ($format="Microsoft")
+		$response:=$result
+	Else 
+		$result:=Substring:C12($result; Position:C15("\r\n\r\n"; $result)+4)
+		If ($format="JMAP")
+			$response:=MAIL Convert from MIME:C1681($result)
+		Else 
+			$response:=$result
+		End if 
+	End if 
+	
+	return $response
+	

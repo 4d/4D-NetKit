@@ -27,7 +27,7 @@ Function _getAcessToken() : Text
 	
 	
 	// [Private]
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Text)->$response : Object
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Text)->$response : Variant
 	
 	This:C1470._try()
 	
@@ -72,18 +72,24 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		If (String:C10($request["response"]["headers"]["Content-Type"])="application/json@")
-			var $text; $charset : Text
-			If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
-				$text:=$request["response"]["body"]
-			Else 
+		Case of 
+			: (String:C10($request["response"]["headers"]["Content-Type"])="application/json@")
+				var $text; $charset : Text
+				If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+					$text:=$request["response"]["body"]
+				Else 
+					$charset:=_getHeaderValueParameter($request["response"]["headers"]["Content-Type"]; "charset"; "UTF-8")
+					$text:=Convert to text:C1012($request["response"]["body"]; $charset)
+				End if 
+				$response:=JSON Parse:C1218($text)
+				
+			: (String:C10($request["response"]["headers"]["Content-Type"])="text/plain@")
 				$charset:=_getHeaderValueParameter($request["response"]["headers"]["Content-Type"]; "charset"; "UTF-8")
-				$text:=Convert to text:C1012($request["response"]["body"]; $charset)
-			End if 
-			$response:=JSON Parse:C1218($text)
-		Else 
-			$response:=Null:C1517
-		End if 
+				$response:=String:C10(Convert to text:C1012($request["response"]["body"]; $charset))
+				
+			Else 
+				$response:=Null:C1517
+		End case 
 		
 	Else 
 		
