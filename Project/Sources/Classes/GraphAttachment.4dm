@@ -51,3 +51,42 @@ Function getContent() : 4D:C1709.Blob
 	
 	return 4D:C1709.Blob.new($contentBytes)
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function setContent($inContent : 4D:C1709.Blob)
+	
+	If ($inContent.size>0)
+		var $encodedContent : Text
+		BASE64 ENCODE:C895($inContent.slice(); $encodedContent)
+		This:C1470.contentBytes:=$encodedContent
+		This:C1470.size:=Length:C16($encodedContent)
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function fromMailAttachment($inObject : 4D:C1709.MailAttachment)
+	
+	If (OB Instance of:C1731($inObject; 4D:C1709.MailAttachment))
+		
+		This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
+		If (Length:C16(String:C10($inObject.cid))>0)
+			This:C1470.contentId:=String:C10($inObject.cid)
+		End if 
+		If (String:C10($inObject.disposition)="inline")
+			This:C1470.isInline:=True:C214
+		End if 
+		If (Length:C16(String:C10($inObject.name))>0)
+			This:C1470.name:=String:C10($inObject.name)
+		End if 
+		If (Length:C16(String:C10($inObject.type))>0)
+			This:C1470.contentType:=String:C10($inObject.type)
+		End if 
+
+		This:C1470.setContent($inObject.getContent())
+		
+	End if 
+	
