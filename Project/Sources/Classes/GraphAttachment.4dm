@@ -17,9 +17,8 @@ Function getContent() : 4D:C1709.Blob
 	
 	var $contentBytes : Blob
 	
-	If (OB Is defined:C1231(This:C1470; "contentBytes"))
-		BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
-	Else 
+	If (Not:C34(OB Is defined:C1231(This:C1470; "contentBytes")))
+		
 		If ((Length:C16(String:C10(This:C1470._internals._messageId))>0) & \
 			(Length:C16(String:C10(This:C1470._internals._userId))>0))
 			
@@ -39,11 +38,15 @@ Function getContent() : 4D:C1709.Blob
 			
 			If ($response#Null:C1517)
 				If (OB Is defined:C1231($response; "contentBytes"))
-					BASE64 DECODE:C896($response.contentBytes; $contentBytes)
+					This:C1470.contentBytes:=$response.contentBytes
 				End if 
 			End if 
 			
 		End if 
+	End if 
+	
+	If (OB Is defined:C1231(This:C1470; "contentBytes"))
+		BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
 	End if 
 	
 	return 4D:C1709.Blob.new($contentBytes)

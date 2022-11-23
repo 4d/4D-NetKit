@@ -46,7 +46,7 @@ See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-re
 				$attachments:=$response["value"]
 				For each ($iter; $attachments)
 					var $attachment : Object
-					$attachment:=cs:C1710._GraphAttachment.new(This:C1470._getOAuth2Provider(); \
+					$attachment:=cs:C1710.GraphAttachment.new(This:C1470._getOAuth2Provider(); \
 						New object:C1471("userId"; String:C10(This:C1470._internals._userId); "messageId"; String:C10(This:C1470.id)); \
 						$iter)
 					This:C1470._internals._attachments.push($attachment)

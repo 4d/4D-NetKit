@@ -256,8 +256,8 @@ Function getToken()->$result : Object
 		
 		$bUseRefreshToken:=False:C215
 		If (This:C1470.token#Null:C1517)
-			var $token : cs:C1710._OAuth2Token
-			$token:=cs:C1710._OAuth2Token.new(This:C1470.token)
+			var $token : cs:C1710.OAuth2Token
+			$token:=cs:C1710.OAuth2Token.new(This:C1470.token)
 			If (Not:C34($token._Expired(String:C10(This:C1470.token.tokenExpiration))))
 				// Token is still valid.. Simply return it
 				$result:=$token
@@ -402,7 +402,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 		If (Length:C16($response)>0)
 			
-			$result:=cs:C1710._OAuth2Token.new()
+			$result:=cs:C1710.OAuth2Token.new()
 			$result._loadFromResponse($response)
 			
 		Else 

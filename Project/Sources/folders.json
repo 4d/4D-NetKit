@@ -9,20 +9,23 @@
 		"classes": [
 			"_BaseClass",
 			"_GraphAPI",
-			"_GraphAttachment",
 			"_GraphBaseList",
-			"_GraphMail",
-			"_GraphMailList",
-			"_GraphMessage",
-			"_GraphUser",
-			"_GraphUserList",
-			"_OAuth2Token",
+			"GraphAttachment",
+			"GraphFolderList",
+			"GraphMail",
+			"GraphMailAddress",
+			"GraphMailList",
+			"GraphUserList",
 			"OAuth2Provider",
-			"Office365"
+			"OAuth2Token",
+			"Office365",
+			"Office365Mail",
+			"Office365User"
 		]
 	},
 	"Project Methods": {
 		"methods": [
+			"_buildComponent",
 			"_camelCase",
 			"_catch",
 			"_convertToGraphAttachment",

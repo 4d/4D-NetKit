@@ -163,7 +163,7 @@ Function getFolderList($inParameters : Object) : Object
 	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
 	$URL+=$urlParams
 	
-	return cs:C1710._GraphFolderList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710.GraphFolderList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------
@@ -193,7 +193,7 @@ Function getMails($inParameters : Object) : Object
 	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
 	$URL+=$urlParams
 	
-	return cs:C1710._GraphMailList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710.GraphMailList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------

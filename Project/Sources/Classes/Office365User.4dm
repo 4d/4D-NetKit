@@ -91,6 +91,6 @@ Function list($inParameters : Object) : Object
 	
 	$URL:=This:C1470._getURL()+$urlParams
 	
-	return cs:C1710._GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710.GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
