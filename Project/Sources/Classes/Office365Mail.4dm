@@ -285,13 +285,14 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 	$URL:=Super:C1706._getURL()+$urlParams
 	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	If ($format="Microsoft")
-		$response:=$result
+		$response:=Super:C1706._cleanResponseObject($result)
 	Else 
-		$result:=Substring:C12($result; Position:C15("\r\n\r\n"; $result)+4)
-		If ($format="JMAP")
-			$response:=MAIL Convert from MIME:C1681($result)
-		Else 
-			$response:=$result
+		If (Length:C16($result)>0)
+			If ($format="JMAP")
+				$response:=MAIL Convert from MIME:C1681($result)
+			Else 
+				$response:=$result
+			End if 
 		End if 
 	End if 
 	
