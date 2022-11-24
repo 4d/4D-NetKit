@@ -39,13 +39,13 @@ Function send($inMail : Variant) : Object
 		: ((This:C1470.mailType="MIME") && (\
 			(Value type:C1509($inMail)=Is text:K8:3) || \
 			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._sendMailMIMEMessage($URL; $inMail)
+			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
 			
 		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._sendMailMIMEMessage($URL; $inMail)
+			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
 			
 		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._sendJSONMessage($URL; $inMail)
+			$status:=This:C1470._postJSONMessage($URL; $inMail)
 			
 		Else 
 			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; "send"))
@@ -62,8 +62,63 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function append($inMail : Variant; $inFolderId : Text) : Object
+	
+	var $savedMethod : Text
+	var $status : Object
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	
+	Super:C1706._throwErrors(False:C215)
+	Super:C1706._getErrorStack().clear()
+	
+	var $URL : Text
+	
+	$URL:=Super:C1706._getURL()
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$URL+="users/"+This:C1470.userId
+	Else 
+		$URL+="me"
+	End if 
+	If (Length:C16($inFolderId)>0)
+		$URL+="/mailFolders/"+$inFolderId
+	End if 
+	$URL+="/messages"
+	
+	If (Length:C16(String:C10(This:C1470.mailType))=0)
+		This:C1470.mailType:="Microsoft"
+	End if 
+	
+	Case of 
+		: ((This:C1470.mailType="MIME") && (\
+			(Value type:C1509($inMail)=Is text:K8:3) || \
+			(Value type:C1509($inMail)=Is BLOB:K8:12)))
+			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
+			
+		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
+			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
+			
+		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
+			$status:=This:C1470._postJSONMessage($URL; $inMail)
+			
+		Else 
+			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; "append"))
+			$status:=This:C1470._returnStatus()
+			
+	End case 
+	
+	Super:C1706._throwErrors(True:C214)
+	ON ERR CALL:C155($savedMethod)
+	
+	return $status
+	
+	
+	// ----------------------------------------------------
+	
+	
 	// [Private]
-Function _sendMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	var $headers : Object
 	var $requestBody : Text
@@ -91,7 +146,7 @@ Function _sendMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	
 	// [Private]
-Function _sendJSONMessage($inURL : Text; $inMail : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers : Object
