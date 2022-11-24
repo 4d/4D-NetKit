@@ -72,25 +72,31 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		var $contentType : Text
+		var $contentType; $charset : Text
+		var $blob : Blob
+		
 		$contentType:=String:C10($request["response"]["headers"]["Content-Type"])
+		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		If (($contentType="application/json@") || ($contentType="text/plain@"))
-				var $text; $charset : Text
-				If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
-					$text:=$request["response"]["body"]
-				Else 
-					var $blob : Blob
-					$charset:=_getHeaderValueParameter($request["response"]["headers"]["Content-Type"]; "charset"; "UTF-8")
-					CONVERT FROM TEXT:C1011($request["response"]["body"]; $charset; $blob)
-					$response:=4D:C1709.Blob.new($blob)
-				End if 
-				If ($contentType="application/json@")
-					$response:=JSON Parse:C1218($text)
-				Else 
-					$response:=$request["response"]["body"]
-				End if 
+			var $text : Text
+			If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+				$text:=$request["response"]["body"]
 			Else 
-				$response:=Null:C1517
+				$text:=Convert to text:C1012($request["response"]["body"]; $charset)
+			End if 
+			If ($contentType="application/json@")
+				$response:=JSON Parse:C1218($text)
+			Else 
+				$response:=$text
+			End if 
+		Else 
+			If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+				$response:=$request["response"]["body"]
+			Else 
+				If (OB Is defined:C1231($request.response; "body") && (Value type:C1509($request["response"]["body"])=Is BLOB:K8:12))
+					$response:=4D:C1709.Blob.new($request["response"]["body"])
+				End if 
+			End if 
 		End if 
 		
 	Else 
