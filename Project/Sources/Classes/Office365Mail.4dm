@@ -13,65 +13,22 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 Function send($inMail : Variant) : Object
 	
-	var $savedMethod : Text
-	var $status : Object
+	var $URL : Text
 	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	
-	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
-	
-	var $urlParams; $URL : Text
-	
+	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId+"/sendMail"
+		$URL+="users/"+This:C1470.userId+"/sendMail"
 	Else 
-		$urlParams:="me/sendMail"
+		$URL+="me/sendMail"
 	End if 
 	
-	$URL:=Super:C1706._getURL()+$urlParams
-	If (Length:C16(String:C10(This:C1470.mailType))=0)
-		This:C1470.mailType:="Microsoft"
-	End if 
-	
-	Case of 
-		: ((This:C1470.mailType="MIME") && (\
-			(Value type:C1509($inMail)=Is text:K8:3) || \
-			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
-			
-		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
-			
-		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postJSONMessage($URL; $inMail)
-			
-		Else 
-			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; "send"))
-			$status:=This:C1470._returnStatus()
-			
-	End case 
-	
-	Super:C1706._throwErrors(True:C214)
-	ON ERR CALL:C155($savedMethod)
-	
-	return $status
+	return This:C1470._postMessage("send"; $URL; $inMail)
 	
 	
 	// ----------------------------------------------------
 	
 	
 Function append($inMail : Variant; $inFolderId : Text) : Object
-	
-	var $savedMethod : Text
-	var $status : Object
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	
-	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
 	
 	var $URL : Text
 	
@@ -86,6 +43,69 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	End if 
 	$URL+="/messages"
 	
+	return This:C1470._postMessage("append"; $URL; $inMail)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean; $inFolderId : Text) : Object
+	
+/*
+TODO: What about comment... See 
+https://learn.microsoft.com/en-us/graph/api/message-reply?view=graph-rest-1.0&tabs=http
+	
+{
+  "message":{  
+    "toRecipients":[
+      {
+        "emailAddress": {
+          "address":"samanthab@contoso.onmicrosoft.com",
+          "name":"Samantha Booth"
+        }
+      },
+      {
+        "emailAddress":{
+          "address":"randiw@contoso.onmicrosoft.com",
+          "name":"Randi Welch"
+        }
+      }
+     ]
+  },
+  "comment": "Samantha, Randi, would you name the group please?" 
+}
+*/
+	var $URL : Text
+	
+	$URL:=Super:C1706._getURL()
+	If (Length:C16(String:C10(This:C1470.userId))>0)
+		$URL+="users/"+This:C1470.userId
+	Else 
+		$URL+="me"
+	End if 
+	If (Length:C16($inFolderId)>0)
+		$URL+="/mailFolders/"+$inFolderId
+	End if 
+	$URL+="/messages/"+$inMail+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+	
+	return This:C1470._postMessage("reply"; $URL; $inMail)
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant) : Object
+	
+	var $status : Object
+	var $savedMethod : Text
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	
+	Super:C1706._throwErrors(False:C215)
+	Super:C1706._getErrorStack().clear()
+	
 	If (Length:C16(String:C10(This:C1470.mailType))=0)
 		This:C1470.mailType:="Microsoft"
 	End if 
@@ -94,16 +114,16 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 		: ((This:C1470.mailType="MIME") && (\
 			(Value type:C1509($inMail)=Is text:K8:3) || \
 			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
+			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
 			
 		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postMailMIMEMessage($URL; $inMail)
+			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
 			
 		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postJSONMessage($URL; $inMail)
+			$status:=This:C1470._postJSONMessage($inURL; $inMail)
 			
 		Else 
-			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; "append"))
+			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
 			$status:=This:C1470._returnStatus()
 			
 	End case 
