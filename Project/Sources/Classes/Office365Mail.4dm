@@ -49,7 +49,7 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean; $inFolderId : Text; $inComment : Text) : Object
+Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
 	var $URL : Text
 	var $body : Object
@@ -60,14 +60,14 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean; $inFol
 	Else 
 		$URL+="me"
 	End if 
-	If (Length:C16($inFolderId)>0)
-		$URL+="/mailFolders/"+$inFolderId
-	End if 
 	$URL+="/messages/"+$inMail+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
 	
-	$body:=New object:C1471("message"; $inMail)
-	If (Length:C16($inComment)>0)
-		$body.comment:=$inComment
+	If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
+		If (OB Is defined:C1231($inMail; "message"))
+			$body:=$inMail.message
+		End if 
+	Else 
+		$body:=$inMail
 	End if 
 	
 	return This:C1470._postMessage("reply"; $URL; $body)
