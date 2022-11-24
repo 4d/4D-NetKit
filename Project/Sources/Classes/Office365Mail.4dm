@@ -49,33 +49,10 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean; $inFolderId : Text) : Object
+Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean; $inFolderId : Text; $inComment : Text) : Object
 	
-/*
-TODO: What about comment... See 
-https://learn.microsoft.com/en-us/graph/api/message-reply?view=graph-rest-1.0&tabs=http
-	
-{
-  "message":{  
-    "toRecipients":[
-      {
-        "emailAddress": {
-          "address":"samanthab@contoso.onmicrosoft.com",
-          "name":"Samantha Booth"
-        }
-      },
-      {
-        "emailAddress":{
-          "address":"randiw@contoso.onmicrosoft.com",
-          "name":"Randi Welch"
-        }
-      }
-     ]
-  },
-  "comment": "Samantha, Randi, would you name the group please?" 
-}
-*/
 	var $URL : Text
+	var $body : Object
 	
 	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
@@ -88,7 +65,12 @@ https://learn.microsoft.com/en-us/graph/api/message-reply?view=graph-rest-1.0&ta
 	End if 
 	$URL+="/messages/"+$inMail+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
 	
-	return This:C1470._postMessage("reply"; $URL; $inMail)
+	$body:=New object:C1471("message"; $inMail)
+	If (Length:C16($inComment)>0)
+		$body.comment:=$inComment
+	End if 
+	
+	return This:C1470._postMessage("reply"; $URL; $body)
 	
 	
 	// ----------------------------------------------------
