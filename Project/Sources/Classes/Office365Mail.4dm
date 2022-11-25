@@ -43,7 +43,7 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	End if 
 	$URL+="/messages"
 	
-	return This:C1470._postMessage("append"; $URL; $inMail)
+	return This:C1470._postMessage("append"; $URL; $inMail; True:C214)
 	
 	
 	// ----------------------------------------------------
@@ -77,7 +77,7 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 	
 	
 	// [Private]
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean) : Object
 	
 	var $status : Object
 	var $savedMethod : Text
@@ -102,7 +102,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant) : Ob
 			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
 			
 		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postJSONMessage($inURL; $inMail)
+			$status:=This:C1470._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation)
 			
 		Else 
 			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
@@ -148,7 +148,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	
 	// [Private]
-Function _postJSONMessage($inURL : Text; $inMail : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers : Object
@@ -158,7 +158,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object) : Object
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="application/json"
 		
-		If (Not:C34(OB Is defined:C1231($inMail; "message")))
+		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
 			$message:=New object:C1471("message"; $inMail)
 		Else 
 			$message:=$inMail
