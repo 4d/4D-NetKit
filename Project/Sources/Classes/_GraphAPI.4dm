@@ -75,7 +75,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 		var $contentType; $charset : Text
 		var $blob : Blob
 		
-		$contentType:=String:C10($request["response"]["headers"]["Content-Type"])
+		$contentType:=String:C10($request["response"]["headers"]["content-type"])
 		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		If (($contentType="application/json@") || ($contentType="text/plain@"))
 			var $text : Text

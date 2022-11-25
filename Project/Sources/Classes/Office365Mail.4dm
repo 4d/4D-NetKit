@@ -279,7 +279,7 @@ Function delete($mailId : Text) : Object
 Function move($mailId : Text; $folderId : Text) : Object
 	
 	var $urlParams; $URL : Text
-	var $body : Object
+	var $headers; $body : Object
 	
 	If (Length:C16(String:C10(This:C1470.userId))>0)
 		$urlParams:="users/"+This:C1470.userId
@@ -288,10 +288,11 @@ Function move($mailId : Text; $folderId : Text) : Object
 	End if 
 	$urlParams+="/messages/"+$mailId+"/move"
 	
+	$headers:=New object:C1471("Content-Type"; "application/json")
 	$body:=New object:C1471("destinationId"; $folderId)
 	
 	$URL:=Super:C1706._getURL()+$urlParams
-	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; Null:C1517; JSON Stringify:C1217($body))
+	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	
 	return This:C1470._returnStatus()
 	
@@ -302,7 +303,7 @@ Function move($mailId : Text; $folderId : Text) : Object
 Function copy($mailId : Text; $folderId : Text) : Object
 	
 	var $urlParams; $URL : Text
-	var $body : Object
+	var $headers; $body : Object
 	
 	If (Length:C16(String:C10(This:C1470.userId))>0)
 		$urlParams:="users/"+This:C1470.userId
@@ -311,10 +312,11 @@ Function copy($mailId : Text; $folderId : Text) : Object
 	End if 
 	$urlParams+="/messages/"+$mailId+"/copy"
 	
+	$headers:=New object:C1471("Content-Type"; "application/json")
 	$body:=New object:C1471("destinationId"; $folderId)
 	
 	$URL:=Super:C1706._getURL()+$urlParams
-	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; Null:C1517; JSON Stringify:C1217($body))
+	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	
 	return This:C1470._returnStatus()
 	
