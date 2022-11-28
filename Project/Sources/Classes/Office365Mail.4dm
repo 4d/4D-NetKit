@@ -60,7 +60,7 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 	Else 
 		$URL+="me"
 	End if 
-	$URL+="/messages/"+$inMail+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+	$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
 	
 	If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
 		If (OB Is defined:C1231($inMail; "message"))
@@ -70,7 +70,7 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 		$body:=$inMail
 	End if 
 	
-	return This:C1470._postMessage("reply"; $URL; $body)
+	return This:C1470._postMessage("reply"; $URL; $body; True:C214)
 	
 	
 	// ----------------------------------------------------
