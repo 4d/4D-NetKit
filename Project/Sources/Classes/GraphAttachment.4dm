@@ -19,8 +19,7 @@ Function getContent() : 4D:C1709.Blob
 	
 	If (Not:C34(OB Is defined:C1231(This:C1470; "contentBytes")))
 		
-		If ((Length:C16(String:C10(This:C1470._internals._messageId))>0) & \
-			(Length:C16(String:C10(This:C1470._internals._userId))>0))
+		If (Length:C16(String:C10(This:C1470._internals._messageId))>0)
 			
 			var $response : Object
 			var $urlParams; $URL : Text
@@ -85,7 +84,7 @@ Function fromMailAttachment($inObject : 4D:C1709.MailAttachment)
 		If (Length:C16(String:C10($inObject.type))>0)
 			This:C1470.contentType:=String:C10($inObject.type)
 		End if 
-
+		
 		This:C1470.setContent($inObject.getContent())
 		
 	End if 
