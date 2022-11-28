@@ -55,6 +55,10 @@ See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-re
 			
 		End if 
 		
+	Else 
+		
+		This:C1470._internals._attachments:=New collection:C1472
+		
 	End if 
 	
 	return This:C1470._internals._attachments
