@@ -309,7 +309,6 @@ In *options*, pass an object to define the mails to get. The available propertie
 |select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
 |top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
-|withAttachments|boolean|If True (default), the mails contain a collection of [attachment](#attachment-object) objects. |
 
 
 #### Returned object 
