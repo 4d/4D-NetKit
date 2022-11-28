@@ -177,7 +177,7 @@ One of the following permissions is required to call this API. For more informat
 |---|----|
 |Delegated (work or school account)|Mail.ReadWrite|
 |Delegated (personal Microsoft account)|Mail.ReadWrite|
-|Application|MMail.ReadWrite|
+|Application|Mail.ReadWrite|
 
 
 #### Returned object 
