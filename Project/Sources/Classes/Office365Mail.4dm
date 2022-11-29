@@ -55,6 +55,9 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 		
 		var $URL : Text
 		var $body : Object
+		var $bUseCreateReply : Boolean
+		
+		$bUseCreateReply:=True:C214
 		
 		$URL:=Super:C1706._getURL()
 		If (Length:C16(String:C10(This:C1470.userId))>0)
@@ -62,17 +65,35 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 		Else 
 			$URL+="me"
 		End if 
-		$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
 		
-		If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
-			If (OB Is defined:C1231($inMail; "message"))
-				$body:=$inMail.message
-			End if 
+		If ($bUseCreateReply)
+			$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/createReplyAll" : "/createReply")
 		Else 
-			$body:=$inMail
+			$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
 		End if 
 		
-		return This:C1470._postMessage("reply"; $URL; $body; True:C214)
+		If ($bUseCreateReply)
+			
+			var $result : Object
+			$result:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
+			
+			If (Super:C1706._getErrorStack().length=0)
+				return This:C1470.send($result)
+			Else 
+				return This:C1470._returnStatus()
+			End if 
+		Else 
+			
+			If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
+				If (OB Is defined:C1231($inMail; "message"))
+					$body:=$inMail.message
+				End if 
+			Else 
+				$body:=$inMail
+			End if 
+			
+			return This:C1470._postMessage("reply"; $URL; $body; True:C214)
+		End if 
 		
 	Else 
 		
@@ -85,7 +106,11 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 	
 	
 	// [Private]
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean) : Object
+Function _postMessage($inFunction : Text; \
+$inURL : Text; \
+$inMail : Variant; \
+$bSkipMessageEncapsulation : Boolean; \
+$inHeader : Object) : Object
 	
 	var $status : Object
 	var $savedMethod : Text
@@ -110,7 +135,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
 			
 		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation)
+			$status:=This:C1470._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
 			
 		Else 
 			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
@@ -156,7 +181,10 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	
 	// [Private]
-Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean) : Object
+Function _postJSONMessage($inURL : Text; \
+$inMail : Object; \
+$bSkipMessageEncapsulation : Boolean; \
+$inHeader : Object) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers : Object
@@ -165,6 +193,14 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 		
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="application/json"
+		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
+			var $keys : Collection
+			var $key : Text
+			$keys:=OB Keys:C1719($inHeader)
+			For each ($key; $keys)
+				$headers[$key]:=$inHeader[$key]
+			End for each 
+		End if 
 		
 		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
 			$message:=New object:C1471("message"; $inMail)
