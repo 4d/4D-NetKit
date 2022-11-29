@@ -1,16 +1,29 @@
 # 4D NetKit
 
 ## Overview
+
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
 ## Table of contents
 
 * [OAuth2Provider class](#oauth2provider)
+	- [New OAuth2 provider](#new-oauth2-provider)
+	- [OAuth2ProviderObject.getToken()](#oauth2providerobjectgettoken)
 * [Office365 class](#office365)
-    * [Sending emails](#handling-emails)
-    * [Getting information on users](#getting-user-information)
+	- [New Office365 provider](#new-office365-provider)
+	- [Office365.mail.delete()](#office365maildelete)
+	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
+	- [Office365.mail.getMails()](#office365mailgetmails)
+	- [Office365.mail.send()](#office365mailsend)
+	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+	- [Office365.user.get()](#office365userget)
+	- [Office365.user.getCurrent()](#office365usergetcurrent)
+	- [Office365.user.list()](#office365userlist)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
+
+**Warning:** Shared objects are not supported by the 4D NetKit API.
+
 
 ## OAuth2Provider
 
@@ -41,6 +54,7 @@ This class can be instantiated in two ways:
 `New OAuth2 provider` instantiates an object of the `OAuth2Provider` class.
 
 In `paramObj`, pass an object that contains authentication information. 
+
 
 The available properties of `paramObj` are:
 
@@ -138,9 +152,203 @@ The returned `Office365` object has a `mail` property used to handle emails:
 |type|Text|Mail type used to send emails (read-only)|
 |userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
 
-## Handling emails
 
-This section groups the tools that allow you to send emails using the Office365 class.
+### Office365.mail.delete()
+
+**Office365.mail.delete**( *mailId* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->| Id of the mail to delete|
+|Result|Object|<-| Status object  |
+
+#### Description
+
+`Office365.mail.delete()` deletes the *mailId* email.
+
+
+#### Permissions
+
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Returned object 
+
+The method returns a status object with the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the email is successfully deleted|
+|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
+|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+
+
+**Note:** You may not be able to delete items in the recoverable items deletions folder (for more information, see the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http)).
+
+
+#### Example
+
+You want to delete all mails in the *$mails* collection:
+
+```4d
+For each($mail;$mails)
+	$office365.mail.delete($mail.id)
+End for each
+```
+
+### Office365.mail.getFolderList()
+
+**Office365.mail.getFolderList**( *options* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|options|Object|->| Description of folders to get|
+|Result|Object|<-| Status object that contains folder list and other information|
+
+`Office365.mail.getFolderList()` allows you to get a mail folder collection of the signed-in user. 
+
+In *options*, pass an object to define the folders to get. The available properties for that object are (all properties are optional):
+
+| Property | Type | Description |
+|---|---|---|
+|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <li>If it is a parent folder id, get the folder collection under the specified folder (children folders)</li> <li>If the property is omitted or its value is "", get the mail folder collection directly under the root folder.</li>|
+|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
+|filter|text|Allows retrieving just a subset of folders. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
+|select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
+|top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
+|orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
+|includeHiddenFolders|boolean|True to include hidden folders in the response. False (default) to not return hidden folders. |
+
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
+
+
+#### Returned object 
+
+The method returns a status object containing the following properties:
+
+| Property ||  Type | Description |
+|---|---| ---|---|
+| errors | |  Collection | Collection of 4D error items (not returned if an Office 365 server response is received)|
+||[].errcode|Integer|4D error code number|
+||[].message|Text|Description of the 4D error|
+||[].componentSignature|Text|Signature of the internal component that returned the error|
+| isLastPage | |  Boolean | `True` if the last page is reached |
+| page ||   Integer | Folder information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` option. |
+| next() ||   Function | Function that updates the `folders` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `folders` collection is not updated and `False` is returned</li></ul>  |
+| previous() ||   Function | Function that updates the `folders` collection with the previous folder information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `folders` collection is not updated and `False` is returned</li></ul>  |
+| statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
+| success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
+| folders ||  Collection | Collection of `mailFolder` objects with information on folders.| 
+|| [].childFolderCount|Integer|The number of immediate child mailFolders in the current mailFolder.
+|| [].displayName|	Text|	The mailFolder's display name.
+|| [].id|	Text|	The mailFolder's unique identifier.
+|| [].isHidden|	Boolean|	Indicates whether the mailFolder is hidden. This property can be set only when creating the folder. Find more information in Hidden mail folders.
+|| [].parentFolderId|	Text|	The unique identifier for the mailFolder's parent mailFolder.
+|| [].totalItemCount	|Integer|	The number of items in the mailFolder.
+|| [].unreadItemCount|	Integer	|The number of items in the mailFolder marked as unread.
+
+
+The method returns an empty collection in the `folders` property if:
+- no folders are found at the defined location
+- an error is thrown
+
+#### Example
+
+You want to :
+
+```4d  
+//get the mail folder collection under the root folder (in $result.folders)
+var $result : Object
+$result:=$office365.mail.getFolderList()
+
+//get the mail subfolder collection under the 9th folder
+var $subfolders : Collection
+$subfolders:=$office365.mail.getFolderList($result.folders[8].id)
+```
+
+
+### Office365.mail.getMails()
+
+**Office365.mail.getMails**( *options* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|options|Object|->| Description of mails to get|
+|Result|Object|<-| Status object that contains mail list and other information|
+
+`Office365.mail.getMails()` allows you to get messages in the signed-in user's mailbox (for detailed information, please refer to the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0&tabs=http)).  
+
+This method returns mail bodies in HTML format only.
+
+In *options*, pass an object to define the mails to get. The available properties for that object are (all properties are optional):
+
+| Property | Type | Description |
+|---|---|---|
+|folderId|text|To get messages in a specific folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name). If the destination folder is not present or empty, get all the messages in a user's mailbox.|
+|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
+|filter|text|Allows retrieving just a subset of mails. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
+|select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
+|top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
+|orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
+
+
+#### Returned object 
+
+The method returns a status object containing the following properties:
+
+| Property ||  Type | Description |
+|---|---| ---|---|
+| errors | |  Collection | Collection of 4D error items (not returned if an Office 365 server response is received)|
+||[].errcode|Integer|4D error code number|
+||[].message|Text|Description of the 4D error|
+||[].componentSignature|Text|Signature of the internal component that returned the error|
+| isLastPage | |  Boolean | `True` if the last page is reached |
+| page ||   Integer | Mail information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` option. |
+| next() ||   Function | Function that updates the `mails` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
+| previous() ||   Function | Function that updates the `folders` collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
+| statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
+| success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
+| mails ||  Collection | Collection of [Microsoft mail objects](#microsoft-mail-object-properties). If no mail is returned, the collection is empty|
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
+
+#### Example
+
+You want to retrieve all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
+
+```4d
+$param:=new object
+$param.folderId:="inbox"
+
+$mails:=$office365.mail.getMails($param)
+```
 
 ### Office365.mail.send()
 
@@ -161,7 +369,7 @@ In `email`, pass the email to be sent. Possible types:
 * Text or Blob: the email is sent using the MIME format
 * Object: the email is sent using the JSON format, in accordance with either: 
     * the [Microsoft mail object properties](#microsoft-mail-object-properties)
-    * the [4D email object format](https://developer.4d.com/docs/en/API/EmailObjectClass.html#email-object), which follows the JMAP specification
+    * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
 
 The [`Office365.mail.type` property](#returned-object-1) must be compatible with the data type passed in `email`. In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties): 
 
@@ -182,6 +390,11 @@ The method returns a status object with the following properties:
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
 
+### Well-known folder names
+
+Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
+
+
 ### "Microsoft" mail object properties
 
 When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. The available properties for that object are:
@@ -195,7 +408,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 | flag |[followup flag](#followup-flag-object) object| The flag value that indicates the status, start date, due date, or completion date for the message. | 
 | from |[recipient](#recipient-object) object | The owner of the mailbox from which the message is sent. In most cases, this value is the same as the sender property, except for sharing or delegation scenarios. The value must correspond to the actual mailbox used.| 
 | id |Text|Unique identifier for the message (note that this value may change if a message is moved or altered).|
-| importance|Text| The importance of the message. The possible values are: `low`, `normal`, and `high`. | 
+| importance|Text| The importance of the message. The possible values are: `low`, `normal`, and `high`.| 
 | internetMessageHeaders |[internetMessageHeader](#internetmessageheader-object) collection | A collection of message headers defined by [RFC5322](https://www.ietf.org/rfc/rfc5322.txt). The set includes message headers indicating the network path taken by a message from the sender to the recipient.|
 | isDeliveryReceiptRequested  |Boolean| Indicates whether a delivery receipt is requested for the message. | 
 | isReadReceiptRequested |Boolean| Indicates whether a read receipt is requested for the message. | 
@@ -207,14 +420,15 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 #### Attachment object
 | Property |  Type | Description |
 |---|---|---|
-|@odata.type|Text|always "#microsoft.graph.fileAttachment"|
-|contentBytes|Text| The base64-encoded contents of the file. |
+|@odata.type|Text|always "#microsoft.graph.fileAttachment" (note that the property name requires that you use the `[""]` syntax)|
+|contentBytes|Text| The base64-encoded contents of the file (only to send mails) |
 |contentId|	Text|	The ID of the attachment in the Exchange store.|
 |contentType |Text|	The content type of the attachment.|
 |id |Text|The attachment ID. (cid)|
 |isInline 	|Boolean |Set to true if this is an inline attachment.|
 |name| 	Text|	The name representing the text that is displayed below the icon representing the embedded attachment.This does not need to be the actual file name.|
 |size|Number|The size in bytes of the attachment.|
+|getContent()|Function|Returns the contents of the attachment object in a `4D.Blob` object.|
 
 #### itemBody object
 
@@ -301,9 +515,6 @@ $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
 
-## Getting user information
-
-The following methods allow you to retrieve information on Office365 users.
 
 ### Office365.user.get()
 
@@ -320,6 +531,7 @@ The following methods allow you to retrieve information on Office365 users.
 #### Description
 
 `Office365.user.get()` returns information on the user whose ID matches the *id* parameter, or whose User Principal Name (UPN) matches the *userPrincipalName* parameter. 
+
 
 > The UPN is an Internet-style login name for the user based on the Internet standard RFC 822. By convention, it should correspond to the user's email name.
 
