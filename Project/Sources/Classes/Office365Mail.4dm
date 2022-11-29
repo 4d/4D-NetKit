@@ -51,26 +51,34 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	
 Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
-	var $URL : Text
-	var $body : Object
-	
-	$URL:=Super:C1706._getURL()
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$URL+="users/"+This:C1470.userId
-	Else 
-		$URL+="me"
-	End if 
-	$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
-	
-	If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
-		If (OB Is defined:C1231($inMail; "message"))
-			$body:=$inMail.message
+	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+		
+		var $URL : Text
+		var $body : Object
+		
+		$URL:=Super:C1706._getURL()
+		If (Length:C16(String:C10(This:C1470.userId))>0)
+			$URL+="users/"+This:C1470.userId
+		Else 
+			$URL+="me"
 		End if 
+		$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+		
+		If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
+			If (OB Is defined:C1231($inMail; "message"))
+				$body:=$inMail.message
+			End if 
+		Else 
+			$body:=$inMail
+		End if 
+		
+		return This:C1470._postMessage("reply"; $URL; $body; True:C214)
+		
 	Else 
-		$body:=$inMail
+		
+		Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "reply"))
+		return This:C1470._returnStatus()
 	End if 
-	
-	return This:C1470._postMessage("reply"; $URL; $body; True:C214)
 	
 	
 	// ----------------------------------------------------
@@ -255,19 +263,27 @@ Function getMails($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function delete($mailId : Text) : Object
+Function delete($inMailId : Text) : Object
 	
-	var $urlParams; $URL : Text
 	
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
+	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+		
+		var $urlParams; $URL : Text
+		
+		If (Length:C16(String:C10(This:C1470.userId))>0)
+			$urlParams:="users/"+This:C1470.userId
+		Else 
+			$urlParams:="me"
+		End if 
+		$urlParams+="/messages/"+$inMailId
+		
+		$URL:=Super:C1706._getURL()+$urlParams
+		Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
+		
 	Else 
-		$urlParams:="me"
+		
+		Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "delete"))
 	End if 
-	$urlParams+="/messages/"+$mailId
-	
-	$URL:=Super:C1706._getURL()+$urlParams
-	Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
 	
 	return This:C1470._returnStatus()
 	
@@ -275,23 +291,35 @@ Function delete($mailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function move($mailId : Text; $folderId : Text) : Object
+Function move($inMailId : Text; $inFolderId : Text) : Object
 	
-	var $urlParams; $URL : Text
-	var $headers; $body : Object
-	
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
-	Else 
-		$urlParams:="me"
-	End if 
-	$urlParams+="/messages/"+$mailId+"/move"
-	
-	$headers:=New object:C1471("Content-Type"; "application/json")
-	$body:=New object:C1471("destinationId"; $folderId)
-	
-	$URL:=Super:C1706._getURL()+$urlParams
-	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+	Case of 
+		: (Type:C295($inMailId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+			
+		: (Length:C16(String:C10($inMailId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+			
+		: (Type:C295($inFolderId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "move"))
+			
+		Else 
+			var $urlParams; $URL : Text
+			var $headers; $body : Object
+			
+			If (Length:C16(String:C10(This:C1470.userId))>0)
+				$urlParams:="users/"+This:C1470.userId
+			Else 
+				$urlParams:="me"
+			End if 
+			$urlParams+="/messages/"+$inMailId+"/move"
+			
+			$headers:=New object:C1471("Content-Type"; "application/json")
+			$body:=New object:C1471("destinationId"; $inFolderId)
+			
+			$URL:=Super:C1706._getURL()+$urlParams
+			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+	End case 
 	
 	return This:C1470._returnStatus()
 	
@@ -299,23 +327,36 @@ Function move($mailId : Text; $folderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function copy($mailId : Text; $folderId : Text) : Object
+Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
-	var $urlParams; $URL : Text
-	var $headers; $body : Object
-	
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
-	Else 
-		$urlParams:="me"
-	End if 
-	$urlParams+="/messages/"+$mailId+"/copy"
-	
-	$headers:=New object:C1471("Content-Type"; "application/json")
-	$body:=New object:C1471("destinationId"; $folderId)
-	
-	$URL:=Super:C1706._getURL()+$urlParams
-	Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+	Case of 
+		: (Type:C295($inMailId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+			
+		: (Length:C16(String:C10($inMailId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+			
+		: (Type:C295($inFolderId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
+			
+		Else 
+			var $urlParams; $URL : Text
+			var $headers; $body : Object
+			
+			If (Length:C16(String:C10(This:C1470.userId))>0)
+				$urlParams:="users/"+This:C1470.userId
+			Else 
+				$urlParams:="me"
+			End if 
+			$urlParams+="/messages/"+$inMailId+"/copy"
+			
+			$headers:=New object:C1471("Content-Type"; "application/json")
+			$body:=New object:C1471("destinationId"; $inFolderId)
+			
+			$URL:=Super:C1706._getURL()+$urlParams
+			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+			
+	End case 
 	
 	return This:C1470._returnStatus()
 	
@@ -325,34 +366,42 @@ Function copy($mailId : Text; $folderId : Text) : Object
 	
 Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 	
-	var $urlParams; $URL; $format : Text
-	var $result : Variant
-	
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$urlParams:="users/"+This:C1470.userId
-	Else 
-		$urlParams:="me"
-	End if 
-	$urlParams+="/messages/"+$inMailId
-	
-	$format:=(Length:C16($inFormat)>0) ? $inFormat : This:C1470.mailType
-	If (($format="JMAP") || ($format="MIME"))
-		$urlParams+="/$value"
-	End if 
-	
-	$URL:=Super:C1706._getURL()+$urlParams
-	$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
-	If ($format="Microsoft")
-		$response:=Super:C1706._cleanResponseObject($result)
-	Else 
-		If (Length:C16($result)>0)
-			If ($format="JMAP")
-				$response:=MAIL Convert from MIME:C1681($result)
-			Else 
-				$response:=$result
+	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+		
+		var $urlParams; $URL; $format : Text
+		var $result : Variant
+		
+		If (Length:C16(String:C10(This:C1470.userId))>0)
+			$urlParams:="users/"+This:C1470.userId
+		Else 
+			$urlParams:="me"
+		End if 
+		$urlParams+="/messages/"+$inMailId
+		
+		$format:=(Length:C16($inFormat)>0) ? $inFormat : This:C1470.mailType
+		If (($format="JMAP") || ($format="MIME"))
+			$urlParams+="/$value"
+		End if 
+		
+		$URL:=Super:C1706._getURL()+$urlParams
+		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+		If ($format="Microsoft")
+			$response:=Super:C1706._cleanResponseObject($result)
+		Else 
+			If (Length:C16($result)>0)
+				If ($format="JMAP")
+					$response:=MAIL Convert from MIME:C1681($result)
+				Else 
+					$response:=$result
+				End if 
 			End if 
 		End if 
+		
+		return $response
+	Else 
+		
+		Super:C1706._throwError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
+		return Null:C1517
 	End if 
 	
-	return $response
 	
