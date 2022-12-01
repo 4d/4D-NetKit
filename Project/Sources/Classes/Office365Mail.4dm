@@ -57,8 +57,6 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 		var $body : Object
 		var $bUseCreateReply : Boolean
 		
-		$bUseCreateReply:=True:C214
-		
 		$URL:=Super:C1706._getURL()
 		If (Length:C16(String:C10(This:C1470.userId))>0)
 			$URL+="users/"+This:C1470.userId
@@ -66,34 +64,17 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 			$URL+="me"
 		End if 
 		
-		If ($bUseCreateReply)
-			$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/createReplyAll" : "/createReply")
+		$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+		
+		If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
+			If (OB Is defined:C1231($inMail; "message"))
+				$body:=$inMail.message
+			End if 
 		Else 
-			$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+			$body:=$inMail
 		End if 
 		
-		If ($bUseCreateReply)
-			
-			var $result : Object
-			$result:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
-			
-			If (Super:C1706._getErrorStack().length=0)
-				return This:C1470.send($result)
-			Else 
-				return This:C1470._returnStatus()
-			End if 
-		Else 
-			
-			If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
-				If (OB Is defined:C1231($inMail; "message"))
-					$body:=$inMail.message
-				End if 
-			Else 
-				$body:=$inMail
-			End if 
-			
-			return This:C1470._postMessage("reply"; $URL; $body; True:C214)
-		End if 
+		return This:C1470._postMessage("reply"; $URL; $body; True:C214)
 		
 	Else 
 		
@@ -422,7 +403,10 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 		$URL:=Super:C1706._getURL()+$urlParams
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 		If ($format="Microsoft")
-			$response:=Super:C1706._cleanResponseObject($result)
+			$response:=cs:C1710.GraphMail.new(This:C1470._internals._OAuth2Provider; \
+				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
+				$result)
+			
 		Else 
 			If (Length:C16($result)>0)
 				If ($format="JMAP")
