@@ -13,14 +13,14 @@ Function get mails() : Collection
 	
 	If (This:C1470._internals._mails=Null:C1517)
 		var $iter : Object
-		var $mail : cs:C1710.GraphMail
+		var $mail : cs:C1710.GraphMessage
 		var $provider : cs:C1710.OAuth2Provider
 		
 		$provider:=This:C1470._internals._OAuth2Provider
 		
 		This:C1470._internals._mails:=New collection:C1472
 		For each ($iter; This:C1470._internals.list)
-			$mail:=cs:C1710.GraphMail.new($provider; \
+			$mail:=cs:C1710.GraphMessage.new($provider; \
 				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
 				$iter)
 			This:C1470._internals._mails.push($mail)

@@ -274,7 +274,7 @@ Function getMails($inParameters : Object) : Object
 	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
 	$URL+=$urlParams
 	
-	return cs:C1710.GraphMailList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs:C1710.GraphMessageList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------
@@ -403,7 +403,7 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 		$URL:=Super:C1706._getURL()+$urlParams
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 		If ($format="Microsoft")
-			$response:=cs:C1710.GraphMail.new(This:C1470._internals._OAuth2Provider; \
+			$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
 				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
 				$result)
 			
