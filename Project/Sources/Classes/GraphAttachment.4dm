@@ -38,22 +38,31 @@ Function getContent() : 4D:C1709.Blob
 			If ($response#Null:C1517)
 				If (OB Is defined:C1231($response; "contentBytes"))
 					This:C1470.contentBytes:=$response.contentBytes
+				Else 
+					If ($response["@odata.type"]="#microsoft.graph.itemAttachment")
+						$URL+="/?$expand=microsoft.graph.itemattachment/item"
+						$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+						If ($response#Null:C1517)
+							If (OB Is defined:C1231($response; "contentBytes"))
+								This:C1470.contentBytes:=$response.contentBytes
+							End if 
+						End if 
+					End if 
 				End if 
+				
 			End if 
-			
 		End if 
-	End if 
-	
-	If (OB Is defined:C1231(This:C1470; "contentBytes"))
-		BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
-	End if 
-	
-	return 4D:C1709.Blob.new($contentBytes)
-	
-	
-	// ----------------------------------------------------
-	
-	
+		
+		If (OB Is defined:C1231(This:C1470; "contentBytes"))
+			BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
+		End if 
+		
+		return 4D:C1709.Blob.new($contentBytes)
+		
+		
+		// ----------------------------------------------------
+		
+		
 Function setContent($inContent : 4D:C1709.Blob)
 	
 	If ($inContent.size>0)
