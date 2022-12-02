@@ -52,17 +52,18 @@ Function getContent() : 4D:C1709.Blob
 				
 			End if 
 		End if 
-		
-		If (OB Is defined:C1231(This:C1470; "contentBytes"))
-			BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
-		End if 
-		
-		return 4D:C1709.Blob.new($contentBytes)
-		
-		
-		// ----------------------------------------------------
-		
-		
+	End if 
+	
+	If (OB Is defined:C1231(This:C1470; "contentBytes"))
+		BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
+	End if 
+	
+	return 4D:C1709.Blob.new($contentBytes)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function setContent($inContent : 4D:C1709.Blob)
 	
 	If ($inContent.size>0)
