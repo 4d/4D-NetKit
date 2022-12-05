@@ -94,13 +94,8 @@ $bSkipMessageEncapsulation : Boolean; \
 $inHeader : Object) : Object
 	
 	var $status : Object
-	var $savedMethod : Text
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
 	
 	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
 	
 	If (Length:C16(String:C10(This:C1470.mailType))=0)
 		This:C1470.mailType:="Microsoft"
@@ -125,7 +120,6 @@ $inHeader : Object) : Object
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
-	ON ERR CALL:C155($savedMethod)
 	
 	return $status
 	
@@ -282,13 +276,7 @@ Function getMails($inParameters : Object) : Object
 	
 Function delete($inMailId : Text) : Object
 	
-	var $savedMethod : Text
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	
 	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
 	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
@@ -310,7 +298,6 @@ Function delete($inMailId : Text) : Object
 	End if 
 	
 	Super:C1706._throwErrors(True:C214)
-	ON ERR CALL:C155($savedMethod)
 	
 	return This:C1470._returnStatus()
 	
@@ -320,13 +307,7 @@ Function delete($inMailId : Text) : Object
 	
 Function move($inMailId : Text; $inFolderId : Text) : Object
 	
-	var $savedMethod : Text
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	
 	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
 	
 	Case of 
 		: (Type:C295($inMailId)#Is text:K8:3)
@@ -360,7 +341,6 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
-	ON ERR CALL:C155($savedMethod)
 	
 	return This:C1470._returnStatus()
 	
@@ -370,13 +350,7 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
-	var $savedMethod : Text
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	
 	Super:C1706._throwErrors(False:C215)
-	Super:C1706._getErrorStack().clear()
 	
 	Case of 
 		: (Type:C295($inMailId)#Is text:K8:3)
@@ -411,7 +385,6 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
-	ON ERR CALL:C155($savedMethod)
 	
 	return This:C1470._returnStatus()
 	

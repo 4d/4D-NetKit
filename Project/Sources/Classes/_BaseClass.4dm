@@ -105,7 +105,16 @@ Function _getErrorStack : Collection
 	
 	
 	// [Private]
-Function _throwErrors($inValue : Boolean)
+Function _throwErrors($inThrowErrors : Boolean)
 	
-	This:C1470._internals._throwErrors:=$inValue
+	If (Bool:C1537($inThrowErrors))
+		This:C1470._internals._throwErrors:=True:C214
+		ON ERR CALL:C155(String:C10(This:C1470._internals._savedErrorCallMethod))
+		This:C1470._internals._savedErrorCallMethod:=""
+	Else 
+		This:C1470._internals._savedErrorCallMethod:=Method called on error:C704
+		ON ERR CALL:C155("_ErrorHandler")
+		This:C1470._internals._throwErrors:=False:C215
+		This:C1470._getErrorStack().clear()
+	End if 
 	
