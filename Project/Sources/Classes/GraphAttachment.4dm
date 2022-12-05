@@ -6,8 +6,10 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParams : Object; $in
 	
 	This:C1470._internals._userId:=String:C10($inParams.userId)
 	This:C1470._internals._messageId:=String:C10($inParams.messageId)
-	Super:C1706._loadFromObject(Super:C1706._cleanResponseObject($inObject))
-	This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
+	Super:C1706._loadFromObject($inObject)
+	If (Length:C16(String:C10(This:C1470["@odata.type"]))=0)
+		This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
+	End if 
 	
 	
 	// ----------------------------------------------------
@@ -33,20 +35,19 @@ Function getContent() : 4D:C1709.Blob
 			$urlParams+="/attachments/"+This:C1470.id
 			
 			$URL:=Super:C1706._getURL()+$urlParams
+			If (This:C1470["@odata.type"]="#microsoft.graph.itemAttachment")
+				$URL+="/?$expand=microsoft.graph.itemattachment/item"
+			End if 
 			$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 			
 			If ($response#Null:C1517)
 				If (OB Is defined:C1231($response; "contentBytes"))
 					This:C1470.contentBytes:=$response.contentBytes
 				Else 
-					If ($response["@odata.type"]="#microsoft.graph.itemAttachment")
-						$URL+="/?$expand=microsoft.graph.itemattachment/item"
-						$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
-						If ($response#Null:C1517)
-							If (OB Is defined:C1231($response; "contentBytes"))
-								This:C1470.contentBytes:=$response.contentBytes
-							End if 
-						End if 
+					If (OB Is defined:C1231($response; "item"))
+						var $stringContent : Text
+						BASE64 ENCODE:C895(JSON Stringify:C1217($response.item); $stringContent)
+						This:C1470.contentBytes:=$stringContent
 					End if 
 				End if 
 				
