@@ -282,6 +282,13 @@ Function getMails($inParameters : Object) : Object
 	
 Function delete($inMailId : Text) : Object
 	
+	var $savedMethod : Text
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	
+	Super:C1706._throwErrors(False:C215)
+	Super:C1706._getErrorStack().clear()
 	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
@@ -302,6 +309,9 @@ Function delete($inMailId : Text) : Object
 		Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "delete"))
 	End if 
 	
+	Super:C1706._throwErrors(True:C214)
+	ON ERR CALL:C155($savedMethod)
+	
 	return This:C1470._returnStatus()
 	
 	
@@ -309,6 +319,14 @@ Function delete($inMailId : Text) : Object
 	
 	
 Function move($inMailId : Text; $inFolderId : Text) : Object
+	
+	var $savedMethod : Text
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	
+	Super:C1706._throwErrors(False:C215)
+	Super:C1706._getErrorStack().clear()
 	
 	Case of 
 		: (Type:C295($inMailId)#Is text:K8:3)
@@ -319,6 +337,9 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			
 		: (Type:C295($inFolderId)#Is text:K8:3)
 			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "move"))
+			
+		: (Length:C16(String:C10($inFolderId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
 			var $urlParams; $URL : Text
@@ -338,6 +359,9 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	End case 
 	
+	Super:C1706._throwErrors(True:C214)
+	ON ERR CALL:C155($savedMethod)
+	
 	return This:C1470._returnStatus()
 	
 	
@@ -345,6 +369,14 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	
 Function copy($inMailId : Text; $inFolderId : Text) : Object
+	
+	var $savedMethod : Text
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	
+	Super:C1706._throwErrors(False:C215)
+	Super:C1706._getErrorStack().clear()
 	
 	Case of 
 		: (Type:C295($inMailId)#Is text:K8:3)
@@ -355,6 +387,9 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			
 		: (Type:C295($inFolderId)#Is text:K8:3)
 			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
+			
+		: (Length:C16(String:C10($inFolderId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
 			var $urlParams; $URL : Text
@@ -374,6 +409,9 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 			
 	End case 
+	
+	Super:C1706._throwErrors(True:C214)
+	ON ERR CALL:C155($savedMethod)
 	
 	return This:C1470._returnStatus()
 	
