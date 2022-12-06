@@ -419,26 +419,28 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 		
 		$URL:=Super:C1706._getURL()+$urlParams
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
-		If ($format="Microsoft")
-			$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
-				New object:C1471("userId"; String:C10(This:C1470.userId)); \
-				$result)
-			
-		Else 
-			If (Length:C16($result)>0)
-				If ($format="JMAP")
-					$response:=MAIL Convert from MIME:C1681($result)
-				Else 
-					$response:=$result
+		If ($result#Null:C1517)
+			If ($format="Microsoft")
+				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
+					New object:C1471("userId"; String:C10(This:C1470.userId)); \
+					$result)
+				
+			Else 
+				If (Length:C16($result)>0)
+					If ($format="JMAP")
+						$response:=MAIL Convert from MIME:C1681($result)
+					Else 
+						$response:=$result
+					End if 
 				End if 
 			End if 
+			return $response
 		End if 
 		
-		return $response
 	Else 
 		
 		Super:C1706._throwError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
-		return Null:C1517
 	End if 
 	
+	return Null:C1517
 	
