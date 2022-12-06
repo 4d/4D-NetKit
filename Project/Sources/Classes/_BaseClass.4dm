@@ -105,6 +105,36 @@ Function _getErrorStack : Collection
 	
 	
 	// [Private]
+Function _getLastError : Object
+	
+	If (This:C1470._getErrorStack().length>0)
+		return This:C1470._getErrorStack()[This:C1470._getErrorStack().length-1]
+	End if 
+	return Null:C1517
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
+Function _getLastErrorCode : Integer
+	
+	return Num:C11(This:C1470._getLastError().errCode)
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
+Function _clearErrorStack
+	
+	This:C1470._getErrorStack().clear()
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
 Function _throwErrors($inThrowErrors : Boolean)
 	
 	If (Bool:C1537($inThrowErrors))

@@ -51,6 +51,8 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	
 Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
+	Super:C1706._clearErrorStack()
+	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
 		var $URL : Text
@@ -221,6 +223,7 @@ Function getFolderList($inParameters : Object) : Object
 	var $urlParams; $URL : Text
 	var $headers : Object
 	
+	Super:C1706._clearErrorStack()
 	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
 		$URL+="users/"+This:C1470.userId
@@ -250,6 +253,7 @@ Function getMails($inParameters : Object) : Object
 	var $urlParams; $URL : Text
 	var $headers : Object
 	
+	Super:C1706._clearErrorStack()
 	$URL:=Super:C1706._getURL()
 	If (Length:C16(String:C10(This:C1470.userId))>0)
 		$URL+="users/"+This:C1470.userId
@@ -394,6 +398,8 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 	
+	Super:C1706._clearErrorStack()
+	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
 		var $urlParams; $URL; $format : Text
@@ -415,7 +421,7 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 		If ($format="Microsoft")
 			$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
-				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
+				New object:C1471("userId"; String:C10(This:C1470.userId)); \
 				$result)
 			
 		Else 
