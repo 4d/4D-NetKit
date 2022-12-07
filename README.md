@@ -153,6 +153,34 @@ The returned `Office365` object has a `mail` property used to handle emails:
 |userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
 
 
+### Office365.mail.copy()
+
+**Office365.mail.copy**( *mailId* : Text ; *folderId* : Text) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->| Id of the mail to copy|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| Status object  |
+
+#### Description
+
+`Office365.mail.copy()` copies the *mailId* email to the *folderId* folder within the user's mailbox.
+
+#### Returned object 
+
+The method returns a status object with the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the email is successfully moved|
+|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
+|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+
+
+
+
 ### Office365.mail.delete()
 
 **Office365.mail.delete**( *mailId* : Text ) : Object
@@ -349,6 +377,33 @@ $param.folderId:="inbox"
 
 $mails:=$office365.mail.getMails($param)
 ```
+
+### Office365.mail.move()
+
+**Office365.mail.move**( *mailId* : Text ; *folderId* : Text) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->| Id of the mail to move|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| Status object  |
+
+#### Description
+
+`Office365.mail.move()` moves the *mailId* email to the *folderId* folder. It actually creates a new copy of the email in the destination folder and removes the original email from its source folder.
+
+#### Returned object 
+
+The method returns a status object with the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the email is successfully moved|
+|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
+|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+
+
 
 ### Office365.mail.send()
 
