@@ -159,6 +159,19 @@ The returned `Office365` object has a `mail` property used to handle emails:
 |userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
 
 
+#### Example
+
+To create the OAuth2 connection object and an Office365 object:
+
+```4d
+var $oAuth2: cs.NetKit.OAuth2Provider
+var $office365 : cs.NetKit.Office365
+
+$oAuth2:=New OAuth2 provider($param)
+$office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
+```
+
+
 ### Office365.mail.append()
 
 **Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object<br/>**Office365.mail.append**( *email* : Text ; *folderId* : Text) : Object<br/>**Office365.mail.append**( *email* : Blob ; *folderId* : Text) : Object
@@ -239,6 +252,15 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (work or school account)|Mail.ReadWrite|
 |Delegated (personal Microsoft account)|Mail.ReadWrite|
 |Application|Mail.ReadWrite|
+
+#### Example
+
+To copy an email from a folder to another:
+
+```4d
+$status:=$office365.mail.copy($mailId; $foderId)
+```
+
 
 
 ### Office365.mail.delete()
@@ -498,6 +520,14 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
+#### Example
+
+To move an email from a folder to another:
+
+```4d
+$status:=$office365.mail.move($mailId; $foderId)
+```
+
 
 ### Office365.mail.reply()
 
@@ -541,6 +571,16 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.Send|
 |Application|Mail.Send|
 
+#### Example
+
+To reply to an email and create a conversation:
+
+```4d
+$reply:=New object
+// Text that will be send as reply
+$reply.comment:="Thank you for your message"
+$status:=$office365.mail.reply($reply; $mails.mailId)
+```
 
 
 
