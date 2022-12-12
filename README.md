@@ -375,18 +375,22 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 
 ### Office365.mail.getMail()
 
-**Office365.mail.getMail**( *mailId* : Text { ; *format* : Text} ) : Text<br/>**Office365.mail.getMail**( *mailId* : Text { ; *format* : Text} ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *format* : Text} ) : Blob
+**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Text<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
 
 #### Parameters 
-|Parameter|Type||Description|
-|---------|--- |:---:|------|
-|mailId|Text|->| Id of the mail to get|
-|format|Text|->| Format of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mailType` property](#new-office365-provider) is used|
-|Result|Text &#124; Blob &#124; Object|<-| Downloaded mail|
+|Parameter||Type||Description|
+|-----|----|--- |:---:|------|
+|mailId||Text|->| Id of the mail to get|
+|options||Object|->|Format options for the returned mail object|
+||format|Text|| Format of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mailType` property](#new-office365-provider) is used|
+||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
+|Result||Text &#124; Blob &#124; Object|<-| Downloaded mail|
 
 `Office365.mail.getMail()` allows you to get a single mail from its *mailId*. 
 
-By default, the mail is returned with its original format, as defined in the [`mailType` property](#new-office365-provider). However, you can convert it to any type using the *format* parameter. 
+By default, the mail is returned with its original format, as defined in the [`mailType` property](#new-office365-provider). However, you can convert it to any type using the `format` property of the *option* parameter.   
+
+You can also convert the format of the `body` and `uniqueBody` properties of the returned mail using the `contentType` property of the *option* parameter.
 
 If an error occurs, the method returns Null and an error is generated.
 
