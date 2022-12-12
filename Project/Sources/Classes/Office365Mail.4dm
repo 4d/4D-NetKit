@@ -284,16 +284,16 @@ Function delete($inMailId : Text) : Object
 	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
-		var $urlParams; $URL : Text
+		var $URL : Text
 		
+		$URL:=Super:C1706._getURL()
 		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$urlParams:="users/"+This:C1470.userId
+			$URL+="users/"+This:C1470.userId
 		Else 
-			$urlParams:="me"
+			$URL+="me"
 		End if 
-		$urlParams+="/messages/"+$inMailId
+		$URL+="/messages/"+$inMailId
 		
-		$URL:=Super:C1706._getURL()+$urlParams
 		Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
 		
 	Else 
@@ -327,20 +327,20 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
-			var $urlParams; $URL : Text
+			var $URL : Text
 			var $headers; $body : Object
 			
+			$URL:=Super:C1706._getURL()
 			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$urlParams:="users/"+This:C1470.userId
+				$URL+="users/"+This:C1470.userId
 			Else 
-				$urlParams:="me"
+				$URL+="me"
 			End if 
-			$urlParams+="/messages/"+$inMailId+"/move"
+			$URL+="/messages/"+$inMailId+"/move"
 			
 			$headers:=New object:C1471("Content-Type"; "application/json")
 			$body:=New object:C1471("destinationId"; $inFolderId)
 			
-			$URL:=Super:C1706._getURL()+$urlParams
 			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	End case 
 	
@@ -370,20 +370,20 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
-			var $urlParams; $URL : Text
+			var $URL : Text
 			var $headers; $body : Object
 			
+			$URL:=Super:C1706._getURL()
 			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$urlParams:="users/"+This:C1470.userId
+				$URL+="users/"+This:C1470.userId
 			Else 
-				$urlParams:="me"
+				$URL+="me"
 			End if 
-			$urlParams+="/messages/"+$inMailId+"/copy"
+			$URL+="/messages/"+$inMailId+"/copy"
 			
 			$headers:=New object:C1471("Content-Type"; "application/json")
 			$body:=New object:C1471("destinationId"; $inFolderId)
 			
-			$URL:=Super:C1706._getURL()+$urlParams
 			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 			
 	End case 
@@ -396,29 +396,37 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
+Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
 	Super:C1706._clearErrorStack()
 	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
-		var $urlParams; $URL; $format : Text
+		var $URL; $format; $contentType : Text
 		var $result : Variant
+		var $headers : Object
 		
+		$URL:=Super:C1706._getURL()
 		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$urlParams:="users/"+This:C1470.userId
+			$URL+="users/"+This:C1470.userId
 		Else 
-			$urlParams:="me"
+			$URL+="me"
 		End if 
-		$urlParams+="/messages/"+$inMailId
+		$URL+="/messages/"+$inMailId
 		
-		$format:=(Length:C16($inFormat)>0) ? $inFormat : This:C1470.mailType
+		$format:=(($inOptions#Null:C1517) && \
+			(Length:C16(String:C10($inOptions.format))>0)) ? $inOptions.format : This:C1470.mailType
 		If (($format="JMAP") || ($format="MIME"))
-			$urlParams+="/$value"
+			$URL+="/$value"
 		End if 
 		
-		$URL:=Super:C1706._getURL()+$urlParams
-		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+		$contentType:=(($inOptions#Null:C1517) && \
+			(Length:C16(String:C10($inOptions.contentType))>0)) ? $inOptions.contentType : ""
+		If (($contentType="text") || ($contentType="html"))
+			$headers:=New object:C1471("Prefer"; $contentType)
+		End if 
+		
+		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null:C1517)
 			If ($format="Microsoft")
 				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
@@ -426,7 +434,7 @@ Function getMail($inMailId : Text; $inFormat : Text)->$response : Variant
 					$result)
 				
 			Else 
-				If (Length:C16($result)>0)
+				If (Value type:C1509($result)=Is text:K8:3)
 					If ($format="JMAP")
 						$response:=MAIL Convert from MIME:C1681($result)
 					Else 
