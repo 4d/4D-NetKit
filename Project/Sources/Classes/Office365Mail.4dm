@@ -138,6 +138,13 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	$headers:=New object:C1471
 	$headers["Content-Type"]:="text/plain"
 	
+/*
+POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
+An issue has already been registered.
+See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
+See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
+*/
+	
 	Case of 
 		: (Value type:C1509($inMail)=Is BLOB:K8:12)
 			$requestBody:=Convert to text:C1012($inMail; "UTF-8")
