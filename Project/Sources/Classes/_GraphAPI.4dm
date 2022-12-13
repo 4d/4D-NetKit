@@ -147,7 +147,7 @@ Function _getOAuth2Provider() : cs:C1710.OAuth2Provider
 	
 	
 	// [Private]
-Function _cleanResponseObject($ioObject : Object) : Object
+Function _cleanGraphObject($ioObject : Object) : Object
 	
 	var $keys : Collection
 	var $key : Text
@@ -160,6 +160,50 @@ Function _cleanResponseObject($ioObject : Object) : Object
 	End for each 
 	
 	return $ioObject
+	
+	
+	// ----------------------------------------------------
+	
+	
+	// [Private]
+Function _copyGraphMessage($inMessage : Object) : Object
+	
+	If (OB Instance of:C1731($inMessage; cs:C1710.GraphMessage))
+		
+		var $message : Object
+		var $keys : Collection
+		var $key : Text
+		TRACE:C157
+		$message:=New object:C1471
+		$keys:=OB Keys:C1719($inMessage)
+		For each ($key; $keys)
+			
+			Case of 
+				: ($key="_internals")
+					// do not copy
+					
+				: ($key="attachments")
+					var $attachment : Object
+					For each ($attachment; $inMessage.attachments)
+						If ($message.attachment=Null:C1517)
+							$message.attachment:=New collection:C1472
+						End if 
+						$message.attachment.push(_convertToGraphAttachment($attachment))
+					End for each 
+					
+				Else 
+					$message[$key]:=$inMessage[$key]
+					
+			End case 
+			
+		End for each 
+		
+		return $message
+		
+	Else 
+		
+		return $inMessage
+	End if 
 	
 	
 	// ----------------------------------------------------

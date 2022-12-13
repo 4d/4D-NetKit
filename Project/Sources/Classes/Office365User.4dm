@@ -12,7 +12,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 Function _getUserInfo($inURL : Text)->$userInfo : Object
 	
 	$userInfo:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL)
-	$userInfo:=Super:C1706._cleanResponseObject($userInfo)
+	$userInfo:=Super:C1706._cleanGraphObject($userInfo)
 	
 	
 	// ----------------------------------------------------

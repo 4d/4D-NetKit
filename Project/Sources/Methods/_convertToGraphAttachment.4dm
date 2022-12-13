@@ -1,8 +1,8 @@
 //%attributes = {"invisible":true}
-#DECLARE($inObject : 4D:C1709.MailAttachment)->$result : Object
+#DECLARE($inObject : cs:C1710.GraphAttachment)->$result : Object
 
-// converts 4D.MailAttachment into microsoft.graph.fileAttachment
-If (OB Instance of:C1731($inObject; 4D:C1709.MailAttachment))
+// converts cs.GraphAttachment into microsoft.graph.fileAttachment
+If (OB Instance of:C1731($inObject; cs:C1710.GraphAttachment))
 	
 	$result:=New object:C1471
 	$result["@odata.type"]:="#microsoft.graph.fileAttachment"

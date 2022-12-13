@@ -187,9 +187,9 @@ $inHeader : Object) : Object
 		End if 
 		
 		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
-			$message:=New object:C1471("message"; $inMail)
+			$message:=New object:C1471("message"; This:C1470._copyGraphMessage($inMail))
 		Else 
-			$message:=$inMail
+			$message:=This:C1470._copyGraphMessage($inMail)
 		End if 
 		$requestBody:=JSON Stringify:C1217($message)
 		

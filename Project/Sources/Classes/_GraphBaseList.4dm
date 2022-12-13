@@ -80,7 +80,7 @@ Function _getList($inURL : Text) : Boolean
 		$result:=$response["value"]
 		This:C1470._internals.list:=New collection:C1472
 		For each ($object; $result)
-			This:C1470._internals.list.push(Super:C1706._cleanResponseObject($object))
+			This:C1470._internals.list.push(Super:C1706._cleanGraphObject($object))
 		End for each 
 		This:C1470.success:=True:C214
 		This:C1470._internals.nextLink:=String:C10($response["@odata.nextLink"])
