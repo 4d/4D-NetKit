@@ -174,12 +174,12 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 
 ### Office365.mail.append()
 
-**Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object<br/>**Office365.mail.append**( *email* : Text ; *folderId* : Text) : Object<br/>**Office365.mail.append**( *email* : Blob ; *folderId* : Text) : Object
+**Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
 
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|email|Text &#124; Blob &#124; Object|->| Message to append|
+|email|Object|->| Microsoft message object to append|
 |folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-| Status object  |
 
@@ -187,14 +187,8 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 
 `Office365.mail.append()` creates a draft *email* in the *folderId* folder. 
 
-In `email`, pass the email to create. Possible types:
+In `email`, pass the email to create. It must be of the [Microsoft mail object](#microsoft-mail-object-properties) type. 
 
-* Text or Blob: the email is sent using the MIME format
-* Object: the email is sent using the JSON format, in accordance with either: 
-    * the [Microsoft mail object properties](#microsoft-mail-object-properties)
-    * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
-
-The data type passed in `email` must be compatible with the [`Office365.mail.type` property](#returned-object-1).
 
 #### Returned object 
 
@@ -216,6 +210,12 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.ReadWrite|
 |Application|Mail.ReadWrite|
 
+
+#### Example
+
+```4d
+$status:=$office365.mail.append($draft; $folder.id)
+```
 
 
 ### Office365.mail.copy()
@@ -625,6 +625,7 @@ The method returns a status object with the following properties:
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
 
 ### Well-known folder names
+
 
 Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
 
