@@ -173,22 +173,23 @@ Function _copyGraphMessage($inMessage : Object) : Object
 		var $message : Object
 		var $keys : Collection
 		var $key : Text
-		TRACE:C157
+		var $iter; $attachment : Object
+		
 		$message:=New object:C1471
+		If (OB Is defined:C1231($inMessage; "attachments") && ($inMessage.attachments#Null:C1517))
+			$message.attachments:=New collection:C1472
+		End if 
 		$keys:=OB Keys:C1719($inMessage)
 		For each ($key; $keys)
 			
 			Case of 
-				: (($key="_internals") || ($key="$odata.@"))
+				: (($key="_internals") || (Position:C15("@"; $key)=1) || ($key="webLink"))
 					// do not copy
 					
 				: ($key="attachments")
-					var $attachment : Object
-					For each ($attachment; $inMessage.attachments)
-						If ($message.attachment=Null:C1517)
-							$message.attachment:=New collection:C1472
-						End if 
-						$message.attachment.push(_convertToGraphAttachment($attachment))
+					For each ($iter; $inMessage.attachments)
+						$attachment:=_convertToGraphAttachment($iter)
+						$message.attachments.push($attachment)
 					End for each 
 					
 				Else 

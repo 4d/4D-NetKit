@@ -5,7 +5,8 @@
 If (OB Instance of:C1731($inObject; cs:C1710.GraphAttachment))
 	
 	$result:=New object:C1471
-	$result["@odata.type"]:="#microsoft.graph.fileAttachment"
+	$result["@odata.type"]:=(Length:C16(String:C10($inObject["@odata.type"]))>0) ? \
+		$inObject["@odata.type"] : "#microsoft.graph.fileAttachment"
 	If (Length:C16(String:C10($inObject.cid))>0)
 		$result.contentId:=String:C10($inObject.cid)
 	End if 
@@ -18,12 +19,12 @@ If (OB Instance of:C1731($inObject; cs:C1710.GraphAttachment))
 	If (Length:C16(String:C10($inObject.type))>0)
 		$result.contentType:=String:C10($inObject.type)
 	End if 
-	If ($inObject.getContent().size()>0)
-		var $encodedContent : Text
-		BASE64 ENCODE:C895($inObject.getContent(); $encodedContent)
-		$result.contentBytes:=$encodedContent
-		$result.size:=Length:C16($encodedContent)
+	If (Not:C34(OB Is defined:C1231($inObject; "contentBytes")))
+		var $blob : Blob
+		$blob:=$inObject.getContent()
 	End if 
+	$result.contentBytes:=$inObject.contentBytes
+	$result.size:=$inObject.size
 	
 End if 
 

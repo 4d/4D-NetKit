@@ -173,7 +173,7 @@ $inHeader : Object) : Object
 	If ($inMail#Null:C1517)
 		var $headers : Object
 		var $requestBody : Text
-		var $message : Object
+		var $message; $messageCopy : Object
 		
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="application/json"
@@ -186,10 +186,11 @@ $inHeader : Object) : Object
 			End for each 
 		End if 
 		
+		$messageCopy:=This:C1470._copyGraphMessage($inMail)
 		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
-			$message:=New object:C1471("message"; This:C1470._copyGraphMessage($inMail))
+			$message:=New object:C1471("message"; $messageCopy)
 		Else 
-			$message:=This:C1470._copyGraphMessage($inMail)
+			$message:=$messageCopy
 		End if 
 		$requestBody:=JSON Stringify:C1217($message)
 		
