@@ -179,7 +179,7 @@ Function _copyGraphMessage($inMessage : Object) : Object
 		For each ($key; $keys)
 			
 			Case of 
-				: ($key="_internals")
+				: (($key="_internals") || ($key="$odata.@"))
 					// do not copy
 					
 				: ($key="attachments")
