@@ -49,14 +49,14 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Object
+Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
 	Super:C1706._clearErrorStack()
 	
-	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+	If ((Type:C295($inMail)=Is object:K8:27) && (Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
 		var $URL : Text
-		var $body : Object
+		var $body : Variant
 		var $bUseCreateReply : Boolean
 		
 		$URL:=Super:C1706._getURL()
@@ -80,7 +80,11 @@ Function reply($inMail : Variant; $inMailId : Text; $bReplyAll : Boolean) : Obje
 		
 	Else 
 		
-		Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "reply"))
+		If (Type:C295($inMail)#Is object:K8:27)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"reply\""; "function"; "reply"))
+		Else 
+			Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "reply"))
+		End if 
 		return This:C1470._returnStatus()
 	End if 
 	
