@@ -286,6 +286,66 @@ Function getMails($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
+	
+	Super:C1706._clearErrorStack()
+	
+	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+		
+		var $URL; $format; $contentType : Text
+		var $result : Variant
+		var $headers : Object
+		
+		$URL:=Super:C1706._getURL()
+		If (Length:C16(String:C10(This:C1470.userId))>0)
+			$URL+="users/"+This:C1470.userId
+		Else 
+			$URL+="me"
+		End if 
+		$URL+="/messages/"+$inMailId
+		
+		$format:=(($inOptions#Null:C1517) && \
+			(Length:C16(String:C10($inOptions.format))>0)) ? $inOptions.format : This:C1470.mailType
+		If (($format="JMAP") || ($format="MIME"))
+			$URL+="/$value"
+		End if 
+		
+		$contentType:=(($inOptions#Null:C1517) && \
+			(Length:C16(String:C10($inOptions.contentType))>0)) ? $inOptions.contentType : ""
+		If (($contentType="text") || ($contentType="html"))
+			$headers:=New object:C1471("Prefer"; "outlook.body-content-type=\""+$contentType+"\"")
+		End if 
+		
+		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
+		If ($result#Null:C1517)
+			If ($format="Microsoft")
+				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
+					New object:C1471("userId"; String:C10(This:C1470.userId)); \
+					$result)
+				
+			Else 
+				If (Value type:C1509($result)=Is text:K8:3)
+					If ($format="JMAP")
+						$response:=MAIL Convert from MIME:C1681($result)
+					Else 
+						$response:=$result
+					End if 
+				End if 
+			End if 
+			return $response
+		End if 
+		
+	Else 
+		
+		Super:C1706._throwError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
+	End if 
+	
+	return Null:C1517
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function delete($inMailId : Text) : Object
 	
 	Super:C1706._throwErrors(False:C215)
@@ -399,64 +459,4 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	Super:C1706._throwErrors(True:C214)
 	
 	return This:C1470._returnStatus()
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
-	
-	Super:C1706._clearErrorStack()
-	
-	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
-		
-		var $URL; $format; $contentType : Text
-		var $result : Variant
-		var $headers : Object
-		
-		$URL:=Super:C1706._getURL()
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$URL+="users/"+This:C1470.userId
-		Else 
-			$URL+="me"
-		End if 
-		$URL+="/messages/"+$inMailId
-		
-		$format:=(($inOptions#Null:C1517) && \
-			(Length:C16(String:C10($inOptions.format))>0)) ? $inOptions.format : This:C1470.mailType
-		If (($format="JMAP") || ($format="MIME"))
-			$URL+="/$value"
-		End if 
-		
-		$contentType:=(($inOptions#Null:C1517) && \
-			(Length:C16(String:C10($inOptions.contentType))>0)) ? $inOptions.contentType : ""
-		If (($contentType="text") || ($contentType="html"))
-			$headers:=New object:C1471("Prefer"; $contentType)
-		End if 
-		
-		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
-		If ($result#Null:C1517)
-			If ($format="Microsoft")
-				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
-					New object:C1471("userId"; String:C10(This:C1470.userId)); \
-					$result)
-				
-			Else 
-				If (Value type:C1509($result)=Is text:K8:3)
-					If ($format="JMAP")
-						$response:=MAIL Convert from MIME:C1681($result)
-					Else 
-						$response:=$result
-					End if 
-				End if 
-			End if 
-			return $response
-		End if 
-		
-	Else 
-		
-		Super:C1706._throwError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
-	End if 
-	
-	return Null:C1517
 	
