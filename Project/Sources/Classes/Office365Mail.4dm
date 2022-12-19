@@ -210,11 +210,21 @@ $inHeader : Object) : Object
 	
 	
 	// [Private]
-Function _returnStatus()->$status : Object
+Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 	var $errorStack : Collection
 	$errorStack:=Super:C1706._getErrorStack()
 	$status:=New object:C1471
+	
+	If (OB Is empty:C1297($inAdditionalInfo))
+		var $keys : Collection
+		var $key : Text
+		
+		$keys:=OB Keys:C1719($inAdditionalInfo)
+		For each ($key; $keys)
+			$status[$key]:=$inAdditionalInfo[$key]
+		End for each 
+	End if 
 	
 	If ($errorStack.length>0)
 		$status.success:=False:C215
@@ -383,6 +393,8 @@ Function delete($inMailId : Text) : Object
 	
 Function move($inMailId : Text; $inFolderId : Text) : Object
 	
+	var $response : Object
+	
 	Super:C1706._throwErrors(False:C215)
 	
 	Case of 
@@ -400,7 +412,7 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			
 		Else 
 			var $URL : Text
-			var $headers; $body : Object
+			var $headers; $body; $response : Object
 			
 			$URL:=Super:C1706._getURL()
 			If (Length:C16(String:C10(This:C1470.userId))>0)
@@ -413,18 +425,20 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			$headers:=New object:C1471("Content-Type"; "application/json")
 			$body:=New object:C1471("destinationId"; $inFolderId)
 			
-			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
 	
-	return This:C1470._returnStatus()
+	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
 	
 	
 	// ----------------------------------------------------
 	
 	
 Function copy($inMailId : Text; $inFolderId : Text) : Object
+	
+	var $response : Object
 	
 	Super:C1706._throwErrors(False:C215)
 	
@@ -456,11 +470,10 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			$headers:=New object:C1471("Content-Type"; "application/json")
 			$body:=New object:C1471("destinationId"; $inFolderId)
 			
-			Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
-			
+			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
 	
-	return This:C1470._returnStatus()
+	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
 	
