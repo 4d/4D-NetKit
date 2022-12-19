@@ -397,16 +397,16 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 
 ### Office365.mail.getMail()
 
-**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Text<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
+**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
 
 #### Parameters 
 |Parameter||Type||Description|
 |-----|----|--- |:---:|------|
 |mailId||Text|->| Id of the mail to get|
 |options||Object|->|Format options for the returned mail object|
-||format|Text|| Format of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mailType` property](#new-office365-provider) is used|
+||mailType|Text|| Format of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mailType` property](#new-office365-provider) is used|
 ||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
-|Result||Text &#124; Blob &#124; Object|<-| Downloaded mail|
+|Result||Blob &#124; Object|<-| Downloaded mail|
 
 `Office365.mail.getMail()` allows you to get a single mail from its *mailId*. 
 
