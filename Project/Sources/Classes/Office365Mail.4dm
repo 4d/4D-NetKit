@@ -296,7 +296,7 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
 	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
 		
-		var $URL; $format; $contentType : Text
+		var $URL; $mailType; $contentType : Text
 		var $result : Variant
 		var $headers : Object
 		
@@ -308,9 +308,9 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		$format:=(($inOptions#Null:C1517) && \
-			(Length:C16(String:C10($inOptions.format))>0)) ? $inOptions.format : This:C1470.mailType
-		If (($format="JMAP") || ($format="MIME"))
+		$mailType:=(($inOptions#Null:C1517) && \
+			(Length:C16(String:C10($inOptions.mailType))>0)) ? $inOptions.mailType : This:C1470.mailType
+		If (($mailType="JMAP") || ($mailType="MIME"))
 			$URL+="/$value"
 		End if 
 		
@@ -322,14 +322,14 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null:C1517)
-			If ($format="Microsoft")
+			If ($mailType="Microsoft")
 				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
 					New object:C1471("userId"; String:C10(This:C1470.userId)); \
 					$result)
 				
 			Else 
 				If (Value type:C1509($result)=Is text:K8:3)
-					If ($format="JMAP")
+					If ($mailType="JMAP")
 						$response:=MAIL Convert from MIME:C1681($result)
 					Else 
 						$response:=$result
