@@ -41,6 +41,12 @@ userPreferences.*/
 Project/Trash/
 
 #--------------------------------
+# Ignore backup
+#--------------------------------
+*.4BK
+backupHistory.json
+
+#--------------------------------
 # Miscellaneous
 #--------------------------------
 *__Orphan__*
