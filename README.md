@@ -389,7 +389,7 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 |-----|----|--- |:---:|------|
 |mailId||Text|->| Id of the mail to get|
 |options||Object|->|Format options for the returned mail object|
-||mailType|Text|| Format of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mailType` property](#new-office365-provider) is used|
+||mailType|Text|| Type of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mail.type` property](#new-office365-provider) is used|
 ||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
 |Result||Blob &#124; Object|<-| Downloaded mail|
 
