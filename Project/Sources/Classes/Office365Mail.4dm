@@ -215,7 +215,7 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	$errorStack:=Super:C1706._getErrorStack()
 	$status:=New object:C1471
 	
-	If (OB Is empty:C1297($inAdditionalInfo))
+	If (Not:C34(OB Is empty:C1297($inAdditionalInfo)))
 		var $keys : Collection
 		var $key : Text
 		
