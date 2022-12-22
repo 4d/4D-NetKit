@@ -4,16 +4,15 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
 	Super:C1705()
 	
-	// [Private]
 	This:C1470._internals._URL:="https://graph.microsoft.com/v1.0/"
 	This:C1470._internals._OAuth2Provider:=$inProvider
 	This:C1470._internals._statusLine:=""
 	
 	
+	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getAcessToken() : Text
 	
 	If (This:C1470._internals._OAuth2Provider.token=Null:C1517)
@@ -26,7 +25,6 @@ Function _getAcessToken() : Text
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Text)->$response : Variant
 	
 	This:C1470._try()
@@ -119,7 +117,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getStatusLine() : Text
 	
 	return This:C1470._internals._statusLine
@@ -128,7 +125,6 @@ Function _getStatusLine() : Text
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getURL() : Text
 	
 	return This:C1470._internals._URL
@@ -137,7 +133,6 @@ Function _getURL() : Text
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getOAuth2Provider() : cs:C1710.OAuth2Provider
 	
 	return This:C1470._internals._OAuth2Provider
@@ -146,7 +141,6 @@ Function _getOAuth2Provider() : cs:C1710.OAuth2Provider
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _cleanGraphObject($ioObject : Object) : Object
 	
 	var $keys : Collection
@@ -165,7 +159,6 @@ Function _cleanGraphObject($ioObject : Object) : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _copyGraphMessage($inMessage : Object) : Object
 	
 	If (OB Instance of:C1731($inMessage; cs:C1710.GraphMessage))
@@ -210,7 +203,6 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
@@ -230,7 +222,6 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $urlParams; $delimiter : Text
@@ -264,5 +255,4 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	End if 
 	
 	return $urlParams
-	
 	

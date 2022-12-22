@@ -5,16 +5,17 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	Super:C1705($inProvider)
 	
 	
+	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getUserInfo($inURL : Text)->$userInfo : Object
 	
 	$userInfo:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL)
 	$userInfo:=Super:C1706._cleanGraphObject($userInfo)
 	
 	
+	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	

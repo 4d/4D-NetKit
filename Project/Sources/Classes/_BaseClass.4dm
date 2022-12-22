@@ -5,10 +5,10 @@ Class constructor()
 	This:C1470._internals._throwErrors:=True:C214
 	
 	
+	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _pushError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack without throwing it
@@ -29,7 +29,6 @@ Function _pushError($inCode : Integer; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
 	
 	// Push error into errorStack without throwing it
@@ -45,7 +44,6 @@ Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
@@ -69,7 +67,6 @@ Function _throwError($inCode : Integer; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _try
 	
 	CLEAR VARIABLE:C89(ERROR)
@@ -83,7 +80,6 @@ Function _try
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _finally
 	
 	ON ERR CALL:C155(This:C1470._internals._throwErrors ? "_throwError" : "")
@@ -92,7 +88,6 @@ Function _finally
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getErrorStack : Collection
 	
 	If (This:C1470._internals._errorStack=Null:C1517)
@@ -104,7 +99,6 @@ Function _getErrorStack : Collection
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getLastError : Object
 	
 	If (This:C1470._getErrorStack().length>0)
@@ -116,7 +110,6 @@ Function _getLastError : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getLastErrorCode : Integer
 	
 	return Num:C11(This:C1470._getLastError().errCode)
@@ -125,7 +118,6 @@ Function _getLastErrorCode : Integer
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _clearErrorStack
 	
 	This:C1470._getErrorStack().clear()
@@ -134,7 +126,6 @@ Function _clearErrorStack
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _throwErrors($inThrowErrors : Boolean)
 	
 	If (Bool:C1537($inThrowErrors))

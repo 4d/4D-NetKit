@@ -9,9 +9,10 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 	
 	// ----------------------------------------------------
+	// Mark: - [Private]
+	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _postMessage($inFunction : Text; \
 $inURL : Text; \
 $inMail : Variant; \
@@ -52,7 +53,6 @@ $inHeader : Object) : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	var $headers : Object
@@ -85,11 +85,8 @@ See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodes
 	
 	
 	// ----------------------------------------------------
-	// Mark: Private functions
-	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _postJSONMessage($inURL : Text; \
 $inMail : Object; \
 $bSkipMessageEncapsulation : Boolean; \
@@ -130,7 +127,6 @@ $inHeader : Object) : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 	var $errorStack : Collection
@@ -157,8 +153,8 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	End if 
 	
 	
-	// ----------------------------------------------------
-	// Mark: Mails
+	// Mark: - [Public]
+	// Mark: - Mails
 	// ----------------------------------------------------
 	
 	
@@ -451,8 +447,7 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
 	
 	
-	// ----------------------------------------------------
-	// Mark: Folders
+	// Mark: - Folders
 	// ----------------------------------------------------
 	
 	

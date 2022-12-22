@@ -15,10 +15,10 @@ Class constructor($inParams : Object)
 	End if 
 	
 	
+	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
@@ -58,7 +58,6 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _loadFromResponse($inResponseString : Text)
 	
 	var $obj; $token : Object
@@ -75,7 +74,6 @@ Function _loadFromResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _Expired($inParams : Text)->$result : Boolean
 	
 	var $expiration : Text

@@ -6,6 +6,8 @@ Class constructor($inMail : cs:C1710.Office365Mail; $inProvider : cs:C1710.OAuth
 	This:C1470._internals._mail:=$inMail
 	This:C1470._internals._mails:=Null:C1517
 	
+	
+	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	

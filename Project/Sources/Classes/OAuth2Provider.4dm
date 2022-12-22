@@ -87,10 +87,10 @@ The application secret that you created in the app registration portal for your 
 	This:C1470._finally()
 	
 	
+	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
 	// Sanity check
@@ -163,7 +163,6 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
@@ -230,7 +229,6 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	// ----------------------------------------------------
 	
 	
-	// [Private]
 Function _getToken_Service()->$result : Object
 	
 	var $params : Text
@@ -243,6 +241,125 @@ Function _getToken_Service()->$result : Object
 	$result:=This:C1470._sendTokenRequest($params)
 	
 	
+	// ----------------------------------------------------
+	
+	
+Function _checkPrerequisites($obj : Object)->$OK : Boolean
+	
+	$OK:=False:C215
+	
+	If (($obj#Null:C1517) & (Value type:C1509($obj)=Is object:K8:27))
+		
+		Case of 
+				
+			: (Length:C16(String:C10($obj.name))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "name"))
+				
+			: (Length:C16(String:C10($obj.clientId))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+				
+			: (Length:C16(String:C10($obj.scope))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+				
+			: (Length:C16(String:C10($obj.permission))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+				
+			: (Not:C34(String:C10($obj.permission)="signedIn") & Not:C34(String:C10($obj.permission)="service"))
+				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+				
+			: ((String:C10($obj.permission)="signedIn") & (Length:C16(String:C10($obj.redirectURI))=0))
+				This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
+				
+			Else 
+				$OK:=True:C214
+				
+		End case 
+		
+		
+	Else 
+		
+		This:C1470._throwError(1)
+		
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _sendTokenRequest($params : Text)->$result : Object
+	
+	var $response; $savedMethod : Text
+	var $status : Integer
+	
+	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
+	
+	var $options : Object
+	var $request : 4D:C1709.HTTPRequest
+	
+	$options:=New object:C1471
+	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded")
+	$options.method:=HTTP POST method:K71:2
+	$options.body:=$params
+	$options.dataType:="text"
+	
+	$savedMethod:=Method called on error:C704
+	ON ERR CALL:C155("_ErrorHandler")
+	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
+	$request.wait(30)
+	ON ERR CALL:C155($savedMethod)
+	$status:=$request["response"]["status"]
+	$response:=$request["response"]["body"]
+	
+	If ($status=200)
+		
+		If (Length:C16($response)>0)
+			
+			$result:=cs:C1710.OAuth2Token.new()
+			$result._loadFromResponse($response)
+			
+		Else 
+			
+			var $licenseAvailable : Boolean
+			If (Application type:C494=4D Remote mode:K5:5)
+				$licenseAvailable:=Is license available:C714(4D Client Web license:K44:6)
+			Else 
+				$licenseAvailable:=(Is license available:C714(4D Web license:K44:3) | Is license available:C714(4D Web local license:K44:14) | Is license available:C714(4D Web one connection license:K44:15))
+			End if 
+			If ($licenseAvailable)
+				This:C1470._throwError(4)  // Timeout error
+			Else 
+				This:C1470._throwError(11)  // License error
+			End if 
+			
+		End if 
+		
+	Else 
+		
+		var $explanation : Text
+		$explanation:=$request["response"]["statusText"]
+		
+		var $error : Object
+		
+		$error:=JSON Parse:C1218($response)
+		If ($error#Null:C1517)
+			var $errorCode : Integer
+			var $message : Text
+			
+			If (Num:C11($error.error_codes.length)>0)
+				$errorCode:=Num:C11($error.error_codes[0])
+			End if 
+			$message:=String:C10($error.error_description)
+			
+			This:C1470._throwError(8; New object:C1471("status"; $status; "explanation"; $explanation; "message"; $message))
+		Else 
+			
+			This:C1470._throwError(5; New object:C1471("received"; $status; "expected"; 200))
+		End if 
+		
+	End if 
+	
+	
+	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
@@ -325,124 +442,4 @@ Function getToken()->$result : Object
 	End if 
 	
 	This:C1470._finally()
-	
-	
-	// ----------------------------------------------------
-	
-	
-	// [Private]
-Function _checkPrerequisites($obj : Object)->$OK : Boolean
-	
-	$OK:=False:C215
-	
-	If (($obj#Null:C1517) & (Value type:C1509($obj)=Is object:K8:27))
-		
-		Case of 
-				
-			: (Length:C16(String:C10($obj.name))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "name"))
-				
-			: (Length:C16(String:C10($obj.clientId))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
-				
-			: (Length:C16(String:C10($obj.scope))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
-				
-			: (Length:C16(String:C10($obj.permission))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
-				
-			: (Not:C34(String:C10($obj.permission)="signedIn") & Not:C34(String:C10($obj.permission)="service"))
-				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
-				
-			: ((String:C10($obj.permission)="signedIn") & (Length:C16(String:C10($obj.redirectURI))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
-				
-			Else 
-				$OK:=True:C214
-				
-		End case 
-		
-		
-	Else 
-		
-		This:C1470._throwError(1)
-		
-	End if 
-	
-	
-	// ----------------------------------------------------
-	
-	
-	// [Private]
-Function _sendTokenRequest($params : Text)->$result : Object
-	
-	var $response; $savedMethod : Text
-	var $status : Integer
-	
-	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
-	
-	var $options : Object
-	var $request : 4D:C1709.HTTPRequest
-	
-	$options:=New object:C1471
-	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded")
-	$options.method:=HTTP POST method:K71:2
-	$options.body:=$params
-	$options.dataType:="text"
-	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
-	$request.wait(30)
-	ON ERR CALL:C155($savedMethod)
-	$status:=$request["response"]["status"]
-	$response:=$request["response"]["body"]
-	
-	If ($status=200)
-		
-		If (Length:C16($response)>0)
-			
-			$result:=cs:C1710.OAuth2Token.new()
-			$result._loadFromResponse($response)
-			
-		Else 
-			
-			var $licenseAvailable : Boolean
-			If (Application type:C494=4D Remote mode:K5:5)
-				$licenseAvailable:=Is license available:C714(4D Client Web license:K44:6)
-			Else 
-				$licenseAvailable:=(Is license available:C714(4D Web license:K44:3) | Is license available:C714(4D Web local license:K44:14) | Is license available:C714(4D Web one connection license:K44:15))
-			End if 
-			If ($licenseAvailable)
-				This:C1470._throwError(4)  // Timeout error
-			Else 
-				This:C1470._throwError(11)  // License error
-			End if 
-			
-		End if 
-		
-	Else 
-		
-		var $explanation : Text
-		$explanation:=$request["response"]["statusText"]
-		
-		var $error : Object
-		
-		$error:=JSON Parse:C1218($response)
-		If ($error#Null:C1517)
-			var $errorCode : Integer
-			var $message : Text
-			
-			If (Num:C11($error.error_codes.length)>0)
-				$errorCode:=Num:C11($error.error_codes[0])
-			End if 
-			$message:=String:C10($error.error_description)
-			
-			This:C1470._throwError(8; New object:C1471("status"; $status; "explanation"; $explanation; "message"; $message))
-		Else 
-			
-			This:C1470._throwError(5; New object:C1471("received"; $status; "expected"; 200))
-		End if 
-		
-	End if 
 	

@@ -7,6 +7,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	This:C1470._internals._parameters:=$inParameters
 	
 	
+	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	

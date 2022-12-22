@@ -5,6 +5,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeade
 	Super:C1705($inProvider; $inURL; $inHeaders)
 	
 	
+	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
