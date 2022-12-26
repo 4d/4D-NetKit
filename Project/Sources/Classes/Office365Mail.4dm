@@ -486,7 +486,7 @@ Function getFolder($inFolderId : Text) : Object
 	
 	var $response : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super:C1706._clearErrorStack()
 	
 	Case of 
 		: (Type:C295($inFolderId)#Is text:K8:3)
@@ -509,8 +509,6 @@ Function getFolder($inFolderId : Text) : Object
 			$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 			
 	End case 
-	
-	Super:C1706._throwErrors(True:C214)
 	
 	return Super:C1706._cleanGraphObject($response)
 	
