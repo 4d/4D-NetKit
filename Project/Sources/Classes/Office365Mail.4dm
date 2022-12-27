@@ -93,9 +93,8 @@ $bSkipMessageEncapsulation : Boolean; \
 $inHeader : Object) : Object
 	
 	If ($inMail#Null:C1517)
-		var $headers : Object
+		var $headers; $message; $messageCopy; $response : Object
 		var $requestBody : Text
-		var $message; $messageCopy : Object
 		
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="application/json"
@@ -116,12 +115,12 @@ $inHeader : Object) : Object
 		End if 
 		$requestBody:=JSON Stringify:C1217($message)
 		
-		Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	Else 
 		Super:C1706._pushError(1)
 	End if 
 	
-	return This:C1470._returnStatus()
+	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
 	
 	
 	// ----------------------------------------------------
