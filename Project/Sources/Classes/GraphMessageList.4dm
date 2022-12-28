@@ -18,10 +18,10 @@ Function get mails() : Collection
 		var $mail : cs:C1710.GraphMessage
 		var $provider : cs:C1710.OAuth2Provider
 		
-		$provider:=This:C1470._internals._OAuth2Provider
+		$provider:=This:C1470._internals._oAuth2Provider
 		
 		This:C1470._internals._mails:=New collection:C1472
-		For each ($iter; This:C1470._internals.list)
+		For each ($iter; This:C1470._internals._list)
 			$mail:=cs:C1710.GraphMessage.new($provider; \
 				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
 				$iter)

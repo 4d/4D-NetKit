@@ -301,7 +301,7 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null:C1517)
 			If ($mailType="Microsoft")
-				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._OAuth2Provider; \
+				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._oAuth2Provider; \
 					New object:C1471("userId"; String:C10(This:C1470.userId)); \
 					$result)
 				

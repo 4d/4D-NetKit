@@ -5,7 +5,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	Super:C1705()
 	
 	This:C1470._internals._URL:="https://graph.microsoft.com/v1.0/"
-	This:C1470._internals._OAuth2Provider:=$inProvider
+	This:C1470._internals._oAuth2Provider:=$inProvider
 	This:C1470._internals._statusLine:=""
 	
 	
@@ -15,11 +15,11 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
 Function _getAcessToken() : Text
 	
-	If (This:C1470._internals._OAuth2Provider.token=Null:C1517)
-		This:C1470._internals._OAuth2Provider.getToken()
+	If (This:C1470._internals._oAuth2Provider.token=Null:C1517)
+		This:C1470._internals._oAuth2Provider.getToken()
 	End if 
 	
-	return String:C10(This:C1470._internals._OAuth2Provider.token.access_token)
+	return String:C10(This:C1470._internals._oAuth2Provider.token.access_token)
 	
 	
 	// ----------------------------------------------------
@@ -135,7 +135,7 @@ Function _getURL() : Text
 	
 Function _getOAuth2Provider() : cs:C1710.OAuth2Provider
 	
-	return This:C1470._internals._OAuth2Provider
+	return This:C1470._internals._oAuth2Provider
 	
 	
 	// ----------------------------------------------------

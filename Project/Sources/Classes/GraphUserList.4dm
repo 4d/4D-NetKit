@@ -11,5 +11,5 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeade
 	
 Function get users() : Collection
 	
-	return This:C1470._internals.list
+	return This:C1470._internals._list
 	
