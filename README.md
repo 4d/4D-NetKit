@@ -747,15 +747,26 @@ $status:=$Office365.mail.send($email)
 
 ### Status object
 
-Several Office368.mail methods return a standard `**status object**`, containing the following properties:
+Several Office368.mail functions return a standard `**status object**`, containing the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+|id|Text|Only available with [`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move). Returned id of the mail.|
 
-Basically, you can test the `success` and `statusText` properties of this object to know if the command was correctly executed.
+
+Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
+
+### Error handling
+
+When an error occurs during the execution of an Office368.mail function: 
+
+- if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
+- if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
+
+
 
 ### Office365.user.get()
 
