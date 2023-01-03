@@ -11,11 +11,18 @@
 	- [OAuth2ProviderObject.getToken()](#oauth2providerobjectgettoken)
 * [Office365 class](#office365)
 	- [New Office365 provider](#new-office365-provider)
+	- [Office365.mail.append()](#office365mailappend)
+	- [Office365.mail.copy()](#office365mailcopy)
 	- [Office365.mail.delete()](#office365maildelete)
 	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
+	- [Office365.mail.getMail()](#office365mailgetmail)
 	- [Office365.mail.getMails()](#office365mailgetmails)
+	- [Office365.mail.move()](#office365mailmove)
+	- [Office365.mail.reply()](#office365mailreply)
 	- [Office365.mail.send()](#office365mailsend)
+	- [Well-known folder names](well-known-folder-names)
 	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+	- [Status object](#status-object)
 	- [Office365.user.get()](#office365userget)
 	- [Office365.user.getCurrent()](#office365usergetcurrent)
 	- [Office365.user.list()](#office365userlist)
@@ -112,7 +119,7 @@ In "signedIn" mode, when `.getToken()` is called, a web server included in 4D Ne
 
 The `Office365` class allows you to call the [Microsoft Graph API](https://docs.microsoft.com/en-us/graph/overview#data-and-services-powering-the-microsoft-365-platform) to:
 * get information from Office365 applications, such as user information
-* send emails
+* create, move or send emails
 
 This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
 
@@ -141,16 +148,110 @@ In `options`, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
-|mailType|Text|Indicates the Mail type used to send emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li></ul>|
+|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li></ul>|
 
 #### Returned object 
 
-The returned `Office365` object has a `mail` property used to handle emails:
-|Property|Type|Description|
-|---------|---|------|
-|send()|Function|Sends an email|
-|type|Text|Mail type used to send emails (read-only)|
-|userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
+The returned `Office365` object contains the following properties:
+
+|Property||Type|Description|
+|----|-----|---|------|
+|mail||Object|Email handling object|
+||send()|Function|Sends the emails|
+||type|Text|(read-only) Mail type used to send and receive emails. Default is "Microsoft", can bet set using the `mailType` option|
+||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
+
+
+#### Example
+
+To create the OAuth2 connection object and an Office365 object:
+
+```4d
+var $oAuth2: cs.NetKit.OAuth2Provider
+var $office365 : cs.NetKit.Office365
+
+$oAuth2:=New OAuth2 provider($param)
+$office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
+```
+
+
+### Office365.mail.append()
+
+**Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|email|Object|->| Microsoft message object to append|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| [Status object](#status-object)  |
+
+#### Description
+
+`Office365.mail.append()` creates a draft *email* in the *folderId* folder. 
+
+In `email`, pass the email to create. It must be of the [Microsoft mail object](#microsoft-mail-object-properties) type. 
+
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Example
+
+```4d
+$status:=$office365.mail.append($draft; $folder.id)
+```
+
+
+### Office365.mail.copy()
+
+**Office365.mail.copy**( *mailId* : Text ; *folderId* : Text) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->| Id of the mail to copy|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| [Status object](#status-object)  |
+
+#### Description
+
+`Office365.mail.copy()` copies the *mailId* email to the *folderId* folder within the user's mailbox.
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+#### Example
+
+To copy an email from a folder to another:
+
+```4d
+$status:=$office365.mail.copy($mailId; $folderId)
+```
+
 
 
 ### Office365.mail.delete()
@@ -161,7 +262,7 @@ The returned `Office365` object has a `mail` property used to handle emails:
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to delete|
-|Result|Object|<-| Status object  |
+|Result|Object|<-| [Status object](#status-object)  |
 
 #### Description
 
@@ -182,13 +283,7 @@ One of the following permissions is required to call this API. For more informat
 
 #### Returned object 
 
-The method returns a status object with the following properties:
-
-|Property|Type|Description|
-|---------|--- |------|
-|success|Boolean| True if the email is successfully deleted|
-|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
-|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+The method returns a [status object](#status-object).|
 
 
 **Note:** You may not be able to delete items in the recoverable items deletions folder (for more information, see the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http)).
@@ -285,6 +380,57 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 ```
 
 
+### Office365.mail.getMail()
+
+**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
+
+#### Parameters 
+|Parameter||Type||Description|
+|-----|----|--- |:---:|------|
+|mailId||Text|->| Id of the mail to get|
+|options||Object|->|Format options for the returned mail object|
+||mailType|Text|| Type of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mail.type` property](#new-office365-provider) is used|
+||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
+|Result||Blob &#124; Object|<-| Downloaded mail|
+
+`Office365.mail.getMail()` allows you to get a single mail from its *mailId*. 
+
+By default, the mail is returned with its original format, as defined in the [`mail.type` property of the provider](#new-office365-provider). However, you can convert it to any type using the `mailType` property of the *options* parameter.   
+
+You can also select the preferred format of the `body` and `uniqueBody` properties of the returned mail using the `contentType` property of the *options* parameter.
+
+The data type of the function result depends on the mail type:
+
+|Mail type|Function result|
+|---|---|
+|MIME|Blob|
+|JMAP|Object|
+|Microsoft|Object|
+
+If an error occurs, the function returns Null and an error is generated.
+
+See also [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-get?view=graph-rest-1.0&tabs=http).
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadBasic, Mail.Read|
+|Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read|
+|Application|Mail.ReadBasic.All, Mail.Read|
+
+
+#### Example
+
+Download a specific email:
+
+```4d
+$mail:=$office.mail.getMail($mailId)
+```
+
+
 ### Office365.mail.getMails()
 
 **Office365.mail.getMails**( *options* : Object ) : Object
@@ -350,6 +496,95 @@ $param.folderId:="inbox"
 $mails:=$office365.mail.getMails($param)
 ```
 
+### Office365.mail.move()
+
+**Office365.mail.move**( *mailId* : Text ; *folderId* : Text) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->| Id of the mail to move|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| [Status object](#status-object)  |
+
+#### Description
+
+`Office365.mail.move()` moves the *mailId* email to the *folderId* folder. It actually creates a new copy of the email in the destination folder and removes the original email from its source folder.
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Example
+
+To move an email from a folder to another:
+
+```4d
+$status:=$office365.mail.move($mailId; $folderId)
+```
+
+
+### Office365.mail.reply()
+
+**Office365.mail.reply**( *reply* : Object ; *mailId* : Text { ; *replyAll* : Boolean } ) : Object
+
+#### Parameters 
+|Parameter||Type||Description|
+|----|-----|--- |:---:|------|
+|reply||Object|->| reply object|
+||message|Text &#124; Blob &#124; Object|->|Microsoft message (object) or JMAP (object) or MIME (Blob / Text) that contains the reponse|
+||comment|Text|->| (only available with Microsoft message object or no message) Message used as body to reply to the email when present. You must specify either a *comment* or the [body property](#microsoft-mail-object-properties) of the message parameter; specifying both will return an HTTP 400 Bad Request error.|
+|mailId||Text|->| Id of the mail to which you reply|
+|replyAll||Boolean|->| True to reply to all recipients of the message. Default=False|
+|Result|Object|<-| [Status object](#status-object)  |
+
+#### Description
+
+`Office365.mail.reply()` replies to the sender of *mailId* message and, optionnally, to all recipients of the message.
+
+**Note:** Some mails, like drafts, cannot be replied. 
+
+If you pass `False` in *replyAll* and if the original message specifies a recipient in the `replyTo` property, the reply is sent to the recipients in `replyTo` and not to the recipient in the `from` property.
+
+#### Returned object 
+
+The method returns a [status object](#status-object)
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.Send|
+|Delegated (personal Microsoft account)|Mail.Send|
+|Application|Mail.Send|
+
+#### Example
+
+To reply to an email and create a conversation:
+
+```4d
+$reply:=New object
+// Text that will be send as reply
+$reply.comment:="Thank you for your message"
+$status:=$office365.mail.reply($reply; $mails.mailId)
+```
+
+
+
 ### Office365.mail.send()
 
 **Office365.mail.send**( *email* : Text ) : Object<br/>**Office365.mail.send**( *email* : Object ) : Object<br/>**Office365.mail.send**( *email* : Blob ) : Object
@@ -358,7 +593,7 @@ $mails:=$office365.mail.getMails($param)
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
-|Result|Object|<-| Status object that contains information about the operation |
+|Result|Object|<-| [Status object](#status-object) |
 
 #### Description
 
@@ -371,7 +606,7 @@ In `email`, pass the email to be sent. Possible types:
     * the [Microsoft mail object properties](#microsoft-mail-object-properties)
     * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
 
-The [`Office365.mail.type` property](#returned-object-1) must be compatible with the data type passed in `email`. In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties): 
+The data type passed in `email` must be compatible with the [`Office365.mail.type` property](#returned-object-1). In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties): 
 
 ```4d 
 $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
@@ -382,15 +617,10 @@ $status:=$Office365.mail.send($email)
 
 #### Returned object 
 
-The method returns a status object with the following properties:
-
-|Property|Type|Description|
-|---------|--- |------|
-|success|Boolean| True if the email is successfully sent|
-|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
-|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+The method returns a [status object](#status-object).
 
 ### Well-known folder names
+
 
 Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
 
@@ -514,6 +744,28 @@ $email.attachments:=New collection($attachment)
 $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
+
+### Status object
+
+Several Office368.mail functions return a standard `**status object**`, containing the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the operation was successful|
+|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
+|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+|id|Text|Only available with [`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move). Returned id of the mail.|
+
+
+Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
+
+### Error handling
+
+When an error occurs during the execution of an Office368.mail function: 
+
+- if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
+- if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
+
 
 
 ### Office365.user.get()
@@ -754,6 +1006,7 @@ var $oAuth2 : cs.NetKit.OAuth2Provider
 var $address : Text
 
 // Configure authentication
+
 
 $param:=New object
 $param.name:="Microsoft"
