@@ -25,7 +25,7 @@ Function _getAcessToken() : Text
 	// ----------------------------------------------------
 	
 	
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Text)->$response : Variant
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant)->$response : Variant
 	
 	This:C1470._try()
 	
@@ -49,7 +49,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	If (Length:C16(String:C10($inMethod))>0)
 		$options.method:=Uppercase:C13($inMethod)
 	End if 
-	If (Length:C16(String:C10($inBody))>0)
+	If (Value type:C1509($inBody)#Is undefined:K8:13)
 		$options.body:=$inBody
 	End if 
 	$options.dataType:="text"

@@ -61,6 +61,10 @@
           <source>You have reached the limit of the number of requests per minute that 4D can serve without a license.</source>
           <target>You have reached the limit of the number of requests per minute that 4D can serve without a license.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_12">
+          <source>The attachment file {attachment} you are trying to send does not exist.</source>
+          <target>The attachment file {attachment} you are trying to send does not exist.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>

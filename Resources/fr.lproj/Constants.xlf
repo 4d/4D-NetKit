@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!--Translation file.
+This file is distributed under the same license as the product package.-->
+<xliff version="1.0"
+	xmlns:d4="http://www.4d.com/d4-ns">
+
+	<file datatype="x-4DK#" original="undefined" source-language="en-US" target-language="fr">
+		<header>
+			<note>
+				The character &quot;%&quot; (out of a numerical context) is a meta-character that
+				will be replaced (often by a numeric value) before the string is displayed
+			</note>
+			<note>
+				Text between less than (&lt;) and greater than (&gt;) symbols is a variable&apos;s
+				name and must not be localised
+			</note>
+			<note>
+				\r, \t and \n are meta-characters.
+			</note>
+		</header>
+		<body>
+			<group resname="NetKitThemes">
+				<trans-unit id="1" resname="NetKitTheme_1">
+					<source>4D NetKit : Graph Attachment</source>
+					<target>4D NetKit : Graph Attachment</target>
+				</trans-unit>
+			</group>
+
+			<!-- Localized NetKit constant names -->
+			<!-- WARNING : Ensure ID is reserved in 4D_Constants before adding one here -->
+
+			<group d4:groupID="93" d4:groupName="NetKitTheme_1" restype="x-4DK#">
+				<trans-unit d4:value="3145728" id="89_1">
+					<source>nk Upload Session min size</source>
+					<target>nk Upload Session min size</target>
+				</trans-unit>
+				<trans-unit d4:value="157286400" id="89_2">
+					<source>nk Upload Session max size</source>
+					<target>nk Upload Session max size</target>
+				</trans-unit>
+			</group>
+		</body>
+	</file>
+
+</xliff>
