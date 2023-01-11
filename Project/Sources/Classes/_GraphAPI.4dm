@@ -66,6 +66,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	var $statusText : Text
 	$status:=$request["response"]["status"]
 	$statusText:=$request["response"]["statusText"]
+	This:C1470._internals._status:=$status
 	This:C1470._internals._statusLine:=String:C10($status)+" "+$statusText
 	
 	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes

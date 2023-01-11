@@ -10,6 +10,7 @@
 			"_BaseClass",
 			"_GraphAPI",
 			"_GraphBaseList",
+			"_GraphMessageUploadSession",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",

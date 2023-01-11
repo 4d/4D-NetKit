@@ -10,57 +10,18 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $params : Object)
 	This:C1470._internals._uploadUrl:=Null:C1517
 	This:C1470._internals._expirationDateTime:=Null:C1517
 	This:C1470._internals._nextExpectedRanges:=Null:C1517
-	This:C1470._internals._chunkSize:=3*1024*1024  //3 145 728
+	This:C1470._internals._chunkSize:=nk Upload Session min size:K93:1  //3 145 728 bytes
+	
+	If (This:C1470._create())
+		This:C1470._uploadFile()
+	End if 
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _sendChunk($inLastOffset : Integer; $inBlob : 4D:C1709.Blob) : Boolean
-	
-/*
-PUT https://outlook.office.com/api/v2.0/Users('a8e8e219-4931-95c1-b73d-62626fd79c32@72aa88bf-76f0-494f-91ab-2d7cd730db47')/Messages('AAMkADI5MAAIT3drCAAA=')/AttachmentSessions('AAMkADI5MAAIT3k0tAAA=')?authtoken=eyJhbGciOiJSUzI1NiIsImtpZCI6IktmYUNIUlN6bllHMmNI
-Content-Type: application/octet-stream
-Content-Length: 2097152
-Content-Range: bytes 0-2097151/3483322
-	
-{
-  <bytes 0-2097151 of the file to be attached, in binary format>
-}
-*/
-	
-	var $header : Object
-	var $firstByte; $lastByte : Integer
-	
-	$firstByte:=$inLastOffset-1
-	$lastByte:=Num:C11($firstByte+$inBlob.size)
-	$header:=New object:C1471("Content-Type"; "application/octet-stream"; \
-		"Content-Length"; String:C10(This:C1470._internals._file.size); \
-		"Content-Range"; "bytes "+String:C10($firstByte)+"-"+String:C10($lastByte)+"/"+String:C10(This:C1470._internals._file.size))
-	
-	var $response : Variant
-	$response:=Super:C1706._sendRequestAndWaitResponse("PUT"; \
-		This:C1470._internals._uploadUrl; \
-		$header; \
-		$inBlob)
-	
-	If ($response#Null:C1517)
-		This:C1470._internals._uploadUrl:=String:C10($response["uploadUrl"])
-		This:C1470._internals._expirationDateTime:=String:C10($response["expirationDateTime"])
-		This:C1470._internals._nextExpectedRanges:=String:C10($response["nextExpectedRanges"])
-		
-		return True:C214
-	End if 
-	
-	return False:C215
-	
-	
-	// Mark: - [Public]
-	// ----------------------------------------------------
-	
-	
-Function create() : Boolean
+Function _create() : Boolean
 	
 /*
 See: https://learn.microsoft.com/en-us/graph/outlook-large-attachments?tabs=http
@@ -120,7 +81,60 @@ Content-type: application/json
 	// ----------------------------------------------------
 	
 	
-Function uploadFile() : Boolean
+Function _sendChunk($inLastOffset : Integer; $inBlob : 4D:C1709.Blob) : Boolean
+	
+/*
+PUT https://outlook.office.com/api/v2.0/Users('a8e8e219-4931-95c1-b73d-62626fd79c32@72aa88bf-76f0-494f-91ab-2d7cd730db47')/Messages('AAMkADI5MAAIT3drCAAA=')/AttachmentSessions('AAMkADI5MAAIT3k0tAAA=')?authtoken=eyJhbGciOiJSUzI1NiIsImtpZCI6IktmYUNIUlN6bllHMmNI
+Content-Type: application/octet-stream
+Content-Length: 2097152
+Content-Range: bytes 0-2097151/3483322
+	
+{
+  <bytes 0-2097151 of the file to be attached, in binary format>
+}
+*/
+	
+	var $header : Object
+	var $firstByte; $lastByte : Integer
+	
+	$firstByte:=$inLastOffset-1
+	$lastByte:=Num:C11($firstByte+$inBlob.size)
+	$header:=New object:C1471("Content-Type"; "application/octet-stream"; \
+		"Content-Length"; String:C10(This:C1470._internals._file.size); \
+		"Content-Range"; "bytes "+String:C10($firstByte)+"-"+String:C10($lastByte)+"/"+String:C10(This:C1470._internals._file.size))
+	
+	var $response : Variant
+	$response:=Super:C1706._sendRequestAndWaitResponse("PUT"; \
+		This:C1470._internals._uploadUrl; \
+		$header; \
+		$inBlob)
+	
+	If ($response#Null:C1517)
+		Case of 
+			: (This:C1470._internals._status=200)  // Accepted
+				This:C1470._internals._uploadUrl:=String:C10($response["uploadUrl"])
+				This:C1470._internals._expirationDateTime:=String:C10($response["expirationDateTime"])
+				This:C1470._internals._nextExpectedRanges:=String:C10($response["nextExpectedRanges"])
+				
+			: (This:C1470._internals._status=201)  // Created
+/*
+Location should look like:
+https://outlook.office.com/api/v2.0/Users('xxx')/Messages('yyyy')/Attachments('zzz')
+*/
+				This:C1470._internals._location:=String:C10($response["location"])
+				
+		End case 
+		
+		return True:C214
+	End if 
+	
+	return False:C215
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _uploadFile() : Boolean
 	
 	If (Not:C34(This:C1470._internals._file.exists))
 		Super:C1706._throwError(12; New object:C1471("attachment"; "\"+"+\
