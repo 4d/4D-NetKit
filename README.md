@@ -283,7 +283,7 @@ One of the following permissions is required to call this API. For more informat
 
 #### Returned object 
 
-The method returns a [status object](#status-object).|
+The method returns a [status object](#status-object).
 
 
 **Note:** You may not be able to delete items in the recoverable items deletions folder (for more information, see the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http)).
@@ -298,6 +298,30 @@ For each($mail;$mails)
 	$office365.mail.delete($mail.id)
 End for each
 ```
+
+
+### Office365.mail.getFolder()
+
+**Office365.mail.getFolder**( *folderId* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|folderId|Text|->|ID of the folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-|Mail folder object|
+
+`Office365.mail.getFolder()` allows you to get a mail folder object from its *folderId*. 
+
+#### Returned object 
+
+The method returns a **mail folder** object containing the following properties (additional information can be returned by the server):
+
+| Property | Type | Description |
+|---|---|---|
+|childFolderCount|integr|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <li>If it is a parent folder id, get the folder collection under the specified folder (children folders)</li> <li>If the property is omitted or its value is "", get the mail folder collection directly under the root folder.</li>|
+
+
+
 
 ### Office365.mail.getFolderList()
 
