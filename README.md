@@ -290,6 +290,16 @@ One of the following permissions is required to call this API. For more informat
 
 The method returns a [status object](#status-object).
 
+#### Example
+
+You want to create a "Backup" mail folder at the root of your mailbox and move an email to this folder:
+
+// Creates a new folder on the root
+$status:=$office365.mail.createFolder("Backup")
+$folderId:=$status.id
+// Moves your email in the new folder
+$status:=$office365.mail.move($mailId; $folderId)
+
 
 ### Office365.mail.delete()
 
@@ -365,7 +375,11 @@ One of the following permissions is required to call this API. For more informat
 
 The method returns a [status object](#status-object).
 
+#### Example
 
+```4d
+$status:=$office365.mail.deleteFolder($folderId)
+```
 
 ### Office365.mail.getFolder()
 
@@ -374,7 +388,7 @@ The method returns a [status object](#status-object).
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|folderId|Text|->|ID of the folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-|mailFolder object|
 
 `Office365.mail.getFolder()` allows you to get a mailFolder object from its *folderId*. 
@@ -671,7 +685,13 @@ One of the following permissions is required to call this API. For more informat
 
 The method returns a [status object](#status-object).
 
+#### Example
 
+You want to rename the the "Backup" folder to "Backup_old":
+
+```4d
+$status:=$office365.mail.renameFolder($folderId; "Backup_old")
+```
 
 
 ### Office365.mail.reply()
