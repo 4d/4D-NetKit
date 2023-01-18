@@ -13,11 +13,15 @@
 	- [New Office365 provider](#new-office365-provider)
 	- [Office365.mail.append()](#office365mailappend)
 	- [Office365.mail.copy()](#office365mailcopy)
+	- [Office365.mail.createFolder()](#office365mailcreatefolder)
 	- [Office365.mail.delete()](#office365maildelete)
+ 	- [Office365.mail.deleteFolder()](#office365maildeletefolder)
+	- [Office365.mail.getFolder()](#office365mailgetfolder)
 	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
 	- [Office365.mail.getMail()](#office365mailgetmail)
 	- [Office365.mail.getMails()](#office365mailgetmails)
 	- [Office365.mail.move()](#office365mailmove)
+	- [Office365.mail.renameFolder()](#office365mailrenameFolder)
 	- [Office365.mail.reply()](#office365mailreply)
 	- [Office365.mail.send()](#office365mailsend)
 	- [Well-known folder names](well-known-folder-names)
@@ -253,6 +257,39 @@ $status:=$office365.mail.copy($mailId; $folderId)
 ```
 
 
+### Office365.mail.createFolder()
+
+**Office365.mail.createFolder**( *name* : Text { ; *isHidden* : Boolean { ; *parentFolderId* : Text } }) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|name|Text|->|Display name of the new folder|
+|isHidden|Boolean|->|True to create a hidden folder (Default is False)|
+|parentFolderId|Text|->|ID of the parent folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|Result|Object|<-| [Status object](#status-object)  |
+
+`Office365.mail.getFolder()` creates a new folder named *name*. 
+
+By default, the new folder is not hidden. Pass `True` in the isHidden parameter to create a hidden folder. This property cannot be changed afterwards. Find more information in [Hidden mail folders](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0#hidden-mail-folders) on the Microsoft web site.
+
+By default, the new folder is created at the root folder of the mailbox. If you want to create it within an existing folder, pass its id in the *parentFolderId* parameter. 
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
 
 ### Office365.mail.delete()
 
@@ -299,6 +336,36 @@ For each($mail;$mails)
 End for each
 ```
 
+### Office365.mail.deleteFolder()
+
+**Office365.mail.deleteFolder**( *folderId* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-name) if one exists.|
+|Result|Object|<-| [Status object](#status-object)  |
+
+#### Description
+
+`Office365.mail.deleteFolder()` deletes the *folderId* mail folder.
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
+
 
 ### Office365.mail.getFolder()
 
@@ -308,19 +375,34 @@ End for each
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->|ID of the folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
-|Result|Object|<-|Mail folder object|
+|Result|Object|<-|mailFolder object|
 
-`Office365.mail.getFolder()` allows you to get a mail folder object from its *folderId*. 
+`Office365.mail.getFolder()` allows you to get a mailFolder object from its *folderId*. 
 
-#### Returned object 
+#### Permissions
 
-The method returns a **mail folder** object containing the following properties (additional information can be returned by the server):
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
+|Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
+
+
+#### mailFolder object 
+
+The method returns a **mailFolder** object containing the following properties (additional information can be returned by the server):
 
 | Property | Type | Description |
 |---|---|---|
-|childFolderCount|integr|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <li>If it is a parent folder id, get the folder collection under the specified folder (children folders)</li> <li>If the property is omitted or its value is "", get the mail folder collection directly under the root folder.</li>|
-
-
+|childFolderCount|Integer|Number of immediate child mailFolders in the current mailFolder|
+|displayName|Text|mailFolder's display name|
+|id|Text|mailFolder's unique identifier|
+|isHidden|Boolean|Indicates whether the mailFolder is hidden. This property can be set only when creating the folder. Find more information in [Hidden mail folders](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0#hidden-mail-folders) on the Microsoft web site.|
+|parentFolderId|Text|Unique identifier for the mailFolder's parent mailFolder.|
+|totalItemCount|Integer|Number of items in the mailFolder.|
+|unreadItemCount|Integer|Number of items in the mailFolder marked as unread.|
 
 
 ### Office365.mail.getFolderList()
@@ -559,6 +641,38 @@ To move an email from a folder to another:
 $status:=$office365.mail.move($mailId; $folderId)
 ```
 
+### Office365.mail.renameFolder()
+
+**Office365.mail.renameFolder**( *folderId* : Text ; *name* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|folderId|Text|->| ID of the folder to rename|
+|name|Text|->| New display name for the folder|
+|Result|Object|<-| [Status object](#status-object) |
+
+#### Description
+
+`Office365.mail.renameFolder()` renames the *folderId* mail folder with the provided *name*.
+
+#### Permissions
+
+One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
+
+|Permission type|Permissions (from least to most privileged)
+|---|----|
+|Delegated (work or school account)|Mail.ReadWrite|
+|Delegated (personal Microsoft account)|Mail.ReadWrite|
+|Application|Mail.ReadWrite|
+
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
+
+
 
 ### Office365.mail.reply()
 
@@ -778,7 +892,7 @@ Several Office368.mail functions return a standard `**status object**`, containi
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
-|id|Text|Only available with [`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move). Returned id of the mail.|
+|id|Text|<li>[`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.</li><li>[`createFolder`](#office365-mail-createFolder) and [`renameFolder`](#office365-mail-renameFolder): returned id of the folder</li>|
 
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
