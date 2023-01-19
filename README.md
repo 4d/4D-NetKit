@@ -269,7 +269,7 @@ $status:=$office365.mail.copy($mailId; $folderId)
 |parentFolderId|Text|->|ID of the parent folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-| [Status object](#status-object)  |
 
-`Office365.mail.getFolder()` creates a new folder named *name*. 
+`Office365.mail.getFolder()` creates a new folder named *name* and returns its ID in the [status object](#status-object).
 
 By default, the new folder is not hidden. Pass `True` in the isHidden parameter to create a hidden folder. This property cannot be changed afterwards. Find more information in [Hidden mail folders](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0#hidden-mail-folders) on the Microsoft web site.
 
@@ -294,12 +294,15 @@ The method returns a [status object](#status-object).
 
 You want to create a "Backup" mail folder at the root of your mailbox and move an email to this folder:
 
+```4d
 // Creates a new folder on the root
 $status:=$office365.mail.createFolder("Backup")
-$folderId:=$status.id
-// Moves your email in the new folder
-$status:=$office365.mail.move($mailId; $folderId)
-
+If($status.success=True)
+	$folderId:=$status.id
+		// Moves your email in the new folder
+	$status:=$office365.mail.move($mailId; $folderId)
+End if
+```
 
 ### Office365.mail.delete()
 
@@ -670,6 +673,8 @@ $status:=$office365.mail.move($mailId; $folderId)
 
 `Office365.mail.renameFolder()` renames the *folderId* mail folder with the provided *name*.
 
+Note that the renamed folder ID is different from the *folderId*. You can get it in the [Status object](#status-object). 
+
 #### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
@@ -912,7 +917,7 @@ Several Office368.mail functions return a standard `**status object**`, containi
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
-|id|Text|<li>[`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.</li><li>[`createFolder`](#office365-mail-createFolder) and [`renameFolder`](#office365-mail-renameFolder): returned id of the folder</li>|
+|id|Text|<li>[`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.</li><li>[`createFolder()`](#office365-mail-createFolder) and [`renameFolder()`](#office365-mail-renameFolder): returned id of the folder</li>|
 
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
