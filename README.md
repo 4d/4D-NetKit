@@ -394,7 +394,7 @@ $status:=$office365.mail.deleteFolder($folderId)
 |folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-|mailFolder object|
 
-`Office365.mail.getFolder()` allows you to get a mailFolder object from its *folderId*. 
+`Office365.mail.getFolder()` allows you to get a **mailFolder** object from its *folderId*. 
 
 #### Permissions
 
@@ -673,7 +673,7 @@ $status:=$office365.mail.move($mailId; $folderId)
 
 `Office365.mail.renameFolder()` renames the *folderId* mail folder with the provided *name*.
 
-Note that the renamed folder ID is different from the *folderId*. You can get it in the [Status object](#status-object). 
+Note that the renamed folder ID is different from the *folderId*. You can get it in the returned [status object](#status-object). 
 
 #### Permissions
 
