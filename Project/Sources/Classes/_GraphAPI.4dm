@@ -160,50 +160,6 @@ Function _cleanGraphObject($ioObject : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function _copyGraphMessage($inMessage : Object) : Object
-	
-	If (OB Instance of:C1731($inMessage; cs:C1710.GraphMessage))
-		
-		var $message : Object
-		var $keys : Collection
-		var $key : Text
-		var $iter; $attachment : Object
-		
-		$message:=New object:C1471
-		If (OB Is defined:C1231($inMessage; "attachments") && ($inMessage.attachments#Null:C1517))
-			$message.attachments:=New collection:C1472
-		End if 
-		$keys:=OB Keys:C1719($inMessage)
-		For each ($key; $keys)
-			
-			Case of 
-				: (($key="_internals") || (Position:C15("@"; $key)=1) || ($key="webLink"))
-					// do not copy
-					
-				: ($key="attachments")
-					For each ($iter; $inMessage.attachments)
-						$attachment:=_convertToGraphAttachment($iter)
-						$message.attachments.push($attachment)
-					End for each 
-					
-				Else 
-					$message[$key]:=$inMessage[$key]
-					
-			End case 
-			
-		End for each 
-		
-		return $message
-		
-	Else 
-		
-		return $inMessage
-	End if 
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))

@@ -20,7 +20,6 @@ $inHeader : Object) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers; $message; $messageCopy; $response : Object
-		var $requestBody : Text
 		
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="application/json"
@@ -33,15 +32,52 @@ $inHeader : Object) : Object
 			End for each 
 		End if 
 		
-		$messageCopy:=This:C1470._copyGraphMessage($inMail)
-		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
-			$message:=New object:C1471("message"; $messageCopy)
-		Else 
-			$message:=$messageCopy
-		End if 
-		$requestBody:=JSON Stringify:C1217($message)
+		var $attachmentsToUpload : Collection
+		$attachmentsToUpload:=New collection:C1472
+		$messageCopy:=_copyGraphMessage($inMail; $attachmentsToUpload)
 		
-		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+		If ($attachmentsToUpload.length=0)
+			
+			If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
+				$message:=New object:C1471("message"; $messageCopy)
+			Else 
+				$message:=$messageCopy
+			End if 
+			
+			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $message)
+			
+		Else 
+			
+			var $URL : Text
+			$URL:=Replace string:C233($inURL; "/sendMail"; "/messages")
+			// Append Message First
+			If (OB Is defined:C1231($inMail; "message"))
+				$message:=$messageCopy.message
+			Else 
+				$message:=$messageCopy
+			End if 
+			
+			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; $message)
+			
+			If ($response#Null:C1517)
+				
+				// Create UploadSession and upload attachments 
+				var $attachment : Object
+				For each ($attachment; $attachmentsToUpload)
+					var $uploadSession : cs:C1710._GraphMessageUploadSession
+					$uploadSession:=cs:C1710._GraphMessageUploadSession.new(This:C1470._internals._oAuth2Provider; \
+						New object:C1471(\
+						"mailId"; $response.id; \
+						"userId"; This:C1470.userId; \
+						"attachment"; $attachment))
+				End for each 
+				
+				// Send draft
+				$URL:=Replace string:C233($inURL; "/sendMail"; String:C10($response.id)+"/send")
+				$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
+			End if 
+			
+		End if 
 	Else 
 		Super:C1706._pushError(1)
 	End if 

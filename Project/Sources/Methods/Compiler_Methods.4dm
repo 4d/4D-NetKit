@@ -48,3 +48,8 @@ C_TEXT:C284(_getHeaderValueParameter; $3)
 // _convertToGraphAttachment
 C_OBJECT:C1216(_convertToGraphAttachment; $0)
 C_OBJECT:C1216(_convertToGraphAttachment; $1)
+
+//_copyGraphMessage
+C_OBJECT:C1216(_copyGraphMessage; $0)
+C_OBJECT:C1216(_copyGraphMessage; $1)
+C_COLLECTION:C1488(_copyGraphMessage; $2)
