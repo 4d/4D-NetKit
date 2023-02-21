@@ -1064,8 +1064,8 @@ By default, each user object in the collection has the [default set of propertie
 
 ```4d
 var $oAuth2 : cs.NetKit.OAuth2Provider
-$Office365 : cs.NetKit.Office365
-$userInfo; $params; $userList; $userList2; $userList3; $userList4 : Object
+var $Office365 : cs.NetKit.Office365
+var $userInfo; $params; $userList; $userList2; $userList3; $userList4 : Object
 var $col : Collection
 
 // Set up parameters: 
