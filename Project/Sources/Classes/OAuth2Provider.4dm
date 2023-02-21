@@ -1,4 +1,4 @@
-Class extends _BaseClass
+Class extends _OAuth2BaseProvider
 
 Class constructor($inParams : Object)
 	
