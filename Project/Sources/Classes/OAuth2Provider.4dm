@@ -10,8 +10,7 @@ Class constructor($inParams : Object)
 	If (This:C1470._checkPrerequisites($inParams))
 		
 /*
-Only currently supported value : "Microsoft"
-No default value, no prefered provider but, a different value from "Microsoft" will throw an error
+Only currently supported values : "Microsoft" / "Google"
 */
 		This:C1470.name:=String:C10($inParams.name)
 		
@@ -32,8 +31,7 @@ The redirect_uri of your app, where authentication responses can be sent and rec
 		This:C1470.redirectURI:=String:C10($inParams.redirectURI)
 		
 /*
-A space-separated list of the Microsoft Graph permissions that you want the user to consent to.
-collection: collection of Microsoft Graph permissions
+A space-separated list of the permissions that you want the user to consent to.
 */
 		If (Value type:C1509($inParams.scope)=Is collection:K8:32)
 			This:C1470.scope:=$inParams.scope.join(" ")
@@ -82,6 +80,14 @@ The application secret that you created in the app registration portal for your 
 */
 		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
 		
+/*
+*/
+		This:C1470.authenticationPage:=_retainFileObject($inParams.authenticationPage)
+		
+/*
+*/
+		This:C1470.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		
 	End if 
 	
 	This:C1470._finally()
@@ -120,16 +126,18 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 		Else 
 			
-			$url:=$url+"?client_id="+This:C1470.clientId+\
-				"&response_type=code"+\
-				"&redirect_uri="+_urlEscape($redirectURI)+\
-				"&response_mode=query"+\
-				"&scope="+_urlEscape(This:C1470.scope)+\
-				"&state="+String:C10($state)
+			$url+="?client_id="+This:C1470.clientId
+			$url+="&response_type=code"
+			$url+="&redirect_uri="+_urlEscape($redirectURI)
+			$url+="&response_mode=query"
+			$url+="&scope="+_urlEscape(This:C1470.scope)
+			$url+="&state="+String:C10($state)
 			
 			Use (Storage:C1525)
 				OB REMOVE:C1226(Storage:C1525; "token")
-				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI)
+				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI; \
+					"authenticationPage"; (Value type:C1509(This:C1470.authenticationPage)#Is undefined:K8:13) ? This:C1470.authenticationPage : Null:C1517; \
+					"authenticationErrorPage"; (Value type:C1509(This:C1470.authenticationErrorPage)#Is undefined:K8:13) ? This:C1470.authenticationErrorPage : Null:C1517)
 			End use 
 			
 			OPEN URL:C673($url; *)
@@ -166,12 +174,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	$bSendRequest:=True:C214
 	If ($bUseRefreshToken)
 		
-		$params:="client_id="+This:C1470.clientId+\
-			"&scope="+_urlEscape(This:C1470.scope)+\
-			"&refresh_token="+This:C1470.token.refresh_token+\
-			"&grant_type=refresh_token"
+		$params:="client_id="+This:C1470.clientId
+		$params+="&scope="+_urlEscape(This:C1470.scope)
+		$params+="&refresh_token="+This:C1470.token.refresh_token
+		$params+="&grant_type=refresh_token"
 		If (Length:C16(This:C1470.clientSecret)>0)
-			$params:=$params+"&client_secret="+This:C1470.clientSecret
+			$params+="&client_secret="+This:C1470.clientSecret
 		End if 
 		
 	Else 
@@ -198,13 +206,13 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		If (Length:C16($authorizationCode)>0)
 			
-			$params:="client_id="+This:C1470.clientId+\
-				"&scope="+_urlEscape(This:C1470.scope)+\
-				"&code="+$authorizationCode+\
-				"&redirect_uri="+_urlEscape(This:C1470.redirectURI)+\
-				"&grant_type=authorization_code"
+			$params:="client_id="+This:C1470.clientId
+			$params+="&scope="+_urlEscape(This:C1470.scope)
+			$params+="&code="+$authorizationCode
+			$params+="&redirect_uri="+_urlEscape(This:C1470.redirectURI)
+			$params+="&grant_type=authorization_code"
 			If (Length:C16(This:C1470.clientSecret)>0)
-				$params:=$params+"&client_secret="+This:C1470.clientSecret
+				$params+="&client_secret="+This:C1470.clientSecret
 			End if 
 			
 		Else 
