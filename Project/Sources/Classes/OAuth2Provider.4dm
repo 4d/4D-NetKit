@@ -146,9 +146,6 @@ Possible values are:
 			: (String:C10($inParams.prompt)="select_account")
 				This:C1470.prompt:=String:C10($inParams.prompt)
 				
-			Else 
-				This:C1470.prompt:=String:C10($inParams.prompt)
-				
 		End case 
 		
 	End if 
