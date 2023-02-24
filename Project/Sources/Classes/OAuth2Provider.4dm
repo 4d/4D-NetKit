@@ -1,4 +1,4 @@
-Class extends _BaseClass
+Class extends _OAuth2BaseProvider
 
 Class constructor($inParams : Object)
 	
@@ -10,8 +10,7 @@ Class constructor($inParams : Object)
 	If (This:C1470._checkPrerequisites($inParams))
 		
 /*
-Only currently supported value : "Microsoft"
-No default value, no prefered provider but, a different value from "Microsoft" will throw an error
+Only currently supported values : "Microsoft" / "Google"
 */
 		This:C1470.name:=String:C10($inParams.name)
 		
@@ -32,8 +31,7 @@ The redirect_uri of your app, where authentication responses can be sent and rec
 		This:C1470.redirectURI:=String:C10($inParams.redirectURI)
 		
 /*
-A space-separated list of the Microsoft Graph permissions that you want the user to consent to.
-collection: collection of Microsoft Graph permissions
+A space-separated list of the permissions that you want the user to consent to.
 */
 		If (Value type:C1509($inParams.scope)=Is collection:K8:32)
 			This:C1470.scope:=$inParams.scope.join(" ")
@@ -82,6 +80,14 @@ The application secret that you created in the app registration portal for your 
 */
 		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
 		
+/*
+*/
+		This:C1470.authenticationPage:=_retainFileObject($inParams.authenticationPage)
+		
+/*
+*/
+		This:C1470.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		
 	End if 
 	
 	This:C1470._finally()
@@ -93,13 +99,20 @@ The application secret that you created in the app registration portal for your 
 	
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
+	var $url; $redirectURI; $authenticateURI; $state : Text
+	
+	$state:=Generate UUID:C1066
+	$url:=Super:C1706._authenticateURI()
+	$redirectURI:=Super:C1706._redirectURI()
+	$authenticateURI:=Super:C1706._authenticateURI()
+	
 	// Sanity check
 	Case of 
 			
 		: (Length:C16(String:C10(This:C1470.clientId))=0)
 			This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
 			
-		: (Length:C16(String:C10(This:C1470.authenticateURI))=0)
+		: (Length:C16(String:C10($authenticateURI))=0)
 			This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
 			
 		: (Length:C16(String:C10(This:C1470.scope))=0)
@@ -108,33 +121,23 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: (Length:C16(String:C10(This:C1470.tenant))=0)
 			This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
 			
-		: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10(This:C1470.redirectURI))=0))
+		: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10($redirectURI))=0))
 			This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
-			
-		: (Not:C34(String:C10(This:C1470.name)="Microsoft"))
-			This:C1470._throwError(3; New object:C1471("attribute"; "name"))
-			
 			
 		Else 
 			
-			// See: https://docs.microsoft.com/en-us/graph/auth-v2-service
-			var $url; $redirectURI; $state : Text
-			
-			$state:=Generate UUID:C1066
-			This:C1470.authenticateURI:=Replace string:C233(This:C1470.authenticateURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
-			$url:=This:C1470.authenticateURI
-			$redirectURI:=Choose:C955((Length:C16(This:C1470.redirectURI)>0); This:C1470.redirectURI; "https://login.microsoftonline.com/common/oauth2/nativeclient")
-			
-			$url:=$url+"?client_id="+This:C1470.clientId+\
-				"&response_type=code"+\
-				"&redirect_uri="+_urlEscape($redirectURI)+\
-				"&response_mode=query"+\
-				"&scope="+_urlEscape(This:C1470.scope)+\
-				"&state="+String:C10($state)
+			$url+="?client_id="+This:C1470.clientId
+			$url+="&response_type=code"
+			$url+="&redirect_uri="+_urlEscape($redirectURI)
+			$url+="&response_mode=query"
+			$url+="&scope="+_urlEscape(This:C1470.scope)
+			$url+="&state="+String:C10($state)
 			
 			Use (Storage:C1525)
 				OB REMOVE:C1226(Storage:C1525; "token")
-				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI)
+				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI; \
+					"authenticationPage"; (Value type:C1509(This:C1470.authenticationPage)#Is undefined:K8:13) ? This:C1470.authenticationPage : Null:C1517; \
+					"authenticationErrorPage"; (Value type:C1509(This:C1470.authenticationErrorPage)#Is undefined:K8:13) ? This:C1470.authenticationErrorPage : Null:C1517)
 			End use 
 			
 			OPEN URL:C673($url; *)
@@ -171,18 +174,20 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	$bSendRequest:=True:C214
 	If ($bUseRefreshToken)
 		
-		$params:="client_id="+This:C1470.clientId+\
-			"&scope="+_urlEscape(This:C1470.scope)+\
-			"&refresh_token="+This:C1470.token.refresh_token+\
-			"&grant_type=refresh_token"
+		$params:="client_id="+This:C1470.clientId
+		$params+="&scope="+_urlEscape(This:C1470.scope)
+		$params+="&refresh_token="+This:C1470.token.refresh_token
+		$params+="&grant_type=refresh_token"
 		If (Length:C16(This:C1470.clientSecret)>0)
-			$params:=$params+"&client_secret="+This:C1470.clientSecret
+			$params+="&client_secret="+This:C1470.clientSecret
 		End if 
 		
 	Else 
 		
 		var $authorizationCode : Text
 		var $LaunchWebServer : Boolean
+		
+		This:C1470.redirectURI:=Super:C1706._redirectURI()
 		
 		If ((Position:C15("localhost"; This:C1470.redirectURI)>0) | (Position:C15("127.0.0.1"; This:C1470.redirectURI)>0))
 			
@@ -201,13 +206,13 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		If (Length:C16($authorizationCode)>0)
 			
-			$params:="client_id="+This:C1470.clientId+\
-				"&scope="+_urlEscape(This:C1470.scope)+\
-				"&code="+$authorizationCode+\
-				"&redirect_uri="+_urlEscape(This:C1470.redirectURI)+\
-				"&grant_type=authorization_code"
+			$params:="client_id="+This:C1470.clientId
+			$params+="&scope="+_urlEscape(This:C1470.scope)
+			$params+="&code="+$authorizationCode
+			$params+="&redirect_uri="+_urlEscape(This:C1470.redirectURI)
+			$params+="&grant_type=authorization_code"
 			If (Length:C16(This:C1470.clientSecret)>0)
-				$params:=$params+"&client_secret="+This:C1470.clientSecret
+				$params+="&client_secret="+This:C1470.clientSecret
 			End if 
 			
 		Else 
@@ -291,7 +296,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	var $response; $savedMethod : Text
 	var $status : Integer
 	
-	This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(This:C1470.tenant)>0); This:C1470.tenant; "common"))
+	This:C1470.tokenURI:=Super:C1706._tokenURI()
 	
 	var $options : Object
 	var $request : 4D:C1709.HTTPRequest
@@ -367,77 +372,76 @@ Function getToken()->$result : Object
 	
 	This:C1470._try()
 	
-	If (String:C10(This:C1470.name)="Microsoft")
-		
-		var $bUseRefreshToken : Boolean
-		
-		$bUseRefreshToken:=False:C215
-		If (This:C1470.token#Null:C1517)
-			var $token : cs:C1710.OAuth2Token
-			$token:=cs:C1710.OAuth2Token.new(This:C1470.token)
-			If (Not:C34($token._Expired(String:C10(This:C1470.token.tokenExpiration))))
-				// Token is still valid.. Simply return it
-				$result:=$token
-			Else 
-				$bUseRefreshToken:=(Length:C16(String:C10(This:C1470.token.refresh_token))>0)
-			End if 
+	var $bUseRefreshToken : Boolean
+	
+	$bUseRefreshToken:=False:C215
+	If (This:C1470.token#Null:C1517)
+		var $token : cs:C1710.OAuth2Token
+		$token:=cs:C1710.OAuth2Token.new(This:C1470.token)
+		If (Not:C34($token._Expired(String:C10(This:C1470.token.tokenExpiration))))
+			// Token is still valid.. Simply return it
+			$result:=$token
+		Else 
+			$bUseRefreshToken:=(Length:C16(String:C10(This:C1470.token.refresh_token))>0)
 		End if 
+	End if 
+	
+	If ($result=Null:C1517)
 		
-		If ($result=Null:C1517)
-			
-			// Sanity check
-			Case of 
+		var $redirectURI; $authenticateURI; $tokenURI : Text
+		
+		$redirectURI:=Super:C1706._redirectURI()
+		$authenticateURI:=Super:C1706._authenticateURI()
+		$tokenURI:=Super:C1706._tokenURI()
+		
+		// Sanity check
+		Case of 
+				
+			: (Length:C16(String:C10(This:C1470.clientId))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+				
+			: (Length:C16(String:C10($authenticateURI))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
+				
+			: (Length:C16(String:C10(This:C1470.scope))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+				
+			: (Length:C16(String:C10($tokenURI))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "tokenURI"))
+				
+			: (Length:C16(String:C10(This:C1470.tenant))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
+				
+			: (Length:C16(String:C10(This:C1470.permission))=0)
+				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+				
+			: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10($redirectURI))=0))
+				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+				
+			: (Not:C34(String:C10(This:C1470.permission)="signedIn") & Not:C34(String:C10(This:C1470.permission)="service"))
+				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+				
+			Else 
+				
+				If (This:C1470.permission="signedIn")  // signedIn Mode
 					
-				: (Length:C16(String:C10(This:C1470.clientId))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
-					
-				: (Length:C16(String:C10(This:C1470.authenticateURI))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
-					
-				: (Length:C16(String:C10(This:C1470.scope))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
-					
-				: (Length:C16(String:C10(This:C1470.tokenURI))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "tokenURI"))
-					
-				: (Length:C16(String:C10(This:C1470.tenant))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
-					
-				: (Length:C16(String:C10(This:C1470.permission))=0)
-					This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
-					
-				: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10(This:C1470.redirectURI))=0))
-					This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
-					
-				: (Not:C34(String:C10(This:C1470.permission)="signedIn") & Not:C34(String:C10(This:C1470.permission)="service"))
-					This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+					$result:=This:C1470._getToken_SignedIn($bUseRefreshToken)
 					
 				Else 
 					
-					If (This:C1470.permission="signedIn")  // signedIn Mode
-						
-						$result:=This:C1470._getToken_SignedIn($bUseRefreshToken)
-						
-					Else 
-						
-						$result:=This:C1470._getToken_Service()
-						
-					End if 
+					$result:=This:C1470._getToken_Service()
 					
-					If ($result#Null:C1517)
-						// Save token internally
-						If (OB Is defined:C1231($result; "tokenExpiration"))
-							This:C1470.tokenExpiration:=$result.tokenExpiration
-						End if 
-						This:C1470.token:=$result.token
+				End if 
+				
+				If ($result#Null:C1517)
+					// Save token internally
+					If (OB Is defined:C1231($result; "tokenExpiration"))
+						This:C1470.tokenExpiration:=$result.tokenExpiration
 					End if 
-					
-			End case 
-			
-		End if 
-		
-	Else 
-		This:C1470._throwError(3; New object:C1471("attribute"; "name"))
+					This:C1470.token:=$result.token
+				End if 
+				
+		End case 
 		
 	End if 
 	
