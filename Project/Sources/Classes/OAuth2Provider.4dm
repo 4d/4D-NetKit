@@ -81,12 +81,75 @@ The application secret that you created in the app registration portal for your 
 		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
 		
 /*
+Path of the web page to display in the webbrowser when the authentication code 
+is received correctly in signed in mode
+If not present the default page is used
 */
 		This:C1470.authenticationPage:=_retainFileObject($inParams.authenticationPage)
 		
 /*
+Path of the web page to display in the webbrowser when the authentication server 
+returns an error in signed in mode
+If not present the default page is used
 */
 		This:C1470.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		
+/*
+Indicates whether your application can refresh access tokens when the user is not 
+present at the browser. Valid parameter values are online, which is the default 
+value, and offline.
+Set the value to offline if your application needs to refresh access tokens when 
+the user is not present at the browser. This is the method of refreshing access 
+tokens described later in this document. 
+This value instructs the Google authorization server to return a refresh token and 
+an access token the first time that your application exchanges an authorization code 
+for tokens.
+*/
+		This:C1470.accessType:=String:C10($inParams.accessType)
+		
+/*
+Google only
+Enables applications to use incremental authorization to request access 
+to additional scopes in context. If you set this parameter's value to true 
+and the authorization request is granted, then the new access token will also 
+cover any scopes to which the user previously granted the application access. 
+See the incremental authorization section for examples.
+*/
+		If (This:C1470.name="Google")
+			This:C1470.includeGrantedScope:=Bool:C1537($inParams.includeGrantedScope)
+		End if 
+		
+/*
+If your application knows which user is trying to authenticate, 
+it can use this parameter to provide a hint to the Google Authentication Server. 
+The server uses the hint to simplify the login flow either by prefilling the email 
+field in the sign-in form or by selecting the appropriate multi-login session.
+		
+Set the parameter value to an email address or sub identifier, which is equivalent 
+to the user's Google ID.
+*/
+		This:C1470.loginHint:=String:C10($inParams.loginHint)
+		
+/*
+A space-delimited, case-sensitive list of prompts to present the user.
+If you don't specify this parameter, the user will be prompted only the 
+first time your project requests access. See Prompting re-consent for more information.
+Possible values are:
+   none: Do not display any authentication or consent screens.
+         Must not be specified with other values.
+   consent: Prompt the user for consent.
+   select_account: Prompt the user to select an account.
+*/
+		Case of 
+			: (String:C10($inParams.prompt)="none")
+			: (String:C10($inParams.prompt)="consent")
+			: (String:C10($inParams.prompt)="select_account")
+				This:C1470.prompt:=String:C10($inParams.prompt)
+				
+			Else 
+				This:C1470.prompt:=String:C10($inParams.prompt)
+				
+		End case 
 		
 	End if 
 	
