@@ -6,21 +6,17 @@
 		]
 	},
 	"Classes": {
+		"groups": [
+			"Private",
+			"Public"
+		]
+	},
+	"Private": {
 		"classes": [
 			"_BaseClass",
 			"_GraphAPI",
 			"_GraphBaseList",
-			"GraphAttachment",
-			"GraphFolderList",
-			"GraphMessage",
-			"GraphMessageList",
-			"GraphRecipient",
-			"GraphUserList",
-			"OAuth2Provider",
-			"OAuth2Token",
-			"Office365",
-			"Office365Mail",
-			"Office365User"
+			"_OAuth2BaseProvider"
 		]
 	},
 	"Project Methods": {
@@ -35,6 +31,7 @@
 			"_getPathFromURL",
 			"_getPortFromURL",
 			"_OnWebConnection",
+			"_retainFileObject",
 			"_StartWebServer",
 			"_StopWebServer",
 			"_throwError",
@@ -43,6 +40,21 @@
 			"Compiler_Variables",
 			"New OAuth2 provider",
 			"New Office365 provider"
+		]
+	},
+	"Public": {
+		"classes": [
+			"GraphAttachment",
+			"GraphFolderList",
+			"GraphMessage",
+			"GraphMessageList",
+			"GraphRecipient",
+			"GraphUserList",
+			"OAuth2Provider",
+			"OAuth2Token",
+			"Office365",
+			"Office365Mail",
+			"Office365User"
 		]
 	},
 	"trash": {}

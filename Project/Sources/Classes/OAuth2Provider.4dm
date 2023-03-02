@@ -105,7 +105,12 @@ This value instructs the Google authorization server to return a refresh token a
 an access token the first time that your application exchanges an authorization code 
 for tokens.
 */
-		This:C1470.accessType:=String:C10($inParams.accessType)
+		Case of 
+			: (String:C10($inParams.accessType)="inline")
+			: (String:C10($inParams.accessType)="offline")
+				This:C1470.accessType:=String:C10($inParams.accessType)
+				
+		End case 
 		
 /*
 Google only
@@ -192,6 +197,19 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			$url+="&response_mode=query"
 			$url+="&scope="+_urlEscape(This:C1470.scope)
 			$url+="&state="+String:C10($state)
+			If (Length:C16(String:C10(This:C1470.accessType))>0)
+				$url+="&access_type="+This:C1470.accessType
+			End if 
+			If (Length:C16(String:C10(This:C1470.loginHint))>0)
+				$url+="&login_hint="+This:C1470.loginHint
+			End if 
+			If (Length:C16(String:C10(This:C1470.prompt))>0)
+				$url+="&prompt="+This:C1470.prompt
+			End if 
+			If ((This:C1470.name="Google") && (OB Is defined:C1231(This:C1470; "includeGrantedScope")))
+				$url+="&include_granted_scopes="+(This:C1470.includeGrantedScope ? "true" : "false")
+			End if 
+			
 			
 			Use (Storage:C1525)
 				OB REMOVE:C1226(Storage:C1525; "token")
