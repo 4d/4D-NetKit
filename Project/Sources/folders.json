@@ -2,7 +2,8 @@
 	"4D NetKit": {
 		"groups": [
 			"Classes",
-			"Project Methods"
+			"Private Methods",
+			"Public Methods"
 		]
 	},
 	"Classes": {
@@ -19,7 +20,7 @@
 			"_OAuth2BaseProvider"
 		]
 	},
-	"Project Methods": {
+	"Private Methods": {
 		"methods": [
 			"_buildComponent",
 			"_camelCase",
@@ -35,11 +36,7 @@
 			"_StartWebServer",
 			"_StopWebServer",
 			"_throwError",
-			"_urlEscape",
-			"Compiler_Methods",
-			"Compiler_Variables",
-			"New OAuth2 provider",
-			"New Office365 provider"
+			"_urlEscape"
 		]
 	},
 	"Public": {
@@ -55,6 +52,14 @@
 			"Office365",
 			"Office365Mail",
 			"Office365User"
+		]
+	},
+	"Public Methods": {
+		"methods": [
+			"Compiler_Methods",
+			"Compiler_Variables",
+			"New OAuth2 provider",
+			"New Office365 provider"
 		]
 	},
 	"trash": {}
