@@ -52,16 +52,12 @@ the tenant ID or domain name. By default "common"
 /*
 Uri used to do the Authorization request.
 */
-		This:C1470.authenticateURI:=Choose:C955(Value type:C1509($inParams.authenticateURI)=Is undefined:K8:13; \
-			"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize"; \
-			String:C10($inParams.authenticateURI))
+		This:C1470.authenticateURI:=String:C10($inParams.authenticateURI)
 		
 /*
 Uri used to request an access token.
 */
-		This:C1470.tokenURI:=Choose:C955(Value type:C1509($inParams.tokenURI)=Is undefined:K8:13; \
-			"https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token"; \
-			String:C10($inParams.tokenURI))
+		This:C1470.tokenURI:=String:C10($inParams.tokenURI)
 		
 /*
 The application secret that you created in the app registration portal for your app. Required for web apps.
@@ -335,9 +331,6 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 		
 		Case of 
 				
-			: (Length:C16(String:C10($obj.name))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "name"))
-				
 			: (Length:C16(String:C10($obj.clientId))=0)
 				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
 				
@@ -357,7 +350,6 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 				$OK:=True:C214
 				
 		End case 
-		
 		
 	Else 
 		
