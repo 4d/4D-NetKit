@@ -3,6 +3,7 @@
     "remove": [
       "LICENSE.md",
       "README.md",
+      "Documentation/Assets",
       "make.json"
     ]
   }
