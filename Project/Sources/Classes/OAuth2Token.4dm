@@ -49,7 +49,7 @@ Function _loadFromObject($inObject : Object)
 			$expires_in:=(Current time:C178+0)+Num:C11($inObject.token.expires_in)
 			$expiration_date:=Add to date:C393(Current date:C33; 0; 0; Choose:C955(($expires_in>=(24*3600)); 1; 0))
 			
-			This:C1470.tokenExpiration:=String:C10($expiration_date; ISO date GMT:K1:10; Time:C179($expires_in))
+			This:C1470.tokenExpiration:=String:C10($expiration_date; ISO date:K1:8; Time:C179($expires_in))
 		End if 
 		
 	End if 
