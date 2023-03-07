@@ -49,6 +49,9 @@ C_TEXT:C284(_getHeaderValueParameter; $3)
 C_OBJECT:C1216(_convertToGraphAttachment; $0)
 C_OBJECT:C1216(_convertToGraphAttachment; $1)
 
-//_retainFileObject
+// _retainFileObject
 C_OBJECT:C1216(_retainFileObject; $0)
 C_VARIANT:C1683(_retainFileObject; $1)
+
+// _getErrorStack
+C_OBJECT:C1216(_getErrorStack; $0)
