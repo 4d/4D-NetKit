@@ -24,15 +24,13 @@ Function _loadFromObject($inObject : Object)
 	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
 		
 		This:C1470.token:=New object:C1471
-		If (OB Is defined:C1231($inObject; "token"))
-			var $token : Object
-			$token:=OB Get:C1224($inObject; "token"; Is object:K8:27)
+		If (OB Get type:C1230($inObject; "token")=Is object:K8:27)
 			
 			var $keys; $values : Collection
 			var $i : Integer
 			
-			$keys:=OB Keys:C1719($token)
-			$values:=OB Values:C1718($token)
+			$keys:=OB Keys:C1719($inObject.token)
+			$values:=OB Values:C1718($inObject.token)
 			
 			This:C1470.token:=New object:C1471
 			For ($i; 0; $keys.length-1)
@@ -40,7 +38,7 @@ Function _loadFromObject($inObject : Object)
 			End for 
 		End if 
 		
-		If (OB Is defined:C1231($inObject; "tokenExpiration"))
+		If (OB Is defined:C1231($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null:C1517))
 			This:C1470.tokenExpiration:=$inObject.tokenExpiration
 		Else 
 			var $expires_in : Integer
@@ -60,13 +58,12 @@ Function _loadFromObject($inObject : Object)
 	
 Function _loadFromResponse($inResponseString : Text)
 	
-	var $obj; $token : Object
+	var $token : Object
 	
 	$token:=JSON Parse:C1218($inResponseString)
 	If (($token#Null:C1517) & (Not:C34(OB Is empty:C1297($token))))
 		
-		$obj:=New object:C1471("token"; $token)
-		This:C1470._loadFromObject($obj)
+		This:C1470._loadFromObject(New object:C1471("token"; $token))
 		
 	End if 
 	

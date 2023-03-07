@@ -448,7 +448,7 @@ Function getToken()->$result : Object
 	If (This:C1470.token#Null:C1517)
 		var $token : cs:C1710.OAuth2Token
 		$token:=cs:C1710.OAuth2Token.new(This:C1470)
-		If (Not:C34($token._Expired(String:C10(This:C1470.tokenExpiration))))
+		If (Not:C34($token._Expired()))
 			// Token is still valid.. Simply return it
 			$result:=$token
 		Else 
