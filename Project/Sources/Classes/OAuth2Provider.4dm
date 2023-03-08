@@ -102,7 +102,7 @@ an access token the first time that your application exchanges an authorization 
 for tokens.
 */
 		Case of 
-			: (String:C10($inParams.accessType)="inline")
+			: (String:C10($inParams.accessType)="online")
 			: (String:C10($inParams.accessType)="offline")
 				This:C1470.accessType:=String:C10($inParams.accessType)
 				
