@@ -109,18 +109,6 @@ for tokens.
 		End case 
 		
 /*
-Google only
-Enables applications to use incremental authorization to request access 
-to additional scopes in context. If you set this parameter's value to true 
-and the authorization request is granted, then the new access token will also 
-cover any scopes to which the user previously granted the application access. 
-See the incremental authorization section for examples.
-*/
-		If (This:C1470.name="Google")
-			This:C1470.includeGrantedScope:=Bool:C1537($inParams.includeGrantedScope)
-		End if 
-		
-/*
 If your application knows which user is trying to authenticate, 
 it can use this parameter to provide a hint to the Google Authentication Server. 
 The server uses the hint to simplify the login flow either by prefilling the email 
@@ -272,10 +260,6 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			If (Length:C16(String:C10(This:C1470.prompt))>0)
 				$url+="&prompt="+This:C1470.prompt
 			End if 
-			If ((This:C1470.name="Google") && (OB Is defined:C1231(This:C1470; "includeGrantedScope")))
-				$url+="&include_granted_scopes="+(This:C1470.includeGrantedScope ? "true" : "false")
-			End if 
-			
 			
 			Use (Storage:C1525)
 				OB REMOVE:C1226(Storage:C1525; "token")
