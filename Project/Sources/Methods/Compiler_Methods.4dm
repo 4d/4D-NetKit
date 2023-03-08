@@ -3,9 +3,6 @@
 C_OBJECT:C1216(New OAuth2 provider; $0)
 C_OBJECT:C1216(New OAuth2 provider; $1)
 
-// _getDefaultRedirectURI
-C_TEXT:C284(_getDefaultRedirectURI; $0)
-
 // _getPortFromURL
 C_LONGINT:C283(_getPortFromURL; $0)
 C_TEXT:C284(_getPortFromURL; $1)
