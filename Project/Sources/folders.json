@@ -27,6 +27,7 @@
 			"_convertToGraphAttachment",
 			"_ErrorHandler",
 			"_getDefaultRedirectURI",
+			"_getErrorStack",
 			"_getHeaderValueParameter",
 			"_getPathFromURL",
 			"_getPortFromURL",
