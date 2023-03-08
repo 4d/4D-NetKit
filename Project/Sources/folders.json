@@ -16,8 +16,7 @@
 		"classes": [
 			"_BaseClass",
 			"_GraphAPI",
-			"_GraphBaseList",
-			"_OAuth2BaseProvider"
+			"_GraphBaseList"
 		]
 	},
 	"Private Methods": {

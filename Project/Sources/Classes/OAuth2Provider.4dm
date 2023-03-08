@@ -1,4 +1,4 @@
-Class extends _OAuth2BaseProvider
+Class extends _BaseClass
 
 Class constructor($inParams : Object)
 	
@@ -158,14 +158,84 @@ Possible values are:
 	// ----------------------------------------------------
 	
 	
+Function _isMicrosoft() : Boolean
+	
+	return (This:C1470.name="Microsoft")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _isGoogle() : Boolean
+	
+	return (This:C1470.name="Google")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _redirectURI() : Text
+	
+	Case of 
+		: (This:C1470._isMicrosoft())
+			return Choose:C955((Length:C16(String:C10(This:C1470.redirectURI))>0); This:C1470.redirectURI; "https://login.microsoftonline.com/common/oauth2/nativeclient")
+			
+		: (This:C1470._isGoogle())
+			return Choose:C955((Length:C16(String:C10(This:C1470.redirectURI))>0); This:C1470.redirectURI; "urn:ietf:wg:oauth:2.0:oob")
+			
+		Else 
+			return This:C1470.redirectURI
+			
+	End case 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _authenticateURI() : Text
+	
+	Case of 
+		: (This:C1470._isMicrosoft())
+			This:C1470.authenticateURI:=Choose:C955((Length:C16(String:C10(This:C1470.authenticateURI))>0); This:C1470.authenticateURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize")
+			This:C1470.authenticateURI:=Replace string:C233(This:C1470.authenticateURI; "{tenant}"; Choose:C955((Length:C16(String:C10(This:C1470.tenant))>0); This:C1470.tenant; "common"))
+			
+		: (This:C1470._isGoogle())
+			This:C1470.authenticateURI:="https://accounts.google.com/o/oauth2/auth"
+			
+	End case 
+	
+	return This:C1470.authenticateURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _tokenURI() : Text
+	
+	Case of 
+		: (This:C1470._isMicrosoft())
+			This:C1470.tokenURI:=Choose:C955((Length:C16(String:C10(This:C1470.tokenURI))>0); This:C1470.tokenURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token")
+			This:C1470.tokenURI:=Replace string:C233(This:C1470.tokenURI; "{tenant}"; Choose:C955((Length:C16(String:C10(This:C1470.tenant))>0); This:C1470.tenant; "common"))
+			
+		: (This:C1470._isGoogle())
+			This:C1470.tokenURI:="https://accounts.google.com/o/oauth2/token"
+			
+	End case 
+	
+	return This:C1470.tokenURI
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
 	var $url; $redirectURI; $authenticateURI; $state : Text
 	
 	$state:=Generate UUID:C1066
-	$url:=Super:C1706._authenticateURI()
-	$redirectURI:=Super:C1706._redirectURI()
-	$authenticateURI:=Super:C1706._authenticateURI()
+	$url:=This:C1470._authenticateURI()
+	$redirectURI:=This:C1470._redirectURI()
+	$authenticateURI:=This:C1470._authenticateURI()
 	
 	// Sanity check
 	Case of 
@@ -261,7 +331,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		var $authorizationCode : Text
 		var $LaunchWebServer : Boolean
 		
-		This:C1470.redirectURI:=Super:C1706._redirectURI()
+		This:C1470.redirectURI:=This:C1470._redirectURI()
 		
 		If ((Position:C15("localhost"; This:C1470.redirectURI)>0) | (Position:C15("127.0.0.1"; This:C1470.redirectURI)>0))
 			
@@ -366,7 +436,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	var $response; $savedMethod : Text
 	var $status : Integer
 	
-	This:C1470.tokenURI:=Super:C1706._tokenURI()
+	This:C1470.tokenURI:=This:C1470._tokenURI()
 	
 	var $options : Object
 	var $request : 4D:C1709.HTTPRequest
@@ -460,9 +530,9 @@ Function getToken()->$result : Object
 		
 		var $redirectURI; $authenticateURI; $tokenURI : Text
 		
-		$redirectURI:=Super:C1706._redirectURI()
-		$authenticateURI:=Super:C1706._authenticateURI()
-		$tokenURI:=Super:C1706._tokenURI()
+		$redirectURI:=This:C1470._redirectURI()
+		$authenticateURI:=This:C1470._authenticateURI()
+		$tokenURI:=This:C1470._tokenURI()
 		
 		// Sanity check
 		Case of 
