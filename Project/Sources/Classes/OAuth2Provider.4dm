@@ -162,24 +162,6 @@ Function _isGoogle() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _redirectURI() : Text
-	
-	Case of 
-		: (This:C1470._isMicrosoft())
-			return Choose:C955((Length:C16(String:C10(This:C1470.redirectURI))>0); This:C1470.redirectURI; "https://login.microsoftonline.com/common/oauth2/nativeclient")
-			
-		: (This:C1470._isGoogle())
-			return Choose:C955((Length:C16(String:C10(This:C1470.redirectURI))>0); This:C1470.redirectURI; "urn:ietf:wg:oauth:2.0:oob")
-			
-		Else 
-			return This:C1470.redirectURI
-			
-	End case 
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function _authenticateURI() : Text
 	
 	Case of 
@@ -221,8 +203,8 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	var $url; $redirectURI; $authenticateURI; $state : Text
 	
 	$state:=Generate UUID:C1066
+	$redirectURI:=This:C1470.redirectURI
 	$url:=This:C1470._authenticateURI()
-	$redirectURI:=This:C1470._redirectURI()
 	$authenticateURI:=This:C1470._authenticateURI()
 	
 	// Sanity check
@@ -314,8 +296,6 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		var $authorizationCode : Text
 		var $LaunchWebServer : Boolean
-		
-		This:C1470.redirectURI:=This:C1470._redirectURI()
 		
 		If ((Position:C15("localhost"; This:C1470.redirectURI)>0) | (Position:C15("127.0.0.1"; This:C1470.redirectURI)>0))
 			
@@ -514,7 +494,7 @@ Function getToken()->$result : Object
 		
 		var $redirectURI; $authenticateURI; $tokenURI : Text
 		
-		$redirectURI:=This:C1470._redirectURI()
+		$redirectURI:=This:C1470.redirectURI
 		$authenticateURI:=This:C1470._authenticateURI()
 		$tokenURI:=This:C1470._tokenURI()
 		
