@@ -164,11 +164,12 @@ Function _isGoogle() : Boolean
 	
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
-	var $url; $redirectURI; $state : Text
+	var $url; $redirectURI; $state; $scope : Text
 	
 	$state:=Generate UUID:C1066
 	$redirectURI:=This:C1470.redirectURI
 	$url:=This:C1470.authenticateURI
+	$scope:=This:C1470.scope
 	
 	// Sanity check
 	Case of 
@@ -179,7 +180,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: (Length:C16(String:C10($url))=0)
 			This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
 			
-		: (Length:C16(String:C10(This:C1470.scope))=0)
+		: ((This:C1470._isGoogle() || This:C1470._isMicrosoft()) && (Length:C16(String:C10($scope))=0))
 			This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 			
 		: (Length:C16(String:C10(This:C1470.tenant))=0)
@@ -194,7 +195,9 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			$url+="&response_type=code"
 			$url+="&redirect_uri="+_urlEscape($redirectURI)
 			$url+="&response_mode=query"
-			$url+="&scope="+_urlEscape(This:C1470.scope)
+			If (Length:C16(String:C10($scope))>0)
+				$url+="&scope="+_urlEscape($scope)
+			End if 
 			$url+="&state="+String:C10($state)
 			If (Length:C16(String:C10(This:C1470.accessType))>0)
 				$url+="&access_type="+This:C1470.accessType
@@ -248,7 +251,9 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	If ($bUseRefreshToken)
 		
 		$params:="client_id="+This:C1470.clientId
-		$params+="&scope="+_urlEscape(This:C1470.scope)
+		If (Length:C16(This:C1470.scope)>0)
+			$params+="&scope="+_urlEscape(This:C1470.scope)
+		End if 
 		$params+="&refresh_token="+This:C1470.token.refresh_token
 		$params+="&grant_type=refresh_token"
 		If (Length:C16(This:C1470.clientSecret)>0)
@@ -309,10 +314,12 @@ Function _getToken_Service()->$result : Object
 	
 	var $params : Text
 	
-	$params:="client_id="+This:C1470.clientId+\
-		"&scope="+_urlEscape(This:C1470.scope)+\
-		"&client_secret="+This:C1470.clientSecret+\
-		"&grant_type=client_credentials"
+	$params:="client_id="+This:C1470.clientId
+	If (Length:C16(This:C1470.scope)>0)
+		$params+="&scope="+_urlEscape(This:C1470.scope)
+	End if 
+	$params+="&client_secret="+This:C1470.clientSecret
+	$params+="&grant_type=client_credentials"
 	
 	$result:=This:C1470._sendTokenRequest($params)
 	
@@ -331,7 +338,7 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 			: (Length:C16(String:C10($obj.clientId))=0)
 				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
 				
-			: (Length:C16(String:C10($obj.scope))=0)
+			: ((Length:C16(String:C10($obj.name))>0) && (Length:C16(String:C10($obj.scope))=0))
 				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 				
 			: (Length:C16(String:C10($obj.permission))=0)
@@ -485,7 +492,7 @@ Function getToken()->$result : Object
 			: (Length:C16(String:C10($authenticateURI))=0)
 				This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
 				
-			: (Length:C16(String:C10(This:C1470.scope))=0)
+			: ((This:C1470._isGoogle() || This:C1470._isMicrosoft()) && (Length:C16(String:C10(This:C1470.scope))=0))
 				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 				
 			: (Length:C16(String:C10($tokenURI))=0)
