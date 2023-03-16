@@ -13,13 +13,46 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
-Function _getAcessToken() : Text
+Function _getToken() : Object
 	
 	If (This:C1470._internals._oAuth2Provider.token=Null:C1517)
 		This:C1470._internals._oAuth2Provider.getToken()
 	End if 
 	
-	return String:C10(This:C1470._internals._oAuth2Provider.token.access_token)
+	return This:C1470._internals._oAuth2Provider.token
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getAcessToken() : Text
+	
+	return String:C10(This:C1470._getToken().access_token)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getAcessTokenType() : Text
+	
+	var $tokenType : Text
+	var $token : Object
+	
+	$token:=This:C1470._getToken()
+	
+	Case of 
+		: (Value type:C1509($token.token_type)=Is text:K8:3)
+			$tokenType:=String:C10($token.token_type)
+			
+		: (Value type:C1509($token.type)=Is text:K8:3)
+			$tokenType:=String:C10($token.type)
+			
+		Else 
+			$tokenType:="Bearer"
+			
+	End case 
+	
+	return $tokenType
 	
 	
 	// ----------------------------------------------------
@@ -30,13 +63,13 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	This:C1470._try()
 	
 	var $options : Object
-	var $bearer; $savedMethod : Text
+	var $token; $savedMethod : Text
 	
-	$bearer:=This:C1470._getAcessToken()
+	$token:=This:C1470._getAcessToken()
 	$options:=New object:C1471()
-	If (Length:C16(String:C10($bearer))>0)
+	If (Length:C16(String:C10($token))>0)
 		$options.headers:=New object:C1471()
-		$options.headers["Authorization"]:="Bearer "+$bearer
+		$options.headers["Authorization"]:=This:C1470._getAcessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null:C1517) && (Value type:C1509($inHeaders)=Is object:K8:27))
 		var $keys : Collection
