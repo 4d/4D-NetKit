@@ -69,6 +69,32 @@ Function _loadFromResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
+Function _loadFromURLEncodedResponse($inResponseString : Text)
+	
+	var $token : Object
+	var $params : Collection
+	var $iter : Text
+	
+	$token:=New object:C1471
+	$params:=Split string:C1554($inResponseString; "&")
+	For each ($iter; $params)
+		var $pair : Collection
+		$pair:=Split string:C1554($iter; "=")
+		If ($pair.length>1)
+			$token[$pair[0]]:=$pair[1]
+		End if 
+	End for each 
+	
+	If (Not:C34(OB Is empty:C1297($token)))
+		
+		This:C1470._loadFromObject(New object:C1471("token"; $token))
+		
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _Expired($inParams : Text)->$result : Boolean
 	
 	var $expiration : Text

@@ -367,7 +367,8 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	var $request : 4D:C1709.HTTPRequest
 	
 	$options:=New object:C1471
-	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded")
+	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded"; \
+		"Accept"; "application/json")
 	$options.method:=HTTP POST method:K71:2
 	$options.body:=$params
 	$options.dataType:="text"
@@ -384,8 +385,24 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 		If (Length:C16($response)>0)
 			
-			$result:=cs:C1710.OAuth2Token.new()
-			$result._loadFromResponse($response)
+			var $contentType : Text
+			$contentType:=String:C10($request["response"]["headers"]["content-type"])
+			
+			Case of 
+				: (($contentType="application/json@") || ($contentType="text/plain@"))
+					$result:=cs:C1710.OAuth2Token.new()
+					$result._loadFromResponse($response)
+					
+				: ($contentType="application/x-www-form-urlencoded@")
+					$result:=cs:C1710.OAuth2Token.new()
+					$result._loadFromURLEncodedResponse($response)
+					
+				Else 
+					var $blob : Blob
+					CONVERT FROM TEXT:C1011($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
+					$result:=4D:C1709.Blob.new($blob)
+					
+			End case 
 			
 		Else 
 			
