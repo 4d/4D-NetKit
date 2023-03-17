@@ -101,12 +101,10 @@ This value instructs the Google authorization server to return a refresh token a
 an access token the first time that your application exchanges an authorization code 
 for tokens.
 */
-		Case of 
-			: (String:C10($inParams.accessType)="online")
-			: (String:C10($inParams.accessType)="offline")
-				This:C1470.accessType:=String:C10($inParams.accessType)
-				
-		End case 
+		If ((String:C10($inParams.accessType)="online") || \
+			(String:C10($inParams.accessType)="offline"))
+			This:C1470.accessType:=String:C10($inParams.accessType)
+		End if 
 		
 /*
 If your application knows which user is trying to authenticate, 
@@ -129,13 +127,11 @@ Possible values are:
    consent: Prompt the user for consent.
    select_account: Prompt the user to select an account.
 */
-		Case of 
-			: (String:C10($inParams.prompt)="none")
-			: (String:C10($inParams.prompt)="consent")
-			: (String:C10($inParams.prompt)="select_account")
-				This:C1470.prompt:=String:C10($inParams.prompt)
-				
-		End case 
+		If ((String:C10($inParams.prompt)="none") || \
+			(String:C10($inParams.prompt)="consent") || \
+			(String:C10($inParams.prompt)="select_account"))
+			This:C1470.prompt:=String:C10($inParams.prompt)
+		End if 
 		
 	End if 
 	
