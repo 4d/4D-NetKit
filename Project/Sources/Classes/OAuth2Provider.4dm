@@ -144,6 +144,12 @@ Email address of the Google service account used (Google only)
 			This:C1470.clientEmail:=String:C10($inParams.clientEmail)
 		End if 
 		
+/*
+Enable HTTP Server debug log for Debug purposes only
+*/
+		If (Bool:C1537($inParams.enableDebugLog))
+			This:C1470.enableDebugLog:=True:C214
+		End if 
 	End if 
 	
 	This:C1470._finally()
@@ -276,7 +282,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 			
 			var $port : Integer
 			$port:=_getPortFromURL(This:C1470.redirectURI)
-			If (_StartWebServer($port))
+			If (_StartWebServer($port; This:C1470.enableDebugLog))
 				
 				$authorizationCode:=This:C1470._OpenBrowserForAuthorisation()
 				

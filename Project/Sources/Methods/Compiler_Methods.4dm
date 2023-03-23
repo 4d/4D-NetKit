@@ -18,6 +18,7 @@ C_TEXT:C284(_OnWebConnection; $6)
 // _StartWebServer
 C_BOOLEAN:C305(_StartWebServer; $0)
 C_LONGINT:C283(_StartWebServer; $1)
+C_BOOLEAN:C305(_StartWebServer; $2)
 
 // _urlEscape
 C_TEXT:C284(_urlEscape; $0)
