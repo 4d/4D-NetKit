@@ -18,8 +18,8 @@ Name of OAuth2 provider.
 "signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
 "service": Call Provider with their own identity.
 */
-		If ((String:C10($inParams.accessType)="signedIn") || \
-			(String:C10($inParams.accessType)="service"))
+		If ((String:C10($inParams.permission)="signedIn") || \
+			(String:C10($inParams.permission)="service"))
 			This:C1470.permission:=String:C10($inParams.permission)
 		End if 
 		
