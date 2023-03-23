@@ -10,15 +10,18 @@ Class constructor($inParams : Object)
 	If (This:C1470._checkPrerequisites($inParams))
 		
 /*
-Only currently supported values : "Microsoft" / "Google"
+Name of OAuth2 provider. 
 */
 		This:C1470.name:=String:C10($inParams.name)
 		
 /*
-"signedIn": Azure AD will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
-"service": call Microsoft Graph with their own identity.
+"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
+"service": Call Provider with their own identity.
 */
-		This:C1470.permission:=String:C10($inParams.permission)
+		If ((String:C10($inParams.accessType)="signedIn") || \
+			(String:C10($inParams.accessType)="service"))
+			This:C1470.permission:=String:C10($inParams.permission)
+		End if 
 		
 /*
 The Application ID that the registration portal assigned the app
@@ -65,6 +68,7 @@ The application secret that you created in the app registration portal for your 
 		This:C1470.clientSecret:=String:C10($inParams.clientSecret)
 		
 /*
+Any valid existing token
 */
 		This:C1470.token:=Choose:C955(Value type:C1509($inParams.token)=Is object:K8:27; $inParams.token; Null:C1517)
 		
@@ -131,6 +135,13 @@ Possible values are:
 			(String:C10($inParams.prompt)="consent") || \
 			(String:C10($inParams.prompt)="select_account"))
 			This:C1470.prompt:=String:C10($inParams.prompt)
+		End if 
+		
+/*
+Email address of the Google service account used (Google only)
+*/
+		If (This:C1470._isGoogle())
+			This:C1470.clientEmail:=String:C10($inParams.clientEmail)
 		End if 
 		
 	End if 
@@ -308,16 +319,34 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 Function _getToken_Service()->$result : Object
 	
-	var $params : Text
-	
-	$params:="client_id="+This:C1470.clientId
-	If (Length:C16(This:C1470.scope)>0)
-		$params+="&scope="+_urlEscape(This:C1470.scope)
-	End if 
-	$params+="&client_secret="+This:C1470.clientSecret
-	$params+="&grant_type=client_credentials"
-	
-	$result:=This:C1470._sendTokenRequest($params)
+	Case of 
+		: (This:C1470._isGoogle())
+/*
+TODO: send a JWT such as:
+			
+{"alg":"RS256","typ":"JWT"}.
+{
+"iss":"761326798069-r5mljlln1rd4lrbhg75efgigp36m78j5@developer.gserviceaccount.com",
+"scope":"https://www.googleapis.com/auth/prediction",
+"aud":"https://oauth2.googleapis.com/token",
+"exp":1328554385,
+"iat":1328550785
+}.
+[signature bytes]
+*/
+			
+		Else 
+			var $params : Text
+			
+			$params:="client_id="+This:C1470.clientId
+			If (Length:C16(This:C1470.scope)>0)
+				$params+="&scope="+_urlEscape(This:C1470.scope)
+			End if 
+			$params+="&client_secret="+This:C1470.clientSecret
+			$params+="&grant_type=client_credentials"
+			$result:=This:C1470._sendTokenRequest($params)
+			
+	End case 
 	
 	
 	// ----------------------------------------------------
