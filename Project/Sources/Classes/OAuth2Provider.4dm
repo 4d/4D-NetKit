@@ -275,40 +275,49 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 	Else 
 		
-		var $authorizationCode : Text
-		var $LaunchWebServer : Boolean
-		
 		If ((Position:C15("localhost"; This:C1470.redirectURI)>0) | (Position:C15("127.0.0.1"; This:C1470.redirectURI)>0))
 			
-			var $port : Integer
-			$port:=_getPortFromURL(This:C1470.redirectURI)
-			If (_StartWebServer($port; This:C1470.enableDebugLog))
+			var $options : Object
+			$options:=New object:C1471
+			$options.port:=_getPortFromURL(This:C1470.redirectURI)
+			$options.enableDebugLog:=This:C1470.enableDebugLog
+			If ((This:C1470.authenticationPage#Null:C1517) || (This:C1470.authenticationErrorPage#Null:C1517))
+				var $file : Object
+				$file:=(This:C1470.authenticationPage#Null:C1517) ? This:C1470.authenticationPage : This:C1470.authenticationErrorPage
+				If (OB Instance of:C1731($file; 4D:C1709.File))
+					$options.webFolder:=$file.parent
+				End if 
+			End if 
+			
+			If (_StartWebServer($options))
 				
+				var $authorizationCode : Text
 				$authorizationCode:=This:C1470._OpenBrowserForAuthorisation()
+				
+				If (Length:C16($authorizationCode)>0)
+					
+					$params:="client_id="+This:C1470.clientId
+					$params+="&scope="+_urlEscape(This:C1470.scope)
+					$params+="&code="+$authorizationCode
+					$params+="&redirect_uri="+_urlEscape(This:C1470.redirectURI)
+					$params+="&grant_type=authorization_code"
+					If (Length:C16(This:C1470.clientSecret)>0)
+						$params+="&client_secret="+This:C1470.clientSecret
+					End if 
+					
+				Else 
+					
+					$bSendRequest:=False:C215
+					This:C1470._throwError(6)
+					
+				End if 
 				
 			Else 
 				
-				This:C1470._throwError(7; New object:C1471("port"; $port))
+				$bSendRequest:=False:C215
+				This:C1470._throwError(7; New object:C1471("port"; $options.port))
 				
 			End if 
-		End if 
-		
-		If (Length:C16($authorizationCode)>0)
-			
-			$params:="client_id="+This:C1470.clientId
-			$params+="&scope="+_urlEscape(This:C1470.scope)
-			$params+="&code="+$authorizationCode
-			$params+="&redirect_uri="+_urlEscape(This:C1470.redirectURI)
-			$params+="&grant_type=authorization_code"
-			If (Length:C16(This:C1470.clientSecret)>0)
-				$params+="&client_secret="+This:C1470.clientSecret
-			End if 
-			
-		Else 
-			
-			$bSendRequest:=False:C215
-			This:C1470._throwError(6)
-			
 		End if 
 		
 	End if 
