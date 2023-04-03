@@ -43,32 +43,66 @@ Function generate()->$result : Text
 	
 	// Generate Verify Signature Hash based on Algorithm
 	If ($algorithm="HS")
-		$signature:=This:C1470._hashHS()  // HMAC Hash
+		$signature:=This:C1470._hashHS(This:C1470)  // HMAC Hash
 	Else 
-		$signature:=This:C1470._hashSign()  // All other Hashes
+		$signature:=This:C1470._hashSign(This:C1470)  // All other Hashes
 	End if 
 	
 	// Combine Encoded Header and Payload with Hashed Signature for the Token
 	$result:=$header+"."+$payload+"."+$signature
 	
 	
+	// ----------------------------------------------------
+	
+	
+Function validate($inJWT : Text; $inSecretKey : Text) : Boolean
+	
+	var $parts : Collection
+	var $header; $payload; $algorithm; $signature : Text
+	var $jwt : Object
+	
+	// Split Token into the three parts: Header, Payload, Verify Signature
+	$parts:=Split string:C1554($inJWT; ".")
+	
+	// Decode Header and Payload into Objects
+	BASE64 DECODE:C896($parts[0]; $header; *)
+	BASE64 DECODE:C896($parts[1]; $payload; *)
+	$jwt:=New object:C1471
+	$jwt.header:=JSON Parse:C1218($header)
+	$jwt.payload:=JSON Parse:C1218($payload)
+	$jwt.secretKey:=String:C10($inSecretKey)
+	
+	// Parse Header for Algorithm Family
+	$algorithm:=Substring:C12($jwt.header.alg; 1; 2)
+	
+	// Generate Hashed Verify Signature
+	If ($algorithm="HS")
+		$signature:=This:C1470._hashHS($jwt)
+	Else 
+		$signature:=This:C1470._hashSign($jwt)
+	End if 
+	
+	//Compare Verify Signatures to return Result
+	return ($signature=$parts[2])
+	
+	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _hashHS->$result : Text
+Function _hashHS($inJWT : Object)->$result : Text
 	
 	var $encodedHeader; $encodedPayload; $algorithm : Text
 	var $headerBlob; $payloadBlob; $intermediateBlob; $secretBlob; $dataBlob : Blob
 	var $blockSize; $i; $byte; $hashAlgorithm : Integer
 	
 	// Encode Header and Payload to build Message in Blob format
-	BASE64 ENCODE:C895(JSON Stringify:C1217(This:C1470.header); $encodedHeader; *)
-	BASE64 ENCODE:C895(JSON Stringify:C1217(This:C1470.payload); $encodedPayload; *)
+	BASE64 ENCODE:C895(JSON Stringify:C1217($inJWT.header); $encodedHeader; *)
+	BASE64 ENCODE:C895(JSON Stringify:C1217($inJWT.payload); $encodedPayload; *)
 	TEXT TO BLOB:C554($encodedHeader+"."+$encodedPayload; $dataBlob; UTF8 text without length:K22:17)
 	
 	// Parse Hashing Algorithm From Header
-	$algorithm:=Substring:C12(This:C1470.header.alg; 3)
+	$algorithm:=Substring:C12($inJWT.header.alg; 3)
 	If ($algorithm="256")
 		$hashAlgorithm:=SHA256 digest:K66:4
 		$blockSize:=64
@@ -78,7 +112,7 @@ Function _hashHS->$result : Text
 	End if 
 	
 	// Format Secret Key as Blob
-	TEXT TO BLOB:C554(This:C1470.secretKey; $secretBlob; UTF8 text without length:K22:17)
+	TEXT TO BLOB:C554($inJWT.secretKey; $secretBlob; UTF8 text without length:K22:17)
 	
 	// If Key is larger than Block, Hash the Key to reduce size
 	If (BLOB size:C605($secretBlob)>$blockSize)
@@ -117,29 +151,32 @@ Function _hashHS->$result : Text
 	// ----------------------------------------------------
 	
 	
-Function _hashSign->$result : Text
+Function _hashSign($inJWT : Object)->$result : Text
 	
 	var $encodedHead; $encodedPayload; $algorithm : Text
 	var $settings; $signOptions : Object
 	var $hashAlgorithm : Integer
 	var $cryptoKey : 4D:C1709.CryptoKey
+	var $secretKey : Text
+	
+	$secretKey:=(String:C10($inJWT.secretKey)#"") ? String:C10($inJWT.secretKey) : String:C10(This:C1470.secretKey)
 	
 	// Encode Header and Payload to build Message
-	BASE64 ENCODE:C895(JSON Stringify:C1217(This:C1470.header); $encodedHead; *)
-	BASE64 ENCODE:C895(JSON Stringify:C1217(This:C1470.payload); $encodedPayload; *)
+	BASE64 ENCODE:C895(JSON Stringify:C1217($inJWT.header); $encodedHead; *)
+	BASE64 ENCODE:C895(JSON Stringify:C1217($inJWT.payload); $encodedPayload; *)
 	
 	// Prepare CryptoKey settings
-	If (String:C10(This:C1470.secretKey)="")
+	If ($secretKey="")
 		$settings:=New object:C1471("type"; "RSA")  // 4D will automatically create RSA key pair
 	Else 
-		$settings:=New object:C1471("type"; "PEM"; "pem"; This:C1470.secretKey)  // Use specified PEM format Key
+		$settings:=New object:C1471("type"; "PEM"; "pem"; $secretKey)  // Use specified PEM format Key
 	End if 
 	
 	// Create new CryptoKey
 	$cryptoKey:=4D:C1709.CryptoKey.new($settings)
 	
 	// Parse Header for Algorithm Family
-	$algorithm:=Substring:C12(This:C1470.header.alg; 3)
+	$algorithm:=Substring:C12($inJWT.header.alg; 3)
 	If ($algorithm="256")
 		$hashAlgorithm:=SHA256 digest:K66:4
 	Else 
@@ -147,6 +184,10 @@ Function _hashSign->$result : Text
 	End if 
 	
 	// Sign Message with CryptoKey to generate hashed verify signature
-	$signOptions:=New object:C1471("hash"; $hashAlgorithm; "pss"; This:C1470.header.alg="PS@"; "encoding"; "Base64URL")
+	$signOptions:=New object:C1471("hash"; $hashAlgorithm; "pss"; $inJWT.header.alg="PS@"; "encoding"; "Base64URL")
 	$result:=$cryptoKey.sign($encodedHead+"."+$encodedPayload; $signOptions)
+	
+	If (String:C10(This:C1470.secretKey)="")
+		This:C1470.secretKey:=$cryptoKey.getPrivateKey()
+	End if 
 	
