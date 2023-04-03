@@ -8,7 +8,6 @@ $settings:=New object:C1471
 $settings.HTTPEnabled:=True:C214
 $settings.HTTPSEnabled:=False:C215
 $settings.HTTPPort:=(OB Is defined:C1231($inParameters; "port")) ? Num:C11($inParameters.port) : 50993
-$settings.debugLog:=(OB Is defined:C1231($inParameters; "enableDebugLog") && $inParameters.enableDebugLog) ? wdl enable with all body parts:K73:23 : wdl disable web log:K73:19
 
 If (OB Is defined:C1231($inParameters; "webFolder"))
 	If (OB Instance of:C1731($inParameters.webFolder; 4D:C1709.Folder))
@@ -20,8 +19,7 @@ End if
 
 $webServer:=WEB Server:C1674(Web server database:K73:30)
 
-If ($webServer.isRunning & (($webServer.HTTPPort#$settings.HTTPPort) || \
-($webServer.debugLog#$settings.debugLog)))
+If ($webServer.isRunning & ($webServer.HTTPPort#$settings.HTTPPort))
 	
 	$webServer.stop()
 	
