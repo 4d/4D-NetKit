@@ -1,0 +1,42 @@
+# ====================================================================
+# Basic .gitattributes for a 4D repo.
+# ====================================================================
+
+* text=auto
+
+# ====================================================================
+# The above will handle all files NOT found below
+# ====================================================================
+
+# These files are text and should be normalized (Convert crlf => lf)
+#.gitattributes     text      linguist-language=gitattributes
+#.gitignore         text
+*.md                text
+*.ini               text
+*.xlf                         linguist-language=xml   diff=xml
+
+# SVG treated as text.
+# If you want to treat it as binary,comment the next line.
+*.svg               text                                diff=xml
+
+# Source files
+*.4DProject         text      linguist-language=4d    diff=json
+*.4DCatalog         text      linguist-language=4d    diff=xml
+*.4DSettings        text      linguist-language=4d    diff=xml
+*.4DForm            text      linguist-language=4d    diff=json
+*.4dm               text      linguist-language=4d
+*.4lbp              text      linguist-language=4d    diff=xml
+*.4df               text      linguist-language=4d    diff=json
+
+# ====================================================================
+# Binary
+# ====================================================================
+*.4DZ               binary    linguist-language=4d
+*.4DD               binary    linguist-language=4d
+*.4DIndy            binary    linguist-language=4d
+*.Match             binary    linguist-language=4d
+*.4DIndx            binary    linguist-language=4d
+*.4[dD][bB]         binary    linguist-language=4d
+*.[dD][aA][tT][aA]  binary    linguist-language=4d
+*.4lb               binary    linguist-language=4d
+*.4qr               binary    linguist-language=4d
