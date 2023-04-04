@@ -6,13 +6,8 @@ See: https://kb.4d.com/assetid=79100
 Class constructor($inParam : Object)
 	
 	This:C1470.header:=New object:C1471
-	If (OB Is defined:C1231($inParam; "header"))
-		This:C1470.header.alg:=OB Is defined:C1231($inParam.header; "alg") ? $inParam.header.alg : "RS256"
-		This:C1470.header.typ:=OB Is defined:C1231($inParam.header; "typ") ? $inParam.header.typ : "JWT"
-	Else 
-		This:C1470.header.alg:="RS256"
-		This:C1470.header.typ:="JWT"
-	End if 
+	This:C1470.header.alg:=(OB Is defined:C1231($inParam; "header") && OB Is defined:C1231($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
+	This:C1470.header.typ:=(OB Is defined:C1231($inParam; "header") && OB Is defined:C1231($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
 	
 	If (OB Get type:C1230($inParam; "payload")=Is object:K8:27)
 		This:C1470.payload:=$inParam.payload
@@ -92,7 +87,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _hashHS($inJWT : Object)->$result : Text
+Function _hashHS($inJWT : Object) : Text
 	
 	var $encodedHeader; $encodedPayload; $algorithm : Text
 	var $headerBlob; $payloadBlob; $intermediateBlob; $privateBlob; $dataBlob : Blob
@@ -147,7 +142,8 @@ Function _hashHS($inJWT : Object)->$result : Text
 	
 	// append Append Hashed S1+Message to S2 and Hash to get the Hashed Verify Signature
 	COPY BLOB:C558($intermediateBlob; $payloadBlob; 0; $blockSize; BLOB size:C605($intermediateBlob))
-	$result:=Generate digest:C1147($payloadBlob; $hashAlgorithm; *)
+	
+	return Generate digest:C1147($payloadBlob; $hashAlgorithm; *)
 	
 	
 	// ----------------------------------------------------
@@ -175,20 +171,22 @@ Function _hashSign($inJWT : Object)->$result : Text
 	
 	// Create new CryptoKey
 	$cryptoKey:=4D:C1709.CryptoKey.new($settings)
-	
-	// Parse Header for Algorithm Family
-	$algorithm:=Substring:C12($inJWT.header.alg; 3)
-	If ($algorithm="256")
-		$hashAlgorithm:=SHA256 digest:K66:4
-	Else 
-		$hashAlgorithm:=SHA512 digest:K66:5
-	End if 
-	
-	// Sign Message with CryptoKey to generate hashed verify signature
-	$signOptions:=New object:C1471("hash"; $hashAlgorithm; "pss"; $inJWT.header.alg="PS@"; "encoding"; "Base64URL")
-	$result:=$cryptoKey.sign($encodedHead+"."+$encodedPayload; $signOptions)
-	
-	If (String:C10(This:C1470.privateKey)="")
-		This:C1470.privateKey:=$cryptoKey.getPrivateKey()
+	If ($cryptoKey#Null:C1517)
+		If (String:C10(This:C1470.privateKey)="")
+			This:C1470.privateKey:=$cryptoKey.getPrivateKey()
+		End if 
+		
+		// Parse Header for Algorithm Family
+		$algorithm:=Substring:C12($inJWT.header.alg; 3)
+		If ($algorithm="256")
+			$hashAlgorithm:=SHA256 digest:K66:4
+		Else 
+			$hashAlgorithm:=SHA512 digest:K66:5
+		End if 
+		
+		// Sign Message with CryptoKey to generate hashed verify signature
+		$signOptions:=New object:C1471("hash"; $hashAlgorithm; "pss"; $inJWT.header.alg="PS@"; "encoding"; "Base64URL")
+		
+		$result:=$cryptoKey.sign($encodedHead+"."+$encodedPayload; $signOptions)
 	End if 
 	
