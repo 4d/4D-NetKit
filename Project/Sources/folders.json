@@ -35,7 +35,8 @@
 			"_StartWebServer",
 			"_StopWebServer",
 			"_throwError",
-			"_urlEscape"
+			"_urlEscape",
+			"Date_ToEpoch"
 		]
 	},
 	"Public": {

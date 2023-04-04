@@ -52,3 +52,8 @@ C_VARIANT:C1683(_retainFileObject; $1)
 
 // _getErrorStack
 C_OBJECT:C1216(_getErrorStack; $0)
+
+//Date_ToEpoch
+C_REAL:C285(Date_ToEpoch; $0)
+C_DATE:C307(Date_ToEpoch; $1)
+C_TIME:C306(Date_ToEpoch; $2)
