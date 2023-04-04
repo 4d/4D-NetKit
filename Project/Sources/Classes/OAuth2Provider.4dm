@@ -142,6 +142,7 @@ Email address of the Google service account used (Google only)
 */
 		If (This:C1470._isGoogle())
 			This:C1470.clientEmail:=String:C10($inParams.clientEmail)
+			This:C1470.privateKey:=String:C10($inParams.privateKey)
 		End if 
 		
 /*
@@ -336,19 +337,30 @@ Function _getToken_Service()->$result : Object
 	
 	Case of 
 		: (This:C1470._isGoogle())
-/*
-TODO: send a JWT such as:
 			
-{"alg":"RS256","typ":"JWT"}.
-{
-"iss":"761326798069-r5mljlln1rd4lrbhg75efgigp36m78j5@developer.gserviceaccount.com",
-"scope":"https://www.googleapis.com/auth/prediction",
-"aud":"https://oauth2.googleapis.com/token",
-"exp":1328554385,
-"iat":1328550785
-}.
-[signature bytes]
-*/
+			var $jwt : cs:C1710._JWT
+			var $options : Object
+			var $epoch : Real
+			var $params : Text
+			
+			$epoch:=Date_ToEpoch(Current date:C33; Current time:C178)
+			
+			$options:=New object:C1471("header"; New object:C1471("alg"; "RS256"; "typ"; "JWT"))
+			
+			$options.payload:=New object:C1471
+			$options.payload.iss:=This:C1470.clientEmail
+			$options.payload.scope:=This:C1470.scope
+			$options.payload.aud:=This:C1470.tokenURI
+			$options.payload.iat:=$epoch
+			$options.payload.exp:=$epoch+3600
+			
+			$options.privateKey:=This:C1470.privateKey
+			
+			$jwt:=cs:C1710._JWT.new($options)
+			
+			$params:="grant_type="+_urlEscape("urn:ietf:params:oauth:grant-type:jwt-bearer")
+			$params+="&assertion="+$jwt.generate()
+			$result:=This:C1470._sendTokenRequest($params)
 			
 		Else 
 			var $params : Text
