@@ -27,12 +27,9 @@ Class constructor($inParam : Object)
 	// ----------------------------------------------------
 	
 	
-Function generate()->$result : Text
+Function generate() : Text
 	
-	C_TEXT:C284($header)
-	C_TEXT:C284($payload)
-	C_TEXT:C284($algorithm)
-	C_TEXT:C284($signature)
+	var $header; $payload; $algorithm; $signature : Text
 	
 	// Encode the Header and Payload
 	BASE64 ENCODE:C895(JSON Stringify:C1217(This:C1470.header); $header; *)
@@ -49,7 +46,7 @@ Function generate()->$result : Text
 	End if 
 	
 	// Combine Encoded Header and Payload with Hashed Signature for the Token
-	$result:=$header+"."+$payload+"."+$signature
+	return ($header+"."+$payload+"."+$signature)
 	
 	
 	// ----------------------------------------------------
@@ -57,33 +54,38 @@ Function generate()->$result : Text
 	
 Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	
-	var $parts : Collection
-	var $header; $payload; $algorithm; $signature : Text
-	var $jwt : Object
-	
 	// Split Token into the three parts: Header, Payload, Verify Signature
+	var $parts : Collection
 	$parts:=Split string:C1554($inJWT; ".")
 	
-	// Decode Header and Payload into Objects
-	BASE64 DECODE:C896($parts[0]; $header; *)
-	BASE64 DECODE:C896($parts[1]; $payload; *)
-	$jwt:=New object:C1471
-	$jwt.header:=JSON Parse:C1218($header)
-	$jwt.payload:=JSON Parse:C1218($payload)
-	$jwt.privateKey:=String:C10($inPrivateKey)
-	
-	// Parse Header for Algorithm Family
-	$algorithm:=Substring:C12($jwt.header.alg; 1; 2)
-	
-	// Generate Hashed Verify Signature
-	If ($algorithm="HS")
-		$signature:=This:C1470._hashHS($jwt)
-	Else 
-		$signature:=This:C1470._hashSign($jwt)
+	If ($parts.length>2)
+		
+		var $header; $payload; $algorithm; $signature : Text
+		var $jwt : Object
+		
+		// Decode Header and Payload into Objects
+		BASE64 DECODE:C896($parts[0]; $header; *)
+		BASE64 DECODE:C896($parts[1]; $payload; *)
+		$jwt:=New object:C1471("header"; JSON Parse:C1218($header); \
+			"payload"; JSON Parse:C1218($payload); \
+			"privateKey"; String:C10($inPrivateKey))
+		
+		// Parse Header for Algorithm Family
+		$algorithm:=Substring:C12($jwt.header.alg; 1; 2)
+		
+		// Generate Hashed Verify Signature
+		If ($algorithm="HS")
+			$signature:=This:C1470._hashHS($jwt)
+		Else 
+			$signature:=This:C1470._hashSign($jwt)
+		End if 
+		
+		//Compare Verify Signatures to return Result
+		return ($signature=$parts[2])
+		
 	End if 
 	
-	//Compare Verify Signatures to return Result
-	return ($signature=$parts[2])
+	return False:C215
 	
 	
 	// Mark: - [Private]
@@ -153,11 +155,10 @@ Function _hashHS($inJWT : Object)->$result : Text
 	
 Function _hashSign($inJWT : Object)->$result : Text
 	
-	var $encodedHead; $encodedPayload; $algorithm : Text
+	var $encodedHead; $encodedPayload; $algorithm; $privateKey : Text
 	var $settings; $signOptions : Object
 	var $hashAlgorithm : Integer
 	var $cryptoKey : 4D:C1709.CryptoKey
-	var $privateKey : Text
 	
 	$privateKey:=(String:C10($inJWT.privateKey)#"") ? String:C10($inJWT.privateKey) : String:C10(This:C1470.privateKey)
 	
