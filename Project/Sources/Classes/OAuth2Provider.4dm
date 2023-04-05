@@ -176,6 +176,22 @@ Function _isGoogle() : Boolean
 	// ----------------------------------------------------
 	
 	
+Function _isSignedIn() : Boolean
+	
+	return (This:C1470.permission="signedIn")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _isService() : Boolean
+	
+	return (This:C1470.permission="service")
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
 	var $url; $redirectURI; $state; $scope : Text
@@ -200,7 +216,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: (Length:C16(String:C10(This:C1470.tenant))=0)
 			This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
 			
-		: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10($redirectURI))=0))
+		: (This:C1470._isSignedIn() & (Length:C16(String:C10($redirectURI))=0))
 			This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
 			
 		Else 
@@ -341,9 +357,9 @@ Function _getToken_Service()->$result : Object
 			var $jwt : cs:C1710._JWT
 			var $options : Object
 			var $epoch : Real
-			var $params : Text
+			var $params; $bearer : Text
 			
-			$epoch:=Date_ToEpoch(Current date:C33; Current time:C178)
+			$epoch:=_unixTime
 			
 			$options:=New object:C1471("header"; New object:C1471("alg"; "RS256"; "typ"; "JWT"))
 			
@@ -357,9 +373,10 @@ Function _getToken_Service()->$result : Object
 			$options.privateKey:=This:C1470.privateKey
 			
 			$jwt:=cs:C1710._JWT.new($options)
+			$bearer:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEscape("urn:ietf:params:oauth:grant-type:jwt-bearer")
-			$params+="&assertion="+$jwt.generate()
+			$params+="&assertion="+$bearer
 			$result:=This:C1470._sendTokenRequest($params)
 			
 		Else 
@@ -566,15 +583,15 @@ Function getToken()->$result : Object
 			: (Length:C16(String:C10(This:C1470.permission))=0)
 				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
 				
-			: ((String:C10(This:C1470.permission)="signedIn") & (Length:C16(String:C10($redirectURI))=0))
+			: (This:C1470._isSignedIn() & (Length:C16(String:C10($redirectURI))=0))
 				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
 				
-			: (Not:C34(String:C10(This:C1470.permission)="signedIn") & Not:C34(String:C10(This:C1470.permission)="service"))
+			: (Not:C34(This:C1470._isSignedIn()) & Not:C34(This:C1470._isService()))
 				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
 				
 			Else 
 				
-				If (This:C1470.permission="signedIn")  // signedIn Mode
+				If (This:C1470._isSignedIn())
 					
 					$result:=This:C1470._getToken_SignedIn($bUseRefreshToken)
 					

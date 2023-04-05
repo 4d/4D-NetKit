@@ -16,7 +16,8 @@
 		"classes": [
 			"_BaseClass",
 			"_GraphAPI",
-			"_GraphBaseList"
+			"_GraphBaseList",
+			"_JWT"
 		]
 	},
 	"Private Methods": {
@@ -35,8 +36,8 @@
 			"_StartWebServer",
 			"_StopWebServer",
 			"_throwError",
-			"_urlEscape",
-			"Date_ToEpoch"
+			"_unixTime",
+			"_urlEscape"
 		]
 	},
 	"Public": {
