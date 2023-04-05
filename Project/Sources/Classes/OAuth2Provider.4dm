@@ -213,7 +213,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: ((This:C1470._isGoogle() || This:C1470._isMicrosoft()) && (Length:C16(String:C10($scope))=0))
 			This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
 			
-		: (Length:C16(String:C10(This:C1470.tenant))=0)
+		: (This:C1470._isMicrosoft() && (Length:C16(String:C10(This:C1470.tenant))=0))
 			This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
 			
 		: (This:C1470._isSignedIn() & (Length:C16(String:C10($redirectURI))=0))
@@ -577,7 +577,7 @@ Function getToken()->$result : Object
 			: (Length:C16(String:C10($tokenURI))=0)
 				This:C1470._throwError(2; New object:C1471("attribute"; "tokenURI"))
 				
-			: (Length:C16(String:C10(This:C1470.tenant))=0)
+			: (This:C1470._isMicrosoft() && (Length:C16(String:C10(This:C1470.tenant))=0))
 				This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
 				
 			: (Length:C16(String:C10(This:C1470.permission))=0)
