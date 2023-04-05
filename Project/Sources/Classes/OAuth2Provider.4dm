@@ -432,6 +432,10 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	$options.body:=$params
 	$options.dataType:="text"
 	
+	If (Value type:C1509(This:C1470._internals._rawBody)#Is undefined:K8:13)
+		OB REMOVE:C1226(This:C1470._internals; "_rawBody")
+	End if 
+	
 	$savedMethod:=Method called on error:C704
 	ON ERR CALL:C155("_ErrorHandler")
 	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
@@ -457,9 +461,15 @@ Function _sendTokenRequest($params : Text)->$result : Object
 					$result._loadFromURLEncodedResponse($response)
 					
 				Else 
+/*
+We have a status 200 (no error) and a response that we don't know/want to interpret.
+Simply return a null result (to be consistent with the specifications) and 
+copy the raw response body in a private member of the class
+*/
 					var $blob : Blob
 					CONVERT FROM TEXT:C1011($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
-					$result:=4D:C1709.Blob.new($blob)
+					This:C1470._internals._rawBody:=4D:C1709.Blob.new($blob)
+					$result:=Null:C1517
 					
 			End case 
 			
