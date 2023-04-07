@@ -52,8 +52,3 @@ C_VARIANT:C1683(_retainFileObject; $1)
 
 // _getErrorStack
 C_OBJECT:C1216(_getErrorStack; $0)
-
-// _unixTime
-C_REAL:C285(_unixTime; $0)
-C_DATE:C307(_unixTime; $1)
-C_TIME:C306(_unixTime; $2)

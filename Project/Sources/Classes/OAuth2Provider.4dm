@@ -138,12 +138,21 @@ Possible values are:
 		End if 
 		
 /*
-Email address of the Google service account used (Google only)
+clientMail used by Google services account used
 */
-		If (This:C1470._isGoogle())
-			This:C1470.clientEmail:=String:C10($inParams.clientEmail)
-			This:C1470.privateKey:=String:C10($inParams.privateKey)
-		End if 
+		This:C1470.clientEmail:=String:C10($inParams.clientEmail)
+		
+/*
+privateKey may be used used by Google services account to sign JWT token
+*/
+		This:C1470.privateKey:=String:C10($inParams.privateKey)
+		
+/*
+_grantType used in Service mode to determine if we use a JWT or client_credentials
+If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
+or "client_credentials" for other provider.
+*/
+		This:C1470._grantType:=String:C10($inParams.grantType)
 		
 /*
 Enable HTTP Server debug log for Debug purposes only
@@ -351,15 +360,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 Function _getToken_Service()->$result : Object
 	
+	var $params : Text
+	
 	Case of 
-		: (This:C1470._isGoogle())
+		: (This:C1470._useJWTBearer())
 			
 			var $jwt : cs:C1710._JWT
 			var $options : Object
-			var $epoch : Real
-			var $params; $bearer : Text
-			
-			$epoch:=_unixTime
+			var $bearer : Text
 			
 			$options:=New object:C1471("header"; New object:C1471("alg"; "RS256"; "typ"; "JWT"))
 			
@@ -367,30 +375,29 @@ Function _getToken_Service()->$result : Object
 			$options.payload.iss:=This:C1470.clientEmail
 			$options.payload.scope:=This:C1470.scope
 			$options.payload.aud:=This:C1470.tokenURI
-			$options.payload.iat:=$epoch
-			$options.payload.exp:=$epoch+3600
+			$options.payload.iat:=This:C1470._unixTime()
+			$options.payload.exp:=$options.payload.iat+3600
 			
 			$options.privateKey:=This:C1470.privateKey
 			
 			$jwt:=cs:C1710._JWT.new($options)
 			$bearer:=$jwt.generate()
 			
-			$params:="grant_type="+_urlEscape("urn:ietf:params:oauth:grant-type:jwt-bearer")
+			$params:="grant_type="+_urlEscape(This:C1470.grantType)
 			$params+="&assertion="+$bearer
-			$result:=This:C1470._sendTokenRequest($params)
 			
 		Else 
-			var $params : Text
 			
 			$params:="client_id="+This:C1470.clientId
 			If (Length:C16(This:C1470.scope)>0)
 				$params+="&scope="+_urlEscape(This:C1470.scope)
 			End if 
 			$params+="&client_secret="+This:C1470.clientSecret
-			$params+="&grant_type=client_credentials"
-			$result:=This:C1470._sendTokenRequest($params)
+			$params+="&grant_type="+This:C1470.grantType
 			
 	End case 
+	
+	$result:=This:C1470._sendTokenRequest($params)
 	
 	
 	// ----------------------------------------------------
@@ -532,6 +539,41 @@ copy the raw response body in a private member of the class
 	End if 
 	
 	
+	// ----------------------------------------------------
+	
+	
+Function _unixTime($today : Date; $time : Time)->$result : Real
+/*
+Unix_Time stolen from ThomasMaul/JWT_Token_Example
+https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+*/
+	
+	var $start; $today : Date
+	var $now : Text
+	var $time : Time
+	var $days : Integer
+	
+	$start:=!1970-01-01!
+	
+	If (Count parameters:C259=0)
+		$now:=Timestamp:C1445
+		$now:=Substring:C12($now; 1; Length:C16($now)-5)  // remove milliseconds and Z 
+		$today:=Date:C102($now)  // date in UTC
+		$time:=Time:C179($now)  // returns now time in UTC
+	End if 
+	
+	$days:=$today-$start
+	$result:=($days*86400)+($time+0)  // convert in seconds
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _useJWTBearer() : Boolean
+	
+	return (This:C1470.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
+	
+	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
@@ -636,6 +678,22 @@ Function get authenticateURI() : Text
 	End case 
 	
 	return $authenticateURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get grantType() : Text
+	
+	If (Length:C16(This:C1470._grantType)=0)
+		If (This:C1470._isService() && This:C1470._isGoogle())
+			return "urn:ietf:params:oauth:grant-type:jwt-bearer"
+		Else 
+			return "client_credentials"
+		End if 
+	End if 
+	
+	return This:C1470._grantType
 	
 	
 	// ----------------------------------------------------
