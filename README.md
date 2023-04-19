@@ -117,8 +117,8 @@ $File2:=Folder("/RESOURCES/").file("KO.html")
 
 $param.name:="Google"
 $param.permission:="signedIn"
-$param.clientId:=""
-$param.clientSecret:=""
+$param.clientId:="xxxx"
+$param.clientSecret:="xxxx"
 $param.redirectURI:="http://127.0.0.1:50993/authorize/"
 $param.scope:="https://www.googleapis.com/auth/gmail.send"
 $param.authenticationPage:=$File1
