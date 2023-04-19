@@ -90,11 +90,7 @@ The available properties of `paramObj` are:
 | authenticationPage|text or file object|Path of the web page to display in the webbrowser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
 | authenticationErrorPage	|text or file object| Path of the web page to display in the webbrowser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
 
-:::note
-
-The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
-
-:::
+**Note:** The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
 
 #### Returned object
 
