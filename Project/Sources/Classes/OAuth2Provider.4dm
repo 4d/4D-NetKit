@@ -108,6 +108,8 @@ for tokens.
 		If ((String:C10($inParams.accessType)="online") || \
 			(String:C10($inParams.accessType)="offline"))
 			This:C1470.accessType:=String:C10($inParams.accessType)
+		Else 
+			This:C1470.accessType:="online"  // Default Access Type
 		End if 
 		
 /*
