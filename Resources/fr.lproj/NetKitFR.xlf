@@ -71,7 +71,7 @@
         </trans-unit>
         <trans-unit resname="OAuth2_Error_Message">
           <source>Undefined error</source>
-          <target>Erreure indéfinie</target>
+          <target>Erreur indéfinie</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>
