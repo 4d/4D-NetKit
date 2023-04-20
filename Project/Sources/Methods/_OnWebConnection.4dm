@@ -46,6 +46,13 @@ If ($1=$redirectURI)
 		
 		WSTITLE:=Get localized string:C991("OAuth2_Response_Title")
 		WSMESSAGE:=Get localized string:C991("OAuth2_Error_Message")
+		
+		If (OB Is defined:C1231($result; "error"))
+			WSMESSAGE:=WSMESSAGE+"<br /><br />"+$result.error
+		End if 
+		If (OB Is defined:C1231($result; "error_subtype"))
+			WSMESSAGE:=WSMESSAGE+"<br /><br />"+$result.error_subtype
+		End if 
 		If (OB Is defined:C1231($result; "error_description"))
 			WSMESSAGE:=WSMESSAGE+"<br /><br />"+$result.error_description
 		End if 

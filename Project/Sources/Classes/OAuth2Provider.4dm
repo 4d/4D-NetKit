@@ -171,6 +171,26 @@ Enable HTTP Server debug log for Debug purposes only
 	// ----------------------------------------------------
 	
 	
+Function _getErrorDescription($inObject : Object) : Text
+	
+	var $result : Object
+	var $keys : Collection
+	var $key : Text
+	
+	$result:=New object:C1471
+	$keys:=OB Keys:C1719($inObject)
+	For each ($key; $keys)
+		If (Position:C15("error"; $key)=1)
+			$result[$key]:=$inObject[$key]
+		End if 
+	End for each 
+	
+	return JSON Stringify:C1217($result)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _isMicrosoft() : Boolean
 	
 	return (This:C1470.name="Microsoft")
@@ -272,6 +292,13 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 					//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
 					//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
 					//End if 
+					
+					If (OB Is defined:C1231(Storage:C1525.token; "error"))
+						This:C1470._throwError(12; \
+							New object:C1471("function"; Current method name:C684; \
+							"message"; This:C1470._getErrorDescription(Storage:C1525.token)))
+					End if 
+					
 					OB REMOVE:C1226(Storage:C1525; "token")
 					OB REMOVE:C1226(Storage:C1525; "params")
 				End if 
