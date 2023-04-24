@@ -71,21 +71,59 @@ The available properties of `paramObj` are:
 
 |Parameter|Type|Description|Can be Null or undefined|
 |---------|--- |------|------|
-| name | text | Name of the provider. Currently, the only provider available is "Microsoft". |No
+| name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
 | permission | text | <ul><li> "signedIn": Azure AD will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls Microsoft Graph [with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service) (access without a user).</li></ul>|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
 | redirectURI | text | (Not used in service mode) The redirect_uri of your app, the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response.|No in signedIn mode, Yes in service mode
-| scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |No
+| scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
 | tenant | text | The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts </li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul> Default is "common". |Yes
-| authenticateURI | text | Uri used to do the Authorization request. By default: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize". |Yes
-| tokenURI | text | Uri used to request an access token. By default: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token". |Yes
+| authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for google: "https://accounts.google.com/o/oauth2/auth". |Yes
+| tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for google: "https://accounts.google.com/o/oauth2/token".|Yes
 | clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
 | token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes
 | timeout|real| Waiting time in seconds (by default 120s).|Yes
+|    prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.<br /><br/>Possible values are:<br/><ul><li>none: Do not display any authentication or consent screens. Must not be specified with other values.</li><li>consent: Prompt the user for consent.</li><li>select_account: Prompt the user to select an account.</li></ul>(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
+|  loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.<br/> Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID.                                                                                       |Yes|
+|  accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.<br/> Valid parameter values are online (default) and offline.<br/> Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
+| clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used                                                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
+| privateKey  | text | (Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google"                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
+| authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
+| authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
+
+**Note:** The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
 
 #### Returned object
 
 The returned object's properties correspond to those of the `paramObj` object passed as a parameter.
+
+#### Example 
+
+```4d
+
+//authentication into google account and token retrieval
+
+var $File1; $File2 : 4D.File
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $param: Object
+
+$File1:=File("/RESOURCES/OK.html")
+$File2:=File("/RESOURCES/KO.html")
+
+$param:= New object
+$param.name:="Google"
+$param.permission:="signedIn"
+$param.clientId:="xxxx"
+$param.clientSecret:="xxxx"
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+$param.scope:="https://www.googleapis.com/auth/gmail.send"
+$param.authenticationPage:=$File1
+$param.authenticationErrorPage:=$File2
+// Create new OAuth2 object
+$oAuth2:=cs.NetKit.OAuth2Provider.new($param)
+// Ask for a token
+$token:=$oAuth2.getToken()
+
+```
 
 ### OAuth2ProviderObject.getToken()
 
