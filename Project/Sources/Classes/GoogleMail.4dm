@@ -4,7 +4,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 	Super:C1705($inProvider)
 	
-	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "Google"
+	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "GMail"
 	This:C1470.userId:=(Length:C16(String:C10($inParameters.userId))>0) ? String:C10($inParameters.userId) : ""
 	
 	
@@ -18,7 +18,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	var $requestBody : Text
 	
 	$headers:=New object:C1471
-	$headers["Content-Type"]:="text/plain"
+	$headers["Content-Type"]:="application/json"
 	
 	Case of 
 		: (Value type:C1509($inMail)=Is BLOB:K8:12)
@@ -32,7 +32,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE:C895($requestBody)
 	
-	Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+	Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object:C1471("raw"; $requestBody))
 	return This:C1470._returnStatus()
 	
 	
@@ -48,10 +48,6 @@ $inHeader : Object) : Object
 	var $status : Object
 	
 	Super:C1706._throwErrors(False:C215)
-	
-	If (Length:C16(String:C10(This:C1470.mailType))=0)
-		This:C1470.mailType:="Google"
-	End if 
 	
 	Case of 
 		: ((This:C1470.mailType="MIME") && (\
