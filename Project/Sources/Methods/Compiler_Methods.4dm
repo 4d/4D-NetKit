@@ -53,7 +53,7 @@ C_VARIANT:C1683(_retainFileObject; $1)
 // _getErrorStack
 C_OBJECT:C1216(_getErrorStack; $0)
 
-//New Google provider
+// New Google provider
 C_OBJECT:C1216(New Google provider; $0)
 C_OBJECT:C1216(New Google provider; $1)
 C_OBJECT:C1216(New Google provider; $2)

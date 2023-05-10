@@ -14,7 +14,9 @@
 	},
 	"Private": {
 		"classes": [
+			"_BaseAPI",
 			"_BaseClass",
+			"_GoogleAPI",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
