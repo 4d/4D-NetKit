@@ -41,6 +41,8 @@
 	},
 	"Public": {
 		"classes": [
+			"Google",
+			"GoogleMail",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",
@@ -58,6 +60,7 @@
 		"methods": [
 			"Compiler_Methods",
 			"Compiler_Variables",
+			"New Google provider",
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
