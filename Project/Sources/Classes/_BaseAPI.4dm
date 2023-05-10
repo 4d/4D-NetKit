@@ -58,7 +58,7 @@ Function _getAcessTokenType() : Text
 	// ----------------------------------------------------
 	
 	
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Text)->$response : Variant
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant)->$response : Variant
 	
 	This:C1470._try()
 	
@@ -82,10 +82,13 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	If (Length:C16(String:C10($inMethod))>0)
 		$options.method:=Uppercase:C13($inMethod)
 	End if 
-	If (Length:C16(String:C10($inBody))>0)
-		$options.body:=$inBody
-	End if 
-	$options.dataType:="text"
+	Case of 
+		: ((Value type:C1509($inBody)=Is text:K8:3) || (Value type:C1509($inBody)=Is object:K8:27))
+			$options.body:=$inBody
+			$options.dataType:=(Value type:C1509($inBody)=Is text:K8:3) ? "text" : "object"
+		Else 
+			$options.body:=Null:C1517
+	End case 
 	
 	var $request : 4D:C1709.HTTPRequest
 	
@@ -103,42 +106,61 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		var $contentType; $charset : Text
-		var $blob : Blob
-		
-		$contentType:=String:C10($request["response"]["headers"]["content-type"])
-		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
-		If (($contentType="application/json@") || ($contentType="text/plain@"))
-			var $text : Text
-			If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
-				$text:=$request["response"]["body"]
-			Else 
-				$text:=Convert to text:C1012($request["response"]["body"]; $charset)
-			End if 
-			If ($contentType="application/json@")
-				$response:=JSON Parse:C1218($text)
-			Else 
-				$response:=$text
-			End if 
-		Else 
-			If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+		Case of 
+			: ((Value type:C1509($request["response"]["body"])=Is text:K8:3) || (Value type:C1509($request["response"]["body"])=Is object:K8:27))
 				$response:=$request["response"]["body"]
-			Else 
-				If (OB Is defined:C1231($request.response; "body") && (Value type:C1509($request["response"]["body"])=Is BLOB:K8:12))
-					$response:=4D:C1709.Blob.new($request["response"]["body"])
-				End if 
-			End if 
-		End if 
+				
+			: ((OB Is defined:C1231($request.response; "body") && (Value type:C1509($request["response"]["body"])=Is BLOB:K8:12)))
+				$response:=4D:C1709.Blob.new($request["response"]["body"])
+				
+		End case 
+		//var $contentType; $charset : Text
+		//var $blob : Blob
+		
+		//$contentType:=String($request["response"]["headers"]["content-type"])
+		//$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
+		
+		//If (($contentType="application/json@") || ($contentType="text/plain@"))
+		//var $text : Text
+		//If (Value type($request["response"]["body"])=Is text)
+		//$text:=$request["response"]["body"]
+		//Else 
+		//$text:=Convert to text($request["response"]["body"]; $charset)
+		//End if 
+		
+		//If ($contentType="application/json@")
+		//$response:=JSON Parse($text)
+		//Else 
+		//$response:=$text
+		//End if 
+		
+		//Else 
+		//If (Value type($request["response"]["body"])=Is text)
+		//$response:=$request["response"]["body"]
+		//Else 
+		//If (OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB))
+		//$response:=4D.Blob.new($request["response"]["body"])
+		//End if 
+		//End if 
+		//End if 
 		
 	Else 
 		
 		var $explanation; $message : Text
 		$explanation:=$request["response"]["statusText"]
-		If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
-			$message:=$request["response"]["body"]
-		Else 
-			$message:=Convert to text:C1012($request["response"]["body"]; "UTF-8")
-		End if 
+		
+		Case of 
+			: (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+				$message:=$request["response"]["body"]
+				
+			: (Value type:C1509($request["response"]["body"])=Is object:K8:27)
+				$message:=JSON Stringify:C1217($request["response"]["body"])
+				
+			Else 
+				$message:=Convert to text:C1012($request["response"]["body"]; "UTF-8")
+				
+		End case 
+		
 		This:C1470._throwError(8; New object:C1471("status"; $status; "explanation"; $explanation; "message"; $message))
 		$response:=Null:C1517
 		
