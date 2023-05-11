@@ -67,8 +67,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	$token:=This:C1470._getAcessToken()
 	$options:=New object:C1471()
+	$options.headers:=New object:C1471()
 	If (Length:C16(String:C10($token))>0)
-		$options.headers:=New object:C1471()
 		$options.headers["Authorization"]:=This:C1470._getAcessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null:C1517) && (Value type:C1509($inHeaders)=Is object:K8:27))
