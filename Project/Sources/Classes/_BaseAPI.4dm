@@ -106,43 +106,33 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
+		var $contentType; $charset : Text
+		var $blob : Blob
+		
+		$contentType:=String:C10($request["response"]["headers"]["content-type"])
+		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
+		
 		Case of 
-			: ((Value type:C1509($request["response"]["body"])=Is text:K8:3) || (Value type:C1509($request["response"]["body"])=Is object:K8:27))
+			: (Value type:C1509($request["response"]["body"])=Is object:K8:27)
 				$response:=$request["response"]["body"]
+				
+			: (($contentType="application/json@") || ($contentType="text/plain@"))
+				var $text : Text
+				If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+					$text:=$request["response"]["body"]
+				Else 
+					$text:=Convert to text:C1012($request["response"]["body"]; $charset)
+				End if 
+				If ($contentType="application/json@")
+					$response:=JSON Parse:C1218($text)
+				Else 
+					$response:=$text
+				End if 
 				
 			: ((OB Is defined:C1231($request.response; "body") && (Value type:C1509($request["response"]["body"])=Is BLOB:K8:12)))
 				$response:=4D:C1709.Blob.new($request["response"]["body"])
 				
 		End case 
-		//var $contentType; $charset : Text
-		//var $blob : Blob
-		
-		//$contentType:=String($request["response"]["headers"]["content-type"])
-		//$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
-		
-		//If (($contentType="application/json@") || ($contentType="text/plain@"))
-		//var $text : Text
-		//If (Value type($request["response"]["body"])=Is text)
-		//$text:=$request["response"]["body"]
-		//Else 
-		//$text:=Convert to text($request["response"]["body"]; $charset)
-		//End if 
-		
-		//If ($contentType="application/json@")
-		//$response:=JSON Parse($text)
-		//Else 
-		//$response:=$text
-		//End if 
-		
-		//Else 
-		//If (Value type($request["response"]["body"])=Is text)
-		//$response:=$request["response"]["body"]
-		//Else 
-		//If (OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB))
-		//$response:=4D.Blob.new($request["response"]["body"])
-		//End if 
-		//End if 
-		//End if 
 		
 	Else 
 		
