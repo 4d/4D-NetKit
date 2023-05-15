@@ -14,7 +14,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers : Object
+	var $headers; $response : Object
 	var $requestBody : Text
 	
 	$headers:=New object:C1471
@@ -32,7 +32,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE:C895($requestBody)
 	
-	Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object:C1471("raw"; $requestBody))
+	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object:C1471("raw"; $requestBody))
 	return This:C1470._returnStatus()
 	
 	
