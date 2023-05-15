@@ -12,6 +12,38 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	// Mark: - [Private]
 	
 	
+Function _postJSONMessage($inURL : Text; \
+$inMail : Object; \
+$inHeader : Object) : Object
+	
+	If ($inMail#Null:C1517)
+		var $headers; $message; $messageCopy; $response : Object
+		var $requestBody : Text
+		
+		$headers:=New object:C1471
+		$headers["Content-Type"]:="application/json"
+		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
+			var $keys : Collection
+			var $key : Text
+			$keys:=OB Keys:C1719($inHeader)
+			For each ($key; $keys)
+				$headers[$key]:=$inHeader[$key]
+			End for each 
+		End if 
+		
+		$requestBody:=JSON Stringify:C1217($inMail)
+		
+		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+	Else 
+		Super:C1706._pushError(1)
+	End if 
+	
+	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	var $headers; $response : Object
@@ -42,7 +74,6 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 Function _postMessage($inFunction : Text; \
 $inURL : Text; \
 $inMail : Variant; \
-$bSkipMessageEncapsulation : Boolean; \
 $inHeader : Object) : Object
 	
 	var $status : Object
@@ -58,8 +89,8 @@ $inHeader : Object) : Object
 		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
 			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
 			
-			//: ((This.mailType="Google") && (Value type($inMail)=Is object))
-			//$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
+		: ((This:C1470.mailType="Google") && (Value type:C1509($inMail)=Is object:K8:27))
+			$status:=This:C1470._postJSONMessage($inURL; $inMail; $inHeader)
 			
 		Else 
 			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
