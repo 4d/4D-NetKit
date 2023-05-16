@@ -18,10 +18,10 @@ $inHeader : Object) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers; $message; $messageCopy; $response : Object
-		var $requestBody : Text
+		var $requestBody : Blob
 		
 		$headers:=New object:C1471
-		$headers["Content-Type"]:="application/json"
+		$headers["Content-Type"]:="message/rfc822"
 		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
 			var $keys : Collection
 			var $key : Text
@@ -31,7 +31,7 @@ $inHeader : Object) : Object
 			End for each 
 		End if 
 		
-		$requestBody:=JSON Stringify:C1217($inMail)
+		TEXT TO BLOB:C554(JSON Stringify:C1217($inMail); $requestBody)
 		
 		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	Else 
@@ -115,6 +115,10 @@ Function send($inMail : Variant) : Object
 	$URL:=Super:C1706._getURL()
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 	$URL+="users/"+$userId+"/messages/send"
+	
+	If (This:C1470.mailType="Google")
+		$URL:=Replace string:C233($URL; "/gmail/v1/"; "/upload/gmail/v1/")
+	End if 
 	
 	return This:C1470._postMessage("send"; $URL; $inMail)
 	

@@ -87,7 +87,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 			$options.body:=$inBody
 			$options.dataType:=(Value type:C1509($inBody)=Is text:K8:3) ? "text" : "object"
 		Else 
-			$options.body:=Null:C1517
+			$options.body:=$inBody
+			$options.dataType:="auto"
 	End case 
 	
 	var $request : 4D:C1709.HTTPRequest
