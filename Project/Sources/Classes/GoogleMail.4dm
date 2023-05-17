@@ -18,7 +18,7 @@ $inHeader : Object) : Object
 	
 	If ($inMail#Null:C1517)
 		var $headers; $message; $messageCopy; $response : Object
-		var $requestBody : Blob
+		var $requestBody : Text
 		
 		$headers:=New object:C1471
 		$headers["Content-Type"]:="message/rfc822"
@@ -31,8 +31,7 @@ $inHeader : Object) : Object
 			End for each 
 		End if 
 		
-		TEXT TO BLOB:C554(JSON Stringify:C1217($inMail); $requestBody)
-		
+		$requestBody:=JSON Stringify:C1217($inMail)
 		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	Else 
 		Super:C1706._pushError(1)
