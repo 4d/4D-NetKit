@@ -279,7 +279,6 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 			OPEN URL:C673($url; *)
 			
-			//TRACE
 			var $endTime : Integer
 			$endTime:=Milliseconds:C459+(This:C1470.timeout*1000)
 			While ((Milliseconds:C459<=$endTime) & (Not:C34(OB Is defined:C1231(Storage:C1525; "token")) | (Storage:C1525.token=Null:C1517)))
@@ -406,6 +405,9 @@ Function _getToken_Service()->$result : Object
 			$options.payload.aud:=This:C1470.tokenURI
 			$options.payload.iat:=This:C1470._unixTime()
 			$options.payload.exp:=$options.payload.iat+3600
+			If ((Length:C16(String:C10(This:C1470.tenant))>0) && (Position:C15("@"; This:C1470.tenant)>0))
+				$options.payload.sub:=This:C1470.tenant
+			End if 
 			
 			$options.privateKey:=This:C1470.privateKey
 			
