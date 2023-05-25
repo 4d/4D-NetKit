@@ -4,7 +4,10 @@
    Copyright (C) 2007-2013 4D SAS.
    This file is distributed under the same license as the 4D product package.
 -->
-<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN"
+"http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+
 <xliff version="1.0">
   <file datatype="x-STR#" original="undefined" source-language="en-US" target-language="de" product-version="v14">
     <header>
@@ -12,9 +15,6 @@
       <note>Text between less than (&lt;) and greater than (&gt;) symbols is a variable's name and must not be localised</note>
       <note>\r, \t and \n are meta-characters.</note>
     </header>
-
-
-
     <body>
       <group resname="4D NetKit Messages">
         <trans-unit resname="ERR_4DNK_1">
@@ -57,6 +57,14 @@
           <source>Unsupported parameter type {which} in function {function}.</source>
           <target>Nicht unterstützter Parametertyp {which} in Funktion {function}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_11">
+          <source>You have reached the limit of the number of requests per minute that 4D can serve without a license.</source>
+          <target>Sie haben die maximaler Anzahl Anfragen pro Minute erreicht, die 4D ohne Lizenz bedienen kann.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_12">
+          <source>The '{function}' function returned an unexpected error : {message}.</source>
+          <target>Die Funktion '{function}' hat einen unerwarteten Fehler zurückgegeben : {message}.</target>
+        </trans-unit>        
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>

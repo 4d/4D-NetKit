@@ -61,6 +61,10 @@
           <source>You have reached the limit of the number of requests per minute that 4D can serve without a license.</source>
           <target>Vous avez atteint la limite du nombre de requêtes par minute que 4D peut servir sans licence.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_12">
+          <source>The '{function}' function returned an unexpected error : {message}.</source>
+          <target>La fonction '{function}' a retourné une erreur inattendue : {message}.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>Composant 4D NetKit</source>
@@ -71,7 +75,7 @@
         </trans-unit>
         <trans-unit resname="OAuth2_Error_Message">
           <source>Undefined error</source>
-          <target>Erreure indéfinie</target>
+          <target>Erreur indéfinie</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Details">
           <source>You may now close this window</source>

@@ -24,15 +24,13 @@ Function _loadFromObject($inObject : Object)
 	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
 		
 		This:C1470.token:=New object:C1471
-		If (OB Is defined:C1231($inObject; "token"))
-			var $token : Object
-			$token:=OB Get:C1224($inObject; "token"; Is object:K8:27)
+		If (OB Get type:C1230($inObject; "token")=Is object:K8:27)
 			
 			var $keys; $values : Collection
 			var $i : Integer
 			
-			$keys:=OB Keys:C1719($token)
-			$values:=OB Values:C1718($token)
+			$keys:=OB Keys:C1719($inObject.token)
+			$values:=OB Values:C1718($inObject.token)
 			
 			This:C1470.token:=New object:C1471
 			For ($i; 0; $keys.length-1)
@@ -40,16 +38,14 @@ Function _loadFromObject($inObject : Object)
 			End for 
 		End if 
 		
-		If (OB Is defined:C1231($inObject; "tokenExpiration"))
+		If (OB Is defined:C1231($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null:C1517))
 			This:C1470.tokenExpiration:=$inObject.tokenExpiration
 		Else 
 			var $expires_in : Integer
-			var $expiration_date : Date
 			
 			$expires_in:=(Current time:C178+0)+Num:C11($inObject.token.expires_in)
-			$expiration_date:=Add to date:C393(Current date:C33; 0; 0; Choose:C955(($expires_in>=(24*3600)); 1; 0))
 			
-			This:C1470.tokenExpiration:=String:C10($expiration_date; ISO date GMT:K1:10; Time:C179($expires_in))
+			This:C1470.tokenExpiration:=String:C10(Current date:C33; ISO date:K1:8; Time:C179($expires_in))
 		End if 
 		
 	End if 
@@ -60,13 +56,38 @@ Function _loadFromObject($inObject : Object)
 	
 Function _loadFromResponse($inResponseString : Text)
 	
-	var $obj; $token : Object
+	var $token : Object
 	
 	$token:=JSON Parse:C1218($inResponseString)
 	If (($token#Null:C1517) & (Not:C34(OB Is empty:C1297($token))))
 		
-		$obj:=New object:C1471("token"; $token)
-		This:C1470._loadFromObject($obj)
+		This:C1470._loadFromObject(New object:C1471("token"; $token))
+		
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _loadFromURLEncodedResponse($inResponseString : Text)
+	
+	var $token : Object
+	var $params : Collection
+	var $iter : Text
+	
+	$token:=New object:C1471
+	$params:=Split string:C1554($inResponseString; "&")
+	For each ($iter; $params)
+		var $pair : Collection
+		$pair:=Split string:C1554($iter; "=")
+		If ($pair.length>1)
+			$token[$pair[0]]:=$pair[1]
+		End if 
+	End for each 
+	
+	If (Not:C34(OB Is empty:C1297($token)))
+		
+		This:C1470._loadFromObject(New object:C1471("token"; $token))
 		
 	End if 
 	

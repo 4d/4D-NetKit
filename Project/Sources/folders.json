@@ -2,14 +2,49 @@
 	"4D NetKit": {
 		"groups": [
 			"Classes",
-			"Project Methods"
+			"Private Methods",
+			"Public Methods"
 		]
 	},
 	"Classes": {
+		"groups": [
+			"Private",
+			"Public"
+		]
+	},
+	"Private": {
 		"classes": [
+			"_BaseAPI",
 			"_BaseClass",
+			"_GoogleAPI",
 			"_GraphAPI",
 			"_GraphBaseList",
+			"_JWT"
+		]
+	},
+	"Private Methods": {
+		"methods": [
+			"_buildComponent",
+			"_camelCase",
+			"_catch",
+			"_convertToGraphAttachment",
+			"_ErrorHandler",
+			"_getErrorStack",
+			"_getHeaderValueParameter",
+			"_getPathFromURL",
+			"_getPortFromURL",
+			"_OnWebConnection",
+			"_retainFileObject",
+			"_StartWebServer",
+			"_StopWebServer",
+			"_throwError",
+			"_urlEscape"
+		]
+	},
+	"Public": {
+		"classes": [
+			"Google",
+			"GoogleMail",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",
@@ -23,24 +58,11 @@
 			"Office365User"
 		]
 	},
-	"Project Methods": {
+	"Public Methods": {
 		"methods": [
-			"_buildComponent",
-			"_camelCase",
-			"_catch",
-			"_convertToGraphAttachment",
-			"_ErrorHandler",
-			"_getDefaultRedirectURI",
-			"_getHeaderValueParameter",
-			"_getPathFromURL",
-			"_getPortFromURL",
-			"_OnWebConnection",
-			"_StartWebServer",
-			"_StopWebServer",
-			"_throwError",
-			"_urlEscape",
 			"Compiler_Methods",
 			"Compiler_Variables",
+			"New Google provider",
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
