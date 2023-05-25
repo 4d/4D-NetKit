@@ -69,14 +69,14 @@ In `paramObj`, pass an object that contains authentication information.
 
 The available properties of `paramObj` are:
 
-|Parameter|Type|Description|Can be Null or undefined|
+|Parameter|Type|Description|Optional|
 |---------|--- |------|------|
 | name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
-| permission | text | <ul><li> "signedIn": Azure AD will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls Microsoft Graph [with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service) (access without a user).</li></ul>|No
+| permission | text | <ul><li> "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).</li></ul>|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
 | redirectURI | text | (Not used in service mode) The redirect_uri of your app, the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response.|No in signedIn mode, Yes in service mode
 | scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
-| tenant | text | The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts </li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul> Default is "common". |Yes
+| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts </li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul> Default is "common".<br/> Google (service mode only): Fill the tenant attribute with the email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
 | authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for google: "https://accounts.google.com/o/oauth2/auth". |Yes
 | tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for google: "https://accounts.google.com/o/oauth2/token".|Yes
 | clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
@@ -132,6 +132,7 @@ $token:=$oAuth2.getToken()
 |Parameter|Type||Description|
 |---------|--- |------|------|
 |Result|Object|<-| Object that holds information on the token retrieved
+
 
 #### Description 
 
