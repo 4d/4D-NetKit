@@ -1,8 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><preferences stamp="5">
+<?xml version="1.0" encoding="UTF-8"?><preferences stamp="6">
 	<com.4d>
 		<compiler>
 			<options compilation_path="3" syntax_file="true"/>
 		</compiler>
 		<general component_classStore_name="NetKit"/>
+		<web>
+			<standalone_server>
+				<configuration>
+					<hosts>
+						<host home_page="" id="0" name="default"/>
+					</hosts>
+				</configuration>
+			</standalone_server>
+		</web>
 	</com.4d>
 </preferences>
