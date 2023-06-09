@@ -1,11 +1,9 @@
 Class extends _GraphAPI
 
-/*
 property page : Integer
 property isLastPage : Boolean
 property success : Boolean
 property statusText : Text
-*/
 
 Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
