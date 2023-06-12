@@ -1,7 +1,9 @@
 Class extends _GraphAPI
 
+/*
 property mailType : Text
 property userId : Text
+*/
 
 Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
