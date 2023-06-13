@@ -1,24 +1,5 @@
 Class extends _BaseClass
 
-/*
-property name : Text  //Name of OAuth2 provider. 
-property permission : Text  //"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser. "service" : Call Provider with their own identity.
-property clientId : Text  //The Application ID that the registration portal assigned the app
-property redirectURI : Text  //The redirect_uri of your app, where authentication responses can be sent and received by your app.
-property tenant : Text
-property clientSecret : Text
-property token : Object
-property tokenExpiration : Text
-property timeout : Integer
-property authenticationPage : 4D.File
-property authenticationErrorPage : 4D.File
-property accessType : Text
-property loginHint : Text
-property prompt : Text
-property clientEmail : Text
-property privateKey : Text
-*/
-
 Class constructor($inParams : Object)
 	
 	Super:C1705()
