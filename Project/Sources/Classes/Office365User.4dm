@@ -95,3 +95,44 @@ Function list($inParameters : Object) : Object
 	return cs:C1710.GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
 	
 	
+	// ----------------------------------------------------
+	
+	
+Function count($inParameters : Object) : Object
+	
+	var $urlParams; $URL; $delimiter : Text
+	var $headers : Object
+	
+	$urlParams:="users"
+	$delimiter:="?"
+	
+	If (Length:C16(String:C10($inParameters.search))>0)
+		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
+		$delimiter:="&"
+		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+	End if 
+	If (Length:C16(String:C10($inParameters.filter))>0)
+		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.select))>0)
+		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
+		$delimiter:="&"
+	End if 
+	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
+		$urlParams:=$urlParams+$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
+			$inParameters.top; String:C10($inParameters.top))
+		$delimiter:="&"
+	End if 
+	If (Length:C16(String:C10($inParameters.orderBy))>0)
+		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
+	End if 
+	$urlParams:=$urlParams+$delimiter+"$count"
+	$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+	
+	$URL:=This:C1470._getURL()+$urlParams
+	
+	return cs:C1710.GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	
+	

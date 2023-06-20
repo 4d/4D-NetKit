@@ -4,7 +4,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	
 	Super:C1705($inProvider)
 	
-	This:C1470.mailType:=String:C10($inParameters.mailType)
+	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "JMAP"
 	This:C1470.userId:=String:C10($inParameters.userId)
 	
 	

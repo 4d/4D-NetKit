@@ -1,10 +1,14 @@
 //%attributes = {"invisible":true}
 #DECLARE($URL : Text)->$port : Integer
 
+var $pattern : Text
+
 ARRAY LONGINT:C221($pos; 0)
 ARRAY LONGINT:C221($len; 0)
 
-If (Match regex:C1019("(?mi-s)^(https?|wss?)://.*(:\\d*)/"; $URL; 1; $pos; $len))
+$pattern:="(?mi-s)^(https?|wss?)://.*(:\\d*)/?.*"
+
+If (Match regex:C1019($pattern; $URL; 1; $pos; $len))
 	
 	var $scheme : Text
 	
