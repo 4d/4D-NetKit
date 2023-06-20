@@ -30,6 +30,9 @@
 	- [Office365.user.get()](#office365userget)
 	- [Office365.user.getCurrent()](#office365usergetcurrent)
 	- [Office365.user.list()](#office365userlist)
+* [Google class](#google)
+	- [New Google provider](#new-google-provider)
+ 	- [Google.mail.send()](#googlemailsend)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
 
@@ -1095,6 +1098,7 @@ By default, each user object in the collection has the [default set of propertie
 | next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
+
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
 | users | Collection | Collection of objects with information on users.| 
 
@@ -1137,6 +1141,106 @@ Repeat
     $col.combine($userList4.users)
 Until (Not($userList4.next()))
 ```
+
+## Google
+
+The `Google` class allows you to send emails through the [Google REST API](https://developers.google.com/gmail/api/reference/rest/v1/users.messages).
+
+This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
+
+The `Google` class can be instantiated in two ways: 
+
+* by calling the `New Google provider` method 
+* by calling the `cs.NetKit.Google.new()` function 
+
+Both use the same syntax.
+
+### **New Google provider**
+
+**New Google provider**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|oAuth2|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
+|options|Object|->| Additional options |
+|Result|cs.NetKit.Google|<-| Object of the Google class|
+
+#### Description
+
+`New Google provider` instantiates an object of the `Google` class.
+
+In `oAuth2`, pass an [OAuth2Provider object](#new-auth2-provider).
+
+In `options`, you can pass an object that specifies the following options:
+
+|Property|Type|Description|
+|---------|---|------|
+|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
+
+#### Returned object 
+
+The returned `Google` object contains the following properties:
+
+|Property||Type|Description|
+|----|-----|---|------|
+|mail||Object|Email handling object|
+||[send()](#googlemailsend)|Function|Sends the emails|
+||type|Text|(read-only) Mail type used to send and receive emails. Can be set using the `mailType` option|
+||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
+
+#### Example
+
+To create the OAuth2 connection object and a Google object:
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $google : cs.NetKit.Google
+
+$oAuth2:=New OAuth2 provider($param)
+$google:=New Google provider($oAuth2;New object("mailType"; "MIME"))
+```
+
+### Google.mail.send()
+
+**Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|email|Text &#124; Blob &#124; Object|->| Email to be sent|
+|Result|Object|<-| [Status object](#status-object-1) |
+
+#### Description
+
+`Google.mail.send()` sends an email using the MIME or JMAP formats.
+
+In `email`, pass the email to be sent. Possible types:
+
+* Text or Blob: the email is sent using the MIME format
+* Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
+
+The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
+
+```4d 
+$Google:=New Google provider($token; New object("mailType"; "JMAP"))
+$status:=$Google.mail.send($email)
+```
+
+> To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
+
+#### Returned object 
+
+The method returns a **status object** with the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the operation was successful|
+|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
+|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+
+Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
+
 
 ## Tutorials
 
