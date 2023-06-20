@@ -828,7 +828,7 @@ Outlook creates certain folders for users by default. Instead of using the corre
 
 ### "Microsoft" mail object properties
 
-When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. The available properties for that object are:
+When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. For a comprehensive list of properties supported by Microsoft mail objects, please refer to the [Microsoft Office documentation](https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0#properties). Most common properties are listed below:
 
 | Property | Type | Description |
 |---|---|---|
