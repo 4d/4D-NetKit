@@ -130,33 +130,77 @@ Function getLabelList() : Object
 	// ----------------------------------------------------
 	
 	
-Function delete($mailId : Text; $permanently : Boolean)->$status : Object
+Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
-	var $URL; $verb; $userId : Text
+	Super:C1706._throwErrors(False:C215)
 	
-	$URL:=Super:C1706._getURL()
-	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
-	$URL+="users/"+$userId+"/messages/"+$mailId
-	If (Bool:C1537($permanently))
-		$URL+="/trash"
-	End if 
-	$verb:=Bool:C1537($permanently) ? "DELETE" : "POST"
+	Case of 
+		: (Type:C295($inMailId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "delete"))
+			
+		: (Length:C16(String:C10($inMailId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "delete"))
+			
+		Else 
+			
+			var $URL; $verb; $userId : Text
+			
+			$URL:=Super:C1706._getURL()
+			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+			$URL+="users/"+$userId+"/messages/"+$inMailId
+			If (Bool:C1537($permanently))
+				$URL+="/trash"
+			End if 
+			$verb:=Bool:C1537($permanently) ? "DELETE" : "POST"
+			
+			This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse($verb; $URL)
+	End case 
 	
-	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse($verb; $URL)
+	Super:C1706._throwErrors(True:C214)
+	
 	return This:C1470._returnStatus()
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function untrash($mailId : Text)->$status : Object
+Function untrash($inMailId : Text) : Object
+	
+	Super:C1706._throwErrors(False:C215)
+	
+	Case of 
+		: (Type:C295($inMailId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "untrash"))
+			
+		: (Length:C16(String:C10($inMailId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "untrash"))
+			
+		Else 
+			
+			var $URL; $userId : Text
+			
+			$URL:=Super:C1706._getURL()
+			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
+			
+			This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
+	End case 
+	
+	Super:C1706._throwErrors(True:C214)
+	
+	return This:C1470._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMails($inOptions : Object) : Object
 	
 	var $URL; $userId : Text
 	
 	$URL:=Super:C1706._getURL()
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
-	$URL+="users/"+$userId+"/messages/"+$mailId+"/untrash"
+	$URL+="users/"+$userId+"/messages"
 	
-	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
-	return This:C1470._returnStatus()
-	
+	//return cs.GoogleMailList.new(This._getOAuth2Provider(); $URL)
+	return Null:C1517
