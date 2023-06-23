@@ -504,7 +504,8 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		If (Length:C16($response)>0)
 			
 			var $contentType : Text
-			$contentType:=String:C10($request["response"]["headers"]["content-type"])
+			$contentType:=String:C10($request["response"]["headers"]["content-type"]) || String:C10($request["response"]["headers"]["Content-Type"])
+
 			
 			Case of 
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
