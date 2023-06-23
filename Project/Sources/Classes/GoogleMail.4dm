@@ -116,15 +116,27 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function getLabelList() : Object
+Function getLabelList() : Collection
 	
 	var $URL; $userId : Text
+	var $response : Object
+	var $result : Collection
 	
 	$URL:=Super:C1706._getURL()
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 	$URL+="users/"+$userId+"/labels"
 	
-	return cs:C1710.GoogleLabelList.new(This:C1470._getOAuth2Provider(); $URL)
+	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	If ($response#Null:C1517)
+		
+		If (OB Is defined:C1231($response; "labels"))
+			$result:=OB Get:C1224($response; "labels"; Is collection:K8:32)
+		Else 
+			$result:=New collection:C1472
+		End if 
+	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------

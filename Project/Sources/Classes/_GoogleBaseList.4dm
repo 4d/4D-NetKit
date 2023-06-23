@@ -1,6 +1,6 @@
 Class extends _GoogleAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text; $inHeaders : Object)
 	
 	Super:C1705($inProvider)
 	
@@ -10,6 +10,7 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeade
 	This:C1470._internals._list:=Null:C1517
 	This:C1470.page:=1
 	This:C1470.isLastPage:=False:C215
+	This:C1470._attribute:=$inName
 	
 	This:C1470._getList($inURL)
 	
@@ -29,17 +30,17 @@ Function _getList($inURL : Text) : Boolean
 	This:C1470._internals._nextLink:=""
 	
 	If ($response#Null:C1517)
-		var $result : Collection
-		var $object : Object
-		$result:=$response["value"]
-		This:C1470._internals._list:=New collection:C1472
-		For each ($object; $result)
-			This:C1470._internals._list.push(Super:C1706._cleanGraphObject($object))
-		End for each 
-		This:C1470.success:=True:C214
-		This:C1470._internals._nextLink:=String:C10($response["@odata.nextLink"])
-		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextLink)=0)
+		
+		If (OB Is defined:C1231($response; This:C1470._attribute))
+			This:C1470._internals._list:=OB Get:C1224($response; This:C1470._attribute; Is collection:K8:32)
+		Else 
+			This:C1470._internals._list:=New collection:C1472
+		End if 
+		//This.success:=True
+		//This._internals._nextLink:=String($response["@odata.nextLink"])
+		//This.isLastPage:=(Length(This._internals._nextLink)=0)
 		return True:C214
+		
 	Else 
 		var $errorStack : Collection
 		$errorStack:=Super:C1706._getErrorStack()
