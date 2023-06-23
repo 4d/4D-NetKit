@@ -112,3 +112,51 @@ Function send($inMail : Variant) : Object
 	
 	return This:C1470._postMessage("send"; $URL; $inMail)
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function getLabelList() : Object
+	
+	var $URL; $userId : Text
+	
+	$URL:=Super:C1706._getURL()
+	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	$URL+="users/"+$userId+"/labels"
+	
+	return cs:C1710.GoogleLabelList.new(This:C1470._getOAuth2Provider(); $URL)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function delete($mailId : Text; $permanently : Boolean)->$status : Object
+	
+	var $URL; $verb; $userId : Text
+	
+	$URL:=Super:C1706._getURL()
+	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	$URL+="users/"+$userId+"/messages/"+$mailId
+	If (Bool:C1537($permanently))
+		$URL+="/trash"
+	End if 
+	$verb:=Bool:C1537($permanently) ? "DELETE" : "POST"
+	
+	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse($verb; $URL)
+	return This:C1470._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function untrash($mailId : Text)->$status : Object
+	
+	var $URL; $userId : Text
+	
+	$URL:=Super:C1706._getURL()
+	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	$URL+="users/"+$userId+"/messages/"+$mailId+"/untrash"
+	
+	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
+	return This:C1470._returnStatus()
+	
