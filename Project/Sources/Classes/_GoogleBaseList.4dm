@@ -27,7 +27,7 @@ Function _getList($inPageToken : Text) : Boolean
 	$URL:=This:C1470._internals._URL
 	If (Length:C16(String:C10($inPageToken))>0)
 		var $sep : Text
-		$sep:=((Position:C15("?"; $URL)=0) ? "&" : "?")
+		$sep:=((Position:C15("?"; $URL)=0) ? "?" : "&")
 		// TODO: replace an eventual existing pageToken
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
