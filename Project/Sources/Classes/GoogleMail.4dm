@@ -214,5 +214,5 @@ Function getMails($inOptions : Object) : Object
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 	$URL+="users/"+$userId+"/messages"
 	
-	//return cs.GoogleMailList.new(This._getOAuth2Provider(); $URL)
-	return Null:C1517
+	return cs:C1710.GoogleMessageList.new(This:C1470._getOAuth2Provider(); $URL)
+	

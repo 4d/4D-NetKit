@@ -1,44 +1,57 @@
 Class extends _GoogleAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text; $inHeaders : Object)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text)
 	
 	Super:C1705($inProvider)
 	
-	This:C1470._internals._headers:=$inHeaders
+	This:C1470._internals._URL:=$inURL
+	This:C1470._internals._attribute:=$inName
+	This:C1470._internals._nextPageToken:=""
 	This:C1470._internals._history:=New collection:C1472
-	This:C1470._internals._history.push($inURL)
-	This:C1470._internals._list:=Null:C1517
+	
 	This:C1470.page:=1
 	This:C1470.isLastPage:=False:C215
-	This:C1470._attribute:=$inName
 	
-	This:C1470._getList($inURL)
+	This:C1470._getList()
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _getList($inURL : Text) : Boolean
+Function _getList($inPageToken : Text) : Boolean
 	
 	var $response : Object
-	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL; This:C1470._internals._headers)
+	var $URL : Text
+	
+	$URL:=This:C1470._internals._URL
+	If (Length:C16(String:C10($inPageToken))>0)
+		var $sep : Text
+		$sep:=((Position:C15("?"; $URL)=0) ? "&" : "?")
+		// TODO: replace an eventual existing pageToken
+		$URL+=$sep+"pageToken="+$inPageToken
+	End if 
+	
+	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
 	This:C1470.isLastPage:=False:C215
 	This:C1470.statusText:=Super:C1706._getStatusLine()
 	This:C1470.success:=False:C215
-	This:C1470._internals._nextLink:=""
+	This:C1470._internals._nextPageToken:=""
 	
 	If ($response#Null:C1517)
 		
-		If (OB Is defined:C1231($response; This:C1470._attribute))
-			This:C1470._internals._list:=OB Get:C1224($response; This:C1470._attribute; Is collection:K8:32)
+		If (OB Is defined:C1231($response; This:C1470._internals._attribute))
+			This:C1470._internals._list:=OB Get:C1224($response; This:C1470._internals._attribute; Is collection:K8:32)
 		Else 
 			This:C1470._internals._list:=New collection:C1472
 		End if 
-		//This.success:=True
-		//This._internals._nextLink:=String($response["@odata.nextLink"])
-		//This.isLastPage:=(Length(This._internals._nextLink)=0)
+		This:C1470.success:=True:C214
+		This:C1470._internals._nextPageToken:=String:C10($response.nextPageToken)
+		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextPageToken)=0)
+		If (Length:C16(This:C1470._internals._nextPageToken)>0)
+			This:C1470._internals._history.push(This:C1470._internals._nextPageToken)
+		End if 
 		return True:C214
 		
 	Else 
@@ -58,13 +71,12 @@ Function _getList($inURL : Text) : Boolean
 	
 Function next() : Boolean
 	
-	var $URL : Text
-	$URL:=String:C10(This:C1470._internals._nextLink)
-	If (Length:C16($URL)>0)
+	var $nextPageToken : Text
+	$nextPageToken:=String:C10(This:C1470._internals._nextPageToken)
+	If ((This:C1470.page=1) || (Length:C16($nextPageToken)>0))
 		var $bIsOK : Boolean
-		$bIsOK:=This:C1470._getList($URL)
+		$bIsOK:=This:C1470._getList($nextPageToken)
 		If ($bIsOK)
-			This:C1470._internals._history.push($URL)
 			This:C1470.page+=1
 		End if 
 		return $bIsOK
@@ -80,13 +92,13 @@ Function next() : Boolean
 Function previous() : Boolean
 	
 	If ((Num:C11(This:C1470._internals._history.length)>0) && (This:C1470.page>1))
-		var $URL : Text
+		var $nextPageToken : Text
 		var $index : Integer
 		$index:=This:C1470.page-1
-		$URL:=String:C10(This:C1470._internals._history[$index-1])
-		If (Length:C16($URL)>0)
+		$nextPageToken:=String:C10(This:C1470._internals._history[$index-1])
+		If (Length:C16($nextPageToken)>0)
 			var $bIsOK : Boolean
-			$bIsOK:=This:C1470._getList($URL)
+			$bIsOK:=This:C1470._getList($nextPageToken)
 			If ($bIsOK)
 				This:C1470.page-=1
 				This:C1470._internals._history.resize(This:C1470.page)
