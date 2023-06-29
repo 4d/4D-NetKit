@@ -216,3 +216,38 @@ Function getMails($inOptions : Object) : Object
 	
 	return cs:C1710.GoogleMessageList.new(This:C1470._getOAuth2Provider(); $URL)
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMail($inMailId : Text) : Object
+	
+	var $result : Object
+	
+	Super:C1706._throwErrors(False:C215)
+	
+	Case of 
+		: (Type:C295($inMailId)#Is text:K8:3)
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
+			
+		: (Length:C16(String:C10($inMailId))=0)
+			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
+			
+		Else 
+			
+			var $URL; $userId : Text
+			
+			$URL:=Super:C1706._getURL()
+			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+			$URL+="users/"+$userId+"/messages/"+String:C10($inMailId)
+			
+			//Return a message in 'Full' format by default. Se::
+			//https://developers.google.com/gmail/api/reference/rest/v1/Format?hl=fr
+			
+			$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	End case 
+	
+	Super:C1706._throwErrors(True:C214)
+	
+	return $result
+	
