@@ -160,7 +160,7 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 			$URL:=Super:C1706._getURL()
 			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId
-			If (Bool:C1537($permanently))
+			If (Not:C34(Bool:C1537($permanently)))
 				$URL+="/trash"
 			End if 
 			$verb:=Bool:C1537($permanently) ? "DELETE" : "POST"
@@ -220,7 +220,7 @@ Function getMails($inOptions : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMail($inMailId : Text) : Object
+Function getMail($inMailId : Text)->$response : Variant
 	
 	var $result : Object
 	
@@ -239,15 +239,36 @@ Function getMail($inMailId : Text) : Object
 			
 			$URL:=Super:C1706._getURL()
 			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
-			$URL+="users/"+$userId+"/messages/"+String:C10($inMailId)
-			
-			//Return a message in 'Full' format by default. Se::
-			//https://developers.google.com/gmail/api/reference/rest/v1/Format?hl=fr
+			$URL+="users/"+$userId+"/messages/"+String:C10($inMailId)+"?format=raw"
 			
 			$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+			
+			If ($result#Null:C1517)
+				var $mailType; $rawMessage : Text
+				$mailType:=This:C1470.mailType
+				
+				If (($mailType="MIME") || ($mailType="JMAP"))
+					If (Value type:C1509($result.raw)=Is text:K8:3)
+						
+						$rawMessage:=$result.raw
+						BASE64 DECODE:C896($rawMessage)
+						If ($mailType="JMAP")
+							$response:=MAIL Convert from MIME:C1681($rawMessage)
+							
+						Else 
+							$response:=$rawMessage
+							
+						End if 
+					End if 
+				Else 
+					Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; "getMail"))
+					
+				End if 
+			End if 
+			
 	End case 
 	
 	Super:C1706._throwErrors(True:C214)
 	
-	return $result
+	return $response
 	
