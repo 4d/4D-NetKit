@@ -250,8 +250,7 @@ Function getMail($inMailId : Text)->$response : Variant
 				If (($mailType="MIME") || ($mailType="JMAP"))
 					If (Value type:C1509($result.raw)=Is text:K8:3)
 						
-						$rawMessage:=$result.raw
-						BASE64 DECODE:C896($rawMessage)
+						BASE64 DECODE:C896($result.raw; $rawMessage; *)
 						If ($mailType="JMAP")
 							$response:=MAIL Convert from MIME:C1681($rawMessage)
 							
