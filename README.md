@@ -611,9 +611,9 @@ In *options*, pass an object to define the mails to get. The available propertie
 | Property | Type | Description |
 |---|---|---|
 |folderId|text|To get messages in a specific folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name). If the destination folder is not present or empty, get all the messages in a user's mailbox.|
-|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
+|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/search-query-parameter?tabs=http#using-search-on-message-collections).|
 |filter|text|Allows retrieving just a subset of mails. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
-|select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
+|select|text|Set of [properties of the Microsoft Mail object](#microsoft-mail-object-properties) to retrieve. Each property must be separated by a comma (,). |
 |top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
 
@@ -648,11 +648,12 @@ One of the following permissions is required to call this API. For more informat
 
 #### Example
 
-You want to retrieve all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
+You want to retrieve *sender* and *subject* properties of all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
 
 ```4d
-$param:=new object
+$param:=New object
 $param.folderId:="inbox"
+$param.select:="sender,subject"
 
 $mails:=$office365.mail.getMails($param)
 ```
