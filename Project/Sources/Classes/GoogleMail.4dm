@@ -196,7 +196,7 @@ Function untrash($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMails($inOptions : Object) : Object
+Function getMailIds($inOptions : Object) : Object
 	
 	var $URL; $userId : Text
 	
@@ -204,7 +204,7 @@ Function getMails($inOptions : Object) : Object
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 	$URL+="users/"+$userId+"/messages"
 	
-	return cs:C1710.GoogleMessageList.new(This:C1470._getOAuth2Provider(); $URL)
+	return cs:C1710.GoogleMailIdList.new(This:C1470._getOAuth2Provider(); $URL)
 	
 	
 	// ----------------------------------------------------
