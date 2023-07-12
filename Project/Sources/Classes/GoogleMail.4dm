@@ -43,7 +43,7 @@ $inHeader : Object) : Object
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers; $response : Object
+	var $headers : Object
 	var $requestBody : Text
 	
 	$headers:=New object:C1471
@@ -116,27 +116,17 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function getLabelList() : Collection
+Function getLabelList() : Object
 	
 	var $URL; $userId : Text
 	var $response : Object
-	var $result : Collection
 	
 	$URL:=Super:C1706._getURL()
 	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
 	$URL+="users/"+$userId+"/labels"
 	
 	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
-	If ($response#Null:C1517)
-		
-		If (OB Is defined:C1231($response; "labels"))
-			$result:=OB Get:C1224($response; "labels"; Is collection:K8:32)
-		Else 
-			$result:=New collection:C1472
-		End if 
-	End if 
-	
-	return $result
+	return This:C1470._returnStatus($response)
 	
 	
 	// ----------------------------------------------------
