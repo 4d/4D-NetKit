@@ -5,10 +5,10 @@ Used by Dev Only and with a sources hierarchy such as:
 - //repos/4edimension/4DComponents/User Components/4D NetKit/Project/Sources/ (target folder)
 */
 
-var $error : Object
-$error:=Compile project:C1760
+var $status : Object
+$status:=Compile project:C1760
 
-If ($error.success=True:C214)
+If ($status.success=True:C214)
 	
 	var $sourceFolder; $targetFolder; $result : 4D:C1709.Folder
 	var $files; $folders; $handled : Collection
@@ -78,7 +78,7 @@ If ($error.success=True:C214)
 		End for each 
 	End if 
 	
-	$error:=New object:C1471("success"; ($result#Null:C1517); "filesCopied"; $handled)
+	$status:=New object:C1471("success"; ($result#Null:C1517); "filesCopied"; $handled)
 End if 
 
-ALERT:C41(JSON Stringify:C1217($error; *))
+ALERT:C41(JSON Stringify:C1217($status; *))
