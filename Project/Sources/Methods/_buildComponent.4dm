@@ -41,7 +41,8 @@ If ($error.success=True:C214)
 		If ($result=Null:C1517)
 			break
 		Else 
-			$handled.push($result.fullName)
+			$files:=Folder:C1567($result.platformPath; 1).files().flatMap(Formula:C1597(New collection:C1472($1.value.fullName)))
+			$handled:=$handled.combine($files)
 		End if 
 	End for each 
 	
@@ -71,7 +72,8 @@ If ($error.success=True:C214)
 			If ($result=Null:C1517)
 				break
 			Else 
-				$handled.push($result.fullName)
+				$files:=Folder:C1567($result.platformPath; 1).files().flatMap(Formula:C1597(New collection:C1472($1.value.fullName)))
+				$handled:=$handled.combine($files)
 			End if 
 		End for each 
 	End if 
