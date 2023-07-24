@@ -31,7 +31,7 @@
 	- [Office365.user.getCurrent()](#office365usergetcurrent)
 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
-	- [New Google provider](#new-google-provider)
+	- [cs.NetKit.Google.new](#csnetkitgooglenew)
  	- [Google.mail.send()](#googlemailsend)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
@@ -1149,16 +1149,12 @@ The `Google` class allows you to send emails through the [Google REST API](https
 
 This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
 
-The `Google` class can be instantiated in two ways: 
+The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` function.
 
-* by calling the `New Google provider` method 
-* by calling the `cs.NetKit.Google.new()` function 
 
-Both use the same syntax.
+### **cs.NetKit.Google.new()**
 
-### **New Google provider**
-
-**New Google provider**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
+**cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
 
 #### Parameters 
 |Parameter|Type||Description|
@@ -1169,7 +1165,7 @@ Both use the same syntax.
 
 #### Description
 
-`New Google provider` instantiates an object of the `Google` class.
+`cs.NetKit.Google.new()` instantiates an object of the `Google` class.
 
 In `oAuth2`, pass an [OAuth2Provider object](#new-auth2-provider).
 
@@ -1199,7 +1195,7 @@ var $oAuth2 : cs.NetKit.OAuth2Provider
 var $google : cs.NetKit.Google
 
 $oAuth2:=New OAuth2 provider($param)
-$google:=New Google provider($oAuth2;New object("mailType"; "MIME"))
+$google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
 
 ### Google.mail.send()
@@ -1224,7 +1220,7 @@ In `email`, pass the email to be sent. Possible types:
 The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
 
 ```4d 
-$Google:=New Google provider($token; New object("mailType"; "JMAP"))
+$Google:=cs.NetKit.Google.new($token; New object("mailType"; "JMAP"))
 $status:=$Google.mail.send($email)
 ```
 
@@ -1237,8 +1233,8 @@ The method returns a **status object** with the following properties:
 |Property|Type|Description|
 |---------|--- |------|
 |success|Boolean| True if the operation was successful|
-|statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
-|errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
+|statusText|Text| Status message returned by the Gmail server, or last error returned by the 4D error stack|
+|errors|Collection| Collection of 4D errors. Not returned if the Gmail server returns a `statusText`|
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
 
