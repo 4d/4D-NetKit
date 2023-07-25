@@ -57,3 +57,7 @@ C_OBJECT:C1216(_getErrorStack; $0)
 C_OBJECT:C1216(New Google provider; $0)
 C_OBJECT:C1216(New Google provider; $1)
 C_OBJECT:C1216(New Google provider; $2)
+
+// _base64UrlSafeDecode
+C_TEXT:C284(_base64UrlSafeDecode; $0)
+C_TEXT:C284(_base64UrlSafeDecode; $1)

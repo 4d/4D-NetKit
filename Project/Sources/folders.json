@@ -17,6 +17,7 @@
 			"_BaseAPI",
 			"_BaseClass",
 			"_GoogleAPI",
+			"_GoogleBaseList",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
@@ -24,6 +25,7 @@
 	},
 	"Private Methods": {
 		"methods": [
+			"_base64UrlSafeDecode",
 			"_buildComponent",
 			"_camelCase",
 			"_catch",
@@ -45,6 +47,7 @@
 		"classes": [
 			"Google",
 			"GoogleMail",
+			"GoogleMailIdList",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",
