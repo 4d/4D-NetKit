@@ -1,9 +1,9 @@
 Class extends _GoogleBaseList
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text)
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
 	
-	Super:C1705($inProvider; $inURL; "messages")
-	This:C1470._internals._URL:=$inURL
+	Super($inProvider; $inURL; "messages")
+	This._internals._URL:=$inURL
 	
 	
 	// Mark: - [Public]
@@ -12,4 +12,4 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text)
 	
 Function get mailIds() : Collection
 	
-	return This:C1470._internals._list
+	return This._internals._list

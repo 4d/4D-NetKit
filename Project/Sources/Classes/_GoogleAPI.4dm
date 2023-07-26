@@ -1,8 +1,7 @@
 Class extends _BaseAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider)
+Class constructor($inProvider : cs.OAuth2Provider)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470._internals._URL:="https://gmail.googleapis.com/gmail/v1/"
-	
+	This._internals._URL:="https://gmail.googleapis.com/gmail/v1/"

@@ -1,16 +1,16 @@
 Class constructor($inParams : Object)
 	
 	var $params : Object
-	$params:=Null:C1517
-	If (Count parameters:C259>0)
-		If ((Type:C295($inParams)=Is object:K8:27) & (Not:C34(OB Is empty:C1297($inParams))))
+	$params:=Null
+	If (Count parameters>0)
+		If ((Type($inParams)=Is object) & (Not(OB Is empty($inParams))))
 			$params:=$inParams
 		End if 
 	End if 
 	
-	If ($params#Null:C1517)
+	If ($params#Null)
 		
-		This:C1470._loadFromObject($params)
+		This._loadFromObject($params)
 		
 	End if 
 	
@@ -21,31 +21,31 @@ Class constructor($inParams : Object)
 	
 Function _loadFromObject($inObject : Object)
 	
-	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
+	If (($inObject#Null) & (Not(OB Is empty($inObject))))
 		
-		This:C1470.token:=New object:C1471
-		If (OB Get type:C1230($inObject; "token")=Is object:K8:27)
+		This.token:=New object
+		If (OB Get type($inObject; "token")=Is object)
 			
 			var $keys; $values : Collection
 			var $i : Integer
 			
-			$keys:=OB Keys:C1719($inObject.token)
-			$values:=OB Values:C1718($inObject.token)
+			$keys:=OB Keys($inObject.token)
+			$values:=OB Values($inObject.token)
 			
-			This:C1470.token:=New object:C1471
+			This.token:=New object
 			For ($i; 0; $keys.length-1)
-				This:C1470.token[$keys[$i]]:=$values[$i]
+				This.token[$keys[$i]]:=$values[$i]
 			End for 
 		End if 
 		
-		If (OB Is defined:C1231($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null:C1517))
-			This:C1470.tokenExpiration:=$inObject.tokenExpiration
+		If (OB Is defined($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null))
+			This.tokenExpiration:=$inObject.tokenExpiration
 		Else 
 			var $expires_in : Integer
 			
-			$expires_in:=(Current time:C178+0)+Num:C11($inObject.token.expires_in)
+			$expires_in:=(Current time+0)+Num($inObject.token.expires_in)
 			
-			This:C1470.tokenExpiration:=String:C10(Current date:C33; ISO date:K1:8; Time:C179($expires_in))
+			This.tokenExpiration:=String(Current date; ISO date; Time($expires_in))
 		End if 
 		
 	End if 
@@ -58,10 +58,10 @@ Function _loadFromResponse($inResponseString : Text)
 	
 	var $token : Object
 	
-	$token:=JSON Parse:C1218($inResponseString)
-	If (($token#Null:C1517) & (Not:C34(OB Is empty:C1297($token))))
+	$token:=JSON Parse($inResponseString)
+	If (($token#Null) & (Not(OB Is empty($token))))
 		
-		This:C1470._loadFromObject(New object:C1471("token"; $token))
+		This._loadFromObject(New object("token"; $token))
 		
 	End if 
 	
@@ -75,19 +75,19 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	var $params : Collection
 	var $iter : Text
 	
-	$token:=New object:C1471
-	$params:=Split string:C1554($inResponseString; "&")
+	$token:=New object
+	$params:=Split string($inResponseString; "&")
 	For each ($iter; $params)
 		var $pair : Collection
-		$pair:=Split string:C1554($iter; "=")
+		$pair:=Split string($iter; "=")
 		If ($pair.length>1)
 			$token[$pair[0]]:=$pair[1]
 		End if 
 	End for each 
 	
-	If (Not:C34(OB Is empty:C1297($token)))
+	If (Not(OB Is empty($token)))
 		
-		This:C1470._loadFromObject(New object:C1471("token"; $token))
+		This._loadFromObject(New object("token"; $token))
 		
 	End if 
 	
@@ -98,16 +98,15 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 Function _Expired($inParams : Text)->$result : Boolean
 	
 	var $expiration : Text
-	$expiration:=Choose:C955((Count parameters:C259>0); $inParams; This:C1470.tokenExpiration)
+	$expiration:=Choose((Count parameters>0); $inParams; This.tokenExpiration)
 	
-	$result:=True:C214
-	If (Length:C16($expiration)>0)
+	$result:=True
+	If (Length($expiration)>0)
 		Case of 
-			: (Current date:C33<Date:C102($expiration))
-				$result:=False:C215
-			: ((Current date:C33=Date:C102($expiration)) & \
-				((Current time:C178+0)<(Time:C179($expiration)+0)))
-				$result:=False:C215
+			: (Current date<Date($expiration))
+				$result:=False
+			: ((Current date=Date($expiration)) & \
+				((Current time+0)<(Time($expiration)+0)))
+				$result:=False
 		End case 
 	End if 
-	

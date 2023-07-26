@@ -3,22 +3,22 @@
 
 var $pattern : Text
 
-ARRAY LONGINT:C221($pos; 0)
-ARRAY LONGINT:C221($len; 0)
+ARRAY LONGINT($pos; 0)
+ARRAY LONGINT($len; 0)
 
 $pattern:="(?mi-s)^(https?|wss?)://.*(:\\d*)/?.*"
 
-If (Match regex:C1019($pattern; $URL; 1; $pos; $len))
+If (Match regex($pattern; $URL; 1; $pos; $len))
 	
 	var $scheme : Text
 	
-	$scheme:=Substring:C12($URL; $pos{1}; $len{1})
-	If (Size of array:C274($pos)>1)
-		$port:=Num:C11(Substring:C12($URL; $pos{2}+1; $len{2}-1))
+	$scheme:=Substring($URL; $pos{1}; $len{1})
+	If (Size of array($pos)>1)
+		$port:=Num(Substring($URL; $pos{2}+1; $len{2}-1))
 	Else 
-		$port:=Choose:C955((($scheme="http") | ($scheme="ws")); 80; 443)
+		$port:=Choose((($scheme="http") | ($scheme="ws")); 80; 443)
 	End if 
 	
 Else 
-	$port:=Choose:C955((($URL="http:@") | ($URL="ws:@")); 80; 443)
+	$port:=Choose((($URL="http:@") | ($URL="ws:@")); 80; 443)
 End if 

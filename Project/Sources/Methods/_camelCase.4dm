@@ -5,25 +5,25 @@ var $string; $wordSep; $char : Text
 var $uppercase : Boolean
 var $i; $length : Integer
 
-$string:=Lowercase:C14($inString; *)
+$string:=Lowercase($inString; *)
 $wordSep:=" ,;:=?./\\±_@#&(!)*+=%\t\r\n"
-$uppercase:=False:C215
-$length:=Length:C16($string)
+$uppercase:=False
+$length:=Length($string)
 $result:=""
 
 For ($i; 1; $length)
-	$char:=Substring:C12($string; $i; 1)
+	$char:=Substring($string; $i; 1)
 	
 	Case of 
-		: (Position:C15($char; $wordSep; *)>0)
-			$uppercase:=True:C214
+		: (Position($char; $wordSep; *)>0)
+			$uppercase:=True
 			
 		Else 
 			If ($uppercase)
-				$result:=$result+Uppercase:C13($char)
+				$result:=$result+Uppercase($char)
 			Else 
 				$result:=$result+$char
 			End if 
-			$uppercase:=False:C215
+			$uppercase:=False
 	End case 
 End for 

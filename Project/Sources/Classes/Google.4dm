@@ -1,19 +1,18 @@
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	This:C1470._internals:=New object:C1471
-	This:C1470._internals._oAuth2Provider:=$inProvider
-	This:C1470._internals._mail:=Null:C1517
-	This:C1470._internals._parameters:=$inParameters
+	This._internals:=New object
+	This._internals._oAuth2Provider:=$inProvider
+	This._internals._mail:=Null
+	This._internals._parameters:=$inParameters
 	
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
-Function get mail : cs:C1710.GoogleMail
+Function get mail : cs.GoogleMail
 	
-	If (This:C1470._internals._mail=Null:C1517)
-		This:C1470._internals._mail:=cs:C1710.GoogleMail.new(This:C1470._internals._oAuth2Provider; This:C1470._internals._parameters)
+	If (This._internals._mail=Null)
+		This._internals._mail:=cs.GoogleMail.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
-	return This:C1470._internals._mail
-	
+	return This._internals._mail

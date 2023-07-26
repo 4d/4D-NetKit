@@ -6,11 +6,11 @@ var $char; $hex : Text
 var $shouldEscape : Boolean
 var $data : Blob
 
-$length:=Length:C16($value)
+$length:=Length($value)
 For ($i; 1; $length)
-	$char:=Substring:C12($value; $i; 1)
-	$code:=Character code:C91($char)
-	$shouldEscape:=False:C215
+	$char:=Substring($value; $i; 1)
+	$code:=Character code($char)
+	$shouldEscape:=False
 	
 	Case of 
 		: ($code=45)
@@ -21,14 +21,14 @@ For ($i; 1; $length)
 		: ($code>96) & ($code<123)
 		: ($code=126)
 		Else 
-			$shouldEscape:=True:C214
+			$shouldEscape:=True
 	End case 
 	
 	If ($shouldEscape)
-		CONVERT FROM TEXT:C1011($char; "utf-8"; $data)
-		For ($j; 0; BLOB size:C605($data)-1)
-			$hex:=String:C10($data{$j}; "&x")
-			$escaped:=$escaped+"%"+Substring:C12($hex; Length:C16($hex)-1)
+		CONVERT FROM TEXT($char; "utf-8"; $data)
+		For ($j; 0; BLOB size($data)-1)
+			$hex:=String($data{$j}; "&x")
+			$escaped:=$escaped+"%"+Substring($hex; Length($hex)-1)
 		End for 
 	Else 
 		$escaped:=$escaped+$char
