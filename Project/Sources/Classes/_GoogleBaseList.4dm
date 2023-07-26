@@ -49,9 +49,7 @@ Function _getList($inPageToken : Text) : Boolean
 		This:C1470.success:=True:C214
 		This:C1470._internals._nextPageToken:=String:C10($response.nextPageToken)
 		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextPageToken)=0)
-		If (Length:C16(This:C1470._internals._nextPageToken)>0)
-			This:C1470._internals._history.push(This:C1470._internals._nextPageToken)
-		End if 
+		This:C1470._internals._history.push(This:C1470._internals._nextPageToken)
 		return True:C214
 		
 	Else 
