@@ -8,16 +8,16 @@ C_LONGINT:C283(_getPortFromURL; $0)
 C_TEXT:C284(_getPortFromURL; $1)
 
 // _OnWebConnection
-C_TEXT:C284(__onWebConnection; $1)
-C_TEXT:C284(__onWebConnection; $2)
-C_TEXT:C284(__onWebConnection; $3)
-C_TEXT:C284(__onWebConnection; $4)
-C_TEXT:C284(__onWebConnection; $5)
-C_TEXT:C284(__onWebConnection; $6)
+C_TEXT:C284(_onWebConnection; $1)
+C_TEXT:C284(_onWebConnection; $2)
+C_TEXT:C284(_onWebConnection; $3)
+C_TEXT:C284(_onWebConnection; $4)
+C_TEXT:C284(_onWebConnection; $5)
+C_TEXT:C284(_onWebConnection; $6)
 
 // _StartWebServer
-C_BOOLEAN:C305(__startWebServer; $0)
-C_OBJECT:C1216(__startWebServer; $1)
+C_BOOLEAN:C305(_startWebServer; $0)
+C_OBJECT:C1216(_startWebServer; $1)
 
 // _urlEscape
 C_TEXT:C284(_urlEscape; $0)

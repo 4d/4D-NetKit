@@ -26,19 +26,19 @@
 	"Private Methods": {
 		"methods": [
 			"__buildComponent",
-			"__errorHandler",
-			"__onWebConnection",
-			"__startWebServer",
-			"__stopWebServer",
 			"_base64UrlSafeDecode",
 			"_camelCase",
 			"_catch",
 			"_convertToGraphAttachment",
+			"_errorHandler",
 			"_getErrorStack",
 			"_getHeaderValueParameter",
 			"_getPathFromURL",
 			"_getPortFromURL",
+			"_onWebConnection",
 			"_retainFileObject",
+			"_startWebServer",
+			"_stopWebServer",
 			"_throwError",
 			"_urlEscape"
 		]
@@ -69,6 +69,5 @@
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
-	},
-	"trash": {}
+	}
 }
