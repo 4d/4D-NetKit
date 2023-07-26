@@ -1,18 +1,18 @@
 Class extends _GoogleAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text)
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470._internals._URL:=$inURL
-	This:C1470._internals._attribute:=$inName
-	This:C1470._internals._nextPageToken:=""
-	This:C1470._internals._history:=New collection:C1472
+	This._internals._URL:=$inURL
+	This._internals._attribute:=$inName
+	This._internals._nextPageToken:=""
+	This._internals._history:=New collection
 	
-	This:C1470.page:=1
-	This:C1470.isLastPage:=False:C215
+	This.page:=1
+	This.isLastPage:=False
 	
-	This:C1470._getList()
+	This._getList()
 	
 	
 	// Mark: - [Private]
@@ -24,42 +24,42 @@ Function _getList($inPageToken : Text) : Boolean
 	var $response : Object
 	var $URL : Text
 	
-	$URL:=This:C1470._internals._URL
-	If (Length:C16(String:C10($inPageToken))>0)
+	$URL:=This._internals._URL
+	If (Length(String($inPageToken))>0)
 		var $sep : Text
-		$sep:=((Position:C15("?"; $URL)=0) ? "?" : "&")
+		$sep:=((Position("?"; $URL)=0) ? "?" : "&")
 		// TODO: replace an eventual existing pageToken
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
-	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 	
-	This:C1470.isLastPage:=False:C215
-	This:C1470.statusText:=Super:C1706._getStatusLine()
-	This:C1470.success:=False:C215
-	This:C1470._internals._nextPageToken:=""
+	This.isLastPage:=False
+	This.statusText:=Super._getStatusLine()
+	This.success:=False
+	This._internals._nextPageToken:=""
 	
-	If ($response#Null:C1517)
+	If ($response#Null)
 		
-		If (OB Is defined:C1231($response; This:C1470._internals._attribute))
-			This:C1470._internals._list:=OB Get:C1224($response; This:C1470._internals._attribute; Is collection:K8:32)
+		If (OB Is defined($response; This._internals._attribute))
+			This._internals._list:=OB Get($response; This._internals._attribute; Is collection)
 		Else 
-			This:C1470._internals._list:=New collection:C1472
+			This._internals._list:=New collection
 		End if 
-		This:C1470.success:=True:C214
-		This:C1470._internals._nextPageToken:=String:C10($response.nextPageToken)
-		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextPageToken)=0)
-		This:C1470._internals._history.push(This:C1470._internals._nextPageToken)
-		return True:C214
+		This.success:=True
+		This._internals._history.push($inPageToken)
+		This._internals._nextPageToken:=String($response.nextPageToken)
+		This.isLastPage:=(Length(This._internals._nextPageToken)=0)
+		return True
 		
 	Else 
 		var $errorStack : Collection
-		$errorStack:=Super:C1706._getErrorStack()
+		$errorStack:=Super._getErrorStack()
 		If ($errorStack.length>0)
-			This:C1470.errors:=$errorStack
-			This:C1470.statusText:=$errorStack[0].message
+			This.errors:=$errorStack
+			This.statusText:=$errorStack[0].message
 		End if 
-		return False:C215
+		return False
 	End if 
 	
 	
@@ -70,17 +70,17 @@ Function _getList($inPageToken : Text) : Boolean
 Function next() : Boolean
 	
 	var $nextPageToken : Text
-	$nextPageToken:=String:C10(This:C1470._internals._nextPageToken)
-	If ((This:C1470.page=1) || (Length:C16($nextPageToken)>0))
+	$nextPageToken:=String(This._internals._nextPageToken)
+	If ((This.page=1) || (Length($nextPageToken)>0))
 		var $bIsOK : Boolean
-		$bIsOK:=This:C1470._getList($nextPageToken)
+		$bIsOK:=This._getList($nextPageToken)
 		If ($bIsOK)
-			This:C1470.page+=1
+			This.page+=1
 		End if 
 		return $bIsOK
 	Else 
-		This:C1470.statusText:=Get localized string:C991("List_No_Next_Page")
-		return False:C215
+		This.statusText:=Get localized string("List_No_Next_Page")
+		return False
 	End if 
 	
 	
@@ -89,22 +89,21 @@ Function next() : Boolean
 	
 Function previous() : Boolean
 	
-	If ((Num:C11(This:C1470._internals._history.length)>0) && (This:C1470.page>1))
+	If ((Num(This._internals._history.length)>0) && (This.page>1))
 		var $nextPageToken : Text
 		var $index : Integer
-		$index:=This:C1470.page-1
-		$nextPageToken:=String:C10(This:C1470._internals._history[$index-1])
-		If (Length:C16($nextPageToken)>0)
+		$index:=This.page-1
+		$nextPageToken:=String(This._internals._history[$index-1])
+		If (Length($nextPageToken)>0)
 			var $bIsOK : Boolean
-			$bIsOK:=This:C1470._getList($nextPageToken)
+			$bIsOK:=This._getList($nextPageToken)
 			If ($bIsOK)
-				This:C1470.page-=1
-				This:C1470._internals._history.resize(This:C1470.page)
+				This.page-=1
+				This._internals._history.resize(This.page)
 			End if 
 			return $bIsOK
 		End if 
 	Else 
-		This:C1470.statusText:=Get localized string:C991("List_No_Previous_Page")
-		return False:C215
+		This.statusText:=Get localized string("List_No_Previous_Page")
+		return False
 	End if 
-	
