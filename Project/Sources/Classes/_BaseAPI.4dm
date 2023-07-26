@@ -94,7 +94,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	var $request : 4D:C1709.HTTPRequest
 	
 	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
+	ON ERR CALL:C155("__errorHandler")
 	$request:=4D:C1709.HTTPRequest.new($inURL; $options).wait()
 	ON ERR CALL:C155($savedMethod)
 	

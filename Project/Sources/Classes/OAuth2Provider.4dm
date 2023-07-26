@@ -343,7 +343,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 				End if 
 			End if 
 			
-			If (_StartWebServer($options))
+			If (__startWebServer($options))
 				
 				var $authorizationCode : Text
 				$authorizationCode:=This:C1470._OpenBrowserForAuthorisation()
@@ -492,7 +492,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	End if 
 	
 	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
+	ON ERR CALL:C155("__errorHandler")
 	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
 	$request.wait(30)
 	ON ERR CALL:C155($savedMethod)

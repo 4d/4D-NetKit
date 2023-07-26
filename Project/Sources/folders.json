@@ -25,20 +25,20 @@
 	},
 	"Private Methods": {
 		"methods": [
+			"__buildComponent",
+			"__errorHandler",
+			"__onWebConnection",
+			"__startWebServer",
+			"__stopWebServer",
 			"_base64UrlSafeDecode",
-			"_buildComponent",
 			"_camelCase",
 			"_catch",
 			"_convertToGraphAttachment",
-			"_ErrorHandler",
 			"_getErrorStack",
 			"_getHeaderValueParameter",
 			"_getPathFromURL",
 			"_getPortFromURL",
-			"_OnWebConnection",
 			"_retainFileObject",
-			"_StartWebServer",
-			"_StopWebServer",
 			"_throwError",
 			"_urlEscape"
 		]

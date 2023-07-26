@@ -134,7 +134,7 @@ Function _throwErrors($inThrowErrors : Boolean)
 		This:C1470._internals._savedErrorCallMethod:=""
 	Else 
 		This:C1470._internals._savedErrorCallMethod:=Method called on error:C704
-		ON ERR CALL:C155("_ErrorHandler")
+		ON ERR CALL:C155("__errorHandler")
 		This:C1470._internals._throwErrors:=False:C215
 		This:C1470._getErrorStack().clear()
 	End if 
