@@ -196,15 +196,33 @@ Function untrash($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMailIds($inOptions : Object) : Object
+Function getMailIds($inParameters : Object) : Object
 	
-	var $URL; $userId : Text
+	var $URL; $userId; $urlParams; $delimiter : Text
 	
 	$URL:=Super._getURL()
 	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-	$URL+="users/"+$userId+"/messages"
+	$urlParams+="users/"+$userId+"/messages"
+	$delimiter:="?"
 	
-	return cs.GoogleMailIdList.new(This._getOAuth2Provider(); $URL)
+	If (Length(String($inParameters.search))>0)
+		$urlParams+=($delimiter+"q="+_urlEscape($inParameters.search))
+		$delimiter:="&"
+	End if 
+	If (Value type($inParameters.top)#Is undefined)
+		$urlParams+=($delimiter+"maxResults="+String($inParameters.top))
+		$delimiter:="&"
+	End if 
+	If (Value type($inParameters.includeSpamTrash)=Is boolean)
+		$urlParams+=($delimiter+"includeSpamTrash="+$inParameters.includeSpamTrash ? "true" : "false")
+		$delimiter:="&"
+	End if 
+	If (Value type($inParameters.labelIds)=Is collection)
+		$urlParams+=($delimiter+"labelIds="+$inParameters.labelIds.join("&labelIds="; ck ignore null or empty))
+		$delimiter:="&"
+	End if 
+	
+	return cs.GoogleMailIdList.new(This._getOAuth2Provider(); $URL+$urlParams)
 	
 	
 	// ----------------------------------------------------
