@@ -906,6 +906,7 @@ In general, the timeZone property can be set to any of the time zones currently 
 * [Default time zones](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11)
 * [Additional time zones](https://docs.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0#additional-time-zones)
 
+
 #### Example: Create an email with a file attachment and send it
 
 Send an email with an attachment, on behalf of a Microsoft 365 user:
@@ -1360,6 +1361,6 @@ $statusSend:=$smtp.send($email)
 
 ## Copyrights
 
-(c) Microsoft, Office365 are trademarks of the Microsoft group of companies.
+(c) Microsoft, Microsoft Office, Microsoft 365, Microsoft Graph are trademarks of the Microsoft group of companies.
 
 (c) Google, Gmail are trademarks of the Alphabet, Inc. 
