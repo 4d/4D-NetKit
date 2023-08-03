@@ -675,6 +675,7 @@ $mails:=$office365.mail.getMails($param)
 
 `Office365.mail.move()` moves the *mailId* email to the *folderId* folder. It actually creates a new copy of the email in the destination folder and removes the original email from its source folder.
 
+
 #### Returned object 
 
 The method returns a [status object](#status-object).
@@ -1247,6 +1248,7 @@ $parameters.user:=$address
 
 // Send the email 
 
+
 $smtp:=SMTP New transporter($parameters)
 $statusSend:=$smtp.send($email)
 
@@ -1260,4 +1262,5 @@ $statusSend:=$smtp.send($email)
 ## Copyrights
 
 (c) Microsoft, Office365 are trademarks of the Microsoft group of companies.
+
 (c) Google, Gmail are trademarks of the Alphabet, Inc. 
