@@ -1361,4 +1361,5 @@ $statusSend:=$smtp.send($email)
 ## Copyrights
 
 (c) Microsoft, Office365 are trademarks of the Microsoft group of companies.
+
 (c) Google, Gmail are trademarks of the Alphabet, Inc. 
