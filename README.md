@@ -35,6 +35,8 @@
  	- [Google.mail.send()](#googlemailsend)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
+* [Copyrights](#copyrights)
+
 
 **Warning:** Shared objects are not supported by the 4D NetKit API.
 
@@ -1354,3 +1356,9 @@ $statusSend:=$smtp.send($email)
 2. Execute the method. Your browser opens a page that allows you to authenticate.
 
 3. Log in to your Microsoft Outlook account and check that you've received the email.
+
+
+## Copyrights
+
+(c) Microsoft, Office365 are trademarks of the Microsoft group of companies.
+(c) Google, Gmail are trademarks of the Alphabet, Inc. 
