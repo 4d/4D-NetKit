@@ -573,13 +573,13 @@ copy the raw response body in a private member of the class
 	// ----------------------------------------------------
 	
 	
-Function _unixTime($today : Date; $time : Time)->$result : Real
+Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
 Unix_Time stolen from ThomasMaul/JWT_Token_Example
 https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
 */
 	
-	var $start; $today : Date
+	var $start; $date : Date
 	var $now : Text
 	var $time : Time
 	var $days : Integer
@@ -589,11 +589,14 @@ https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Method
 	If (Count parameters:C259=0)
 		$now:=Timestamp:C1445
 		$now:=Substring:C12($now; 1; Length:C16($now)-5)  // remove milliseconds and Z 
-		$today:=Date:C102($now)  // date in UTC
+		$date:=Date:C102($now)  // date in UTC
 		$time:=Time:C179($now)  // returns now time in UTC
+	else
+		$date:=$inDate
+		$time:=$inTime
 	End if 
 	
-	$days:=$today-$start
+	$days:=$date-$start
 	$result:=($days*86400)+($time+0)  // convert in seconds
 	
 	
