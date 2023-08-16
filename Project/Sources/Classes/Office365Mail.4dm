@@ -365,7 +365,7 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			
 		Else 
 			var $URL : Text
-			var $headers; $body; $response : Object
+			var $headers; $body : Object
 			
 			$URL:=Super:C1706._getURL()
 			If (Length:C16(String:C10(This:C1470.userId))>0)
@@ -444,6 +444,54 @@ Function send($inMail : Variant) : Object
 	End if 
 	
 	return This:C1470._postMessage("send"; $URL; $inMail)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function update($inMail : Object; $inMailId : Text; $inFolderId : Text) : Object
+	
+	Super:C1706._clearErrorStack()
+	
+	If ((Type:C295($inMail)=Is object:K8:27) && (Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+		
+		var $URL : Text
+		var $body : Variant
+		var $bUseCreateReply : Boolean
+		
+		$URL:=Super:C1706._getURL()
+		If (Length:C16(String:C10(This:C1470.userId))>0)
+			$URL+="users/"+This:C1470.userId
+		Else 
+			$URL+="me"
+		End if 
+		If (Length:C16(String:C10($inFolderId))>0)
+			$URL+="/mailFolders/"+$inFolderId
+		End if 
+		$URL+="/messages/"+$inMailId
+		
+		If (This:C1470.mailType="Microsoft")
+			
+			var $response : Object
+			$response:=Super:C1706._sendRequestAndWaitResponse("PATCH"; $URL; Null:C1517; JSON Stringify:C1217($body))
+			
+		Else 
+			
+			Super:C1706._pushError(3; New object:C1471("attribute"; "\"mail\""))
+		End if 
+		
+	Else 
+		
+		If (Type:C295($inMail)#Is object:K8:27)
+			
+			Super:C1706._pushError(10; New object:C1471("which"; "\"mail\""; "function"; "update"))
+		Else 
+			
+			Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "update"))
+		End if 
+	End if 
+	
+	return This:C1470._returnStatus()
 	
 	
 	// Mark: - Folders
