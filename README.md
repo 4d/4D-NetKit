@@ -30,6 +30,9 @@
 	- [Office365.user.get()](#office365userget)
 	- [Office365.user.getCurrent()](#office365usergetcurrent)
 	- [Office365.user.list()](#office365userlist)
+* [Google class](#google)
+	- [cs.NetKit.Google.new](#csnetkitgooglenew)
+ 	- [Google.mail.send()](#googlemailsend)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
 
@@ -69,16 +72,16 @@ In `paramObj`, pass an object that contains authentication information.
 
 The available properties of `paramObj` are:
 
-|Parameter|Type|Description|Can be Null or undefined|
+|Parameter|Type|Description|Optional|
 |---------|--- |------|------|
 | name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
-| permission | text | <ul><li> "signedIn": Azure AD will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls Microsoft Graph [with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service) (access without a user).</li></ul>|No
+| permission | text | <ul><li> "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).</li></ul>|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
 | redirectURI | text | (Not used in service mode) The redirect_uri of your app, the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response.|No in signedIn mode, Yes in service mode
 | scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
-| tenant | text | The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts </li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul> Default is "common". |Yes
-| authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for google: "https://accounts.google.com/o/oauth2/auth". |Yes
-| tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for google: "https://accounts.google.com/o/oauth2/token".|Yes
+| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts (default value)</li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
+| authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
+| tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for Google: "https://accounts.google.com/o/oauth2/token".|Yes
 | clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
 | token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes
 | timeout|real| Waiting time in seconds (by default 120s).|Yes
@@ -132,6 +135,7 @@ $token:=$oAuth2.getToken()
 |Parameter|Type||Description|
 |---------|--- |------|------|
 |Result|Object|<-| Object that holds information on the token retrieved
+
 
 #### Description 
 
@@ -611,9 +615,9 @@ In *options*, pass an object to define the mails to get. The available propertie
 | Property | Type | Description |
 |---|---|---|
 |folderId|text|To get messages in a specific folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name). If the destination folder is not present or empty, get all the messages in a user's mailbox.|
-|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
+|search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/search-query-parameter?tabs=http#using-search-on-message-collections).|
 |filter|text|Allows retrieving just a subset of mails. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
-|select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
+|select|text|Set of [properties of the Microsoft Mail object](#microsoft-mail-object-properties) to retrieve. Each property must be separated by a comma (,). |
 |top|integer|Defines the page size for a request. Maximum value is 999. If `top` is not defined, default value is applied (10). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
 
@@ -648,11 +652,12 @@ One of the following permissions is required to call this API. For more informat
 
 #### Example
 
-You want to retrieve all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
+You want to retrieve *sender* and *subject* properties of all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
 
 ```4d
-$param:=new object
+$param:=New object
 $param.folderId:="inbox"
+$param.select:="sender,subject"
 
 $mails:=$office365.mail.getMails($param)
 ```
@@ -828,7 +833,7 @@ Outlook creates certain folders for users by default. Instead of using the corre
 
 ### "Microsoft" mail object properties
 
-When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. The available properties for that object are:
+When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. For a comprehensive list of properties supported by Microsoft mail objects, please refer to the [Microsoft Office documentation](https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0#properties). Most common properties are listed below:
 
 | Property | Type | Description |
 |---|---|---|
@@ -1094,6 +1099,7 @@ By default, each user object in the collection has the [default set of propertie
 | next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
+
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
 | users | Collection | Collection of objects with information on users.| 
 
@@ -1136,6 +1142,102 @@ Repeat
     $col.combine($userList4.users)
 Until (Not($userList4.next()))
 ```
+
+## Google
+
+The `Google` class allows you to send emails through the [Google REST API](https://developers.google.com/gmail/api/reference/rest/v1/users.messages).
+
+This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
+
+The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` function.
+
+
+### **cs.NetKit.Google.new()**
+
+**cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|oAuth2|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
+|options|Object|->| Additional options |
+|Result|cs.NetKit.Google|<-| Object of the Google class|
+
+#### Description
+
+`cs.NetKit.Google.new()` instantiates an object of the `Google` class.
+
+In `oAuth2`, pass an [OAuth2Provider object](#new-auth2-provider).
+
+In `options`, you can pass an object that specifies the following options:
+
+|Property|Type|Description|
+|---------|---|------|
+|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
+
+#### Returned object 
+
+The returned `Google` object contains the following properties:
+
+|Property||Type|Description|
+|----|-----|---|------|
+|mail||Object|Email handling object|
+||[send()](#googlemailsend)|Function|Sends the emails|
+||type|Text|(read-only) Mail type used to send and receive emails. Can be set using the `mailType` option|
+||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
+
+#### Example
+
+To create the OAuth2 connection object and a Google object:
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $google : cs.NetKit.Google
+
+$oAuth2:=New OAuth2 provider($param)
+$google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
+```
+
+### Google.mail.send()
+
+**Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|email|Text &#124; Blob &#124; Object|->| Email to be sent|
+|Result|Object|<-| [Status object](#status-object-1) |
+
+#### Description
+
+`Google.mail.send()` sends an email using the MIME or JMAP formats.
+
+In `email`, pass the email to be sent. Possible types:
+
+* Text or Blob: the email is sent using the MIME format
+* Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
+
+The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
+
+```4d 
+$Google:=cs.NetKit.Google.new($token; New object("mailType"; "JMAP"))
+$status:=$Google.mail.send($email)
+```
+
+> To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
+
+#### Returned object 
+
+The method returns a **status object** with the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|success|Boolean| True if the operation was successful|
+|statusText|Text| Status message returned by the Gmail server, or last error returned by the 4D error stack|
+|errors|Collection| Collection of 4D errors. Not returned if the Gmail server returns a `statusText`|
+
+Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
+
 
 ## Tutorials
 
