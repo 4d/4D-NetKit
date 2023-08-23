@@ -3,26 +3,26 @@
 
 var $stack : Object
 
-C_LONGINT:C283(Error; Error line; $i)
-C_TEXT:C284(Error method; Error formula)
+C_LONGINT(Error; Error line; $i)
+C_TEXT(Error method; Error formula)
 
-$stack:=New object:C1471("error"; Error; \
+$stack:=New object("error"; Error; \
 "line"; Error line; \
 "method"; Error method; \
 "formula"; Error formula)
 
-ARRAY LONGINT:C221($arrCodes; 0)
-ARRAY TEXT:C222($arrComponents; 0)
-ARRAY TEXT:C222($arrDescriptions; 0)
+ARRAY LONGINT($arrCodes; 0)
+ARRAY TEXT($arrComponents; 0)
+ARRAY TEXT($arrDescriptions; 0)
 
-GET LAST ERROR STACK:C1015($arrCodes; $arrComponents; $arrDescriptions)
+GET LAST ERROR STACK($arrCodes; $arrComponents; $arrDescriptions)
 
-If (Size of array:C274($arrCodes)>0)
+If (Size of array($arrCodes)>0)
 	
-	$stack.errors:=New collection:C1472
+	$stack.errors:=New collection
 	
-	For ($i; 1; Size of array:C274($arrCodes))
-		$stack.errors.push(New object:C1471("code"; $arrCodes{$i}; \
+	For ($i; 1; Size of array($arrCodes))
+		$stack.errors.push(New object("code"; $arrCodes{$i}; \
 			"component"; $arrComponents{$i}; \
 			"description"; $arrDescriptions{$i}))
 	End for 
