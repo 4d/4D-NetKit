@@ -130,11 +130,27 @@ Function _throwErrors($inThrowErrors : Boolean)
 	
 	If (Bool($inThrowErrors))
 		This._internals._throwErrors:=True
-		ON ERR CALL(String(This._internals._savedErrorCallMethod))
-		This._internals._savedErrorCallMethod:=""
+		This._installErrorHandler()
 	Else 
-		This._internals._savedErrorCallMethod:=Method called on error
-		ON ERR CALL("_errorHandler")
+		This._resetErrorHandler()
 		This._internals._throwErrors:=False
 		This._getErrorStack().clear()
 	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _installErrorHandler($inErrorHandler : Text)
+
+	This._internals._savedErrorHandler:=Method called on error
+	ON ERR CALL((Length($inErrorHandler) > 0) ? $inErrorHandler : "_errorHandler")
+
+
+	// ----------------------------------------------------
+	
+	
+Function _resetErrorHandler
+
+	ON ERR CALL(This._internals._savedErrorHandler)
+	This._internals._savedErrorHandler:=""

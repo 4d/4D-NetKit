@@ -94,9 +94,9 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	var $request : 4D.HTTPRequest
 	
 	$savedMethod:=Method called on error
-	ON ERR CALL("_errorHandler")
+	This._installErrorHandler()
 	$request:=4D.HTTPRequest.new($inURL; $options).wait()
-	ON ERR CALL($savedMethod)
+	This._resetErrorHandler()
 	
 	var $status : Integer
 	var $statusText : Text

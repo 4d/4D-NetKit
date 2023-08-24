@@ -492,10 +492,9 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	End if 
 	
 	$savedMethod:=Method called on error
-	ON ERR CALL("_errorHandler")
-	$request:=4D.HTTPRequest.new(This.tokenURI; $options)
-	$request.wait(30)
-	ON ERR CALL($savedMethod)
+	This._installErrorHandler()
+	$request:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
+	This._resetErrorHandler()
 	$status:=$request["response"]["status"]
 	$response:=$request["response"]["body"]
 	
