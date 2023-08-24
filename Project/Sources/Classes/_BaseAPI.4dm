@@ -112,27 +112,33 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 		$contentType:=String($request["response"]["headers"]["content-type"])
 		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		
-		Case of 
-			: (Value type($request["response"]["body"])=Is object)
-				$response:=$request["response"]["body"]
-				
-			: (($contentType="application/json@") || ($contentType="text/plain@"))
-				var $text : Text
-				If (Value type($request["response"]["body"])=Is text)
-					$text:=$request["response"]["body"]
-				Else 
-					$text:=Convert to text($request["response"]["body"]; $charset)
-				End if 
-				If ($contentType="application/json@")
-					$response:=JSON Parse($text)
-				Else 
-					$response:=$text
-				End if 
-				
-			: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
-				$response:=4D.Blob.new($request["response"]["body"])
-				
-		End case 
+		If (OB Is defined($request.response; "body"))
+			Case of 
+				: (Value type($request["response"]["body"])=Is object)
+					$response:=$request["response"]["body"]
+					
+				: (($contentType="application/json@") || ($contentType="text/plain@"))
+					var $text : Text
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Convert to text($request["response"]["body"]; $charset)
+					End if 
+					If ($contentType="application/json@")
+						$response:=JSON Parse($text)
+					Else 
+						$response:=$text
+					End if 
+					
+				: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
+					$response:=4D.Blob.new($request["response"]["body"])
+					
+			End case 
+			
+		Else 
+			
+			$response:=Null
+		End if 
 		
 	Else 
 		
