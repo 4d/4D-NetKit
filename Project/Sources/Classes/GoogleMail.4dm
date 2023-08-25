@@ -228,7 +228,7 @@ Function getMailIds($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMail($inMailId : Text)->$response : Variant
+Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 	var $result : Object
 	
@@ -243,34 +243,47 @@ Function getMail($inMailId : Text)->$response : Variant
 			
 		Else 
 			
-			var $URL; $userId : Text
+			var $URL; $userId; $urlParams; $delimiter; $mailType; $format : Text
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-			$URL+="users/"+$userId+"/messages/"+String($inMailId)+"?format=raw"
+			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)
+			$delimiter:="?"
 			
-			$result:=Super._sendRequestAndWaitResponse("GET"; $URL)
+			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+			$format:=((Length(String($inParameters.format))>0) && (($format="minimal") || ($format="metadata"))) ? $inParameters.format : "raw"
+			If (($format="metadata") && (Value type($inParameters.headers)=Is collection))
+				$urlParams+=($delimiter+"metadataHeaders="+$inParameters.headers.join("&metadataHeaders="; ck ignore null or empty))
+				$delimiter:="&"
+			End if 
+			$urlParams+=($delimiter+"format="+$format)
+			
+			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
 			
 			If ($result#Null)
-				var $mailType; $rawMessage : Text
-				$mailType:=This.mailType
+				var $rawMessage : Text
 				
-				If (($mailType="MIME") || ($mailType="JMAP"))
-					If (Value type($result.raw)=Is text)
-						
-						$rawMessage:=_base64UrlSafeDecode($result.raw)
-						If ($mailType="JMAP")
-							$response:=MAIL Convert from MIME($rawMessage)
+				Case of 
+					: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
+						If (Value type($result.raw)=Is text)
 							
-						Else 
-							$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
-							
+							$rawMessage:=_base64UrlSafeDecode($result.raw)
+							If ($mailType="JMAP")
+								$response:=MAIL Convert from MIME($rawMessage)
+								
+							Else 
+								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
+								
+							End if 
 						End if 
-					End if 
-				Else 
-					Super._pushError(10; New object("which"; 1; "function"; "getMail"))
-					
-				End if 
+						
+					: (($format="minimal") || ($format="metadata"))
+						$response:=$result
+						
+					Else 
+						Super._pushError(10; New object("which"; 1; "function"; "getMail"))
+						
+				End case 
 			End if 
 			
 	End case 
