@@ -3,6 +3,7 @@ Class constructor()
 	This._internals:=New object
 	This._internals._errorStack:=Null
 	This._internals._throwErrors:=True
+	This._internals._savedErrorHandler:=""
 	
 	
 	// Mark: - [Private]
@@ -130,9 +131,9 @@ Function _throwErrors($inThrowErrors : Boolean)
 	
 	If (Bool($inThrowErrors))
 		This._internals._throwErrors:=True
-		This._installErrorHandler()
-	Else 
 		This._resetErrorHandler()
+	Else 
+		This._installErrorHandler()
 		This._internals._throwErrors:=False
 		This._getErrorStack().clear()
 	End if 
@@ -142,15 +143,15 @@ Function _throwErrors($inThrowErrors : Boolean)
 	
 	
 Function _installErrorHandler($inErrorHandler : Text)
-
+	
 	This._internals._savedErrorHandler:=Method called on error
-	ON ERR CALL((Length($inErrorHandler) > 0) ? $inErrorHandler : "_errorHandler")
-
-
+	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler")
+	
+	
 	// ----------------------------------------------------
 	
 	
 Function _resetErrorHandler
-
+	
 	ON ERR CALL(This._internals._savedErrorHandler)
 	This._internals._savedErrorHandler:=""
