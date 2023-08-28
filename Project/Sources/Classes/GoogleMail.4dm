@@ -214,7 +214,7 @@ Function getMailIds($inParameters : Object) : Object
 		$delimiter:="&"
 	End if 
 	If (Value type($inParameters.includeSpamTrash)=Is boolean)
-		$urlParams+=($delimiter+"includeSpamTrash="+$inParameters.includeSpamTrash ? "true" : "false")
+		$urlParams+=($delimiter+"includeSpamTrash="+($inParameters.includeSpamTrash ? "true" : "false"))
 		$delimiter:="&"
 	End if 
 	If (Value type($inParameters.labelIds)=Is collection)
