@@ -449,49 +449,45 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function update($inMail : Object; $inMailId : Text; $inFolderId : Text) : Object
+Function update($inMailId : Text; $inMail : Object) : Object
 	
-	Super:C1706._clearErrorStack()
+	Super._clearErrorStack()
 	
-	If ((Type:C295($inMail)=Is object:K8:27) && (Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
 		var $URL : Text
-		var $body : Variant
+		var $response : Object
 		var $bUseCreateReply : Boolean
 		
-		$URL:=Super:C1706._getURL()
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$URL+="users/"+This:C1470.userId
+		$URL:=Super._getURL()
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
 		Else 
 			$URL+="me"
 		End if 
-		If (Length:C16(String:C10($inFolderId))>0)
-			$URL+="/mailFolders/"+$inFolderId
-		End if 
 		$URL+="/messages/"+$inMailId
 		
-		If (This:C1470.mailType="Microsoft")
+		If (This.mailType="Microsoft")
 			
-			var $response : Object
-			$response:=Super:C1706._sendRequestAndWaitResponse("PATCH"; $URL; Null:C1517; JSON Stringify:C1217($body))
+			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; Null; JSON Stringify($inMail))
 			
 		Else 
 			
-			Super:C1706._pushError(3; New object:C1471("attribute"; "\"mail\""))
+			Super._pushError(3; New object("attribute"; "\"mail\""))
 		End if 
 		
 	Else 
 		
-		If (Type:C295($inMail)#Is object:K8:27)
+		If (Type($inMail)#Is object)
 			
-			Super:C1706._pushError(10; New object:C1471("which"; "\"mail\""; "function"; "update"))
+			Super._pushError(10; New object("which"; "\"mail\""; "function"; "update"))
 		Else 
 			
-			Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "update"))
+			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "update"))
 		End if 
 	End if 
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// Mark: - Folders
