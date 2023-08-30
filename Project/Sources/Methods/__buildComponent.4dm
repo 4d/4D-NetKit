@@ -42,7 +42,7 @@ If ($status.success=True)
 		$result:=$sourceFolder.copyTo($targetFolder; fk overwrite)
 	End if 
 	
-	$status:=New object("success"; ($result#Null))
+	$status:={success: Bool($result#Null)}
 End if 
 
 ALERT(JSON Stringify($status; *))
