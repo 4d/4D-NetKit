@@ -13,10 +13,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-Function _postJSONMessage($inURL : Text; \
-$inMail : Object; \
-$bSkipMessageEncapsulation : Boolean; \
-$inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
 	If ($inMail#Null)
 		var $headers; $message; $messageCopy; $response : Object
@@ -60,12 +57,12 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	$headers:=New object
 	$headers["Content-Type"]:="text/plain"
 	
-/*
-POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
-An issue has already been registered.
-See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
-See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
-*/
+	/*
+		POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
+		An issue has already been registered.
+		See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
+		See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
+	*/
 	
 	Case of 
 		: (Value type($inMail)=Is BLOB)
@@ -86,11 +83,7 @@ See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodes
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; \
-$inURL : Text; \
-$inMail : Variant; \
-$bSkipMessageEncapsulation : Boolean; \
-$inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
 	var $status : Object
 	
@@ -465,6 +458,11 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		Else 
 			$URL+="me"
 		End if 
+		/*
+		If (Length(String($inFolderId))>0)
+			$URL+="/mailFolders/"+$inFolderId
+		End if 
+		*/
 		$URL+="/messages/"+$inMailId
 		
 		If (This.mailType="Microsoft")
