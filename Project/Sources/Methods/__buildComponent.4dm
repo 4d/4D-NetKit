@@ -6,43 +6,43 @@
 */
 
 var $status : Object
-$status:=Compile project:C1760
+$status:=Compile project
 
-If ($status.success=True:C214)
+If ($status.success=True)
 	
-	var $sourceFolder; $targetFolder; $result : 4D:C1709.Folder
-	var $netKitFolder : 4D:C1709.Folder
+	var $sourceFolder; $targetFolder; $result : 4D.Folder
+	var $netKitFolder : 4D.Folder
 	
-	$targetFolder:=Folder:C1567(Application file:C491; fk platform path:K87:2)
-	$netKitFolder:=Folder:C1567($targetFolder.parent.parent.parent.parent.parent.platformPath+\
-		"4DComponents"+Folder separator:K24:12+"User Components"+Folder separator:K24:12+"4D NetKit"+\
-		Folder separator:K24:12; fk platform path:K87:2)
+	$targetFolder:=Folder(Application file; fk platform path)
+	$netKitFolder:=Folder($targetFolder.parent.parent.parent.parent.parent.platformPath+\
+		"4DComponents"+Folder separator+"User Components"+Folder separator+"4D NetKit"+\
+		Folder separator; fk platform path)
 	
-	If (Not:C34($netKitFolder.exists))
+	If (Not($netKitFolder.exists))
 		
 		var $netKitFullPath : Text
-		$netKitFullPath:=Select folder:C670("Select 4D NetKit component folder"; $targetFolder.platformPath)
-		$netKitFolder:=Folder:C1567($netKitFullPath; fk platform path:K87:2)
+		$netKitFullPath:=Select folder("Select 4D NetKit component folder"; $targetFolder.platformPath)
+		$netKitFolder:=Folder($netKitFullPath; fk platform path)
 	End if 
 	
 	// Copy Sources
-	$sourceFolder:=Folder:C1567(Structure file:C489; fk platform path:K87:2)
-	$sourceFolder:=Folder:C1567($sourceFolder.parent.platformPath+"Sources"; fk platform path:K87:2)
-	$targetFolder:=Folder:C1567($netKitFolder.platformPath+"Project"+Folder separator:K24:12; fk platform path:K87:2)
+	$sourceFolder:=Folder(Structure file; fk platform path)
+	$sourceFolder:=Folder($sourceFolder.parent.platformPath+"Sources"; fk platform path)
+	$targetFolder:=Folder($netKitFolder.platformPath+"Project"+Folder separator; fk platform path)
 	
-	$result:=$sourceFolder.copyTo($targetFolder; fk overwrite:K87:5)
+	$result:=$sourceFolder.copyTo($targetFolder; fk overwrite)
 	
 	// Copy Resources
-	If ($result#Null:C1517)
+	If ($result#Null)
 		
-		$sourceFolder:=Folder:C1567(Structure file:C489; fk platform path:K87:2)
-		$sourceFolder:=Folder:C1567($sourceFolder.parent.parent.platformPath+"Resources"; fk platform path:K87:2)
-		$targetFolder:=Folder:C1567($netKitFolder.platformPath; fk platform path:K87:2)
+		$sourceFolder:=Folder(Structure file; fk platform path)
+		$sourceFolder:=Folder($sourceFolder.parent.parent.platformPath+"Resources"; fk platform path)
+		$targetFolder:=Folder($netKitFolder.platformPath; fk platform path)
 		
-		$result:=$sourceFolder.copyTo($targetFolder; fk overwrite:K87:5)
+		$result:=$sourceFolder.copyTo($targetFolder; fk overwrite)
 	End if 
 	
-	$status:=New object:C1471("success"; ($result#Null:C1517))
+	$status:=New object("success"; ($result#Null))
 End if 
 
-ALERT:C41(JSON Stringify:C1217($status; *))
+ALERT(JSON Stringify($status; *))
