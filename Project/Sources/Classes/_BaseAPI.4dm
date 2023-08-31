@@ -63,7 +63,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	This._try()
 	
 	var $options : Object
-	var $token; $savedMethod : Text
+	var $token : Text
 	
 	$token:=This._getAcessToken()
 	$options:=New object()
@@ -93,7 +93,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	var $request : 4D.HTTPRequest
 	
-	$savedMethod:=Method called on error
 	This._installErrorHandler()
 	$request:=4D.HTTPRequest.new($inURL; $options).wait()
 	This._resetErrorHandler()

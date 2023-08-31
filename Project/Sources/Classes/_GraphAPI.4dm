@@ -11,19 +11,21 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
-Function _cleanGraphObject($ioObject : Object) : Object
+Function _cleanGraphObject($inObject : Object) : Object
 	
 	var $keys : Collection
 	var $key : Text
+	var $cleanObject : Object
 	
-	$keys:=OB Keys($ioObject)
+	$cleanObject:=OB Copy($inObject)
+	$keys:=OB Keys($cleanObject)
 	For each ($key; $keys)
-		If ((Position("@"; $key)=1) || ($ioObject[$key]=Null))
-			OB REMOVE($ioObject; $key)
+		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
+			OB REMOVE($cleanObject; $key)
 		End if 
 	End for each 
 	
-	return $ioObject
+	return $cleanObject
 	
 	
 	// ----------------------------------------------------
@@ -33,16 +35,17 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	
 	If (OB Instance of($inMessage; cs.GraphMessage))
 		
-		var $message : Object
+		var $result; $message : Object
 		var $keys : Collection
 		var $key : Text
 		var $iter; $attachment : Object
 		
-		$message:=New object
-		If (OB Is defined($inMessage; "attachments") && ($inMessage.attachments#Null))
-			$message.attachments:=New collection
+		$message:=OB Copy($inMessage)
+		$result:=New object
+		If (OB Is defined($message; "attachments") && ($message.attachments#Null))
+			$result.attachments:=New collection
 		End if 
-		$keys:=OB Keys($inMessage)
+		$keys:=OB Keys($message)
 		For each ($key; $keys)
 			
 			Case of 
@@ -50,19 +53,19 @@ Function _copyGraphMessage($inMessage : Object) : Object
 					// do not copy
 					
 				: ($key="attachments")
-					For each ($iter; $inMessage.attachments)
+					For each ($iter; $message.attachments)
 						$attachment:=_convertToGraphAttachment($iter)
-						$message.attachments.push($attachment)
+						$result.attachments.push($attachment)
 					End for each 
 					
 				Else 
-					$message[$key]:=$inMessage[$key]
+					$result[$key]:=$message[$key]
 					
 			End case 
 			
 		End for each 
 		
-		return $message
+		return $result
 		
 	Else 
 		
@@ -79,11 +82,13 @@ Function _loadFromObject($inObject : Object)
 		
 		var $key : Text
 		var $keys : Collection
+		var $objectCopy : Object
 		
-		$keys:=OB Keys($inObject)
+		$objectCopy:=OB Copy($inObject)
+		$keys:=OB Keys($objectCopy)
 		
 		For each ($key; $keys)
-			This[$key]:=$inObject[$key]
+			This[$key]:=$objectCopy[$key]
 		End for each 
 		
 	End if 
