@@ -23,3 +23,7 @@ jobs:
       uses: 4d/build4d-action@main
       with:
         ignore-warnings: true
+        product-line: vcs
+        version: vcs
+        build: official
+        token: ${{ secrets.DLTK }}
