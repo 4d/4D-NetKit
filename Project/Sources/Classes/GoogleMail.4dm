@@ -206,7 +206,7 @@ Function getMailIds($inParameters : Object) : Object
 	$delimiter:="?"
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams+=($delimiter+"q="+_urlEscape($inParameters.search))
+		$urlParams+=($delimiter+"q="+_urlEncode($inParameters.search))
 		$delimiter:="&"
 	End if 
 	If (Value type($inParameters.top)#Is undefined)

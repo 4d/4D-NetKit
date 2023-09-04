@@ -254,10 +254,10 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 			$url+="?client_id="+This.clientId
 			$url+="&response_type=code"
-			$url+="&redirect_uri="+_urlEscape($redirectURI)
+			$url+="&redirect_uri="+_urlEncode($redirectURI)
 			$url+="&response_mode=query"
 			If (Length(String($scope))>0)
-				$url+="&scope="+_urlEscape($scope)
+				$url+="&scope="+_urlEncode($scope)
 			End if 
 			$url+="&state="+String($state)
 			If (Length(String(This.accessType))>0)
@@ -319,7 +319,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		$params:="client_id="+This.clientId
 		If (Length(This.scope)>0)
-			$params+="&scope="+_urlEscape(This.scope)
+			$params+="&scope="+_urlEncode(This.scope)
 		End if 
 		$params+="&refresh_token="+This.token.refresh_token
 		$params+="&grant_type=refresh_token"
@@ -351,9 +351,9 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 				If (Length($authorizationCode)>0)
 					
 					$params:="client_id="+This.clientId
-					$params+="&scope="+_urlEscape(This.scope)
+					$params+="&scope="+_urlEncode(This.scope)
 					$params+="&code="+$authorizationCode
-					$params+="&redirect_uri="+_urlEscape(This.redirectURI)
+					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
 					$params+="&grant_type=authorization_code"
 					If (Length(This.clientSecret)>0)
 						$params+="&client_secret="+This.clientSecret
@@ -414,14 +414,14 @@ Function _getToken_Service()->$result : Object
 			$jwt:=cs._JWT.new($options)
 			$bearer:=$jwt.generate()
 			
-			$params:="grant_type="+_urlEscape(This.grantType)
+			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
 			
 		Else 
 			
 			$params:="client_id="+This.clientId
 			If (Length(This.scope)>0)
-				$params+="&scope="+_urlEscape(This.scope)
+				$params+="&scope="+_urlEncode(This.scope)
 			End if 
 			$params+="&client_secret="+This.clientSecret
 			$params+="&grant_type="+This.grantType
@@ -587,10 +587,10 @@ https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Method
 	
 	If (Count parameters=0)
 		$now:=Timestamp
-		$now:=Substring($now; 1; Length($now)-5)  // remove milliseconds and Z 
+		$now:=Substring($now; 1; Length($now)-5)  // remove milliseconds and Z
 		$date:=Date($now)  // date in UTC
 		$time:=Time($now)  // returns now time in UTC
-	else
+	Else 
 		$date:=$inDate
 		$time:=$inTime
 	End if 

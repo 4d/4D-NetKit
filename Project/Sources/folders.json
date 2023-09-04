@@ -40,7 +40,8 @@
 			"_startWebServer",
 			"_stopWebServer",
 			"_throwError",
-			"_urlEscape"
+			"_urlDecode",
+			"_urlEncode"
 		]
 	},
 	"Public": {
@@ -68,5 +69,6 @@
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
-	}
+	},
+	"trash": {}
 }

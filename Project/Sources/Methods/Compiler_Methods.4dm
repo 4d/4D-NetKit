@@ -20,8 +20,8 @@ C_BOOLEAN(_startWebServer; $0)
 C_OBJECT(_startWebServer; $1)
 
 // _urlEscape
-C_TEXT(_urlEscape; $0)
-C_TEXT(_urlEscape; $1)
+C_TEXT(_urlEncode; $0)
+C_TEXT(_urlEncode; $1)
 
 // _getPathFromURL
 C_TEXT(_getPathFromURL; $0)
