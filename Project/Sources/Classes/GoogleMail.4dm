@@ -251,7 +251,8 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			$delimiter:="?"
 			
 			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
-			$format:=((Length(String($inParameters.format))>0) && (($format="minimal") || ($format="metadata"))) ? $inParameters.format : "raw"
+			$format:=String($inParameters.format)
+			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
 			If (($format="metadata") && (Value type($inParameters.headers)=Is collection))
 				$urlParams+=($delimiter+"metadataHeaders="+$inParameters.headers.join("&metadataHeaders="; ck ignore null or empty))
 				$delimiter:="&"
