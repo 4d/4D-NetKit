@@ -280,6 +280,9 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 							If ($mailType="JMAP")
 								
 								$response:=MAIL Convert from MIME($rawMessage)
+								$response.id:=String($result.id)
+								$response.threadId:=String($result.threadId)
+								$response.labelIds:=OB Is defined($result; "labelIds") ? $result.labelIds : New collection
 							Else 
 								
 								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
