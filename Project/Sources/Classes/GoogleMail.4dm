@@ -279,10 +279,13 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 							$rawMessage:=_base64UrlSafeDecode($result.raw)
 							If ($mailType="JMAP")
 								
+								var $copy : Object
+
+								$copy:=OB Copy($result)
 								$response:=MAIL Convert from MIME($rawMessage)
-								$response.id:=String($result.id)
-								$response.threadId:=String($result.threadId)
-								$response.labelIds:=OB Is defined($result; "labelIds") ? $result.labelIds : New collection
+								$response.id:=String($copy.id)
+								$response.threadId:=String($copy.threadId)
+								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : New collection
 							Else 
 								
 								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
