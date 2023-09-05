@@ -31,6 +31,7 @@ $inHeader : Object) : Object
 		End if 
 		
 		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
+		This._internals._response:=OB Copy($response)
 	Else 
 		Super._pushError(1)
 	End if 
@@ -43,7 +44,7 @@ $inHeader : Object) : Object
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers : Object
+	var $headers; $response : Object
 	var $requestBody : Text
 	
 	$headers:=New object
@@ -61,7 +62,9 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE($requestBody)
 	
-	This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object("raw"; $requestBody))
+	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object("raw"; $requestBody))
+	This._internals._response:=OB Copy($response)
+	
 	return This._returnStatus()
 	
 	
@@ -126,6 +129,7 @@ Function getLabelList() : Object
 	$URL+="users/"+$userId+"/labels"
 	
 	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	
 	return This._returnStatus($response)
 	
 	
@@ -146,6 +150,7 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 		Else 
 			
 			var $URL; $verb; $userId : Text
+			var $response : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
@@ -155,7 +160,8 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 			End if 
 			$verb:=Bool($permanently) ? "DELETE" : "POST"
 			
-			This._internals._response:=Super._sendRequestAndWaitResponse($verb; $URL)
+			$response:=Super._sendRequestAndWaitResponse($verb; $URL)
+			This._internals._response:=OB Copy($response)
 	End case 
 	
 	Super._throwErrors(True)
@@ -180,12 +186,14 @@ Function untrash($inMailId : Text) : Object
 		Else 
 			
 			var $URL; $userId : Text
+			var $response : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
 			
-			This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $URL)
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL)
+			This._internals._response:=OB Copy($response)
 	End case 
 	
 	Super._throwErrors(True)
@@ -230,8 +238,6 @@ Function getMailIds($inParameters : Object) : Object
 	
 Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
-	var $result : Object
-	
 	Super._throwErrors(False)
 	
 	Case of 
@@ -243,6 +249,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			
 		Else 
 			
+			var $result : Object
 			var $URL; $userId; $urlParams; $delimiter; $mailType; $format : Text
 			
 			$URL:=Super._getURL()
@@ -262,6 +269,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
 			
 			If ($result#Null)
+				
 				var $rawMessage : Text
 				
 				Case of 
@@ -270,11 +278,11 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 							
 							$rawMessage:=_base64UrlSafeDecode($result.raw)
 							If ($mailType="JMAP")
+								
 								$response:=MAIL Convert from MIME($rawMessage)
-								
 							Else 
-								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
 								
+								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
 							End if 
 						End if 
 						
@@ -285,6 +293,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 						Super._pushError(10; New object("which"; 1; "function"; "getMail"))
 						
 				End case 
+				
 			End if 
 			
 	End case 

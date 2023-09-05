@@ -44,7 +44,9 @@ Function _getList($inPageToken : Text) : Boolean
 		
 		If (OB Is defined($response; This._internals._attribute))
 			
-			This._internals._list:=OB Get($response; This._internals._attribute; Is collection)
+			var $result : Variant
+			$result:=OB Copy($response)
+			This._internals._list:=OB Get($result; This._internals._attribute; Is collection)
 		Else 
 			
 			This._internals._list:=New collection
