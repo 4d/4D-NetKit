@@ -20,7 +20,7 @@ Function fromString($inValue : Text)
 	var $startMailPos; $endMailPos : Integer
 	
 	$startMailPos:=Position($inValue; "<")
-	$endMailPos:=(startMailPos>0) ? Position($inValue; ">") : 0
+	$endMailPos:=($startMailPos>0) ? Position($inValue; ">") : 0
 	
 	This.name:=""
 	This.email:=""
