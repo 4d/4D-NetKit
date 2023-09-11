@@ -22,9 +22,6 @@ Function fromString($inValue : Text)
 	$startMailPos:=Position($inValue; "<")
 	$endMailPos:=($startMailPos>0) ? Position($inValue; ">") : 0
 	
-	This.name:=""
-	This.email:=""
-	
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
 		This.name:=Substring($inValue; 1; $startMailPos-1)

@@ -98,54 +98,6 @@ $inHeader : Object) : Object
 	Super._throwErrors(True)
 	
 	return $status
-
-
-	// ----------------------------------------------------
-	
-	
-Function _JMAPAttibute($inKey : Text) : Text
-	
-	Case of 
-		: ($inKey="id")
-			return "id"
-		: ($inKey="threadId")
-			return "threadId"
-		: ($inKey="sizeEstimate")
-			return "size"
-		: ($inKey="snippet")
-			return "preview"
-		: ($inKey="Date")
-			return "receivedAt"
-		: ($inKey="Subject")
-			return "subject"
-		: ($inKey="labelIds")
-			return "mailboxIds"
-		: ($inKey="Message-Id")
-			return "messageId"
-		: ($inKey="Message-Id")
-			return "messageId"
-		: ($inKey="From")
-			return "from"
-		: ($inKey="Sender")
-			return "sender"
-		: ($inKey="To")
-			return "to"
-		: ($inKey="Cc")
-			return "cc"
-		: ($inKey="Reply-To")
-			return "replyTo"
-		: ($inKey="In-Reply-To")
-			return "inReplyTo"
-		: ($inKey="Keywords")
-			return "keywords"
-			
-/*
-			blobId
-			hasAttachment
-			*/
-	End case 
-	
-	return ""
 	
 	
 	// ----------------------------------------------------
@@ -156,11 +108,12 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $result : Object
 	var $keys : Collection
 	var $key; $name; $string : Text
+	var $email : cs.EmailAddress
 	
 	$result:=New object
 	$keys:=OB Keys($inMail)
 	For each ($key; $keys)
-		$name:=This._JMAPAttibute($key)
+		$name:=_getJMAPAttribute($key)
 		If (Length($name)>0)
 			If ($key="labelIds")
 				If (Num($inMail.labelIds.length)>0)
@@ -179,16 +132,22 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 			If ($key="headers")
 				var $header : Object
 				For each ($header; $inMail.payload.headers)
-					$name:=This._JMAPAttibute($header.name)
+					$name:=_getJMAPAttribute($header.name)
 					If (Length($name)>0)
-						If ($header.name="Keywords")
-							If (Num($header.value.length)>0)
-								$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
-								$result[$name]:=Split string($string; ","; sk trim spaces)
-							End if 
-						Else 
-							$result[$name]:=$header.value
-						End if 
+						Case of 
+							: ($header.name="Keywords")
+								If (Length($header.value)>0)
+									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
+									$result[$name]:=Split string($string; ","; sk trim spaces)
+								End if 
+							: (_IsEmailAddressHeader($header.name))
+								If (Length($header.value)>0)
+									$email:=cs.EmailAddress.new($header.value)
+									$result[$name]:=OB Copy($email)
+								End if 
+							Else 
+								$result[$name]:=$header.value
+						End case 
 					End if 
 				End for each 
 			End if 
@@ -378,7 +337,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 							If ($mailType="JMAP")
 								
 								var $copy : Object
-
+								
 								$copy:=OB Copy($result)
 								$response:=MAIL Convert from MIME($rawMessage)
 								$response.id:=String($copy.id)

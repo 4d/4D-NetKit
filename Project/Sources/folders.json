@@ -33,8 +33,10 @@
 			"_errorHandler",
 			"_getErrorStack",
 			"_getHeaderValueParameter",
+			"_getJMAPAttribute",
 			"_getPathFromURL",
 			"_getPortFromURL",
+			"_IsEmailAddressHeader",
 			"_onWebConnection",
 			"_retainFileObject",
 			"_startWebServer",
@@ -46,6 +48,7 @@
 	},
 	"Public": {
 		"classes": [
+			"EmailAddress",
 			"Google",
 			"GoogleMail",
 			"GoogleMailIdList",

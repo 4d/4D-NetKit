@@ -57,6 +57,14 @@ C_OBJECT(_getErrorStack; $0)
 C_TEXT(_base64UrlSafeDecode; $0)
 C_TEXT(_base64UrlSafeDecode; $1)
 
-//_urlDecode
+// _urlDecode
 C_TEXT(_urlDecode; $0)
 C_TEXT(_urlDecode; $1)
+
+// _IsEmailAddressHeader
+C_BOOLEAN(_IsEmailAddressHeader; $0)
+C_TEXT(_IsEmailAddressHeader; $1)
+
+// _getJMAPAttribute
+C_TEXT(_getJMAPAttribute; $0)
+C_TEXT(_getJMAPAttribute; $1)
