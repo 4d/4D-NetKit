@@ -32,12 +32,20 @@ Function _getList($inURL : Text) : Boolean
 	If ($response#Null)
 		var $result : Collection
 		var $object : Object
+		var $nextLink : Text
+		var $count : Integer
+		
 		$result:=$response["value"]
 		For each ($object; $result)
 			This._internals._list.push(Super._cleanGraphObject($object))
 		End for each 
 		This.success:=True
-		This._internals._nextLink:=_urlDecode(String($response["@odata.nextLink"]))
+		$nextLink:=_urlDecode(String($response["@odata.nextLink"]))
+		$count:=Num($response["@odata.count"])
+		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
+			$nextLink:=""
+		End if 
+		This._internals._nextLink:=$nextLink
 		This.isLastPage:=(Length(This._internals._nextLink)=0)
 		return True
 	Else 

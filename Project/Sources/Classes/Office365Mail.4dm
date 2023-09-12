@@ -328,7 +328,7 @@ Function getMails($inParameters : Object) : Object
 		$headers:=New object("ConsistencyLevel"; "eventual")
 	End if 
 	
-	$urlParams:=Super._getURLParamsFromObject($inParameters)
+	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
 	return cs.GraphMessageList.new(This; This._getOAuth2Provider(); $URL; $headers)
@@ -627,7 +627,7 @@ Function getFolderList($inParameters : Object) : Object
 		$headers:=New object("ConsistencyLevel"; "eventual")
 	End if 
 	
-	$urlParams:=Super._getURLParamsFromObject($inParameters)
+	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
 	return cs.GraphFolderList.new(This._getOAuth2Provider(); $URL; $headers)
