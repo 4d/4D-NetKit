@@ -19,8 +19,8 @@ Function fromString($inValue : Text)
 	
 	var $startMailPos; $endMailPos : Integer
 	
-	$startMailPos:=Position($inValue; "<")
-	$endMailPos:=($startMailPos>0) ? Position($inValue; ">") : 0
+	$startMailPos:=Position("<"; $inValue)
+	$endMailPos:=($startMailPos>0) ? Position(">"; $inValue) : 0
 	
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
