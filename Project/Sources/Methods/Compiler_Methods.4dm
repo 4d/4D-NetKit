@@ -52,3 +52,8 @@ C_VARIANT:C1683(_retainFileObject; $1)
 
 // _getErrorStack
 C_OBJECT:C1216(_getErrorStack; $0)
+
+//_getParameterValue
+C_TEXT:C284(_getParameterValue; $0)
+C_VARIANT:C1683(_getParameterValue; $1)
+C_TEXT:C284(_getParameterValue; $2)
