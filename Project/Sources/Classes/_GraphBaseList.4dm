@@ -31,15 +31,23 @@ Function _getList($inURL : Text) : Boolean
 	If ($response#Null:C1517)
 		var $result : Collection
 		var $object : Object
+		var $nextLink : Text
+		var $count : Integer
+		
 		$result:=$response["value"]
 		This:C1470._internals._list:=New collection:C1472
 		For each ($object; $result)
 			This:C1470._internals._list.push(Super:C1706._cleanGraphObject($object))
 		End for each 
-		This:C1470.success:=True:C214
-		This:C1470._internals._nextLink:=String:C10($response["@odata.nextLink"])
-		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextLink)=0)
-		return True:C214
+		This.success:=True
+		$nextLink:=String($response["@odata.nextLink"])
+		$count:=Num($response["@odata.count"])
+		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
+			$nextLink:=""
+		End if 
+		This._internals._nextLink:=$nextLink
+		This.isLastPage:=(Length(This._internals._nextLink)=0)
+		return True
 	Else 
 		var $errorStack : Collection
 		$errorStack:=Super:C1706._getErrorStack()
