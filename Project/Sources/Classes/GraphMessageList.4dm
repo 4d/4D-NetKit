@@ -2,9 +2,10 @@ Class extends _GraphBaseList
 
 Class constructor($inMail : cs:C1710.Office365Mail; $inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
-	Super:C1705($inProvider; $inURL; $inHeaders)
-	This:C1470._internals._mail:=$inMail
-	This:C1470._internals._mails:=Null:C1517
+	Super($inProvider; $inURL; $inHeaders)
+	This._internals._mail:=$inMail
+	This._internals._mails:=Null
+	This._internals._update:=True
 	
 	
 	// Mark: - [Public]
@@ -13,7 +14,7 @@ Class constructor($inMail : cs:C1710.Office365Mail; $inProvider : cs:C1710.OAuth
 	
 Function get mails() : Collection
 	
-	If (This:C1470._internals._mails=Null:C1517)
+	If (This._internals._update)
 		var $iter : Object
 		var $mail : cs:C1710.GraphMessage
 		var $provider : cs:C1710.OAuth2Provider
@@ -27,7 +28,27 @@ Function get mails() : Collection
 				$iter)
 			This:C1470._internals._mails.push($mail)
 		End for each 
+		
+		This._internals._update:=False
 	End if 
 	
-	return This:C1470._internals._mails
+	return This._internals._mails
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function next() : Boolean
+	
+	This._internals._update:=Super.next()
+	return This._internals._update
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function previous() : Boolean
+	
+	This._internals._update:=Super.previous()
+	return This._internals._update
+
