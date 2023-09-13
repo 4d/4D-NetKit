@@ -25,7 +25,6 @@ Of course you could propose a fix using pull request
 * Update documentation where applicable.
 * If any bug related, add `#<id>` in commit message or pull request
 * Test your code
-* ⚠️ You need to sign the [Contribution Licence Agreement](cla/4DCLA.md) for the first pull request
 
 ### Method properties
 
