@@ -1,3 +1,6 @@
+property token : Object
+property tokenExpiration : Text
+
 Class constructor($inParams : Object)
 	
 	var $params : Object

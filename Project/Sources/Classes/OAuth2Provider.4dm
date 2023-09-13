@@ -1,5 +1,22 @@
 Class extends _BaseClass
 
+property name : Text		// Name of OAuth2 provider.
+property permission : Text	// "signedIn" or "service" mode
+property clientId : Text	// The Application ID that the registration portal assigned the app
+property redirectURI : Text	// The redirect_uri of your app, where authentication responses can be sent and received by your app.
+property tenant : Text
+property clientSecret : Text// The application secret that you created in the app registration portal for your app. Required for web apps.
+property token : Object		// Any valid existing token
+property tokenExpiration : Text
+property timeout : Integer
+property authenticationPage : 4D.File
+property authenticationErrorPage : 4D.File
+property accessType : Text
+property loginHint : Text
+property prompt : Text
+property clientEmail : Text	// clientMail used by Google services account used
+property privateKey : Text	// privateKey may be used used by Google services account to sign JWT token
+
 Class constructor($inParams : Object)
 	
 	Super()

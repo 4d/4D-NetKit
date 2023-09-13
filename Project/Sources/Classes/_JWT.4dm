@@ -3,6 +3,10 @@ Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
 See: https://kb.4d.com/assetid=79100
 */
 
+property header : Object
+property payload : Object
+property privateKey : Text
+
 Class constructor($inParam : Object)
 	
 	This.header:=New object
