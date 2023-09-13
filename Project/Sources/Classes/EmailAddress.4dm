@@ -1,3 +1,6 @@
+property name : Text
+property email : Text
+
 Class constructor($inName; $inAddress : Text)
 	
 	Case of 

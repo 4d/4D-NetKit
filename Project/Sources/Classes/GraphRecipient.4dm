@@ -1,3 +1,5 @@
+property emailAddress : Object
+
 Class constructor($inAddress : Text; $inName : Text)
 	
 	If (Length(String($inAddress))>0)
