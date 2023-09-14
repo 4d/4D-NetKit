@@ -92,7 +92,7 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
-Function _getURLParamsFromObject($inParameters : Object) : Text
+Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
 	var $urlParams; $delimiter : Text
 	
@@ -121,6 +121,10 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	End if 
 	If (Length:C16(String:C10($inParameters.orderBy))>0)
 		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
+	End if 
+	If (Bool($inCount))
+		$urlParams+=$delimiter+"$count=true"
 		$delimiter:="&"
 	End if 
 	
