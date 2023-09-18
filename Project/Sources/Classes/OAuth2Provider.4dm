@@ -17,6 +17,11 @@ property prompt : Text
 property clientEmail : Text	// clientMail used by Google services account used
 property privateKey : Text	// privateKey may be used used by Google services account to sign JWT token
 
+property _scope : Text
+property _authenticateURI : Text
+property _tokenURI : Text
+property _grantType : Text
+
 Class constructor($inParams : Object)
 	
 	Super()

@@ -1,3 +1,5 @@
+property _internals : Object
+
 Class constructor()
 	
 	This._internals:=New object

@@ -1,5 +1,13 @@
 Class extends _GraphAPI
 
+property id : Text
+property contentBytes : Text
+property size : Integer
+property contentId : Text
+property isInline : Boolean
+property name : Text
+property contentType : Text
+
 Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)
 	
 	Super($inProvider)

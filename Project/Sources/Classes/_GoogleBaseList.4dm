@@ -1,5 +1,11 @@
 Class extends _GoogleAPI
 
+property page : Integer
+property isLastPage : Boolean
+property statusText : Text
+property success : Boolean
+property errors : Collection
+
 Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text)
 	
 	Super($inProvider)
