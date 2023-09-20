@@ -447,8 +447,8 @@ Function send($inMail : Variant) : Object
 	
 Function update($inMailId : Text; $inMail : Object) : Object
 	
-	Super._clearErrorStack()
-	
+	Super._throwErrors(False)
+
 	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
 		var $URL : Text
@@ -461,11 +461,6 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		Else 
 			$URL+="me"
 		End if 
-		/*
-		If (Length(String($inFolderId))>0)
-			$URL+="/mailFolders/"+$inFolderId
-		End if 
-		*/
 		$URL+="/messages/"+$inMailId
 		
 		If (This.mailType="Microsoft")
@@ -489,6 +484,8 @@ Function update($inMailId : Text; $inMail : Object) : Object
 			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "update"))
 		End if 
 	End if 
+
+	Super._throwErrors(True)
 	
 	return This._returnStatus()
 	
