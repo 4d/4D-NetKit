@@ -105,7 +105,7 @@ Function _getErrorStack : Collection
 Function _getLastError : Object
 	
 	If (This._getErrorStack().length>0)
-		return This._getErrorStack()[This._getErrorStack().length-1]
+		return This._getErrorStack().last()
 	End if 
 	return Null
 	
