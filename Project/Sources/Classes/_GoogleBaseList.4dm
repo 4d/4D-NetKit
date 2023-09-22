@@ -73,7 +73,7 @@ Function _getList($inPageToken : Text) : Boolean
 		If ($errorStack.length>0)
 			
 			This.errors:=$errorStack
-			This.statusText:=$errorStack[0].message
+			This.statusText:=$errorStack.first().message
 		End if 
 		
 		return False
