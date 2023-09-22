@@ -1,20 +1,20 @@
 //%attributes = {"invisible":true}
 C_TEXT($1; $2; $3; $4; $5; $6)
 
-var $redirectURI : Text
+var $redirectURI; $state : Text
 var $responseFile; $customResponseFile; $customErrorFile : 4D.File
 
 $responseFile:=Folder(fk resources folder).file("Response_Template.html")
 
-If (OB Is defined(Storage; "params"))
-	Use (Storage.params)
-		$redirectURI:=String(Storage.params.redirectURI)
-		If (Length($redirectURI)>0)
-			$redirectURI:=_getPathFromURL($redirectURI)+"@"
-		End if 
-		$customResponseFile:=(Value type(Storage.params.authenticationPage)#Is undefined) ? Storage.params.authenticationPage : Null
-		$customErrorFile:=(Value type(Storage.params.authenticationErrorPage)#Is undefined) ? Storage.params.authenticationErrorPage : Null
-	End use 
+$state:=_getURLParameterValue($1; "state")
+
+If (OB Is defined(Storage.requests; $state))
+	$redirectURI:=String(Storage.requests[$state].redirectURI)
+	If (Length($redirectURI)>0)
+		$redirectURI:=_getPathFromURL($redirectURI)+"@"
+	End if 
+	$customResponseFile:=(Value type(Storage.requests[$state].authenticationPage)#Is undefined) ? Storage.requests[$state].authenticationPage : Null
+	$customErrorFile:=(Value type(Storage.requests[$state].authenticationErrorPage)#Is undefined) ? Storage.requests[$state].authenticationErrorPage : Null
 End if 
 
 If ($1=$redirectURI)
@@ -38,9 +38,11 @@ If ($1=$redirectURI)
 		
 	End if 
 	
-	Use (Storage)
-		Storage.token:=$result
-	End use 
+	If (OB Is defined(Storage.requests; $state))
+		Use (Storage.requests[$state])
+			Storage.requests[$state].token:=$result
+		End use 
+	End if 
 	
 	If (($result=Null) | (OB Is defined($result; "error")))
 		

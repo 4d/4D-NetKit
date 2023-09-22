@@ -1,5 +1,5 @@
 //%attributes = {"invisible":true}
-#DECLARE($headerValue; $paramName : Text)->$paramValue : Text
+#DECLARE($headerValue : Text; $paramName : Text)->$paramValue : Text
 
 var $startPos; $endPos : Integer
 var $pattern : Text
