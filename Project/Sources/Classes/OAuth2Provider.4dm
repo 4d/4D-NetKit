@@ -1,12 +1,12 @@
 Class extends _BaseClass
 
-property name : Text		// Name of OAuth2 provider.
-property permission : Text	// "signedIn" or "service" mode
-property clientId : Text	// The Application ID that the registration portal assigned the app
-property redirectURI : Text	// The redirect_uri of your app, where authentication responses can be sent and received by your app.
+property name : Text  // Name of OAuth2 provider.
+property permission : Text  // "signedIn" or "service" mode
+property clientId : Text  // The Application ID that the registration portal assigned the app
+property redirectURI : Text  // The redirect_uri of your app, where authentication responses can be sent and received by your app.
 property tenant : Text
-property clientSecret : Text// The application secret that you created in the app registration portal for your app. Required for web apps.
-property token : Object		// Any valid existing token
+property clientSecret : Text  // The application secret that you created in the app registration portal for your app. Required for web apps.
+property token : Object  // Any valid existing token
 property tokenExpiration : Text
 property timeout : Integer
 property authenticationPage : 4D.File
@@ -14,8 +14,8 @@ property authenticationErrorPage : 4D.File
 property accessType : Text
 property loginHint : Text
 property prompt : Text
-property clientEmail : Text	// clientMail used by Google services account used
-property privateKey : Text	// privateKey may be used used by Google services account to sign JWT token
+property clientEmail : Text  // clientMail used by Google services account used
+property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 
 property _scope : Text
 property _authenticateURI : Text
@@ -293,35 +293,40 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			End if 
 			
 			Use (Storage)
-				OB REMOVE(Storage; "token")
-				Storage.params:=New shared object("redirectURI"; $redirectURI; \
-					"authenticationPage"; (Value type(This.authenticationPage)#Is undefined) ? This.authenticationPage : Null; \
-					"authenticationErrorPage"; (Value type(This.authenticationErrorPage)#Is undefined) ? This.authenticationErrorPage : Null)
+				If (Storage.requests=Null)
+					Storage.requests:=New shared object()
+				End if 
+				Use (Storage.requests)
+					Storage.requests[$state]:=New shared object("redirectURI"; $redirectURI; \
+						"state"; $state; \
+						"authenticationPage"; (Value type(This.authenticationPage)#Is undefined) ? This.authenticationPage : Null; \
+						"authenticationErrorPage"; (Value type(This.authenticationErrorPage)#Is undefined) ? This.authenticationErrorPage : Null)
+				End use 
 			End use 
 			
 			OPEN URL($url; *)
 			
 			var $endTime : Integer
 			$endTime:=Milliseconds+(This.timeout*1000)
-			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage; "token")) | (Storage.token=Null)))
+			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
 				DELAY PROCESS(Current process; 10)
 			End while 
 			
-			Use (Storage)
-				If (OB Is defined(Storage; "token"))
-					$authorizationCode:=Storage.token.code
-					//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
-					//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
-					//End if
-					
-					If (OB Is defined(Storage.token; "error"))
-						This._throwError(12; \
-							New object("function"; Current method name; \
-							"message"; This._getErrorDescription(Storage.token)))
-					End if 
-					
-					OB REMOVE(Storage; "token")
-					OB REMOVE(Storage; "params")
+			Use (Storage.requests)
+				If (OB Is defined(Storage.requests; $state))
+					Use (Storage.requests[$state])
+						$authorizationCode:=Storage.requests[$state].token.code
+						//If (OB Is defined(Storage.requests[$state].token; "state") & (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
+						//ASSERT(Storage.requests[$state].token.state=$state; "state changed !!! CSRF Attack ?")
+						//End if
+						
+						If (OB Is defined(Storage.requests[$state].token; "error"))
+							This._throwError(12; \
+								New object("function"; Current method name; \
+								"message"; This._getErrorDescription(Storage.requests[$state].token)))
+						End if 
+					End use 
+					OB REMOVE(Storage.requests; $state)
 				End if 
 			End use 
 			

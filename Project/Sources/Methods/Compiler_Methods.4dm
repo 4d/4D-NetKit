@@ -25,8 +25,8 @@ C_OBJECT(_getErrorStack; $0)
 
 // _getHeaderValueParameter
 C_TEXT(_getHeaderValueParameter; $0)
-C_VARIANT(_getHeaderValueParameter; $1)
-C_VARIANT(_getHeaderValueParameter; $2)
+C_TEXT(_getHeaderValueParameter; $1)
+C_TEXT(_getHeaderValueParameter; $2)
 C_TEXT(_getHeaderValueParameter; $3)
 
 // _getJMAPAttribute
@@ -35,7 +35,7 @@ C_TEXT(_getJMAPAttribute; $1)
 
 // _getParameterValue
 C_TEXT(_getParameterValue; $0)
-C_VARIANT(_getParameterValue; $1)
+C_TEXT(_getParameterValue; $1)
 C_TEXT(_getParameterValue; $2)
 
 // _getPathFromURL
@@ -73,3 +73,8 @@ C_TEXT(_urlDecode; $1)
 // _urlEncode
 C_TEXT(_urlEncode; $0)
 C_TEXT(_urlEncode; $1)
+
+// _getURLParameterValue
+C_TEXT(_getURLParameterValue; $0)
+C_TEXT(_getURLParameterValue; $1)
+C_TEXT(_getURLParameterValue; $2)

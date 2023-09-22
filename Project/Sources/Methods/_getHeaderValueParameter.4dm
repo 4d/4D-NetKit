@@ -1,5 +1,5 @@
 //%attributes = {"invisible":true}
-#DECLARE($headerValue; $paramName; $defaultValue : Text)->$paramValue : Text
+#DECLARE($headerValue : Text; $paramName : Text; $defaultValue : Text)->$paramValue : Text
 
 $paramValue:=_getParameterValue($headerValue; $paramName)
 If (Length($paramValue)=0)
