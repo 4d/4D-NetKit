@@ -20,11 +20,11 @@ Function get attachments() : Collection
 	
 	If (This._internals._attachments=Null)
 /*
-Try to retrieve attachments even if .hasAttachments is False
-See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0
+	Try to retrieve attachments even if .hasAttachments is False
+	See: https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0
 		
-".hasAttachments: This property doesn't include inline attachments, so if a message contains 
- only inline attachments, this property is false."
+	".hasAttachments: This property doesn't include inline attachments, so if a message contains 
+	 only inline attachments, this property is false."
 */
 		var $urlParams; $URL : Text
 		

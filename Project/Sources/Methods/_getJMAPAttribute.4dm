@@ -34,11 +34,6 @@ Case of
 		return "inReplyTo"
 	: ($inKey="Keywords")
 		return "keywords"
-		
-/*
-blobId
-hasAttachment
-*/
 End case 
 
 return ""
