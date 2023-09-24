@@ -3,19 +3,19 @@
 
 var $posQuery : Integer
 
-$posQuery:=Position:C15("?"; $URL)
+$posQuery:=Position("?"; $URL)
 If ($posQuery>0)
 	
 	var $queryString : Text
 	var $parameter : Text
 	var $parameters; $values : Collection
 	
-	$queryString:=Substring:C12($URL; $posQuery+1)
-	$parameters:=Split string:C1554($queryString; "&"; sk ignore empty strings:K86:1)
+	$queryString:=Substring($URL; $posQuery+1)
+	$parameters:=Split string($queryString; "&"; sk ignore empty strings)
 	
 	For each ($parameter; $parameters)
 		
-		$values:=Split string:C1554($parameter; "=")
+		$values:=Split string($parameter; "=")
 		
 		If ($values.length=2)
 			If ($values[0]=$paramName)

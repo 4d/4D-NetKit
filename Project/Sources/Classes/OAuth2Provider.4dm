@@ -32,13 +32,13 @@ Class constructor($inParams : Object)
 	If (This._checkPrerequisites($inParams))
 		
 /*
-Name of OAuth2 provider.
+	Name of OAuth2 provider.
 */
 		This.name:=String($inParams.name)
 		
 /*
-"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
-"service": Call Provider with their own identity.
+	"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
+	"service": Call Provider with their own identity.
 */
 		If ((String($inParams.permission)="signedIn") || \
 			(String($inParams.permission)="service"))
@@ -46,17 +46,17 @@ Name of OAuth2 provider.
 		End if 
 		
 /*
-The Application ID that the registration portal assigned the app
+	The Application ID that the registration portal assigned the app
 */
 		This.clientId:=String($inParams.clientId)
 		
 /*
-The redirect_uri of your app, where authentication responses can be sent and received by your app.
+	The redirect_uri of your app, where authentication responses can be sent and received by your app.
 */
 		This.redirectURI:=String($inParams.redirectURI)
 		
 /*
-A space-separated list of the permissions that you want the user to consent to.
+	A space-separated list of the permissions that you want the user to consent to.
 */
 		If (Value type($inParams.scope)=Is collection)
 			This._scope:=$inParams.scope.join(" ")
@@ -67,30 +67,30 @@ A space-separated list of the permissions that you want the user to consent to.
 		End if 
 		
 /*
-The {tenant} value in the path of the request can be used to control who can sign into the application.
-The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
-for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
-the tenant ID or domain name. By default "common"
+	The {tenant} value in the path of the request can be used to control who can sign into the application.
+	The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
+	for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
+	the tenant ID or domain name. By default "common"
 */
 		This.tenant:=Choose(Value type($inParams.tenant)=Is undefined; "common"; String($inParams.tenant))
 		
 /*
-Uri used to do the Authorization request.
+	Uri used to do the Authorization request.
 */
 		This._authenticateURI:=String($inParams.authenticateURI)
 		
 /*
-Uri used to request an access token.
+	Uri used to request an access token.
 */
 		This._tokenURI:=String($inParams.tokenURI)
 		
 /*
-The application secret that you created in the app registration portal for your app. Required for web apps.
+	The application secret that you created in the app registration portal for your app. Required for web apps.
 */
 		This.clientSecret:=String($inParams.clientSecret)
 		
 /*
-Any valid existing token
+	Any valid existing token
 */
 		This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
 		
@@ -103,29 +103,29 @@ Any valid existing token
 		This.timeout:=Choose(Value type($inParams.timeout)=Is undefined; 120; Num($inParams.timeout))
 		
 /*
-Path of the web page to display in the webbrowser when the authentication code
-is received correctly in signed in mode
-If not present the default page is used
+	Path of the web page to display in the webbrowser when the authentication code
+	is received correctly in signed in mode
+	If not present the default page is used
 */
 		This.authenticationPage:=_retainFileObject($inParams.authenticationPage)
 		
 /*
-Path of the web page to display in the webbrowser when the authentication server
-returns an error in signed in mode
-If not present the default page is used
+	Path of the web page to display in the webbrowser when the authentication server
+	returns an error in signed in mode
+	If not present the default page is used
 */
 		This.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
 		
 /*
-Indicates whether your application can refresh access tokens when the user is not
-present at the browser. Valid parameter values are online, which is the default
-value, and offline.
-Set the value to offline if your application needs to refresh access tokens when
-the user is not present at the browser. This is the method of refreshing access
-tokens described later in this document.
-This value instructs the Google authorization server to return a refresh token and
-an access token the first time that your application exchanges an authorization code
-for tokens.
+	Indicates whether your application can refresh access tokens when the user is not
+	present at the browser. Valid parameter values are online, which is the default
+	value, and offline.
+	Set the value to offline if your application needs to refresh access tokens when
+	the user is not present at the browser. This is the method of refreshing access
+	tokens described later in this document.
+	This value instructs the Google authorization server to return a refresh token and
+	an access token the first time that your application exchanges an authorization code
+	for tokens.
 */
 		If ((String($inParams.accessType)="online") || \
 			(String($inParams.accessType)="offline"))
@@ -135,25 +135,25 @@ for tokens.
 		End if 
 		
 /*
-If your application knows which user is trying to authenticate,
-it can use this parameter to provide a hint to the Google Authentication Server.
-The server uses the hint to simplify the login flow either by prefilling the email
-field in the sign-in form or by selecting the appropriate multi-login session.
+	If your application knows which user is trying to authenticate,
+	it can use this parameter to provide a hint to the Google Authentication Server.
+	The server uses the hint to simplify the login flow either by prefilling the email
+	field in the sign-in form or by selecting the appropriate multi-login session.
 		
-Set the parameter value to an email address or sub identifier, which is equivalent
-to the user's Google ID.
+	Set the parameter value to an email address or sub identifier, which is equivalent
+	to the user's Google ID.
 */
 		This.loginHint:=String($inParams.loginHint)
 		
 /*
-A space-delimited, case-sensitive list of prompts to present the user.
-If you don't specify this parameter, the user will be prompted only the
-first time your project requests access. See Prompting re-consent for more information.
-Possible values are:
-none: Do not display any authentication or consent screens.
-Must not be specified with other values.
-consent: Prompt the user for consent.
-select_account: Prompt the user to select an account.
+	A space-delimited, case-sensitive list of prompts to present the user.
+	If you don't specify this parameter, the user will be prompted only the
+	first time your project requests access. See Prompting re-consent for more information.
+	Possible values are:
+	none: Do not display any authentication or consent screens.
+	Must not be specified with other values.
+	consent: Prompt the user for consent.
+	select_account: Prompt the user to select an account.
 */
 		If ((String($inParams.prompt)="none") || \
 			(String($inParams.prompt)="consent") || \
@@ -162,24 +162,24 @@ select_account: Prompt the user to select an account.
 		End if 
 		
 /*
-clientMail used by Google services account used
+	clientMail used by Google services account used
 */
 		This.clientEmail:=String($inParams.clientEmail)
 		
 /*
-privateKey may be used used by Google services account to sign JWT token
+	privateKey may be used used by Google services account to sign JWT token
 */
 		This.privateKey:=String($inParams.privateKey)
 		
 /*
-_grantType used in Service mode to determine if we use a JWT or client_credentials
-If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
-or "client_credentials" for other provider.
+	_grantType used in Service mode to determine if we use a JWT or client_credentials
+	If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
+	or "client_credentials" for other provider.
 */
 		This._grantType:=String($inParams.grantType)
 		
 /*
-Enable HTTP Server debug log for Debug purposes only
+	Enable HTTP Server debug log for Debug purposes only
 */
 		If (Bool($inParams.enableDebugLog))
 			This.enableDebugLog:=True
@@ -601,8 +601,8 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	
 Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
-Unix_Time stolen from ThomasMaul/JWT_Token_Example
-https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+	Unix_Time stolen from ThomasMaul/JWT_Token_Example
+	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
 */
 	
 	var $start; $date : Date
