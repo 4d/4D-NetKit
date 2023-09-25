@@ -59,7 +59,7 @@ Function _getList($inURL : Text) : Boolean
 		$errorStack:=Super._getErrorStack()
 		If ($errorStack.length>0)
 			This.errors:=$errorStack
-			This.statusText:=$errorStack[0].message
+			This.statusText:=$errorStack.first().message
 		End if 
 		return False
 	End if 

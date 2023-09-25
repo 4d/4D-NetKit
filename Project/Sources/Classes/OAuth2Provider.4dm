@@ -1,12 +1,12 @@
 Class extends _BaseClass
 
-property name : Text		// Name of OAuth2 provider.
-property permission : Text	// "signedIn" or "service" mode
-property clientId : Text	// The Application ID that the registration portal assigned the app
-property redirectURI : Text	// The redirect_uri of your app, where authentication responses can be sent and received by your app.
+property name : Text  // Name of OAuth2 provider.
+property permission : Text  // "signedIn" or "service" mode
+property clientId : Text  // The Application ID that the registration portal assigned the app
+property redirectURI : Text  // The redirect_uri of your app, where authentication responses can be sent and received by your app.
 property tenant : Text
-property clientSecret : Text// The application secret that you created in the app registration portal for your app. Required for web apps.
-property token : Object		// Any valid existing token
+property clientSecret : Text  // The application secret that you created in the app registration portal for your app. Required for web apps.
+property token : Object  // Any valid existing token
 property tokenExpiration : Text
 property timeout : Integer
 property authenticationPage : 4D.File
@@ -14,8 +14,8 @@ property authenticationErrorPage : 4D.File
 property accessType : Text
 property loginHint : Text
 property prompt : Text
-property clientEmail : Text	// clientMail used by Google services account used
-property privateKey : Text	// privateKey may be used used by Google services account to sign JWT token
+property clientEmail : Text  // clientMail used by Google services account used
+property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 
 property _scope : Text
 property _authenticateURI : Text
@@ -32,13 +32,13 @@ Class constructor($inParams : Object)
 	If (This._checkPrerequisites($inParams))
 		
 /*
-Name of OAuth2 provider.
+	Name of OAuth2 provider.
 */
 		This.name:=String($inParams.name)
 		
 /*
-"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
-"service": Call Provider with their own identity.
+	"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
+	"service": Call Provider with their own identity.
 */
 		If ((String($inParams.permission)="signedIn") || \
 			(String($inParams.permission)="service"))
@@ -46,17 +46,17 @@ Name of OAuth2 provider.
 		End if 
 		
 /*
-The Application ID that the registration portal assigned the app
+	The Application ID that the registration portal assigned the app
 */
 		This.clientId:=String($inParams.clientId)
 		
 /*
-The redirect_uri of your app, where authentication responses can be sent and received by your app.
+	The redirect_uri of your app, where authentication responses can be sent and received by your app.
 */
 		This.redirectURI:=String($inParams.redirectURI)
 		
 /*
-A space-separated list of the permissions that you want the user to consent to.
+	A space-separated list of the permissions that you want the user to consent to.
 */
 		If (Value type($inParams.scope)=Is collection)
 			This._scope:=$inParams.scope.join(" ")
@@ -67,30 +67,30 @@ A space-separated list of the permissions that you want the user to consent to.
 		End if 
 		
 /*
-The {tenant} value in the path of the request can be used to control who can sign into the application.
-The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
-for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
-the tenant ID or domain name. By default "common"
+	The {tenant} value in the path of the request can be used to control who can sign into the application.
+	The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
+	for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
+	the tenant ID or domain name. By default "common"
 */
 		This.tenant:=Choose(Value type($inParams.tenant)=Is undefined; "common"; String($inParams.tenant))
 		
 /*
-Uri used to do the Authorization request.
+	Uri used to do the Authorization request.
 */
 		This._authenticateURI:=String($inParams.authenticateURI)
 		
 /*
-Uri used to request an access token.
+	Uri used to request an access token.
 */
 		This._tokenURI:=String($inParams.tokenURI)
 		
 /*
-The application secret that you created in the app registration portal for your app. Required for web apps.
+	The application secret that you created in the app registration portal for your app. Required for web apps.
 */
 		This.clientSecret:=String($inParams.clientSecret)
 		
 /*
-Any valid existing token
+	Any valid existing token
 */
 		This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
 		
@@ -103,29 +103,29 @@ Any valid existing token
 		This.timeout:=Choose(Value type($inParams.timeout)=Is undefined; 120; Num($inParams.timeout))
 		
 /*
-Path of the web page to display in the webbrowser when the authentication code
-is received correctly in signed in mode
-If not present the default page is used
+	Path of the web page to display in the webbrowser when the authentication code
+	is received correctly in signed in mode
+	If not present the default page is used
 */
 		This.authenticationPage:=_retainFileObject($inParams.authenticationPage)
 		
 /*
-Path of the web page to display in the webbrowser when the authentication server
-returns an error in signed in mode
-If not present the default page is used
+	Path of the web page to display in the webbrowser when the authentication server
+	returns an error in signed in mode
+	If not present the default page is used
 */
 		This.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
 		
 /*
-Indicates whether your application can refresh access tokens when the user is not
-present at the browser. Valid parameter values are online, which is the default
-value, and offline.
-Set the value to offline if your application needs to refresh access tokens when
-the user is not present at the browser. This is the method of refreshing access
-tokens described later in this document.
-This value instructs the Google authorization server to return a refresh token and
-an access token the first time that your application exchanges an authorization code
-for tokens.
+	Indicates whether your application can refresh access tokens when the user is not
+	present at the browser. Valid parameter values are online, which is the default
+	value, and offline.
+	Set the value to offline if your application needs to refresh access tokens when
+	the user is not present at the browser. This is the method of refreshing access
+	tokens described later in this document.
+	This value instructs the Google authorization server to return a refresh token and
+	an access token the first time that your application exchanges an authorization code
+	for tokens.
 */
 		If ((String($inParams.accessType)="online") || \
 			(String($inParams.accessType)="offline"))
@@ -135,25 +135,25 @@ for tokens.
 		End if 
 		
 /*
-If your application knows which user is trying to authenticate,
-it can use this parameter to provide a hint to the Google Authentication Server.
-The server uses the hint to simplify the login flow either by prefilling the email
-field in the sign-in form or by selecting the appropriate multi-login session.
+	If your application knows which user is trying to authenticate,
+	it can use this parameter to provide a hint to the Google Authentication Server.
+	The server uses the hint to simplify the login flow either by prefilling the email
+	field in the sign-in form or by selecting the appropriate multi-login session.
 		
-Set the parameter value to an email address or sub identifier, which is equivalent
-to the user's Google ID.
+	Set the parameter value to an email address or sub identifier, which is equivalent
+	to the user's Google ID.
 */
 		This.loginHint:=String($inParams.loginHint)
 		
 /*
-A space-delimited, case-sensitive list of prompts to present the user.
-If you don't specify this parameter, the user will be prompted only the
-first time your project requests access. See Prompting re-consent for more information.
-Possible values are:
-none: Do not display any authentication or consent screens.
-Must not be specified with other values.
-consent: Prompt the user for consent.
-select_account: Prompt the user to select an account.
+	A space-delimited, case-sensitive list of prompts to present the user.
+	If you don't specify this parameter, the user will be prompted only the
+	first time your project requests access. See Prompting re-consent for more information.
+	Possible values are:
+	none: Do not display any authentication or consent screens.
+	Must not be specified with other values.
+	consent: Prompt the user for consent.
+	select_account: Prompt the user to select an account.
 */
 		If ((String($inParams.prompt)="none") || \
 			(String($inParams.prompt)="consent") || \
@@ -162,24 +162,24 @@ select_account: Prompt the user to select an account.
 		End if 
 		
 /*
-clientMail used by Google services account used
+	clientMail used by Google services account used
 */
 		This.clientEmail:=String($inParams.clientEmail)
 		
 /*
-privateKey may be used used by Google services account to sign JWT token
+	privateKey may be used used by Google services account to sign JWT token
 */
 		This.privateKey:=String($inParams.privateKey)
 		
 /*
-_grantType used in Service mode to determine if we use a JWT or client_credentials
-If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
-or "client_credentials" for other provider.
+	_grantType used in Service mode to determine if we use a JWT or client_credentials
+	If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
+	or "client_credentials" for other provider.
 */
 		This._grantType:=String($inParams.grantType)
 		
 /*
-Enable HTTP Server debug log for Debug purposes only
+	Enable HTTP Server debug log for Debug purposes only
 */
 		If (Bool($inParams.enableDebugLog))
 			This.enableDebugLog:=True
@@ -293,35 +293,40 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			End if 
 			
 			Use (Storage)
-				OB REMOVE(Storage; "token")
-				Storage.params:=New shared object("redirectURI"; $redirectURI; \
-					"authenticationPage"; (Value type(This.authenticationPage)#Is undefined) ? This.authenticationPage : Null; \
-					"authenticationErrorPage"; (Value type(This.authenticationErrorPage)#Is undefined) ? This.authenticationErrorPage : Null)
+				If (Storage.requests=Null)
+					Storage.requests:=New shared object()
+				End if 
+				Use (Storage.requests)
+					Storage.requests[$state]:=New shared object("redirectURI"; $redirectURI; \
+						"state"; $state; \
+						"authenticationPage"; (Value type(This.authenticationPage)#Is undefined) ? This.authenticationPage : Null; \
+						"authenticationErrorPage"; (Value type(This.authenticationErrorPage)#Is undefined) ? This.authenticationErrorPage : Null)
+				End use 
 			End use 
 			
 			OPEN URL($url; *)
 			
 			var $endTime : Integer
 			$endTime:=Milliseconds+(This.timeout*1000)
-			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage; "token")) | (Storage.token=Null)))
+			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
 				DELAY PROCESS(Current process; 10)
 			End while 
 			
-			Use (Storage)
-				If (OB Is defined(Storage; "token"))
-					$authorizationCode:=Storage.token.code
-					//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
-					//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
-					//End if
-					
-					If (OB Is defined(Storage.token; "error"))
-						This._throwError(12; \
-							New object("function"; Current method name; \
-							"message"; This._getErrorDescription(Storage.token)))
-					End if 
-					
-					OB REMOVE(Storage; "token")
-					OB REMOVE(Storage; "params")
+			Use (Storage.requests)
+				If (OB Is defined(Storage.requests; $state))
+					Use (Storage.requests[$state])
+						$authorizationCode:=Storage.requests[$state].token.code
+						//If (OB Is defined(Storage.requests[$state].token; "state") & (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
+						//ASSERT(Storage.requests[$state].token.state=$state; "state changed !!! CSRF Attack ?")
+						//End if
+						
+						If (OB Is defined(Storage.requests[$state].token; "error"))
+							This._throwError(12; \
+								New object("function"; Current method name; \
+								"message"; This._getErrorDescription(Storage.requests[$state].token)))
+						End if 
+					End use 
+					OB REMOVE(Storage.requests; $state)
 				End if 
 			End use 
 			
@@ -537,11 +542,11 @@ Function _sendTokenRequest($params : Text)->$result : Object
 					$result._loadFromURLEncodedResponse($response)
 					
 				Else 
-/*
-We have a status 200 (no error) and a response that we don't know/want to interpret.
-Simply return a null result (to be consistent with the specifications) and
-copy the raw response body in a private member of the class
-*/
+					/*
+						We have a status 200 (no error) and a response that we don't know/want to interpret.
+						Simply return a null result (to be consistent with the specifications) and
+						copy the raw response body in a private member of the class
+					*/
 					var $blob : Blob
 					CONVERT FROM TEXT($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
 					This._internals._rawBody:=4D.Blob.new($blob)
@@ -596,8 +601,8 @@ copy the raw response body in a private member of the class
 	
 Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
-Unix_Time stolen from ThomasMaul/JWT_Token_Example
-https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+	Unix_Time stolen from ThomasMaul/JWT_Token_Example
+	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
 */
 	
 	var $start; $date : Date
