@@ -26,15 +26,24 @@
 	- [Office365.mail.send()](#office365mailsend)
 	- [Well-known folder names](well-known-folder-names)
 	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
-	- [Status object](#status-object)
+	- [Status object (Office365 Class)](#status-object)
 	- [Office365.user.get()](#office365userget)
 	- [Office365.user.getCurrent()](#office365usergetcurrent)
 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
-	- [cs.NetKit.Google.new](#csnetkitgooglenew)
+	- [cs.NetKit.Google.new()](#csnetkitgooglenew)
+	- [Google.mail.delete()](#googlemaildelete)
+	- [Google.mail.getLabelList()](#googlemailgetlabellist)
+	- [Google.mail.getMail()](#googlemailgetmail)
+ 	- [Google.mail.getMailIds()](#googlemailgetmailids)
  	- [Google.mail.send()](#googlemailsend)
+ 	- [Google.mail.untrash()](#googlemailuntrash)
+ 	- [Status object (Google Class)](#status-object-google-class)
+
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
+* [Copyrights](#copyrights)
+
 
 **Warning:** Shared objects are not supported by the 4D NetKit API.
 
@@ -904,6 +913,8 @@ In general, the timeZone property can be set to any of the time zones currently 
 * [Default time zones](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones?view=windows-11)
 * [Additional time zones](https://docs.microsoft.com/en-us/graph/api/resources/datetimetimezone?view=graph-rest-1.0#additional-time-zones)
 
+
+
 #### Example: Create an email with a file attachment and send it
 
 Send an email with an attachment, on behalf of a Microsoft 365 user:
@@ -1099,7 +1110,6 @@ By default, each user object in the collection has the [default set of propertie
 | next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
-
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
 | users | Collection | Collection of objects with information on users.| 
 
@@ -1198,6 +1208,163 @@ $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
 
+### Google.mail.delete()
+
+**Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Text|->|ID of the mail to delete |
+|permanently|Boolean|->|if permanently is true, deletes a message. Otherwise, moves the specified message to the trash |
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+
+#### Description
+
+`Google.mail.delete()` deletes the specified message from the user's mailbox. 
+
+#### Returned object 
+
+The method returns a standard [**status object**](#status-object-google-class). 
+
+#### Permissions
+
+This method requires one of the following OAuth scopes:
+
+```
+https://mail.google.com/
+https://www.googleapis.com/auth/gmail.modify
+```
+
+
+### Google.mail.getLabelList()
+
+**Google.mail.getLabelList**() : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|Result|Object|<-| Status object |
+
+#### Description
+
+`Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox. 
+
+
+#### Returned object 
+
+The method returns a [**status object**](status-object-google-class) with an additional "labels" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|labels|Collection|Collection of [`mailLabel` objects](#maillabel-objects)|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+
+#### mailLabel object
+
+A `mailLabel` object contains the following properties (note that additional information can be returned by the server):
+
+|Property|Type|Description|
+|---------|--- |------|
+|name|Text|Display name of the label.|
+|id|Text|Immutable ID of the label.|
+|messageListVisibility|Text|Visibility of messages with this label in the message list in the Gmail web interface. Can be "show" or "hide"|
+|labelListVisibility|Text|Visibility of the label in the label list in the Gmail web interface. Can be:<ul><li>"labelShow": Show the label in the label list.</li><li>"labelShowIfUnread": Show the label if there are any unread messages with that label</li><li>"labelHide": Do not show the label in the label list.</li></ul>|
+|type|Text| Owner type for the label:<ul><li>"user": User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread.</li><li>"system": System labels are internally created and cannot be added, modified, or deleted. System labels may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads.</li></ul>|
+
+
+### Google.mail.getMail()
+
+**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Object<br/>**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Blob<br/>
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Text|->|ID of the message to retrieve |
+|options|Object|->|Options |
+|Result|Object &#124; Blob|<-| Downloaded mail|
+
+
+#### Description
+
+`Google.mail.getMail()` gets the specified message from the user's mailbox. 
+
+In *options*, you can pass several properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|format|Text| The format to return the message in. Can be: <ul><li>"minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. </li><li>"raw": Returns the full email message (default)</li><li>"metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.</li></ul>|
+|headers|Collection|Collection of strings containing the email headers to be returned. When given and format is "metadata", only include headers specified.|
+|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
+
+
+
+#### Returned object 
+
+The method returns a mail in one of the following formats, depending on the `mailType`:
+
+|Format|Type|Comment|
+|---|---|---|
+|MIME|Blob||
+|JMAP|Object|Contains an `id` attribute|
+
+
+
+### Google.mail.getMailIds()
+
+**Google.mail.getMailIds**( { *options* : Object } ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|options|Object|->|Options for messages to get |
+|Result|Object|<-| Status object |
+
+#### Description
+
+`Google.mail.getMailIds()` returns an object containing a collection of message ids in the user's mailbox. 
+
+In *options*, you can pass several properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|top|Integer|Maximum number of messages to return (default is 100). The maximum allowed value for this field is 500.|
+|search|Text| Only return messages matching the specified query. Supports the same query format as the Gmail search box. For example, "from:someuser@example.com rfc822msgid:somemsgid@example.com is:unread". See	also [https://support.google.com/mail/answer/7190](https://support.google.com/mail/answer/7190).|
+|labelIds|Collection| Only return messages with labels that match all of the specified label IDs. Messages in a thread might have labels that other messages in the same thread don't have. To learn more, see [Manage labels on messages and threads](https://developers.google.com/gmail/api/guides/labels) in Google documentation.	|
+|includeSpamTrash|Boolean|Include messages from SPAM and TRASH in the results. False by default.	|
+
+
+
+#### Returned object 
+
+The method returns a [**status object**](status-object-google-class) with additional properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|isLastPage|Boolean|True if the last page is reached|
+|page|Integer|Mail information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` *option*.|
+|next()|`4D.Function` object|Function that updates the mail collection with the next mail information page and increases the `page` property by 1. Returns a boolean value:<ul><li>If a next page is successfully loaded, returns True</li><li>If no next page is returned, the mail collection is not updated and False is returned.</li></ul>|
+|previous()|`4D.Function` object|Function that updates the mail collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value:<ul><li>If a previous page is successfully loaded, returns True</li><li>If no previous page is returned, the mail collection is not updated and False is returned.</li></ul>|
+|mailIds|Collection| Collection of objects, where each object contains:<ul><li>*id* : Text : The id of the email</li><li>*threadId* : Text : The id of the thread to which this Email belongs</li></ul>If no mail is returned, the collection is empty.|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+
+#### Permissions
+
+This method requires one of the following OAuth scopes:
+
+```
+https://www.googleapis.com/auth/gmail.modify
+https://www.googleapis.com/auth/gmail.readonly
+https://www.googleapis.com/auth/gmail.metadata
+```
+
 ### Google.mail.send()
 
 **Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
@@ -1206,7 +1373,7 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
-|Result|Object|<-| [Status object](#status-object-1) |
+|Result|Object|<-| [Status object](#status-object-google-class) |
 
 #### Description
 
@@ -1220,7 +1387,7 @@ In `email`, pass the email to be sent. Possible types:
 The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
 
 ```4d 
-$Google:=cs.NetKit.Google.new($token; New object("mailType"; "JMAP"))
+$Google:=cs.NetKit.Google.new($token;{mailType:"JMAP"})
 $status:=$Google.mail.send($email)
 ```
 
@@ -1228,15 +1395,50 @@ $status:=$Google.mail.send($email)
 
 #### Returned object 
 
-The method returns a **status object** with the following properties:
+The method returns a standard [**status object**](#status-object-google-class). 
+
+### Google.mail.untrash()
+
+**Google.mail.untrash**( *mailID* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Text|->|The ID of the message to remove from Trash |
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+
+#### Description
+
+`Google.mail.untrash()` removes the specified message from the trash.
+
+#### Returned object 
+
+The method returns a standard [**status object**](#status-object-google-class). 
+
+#### Permissions
+
+This method requires one of the following OAuth scopes:
+
+```
+https://mail.google.com/
+https://www.googleapis.com/auth/gmail.modify
+```
+
+
+### Status object (Google class)
+
+Several Google.mail functions return a `status object`, containing the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
 |success|Boolean| True if the operation was successful|
-|statusText|Text| Status message returned by the Gmail server, or last error returned by the 4D error stack|
-|errors|Collection| Collection of 4D errors. Not returned if the Gmail server returns a `statusText`|
+|statusText|Text| Status message returned by the Gmail server or last error returned by the 4D error stack|
+|errors |  Collection | Collection of 4D error items (not returned if a Gmail server response is received): <ul><li>[].errcode is the 4D error code number</li><li>[].message is a description of the 4D error</li><li>[].componentSignature is the signature of the internal component that returned the error</li></ul>|
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
+
+Some functions adds specific properties to the **status object**, properties are described with the functions. 
 
 
 ## Tutorials
@@ -1340,6 +1542,7 @@ $email.textBody:="Test mail \r\n This is just a test e-mail \r\n Please ignore i
 // Configure the SMTP connection
 $parameters:=New object
 $parameters.accessTokenOAuth2:=$token
+
 $parameters.authenticationMode:=SMTP authentication OAUTH2
 $parameters.host:="smtp.office365.com"
 $parameters.user:=$address
@@ -1354,3 +1557,10 @@ $statusSend:=$smtp.send($email)
 2. Execute the method. Your browser opens a page that allows you to authenticate.
 
 3. Log in to your Microsoft Outlook account and check that you've received the email.
+
+
+## Copyrights
+
+(c) Microsoft, Microsoft Office, Microsoft 365, Microsoft Graph are trademarks of the Microsoft group of companies.
+
+(c) Google, Gmail are trademarks of the Alphabet, Inc. 
