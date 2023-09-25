@@ -1387,7 +1387,7 @@ In `email`, pass the email to be sent. Possible types:
 The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
 
 ```4d 
-$Google:=cs.NetKit.Google.new($token;{mailType:JMAP"})
+$Google:=cs.NetKit.Google.new($token;{mailType:"JMAP"})
 $status:=$Google.mail.send($email)
 ```
 
