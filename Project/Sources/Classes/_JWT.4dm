@@ -1,6 +1,6 @@
 /*
-Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
-See: https://kb.4d.com/assetid=79100
+	Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
+	See: https://kb.4d.com/assetid=79100
 */
 
 property header : Object

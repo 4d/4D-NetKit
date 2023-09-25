@@ -210,7 +210,7 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	If ($errorStack.length>0)
 		$status.success:=False
 		$status.errors:=$errorStack
-		$status.statusText:=$errorStack[0].message
+		$status.statusText:=$errorStack.first().message
 	Else 
 		$status.success:=True
 		$status.statusText:=This._getStatusLine()
