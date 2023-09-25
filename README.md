@@ -32,12 +32,12 @@
 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
 	- [cs.NetKit.Google.new()](#csnetkitgooglenew)
+	- [Google.mail.delete()](#googlemaildelete)
 	- [Google.mail.getLabelList()](#googlemailgetlabellist)
 	- [Google.mail.getMail()](#googlemailgetmail)
  	- [Google.mail.getMailIds()](#googlemailgetmailids)
- 	- [Google.mail.delete()](#googlemaildelete)
- 	- [Google.mail.untrash()](#googlemailuntrash)
  	- [Google.mail.send()](#googlemailsend)
+ 	- [Google.mail.untrash()](#googlemailuntrash)
  	- [Status object (Google Class)](#status-object-google-class)
 
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
@@ -1110,7 +1110,6 @@ By default, each user object in the collection has the [default set of propertie
 | next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
-
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
 | users | Collection | Collection of objects with information on users.| 
 
@@ -1208,6 +1207,36 @@ var $google : cs.NetKit.Google
 $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
+
+### Google.mail.delete()
+
+**Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Text|->|ID of the mail to delete |
+|permanently|Boolean|->|if permanently is true, deletes a message. Otherwise, moves the specified message to the trash |
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+
+#### Description
+
+`Google.mail.delete()` deletes the specified message from the user's mailbox. 
+
+#### Returned object 
+
+The method returns a standard [**status object**](#status-object-google-class). 
+
+#### Permissions
+
+This method requires one of the following OAuth scopes:
+
+```
+https://mail.google.com/
+https://www.googleapis.com/auth/gmail.modify
+```
+
 
 ### Google.mail.getLabelList()
 
@@ -1336,35 +1365,37 @@ https://www.googleapis.com/auth/gmail.readonly
 https://www.googleapis.com/auth/gmail.metadata
 ```
 
-### Google.mail.delete()
+### Google.mail.send()
 
-**Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
+**Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
 
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|mailID|Text|->|ID of the mail to delete |
-|permanently|Boolean|->|if permanently is true, deletes a message. Otherwise, moves the specified message to the trash |
-|Result|Object|<-|[Status object](#status-object-google-class)|
-
+|email|Text &#124; Blob &#124; Object|->| Email to be sent|
+|Result|Object|<-| [Status object](#status-object-google-class) |
 
 #### Description
 
-`Google.mail.delete()` deletes the specified message from the user's mailbox. 
+`Google.mail.send()` sends an email using the MIME or JMAP formats.
+
+In `email`, pass the email to be sent. Possible types:
+
+* Text or Blob: the email is sent using the MIME format
+* Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
+
+The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
+
+```4d 
+$Google:=cs.NetKit.Google.new($token;{mailType:JMAP"})
+$status:=$Google.mail.send($email)
+```
+
+> To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
 
 #### Returned object 
 
 The method returns a standard [**status object**](#status-object-google-class). 
-
-#### Permissions
-
-This method requires one of the following OAuth scopes:
-
-```
-https://mail.google.com/
-https://www.googleapis.com/auth/gmail.modify
-```
-
 
 ### Google.mail.untrash()
 
@@ -1394,38 +1425,6 @@ https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
 
-
-### Google.mail.send()
-
-**Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
-
-#### Parameters 
-|Parameter|Type||Description|
-|---------|--- |:---:|------|
-|email|Text &#124; Blob &#124; Object|->| Email to be sent|
-|Result|Object|<-| [Status object](#status-object-google-class) |
-
-#### Description
-
-`Google.mail.send()` sends an email using the MIME or JMAP formats.
-
-In `email`, pass the email to be sent. Possible types:
-
-* Text or Blob: the email is sent using the MIME format
-* Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
-
-The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
-
-```4d 
-$Google:=cs.NetKit.Google.new($token; New object("mailType"; "JMAP"))
-$status:=$Google.mail.send($email)
-```
-
-> To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
-
-#### Returned object 
-
-The method returns a standard [**status object**](#status-object-google-class). 
 
 ### Status object (Google class)
 
