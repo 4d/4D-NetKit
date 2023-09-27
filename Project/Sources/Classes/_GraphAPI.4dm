@@ -41,9 +41,9 @@ Function _copyGraphMessage($inMessage : Object) : Object
 		var $iter; $attachment : Object
 		
 		$message:=OB Copy($inMessage)
-		$result:=New object
+		$result:={}
 		If (OB Is defined($message; "attachments") && ($message.attachments#Null))
-			$result.attachments:=New collection
+			$result.attachments:=[]
 		End if 
 		$keys:=OB Keys($message)
 		For each ($key; $keys)

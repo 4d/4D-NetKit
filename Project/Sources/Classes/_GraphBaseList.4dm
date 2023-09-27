@@ -11,7 +11,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	Super($inProvider)
 	
 	This._internals._headers:=$inHeaders
-	This._internals._history:=New collection
+	This._internals._history:=[]
 	This._internals._history.push($inURL)
 	This._internals._list:=Null
 	This.page:=1
@@ -33,7 +33,7 @@ Function _getList($inURL : Text) : Boolean
 	This.statusText:=Super._getStatusLine()
 	This.success:=False
 	This._internals._nextLink:=""
-	This._internals._list:=New collection
+	This._internals._list:=[]
 	
 	If ($response#Null)
 		var $result : Collection

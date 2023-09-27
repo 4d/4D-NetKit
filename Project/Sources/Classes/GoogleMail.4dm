@@ -22,7 +22,7 @@ $inHeader : Object) : Object
 	If ($inMail#Null)
 		var $headers; $message; $messageCopy; $response : Object
 		
-		$headers:=New object
+		$headers:={}
 		$headers["Content-Type"]:="message/rfc822"
 		If (($inHeader#Null) && (Value type($inHeader)=Is object))
 			var $keys : Collection
@@ -39,7 +39,7 @@ $inHeader : Object) : Object
 		Super._pushError(1)
 	End if 
 	
-	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -50,7 +50,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	var $headers; $response : Object
 	var $requestBody : Text
 	
-	$headers:=New object
+	$headers:={}
 	$headers["Content-Type"]:="application/json"
 	
 	Case of 
@@ -65,7 +65,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE($requestBody)
 	
-	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object("raw"; $requestBody))
+	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
 	This._internals._response:=OB Copy($response)
 	
 	return This._returnStatus()
@@ -93,7 +93,7 @@ $inHeader : Object) : Object
 			$status:=This._postMailMIMEMessage($inURL; $inMail)
 			
 		Else 
-			Super._pushError(10; New object("which"; 1; "function"; $inFunction))
+			Super._pushError(10; {which: 1; function: $inFunction})
 			$status:=This._returnStatus()
 			
 	End case 
@@ -113,7 +113,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $key; $name; $string : Text
 	var $email : cs.EmailAddress
 	
-	$result:=New object
+	$result:={}
 	$keys:=OB Keys($inMail)
 	For each ($key; $keys)
 		$name:=_getJMAPAttribute($key)
@@ -202,10 +202,10 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._pushError(10; New object("which"; "\"mailId\""; "function"; "delete"))
+			Super._pushError(10; {which: "\"mailId\""; function: "delete"})
 			
 		: (Length(String($inMailId))=0)
-			Super._pushError(9; New object("which"; "\"mailId\""; "function"; "delete"))
+			Super._pushError(9; {which: "\"mailId\""; function: "delete"})
 			
 		Else 
 			
@@ -238,10 +238,10 @@ Function untrash($inMailId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._pushError(10; New object("which"; "\"mailId\""; "function"; "untrash"))
+			Super._pushError(10; {which: "\"mailId\""; function: "untrash"})
 			
 		: (Length(String($inMailId))=0)
-			Super._pushError(9; New object("which"; "\"mailId\""; "function"; "untrash"))
+			Super._pushError(9; {which: "\"mailId\""; function: "untrash"})
 			
 		Else 
 			
@@ -302,10 +302,10 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._pushError(10; New object("which"; "\"mailId\""; "function"; "getMail"))
+			Super._pushError(10; {which: "\"mailId\""; function: "getMail"})
 			
 		: (Length(String($inMailId))=0)
-			Super._pushError(9; New object("which"; "\"mailId\""; "function"; "getMail"))
+			Super._pushError(9; {which: "\"mailId\""; function: "getMail"})
 			
 		Else 
 			
@@ -345,7 +345,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 								$response:=MAIL Convert from MIME($rawMessage)
 								$response.id:=String($copy.id)
 								$response.threadId:=String($copy.threadId)
-								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : New collection
+								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : []
 							Else 
 								
 								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
@@ -356,7 +356,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 						$response:=This._convertMailObjectToJMAP($result)
 						
 					Else 
-						Super._pushError(10; New object("which"; 1; "function"; "getMail"))
+						Super._pushError(10; {which: "\"mailId\""; function: "getMail"})
 						
 				End case 
 				

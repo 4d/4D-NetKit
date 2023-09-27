@@ -13,7 +13,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text
 	This._internals._URL:=$inURL
 	This._internals._attribute:=$inName
 	This._internals._nextPageToken:=""
-	This._internals._history:=New collection
+	This._internals._history:=[]
 	
 	This.page:=1
 	This.isLastPage:=False
@@ -55,7 +55,7 @@ Function _getList($inPageToken : Text) : Boolean
 			This._internals._list:=OB Get($result; This._internals._attribute; Is collection)
 		Else 
 			
-			This._internals._list:=New collection
+			This._internals._list:=[]
 		End if 
 		
 		This.success:=True
