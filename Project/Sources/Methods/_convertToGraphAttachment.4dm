@@ -4,7 +4,7 @@
 // converts cs.GraphAttachment into microsoft.graph.fileAttachment
 If (OB Instance of($inObject; cs.GraphAttachment))
 	
-	$result:={}
+	$result:=New object
 	$result["@odata.type"]:=(Length(String($inObject["@odata.type"]))>0) ? \
 		$inObject["@odata.type"] : "#microsoft.graph.fileAttachment"
 	If (Length(String($inObject.cid))>0)

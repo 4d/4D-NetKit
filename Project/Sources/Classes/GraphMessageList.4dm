@@ -21,10 +21,10 @@ Function get mails() : Collection
 		
 		$provider:=This._internals._oAuth2Provider
 		
-		This._internals._mails:=[]
+		This._internals._mails:=New collection
 		For each ($iter; This._internals._list)
 			$mail:=cs.GraphMessage.new($provider; \
-				{userId: String(This._internals._mail.userId)}; \
+				New object("userId"; String(This._internals._mail.userId)); \
 				$iter)
 			This._internals._mails.push($mail)
 		End for each 

@@ -40,14 +40,14 @@ Function get attachments() : Collection
 		var $response; $iter : Object
 		$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 		
-		This._internals._attachments:=[]
+		This._internals._attachments:=New collection
 		If ($response#Null)
 			var $attachments : Collection
 			$attachments:=$response["value"]
 			For each ($iter; $attachments)
 				var $attachment : Object
 				$attachment:=cs.GraphAttachment.new(This._getOAuth2Provider(); \
-					{userId: String(This._internals._userId); messageId: String(This.id)}; \
+					New object("userId"; String(This._internals._userId); "messageId"; String(This.id)); \
 					$iter)
 				This._internals._attachments.push($attachment)
 			End for each 

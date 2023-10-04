@@ -2,9 +2,10 @@ property _internals : Object
 
 Class constructor()
 	
-	This._internals:={_errorStack: Null; \
-		_throwErrors: True; \
-		_savedErrorHandler: ""}
+	This._internals:=New object
+	This._internals._errorStack:=Null
+	This._internals._throwErrors:=True
+	This._internals._savedErrorHandler:=""
 	
 	
 	// Mark: - [Private]
@@ -36,9 +37,9 @@ Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
 	// Push error into errorStack without throwing it
 	var $error : Object
 	
-	$error:={errCode: $inErrorCode; componentSignature: "4DNK"; message: $inErrorDescription}
+	$error:=New object("errCode"; $inErrorCode; "componentSignature"; "4DNK"; "message"; $inErrorDescription)
 	If (This._internals._errorStack=Null)
-		This._internals._errorStack:=[]
+		This._internals._errorStack:=New collection
 	End if 
 	This._internals._errorStack.push($error)
 	
@@ -53,7 +54,7 @@ Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	If (This._internals._throwErrors)
 		var $error : Object
-		$error:={code: $inCode; component: "4DNK"; deferred: True}
+		$error:=New object("code"; $inCode; "component"; "4DNK"; "deferred"; True)
 		
 		If (Not(OB Is empty($inParameters)))
 			var $key : Text
@@ -93,7 +94,7 @@ Function _finally
 Function _getErrorStack : Collection
 	
 	If (This._internals._errorStack=Null)
-		This._internals._errorStack:=[]
+		This._internals._errorStack:=New collection
 	End if 
 	return This._internals._errorStack
 	

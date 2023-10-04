@@ -22,7 +22,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 		var $headers; $message; $messageCopy; $response : Object
 		var $requestBody : Text
 		
-		$headers:={}
+		$headers:=New object
 		$headers["Content-Type"]:="application/json"
 		If (($inHeader#Null) && (Value type($inHeader)=Is object))
 			var $keys : Collection
@@ -35,7 +35,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 		
 		$messageCopy:=This._copyGraphMessage($inMail)
 		If (Not(OB Is defined($inMail; "message")) && Not($bSkipMessageEncapsulation))
-			$message:={message: $messageCopy}
+			$message:=New object("message"; $messageCopy)
 		Else 
 			$message:=$messageCopy
 		End if 
@@ -46,7 +46,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 		Super._pushError(1)
 	End if 
 	
-	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)
 	
 	
 	// ----------------------------------------------------
@@ -57,7 +57,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	var $headers : Object
 	var $requestBody : Text
 	
-	$headers:={}
+	$headers:=New object
 	$headers["Content-Type"]:="text/plain"
 	
 	/*
@@ -109,7 +109,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 			$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
 			
 		Else 
-			Super._pushError(10; {which: 1; function: $inFunction})
+			Super._pushError(10; New object("which"; 1; "function"; $inFunction))
 			$status:=This._returnStatus()
 			
 	End case 
@@ -126,7 +126,7 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 	var $errorStack : Collection
 	$errorStack:=Super._getErrorStack()
-	$status:={}
+	$status:=New object
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
 		var $keys : Collection
@@ -182,16 +182,16 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._pushError(10; {which: "\"mailId\""; function: "copy"})
+			Super._pushError(10; New object("which"; "\"mailId\""; "function"; "copy"))
 			
 		: (Length(String($inMailId))=0)
-			Super._pushError(9; {which: "\"mailId\""; function: "copy"})
+			Super._pushError(9; New object("which"; "\"mailId\""; "function"; "copy"))
 			
 		: (Type($inFolderId)#Is text)
-			Super._pushError(10; {which: "\"folderId\""; function: "copy"})
+			Super._pushError(10; New object("which"; "\"folderId\""; "function"; "copy"))
 			
 		: (Length(String($inFolderId))=0)
-			Super._pushError(9; {which: "\"folderId\""; function: "copy"})
+			Super._pushError(9; New object("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
 			var $URL : Text
@@ -205,16 +205,15 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			End if 
 			$URL+="/messages/"+$inMailId+"/copy"
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={destinationId: $inFolderId}
+			$headers:=New object("Content-Type"; "application/json")
+			$body:=New object("destinationId"; $inFolderId)
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)
 	
 	
 	// ----------------------------------------------------
@@ -240,7 +239,7 @@ Function delete($inMailId : Text) : Object
 		
 	Else 
 		
-		Super._pushError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "delete"})
+		Super._pushError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "delete"))
 	End if 
 	
 	Super._throwErrors(True)
@@ -278,14 +277,14 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		$contentType:=(($inOptions#Null) && \
 			(Length(String($inOptions.contentType))>0)) ? $inOptions.contentType : ""
 		If (($contentType="text") || ($contentType="html"))
-			$headers:={Prefer: "outlook.body-content-type=\""+$contentType+"\""}
+			$headers:=New object("Prefer"; "outlook.body-content-type=\""+$contentType+"\"")
 		End if 
 		
 		$result:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null)
 			If ($mailType="Microsoft")
 				$response:=cs.GraphMessage.new(This._internals._oAuth2Provider; \
-					{userId: String(This.userId)}; \
+					New object("userId"; String(This.userId)); \
 					$result)
 				
 			Else 
@@ -302,7 +301,7 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		
 	Else 
 		
-		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "getMail"})
+		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "getMail"))
 	End if 
 	
 	return Null
@@ -329,7 +328,7 @@ Function getMails($inParameters : Object) : Object
 	$URL+="/messages"
 	
 	If (Length(String($inParameters.search))>0)
-		$headers:={ConsistencyLevel: "eventual"}
+		$headers:=New object("ConsistencyLevel"; "eventual")
 	End if 
 	
 	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
@@ -349,16 +348,16 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._pushError(10; {which: "\"mailId\""; function: "copy"})
+			Super._pushError(10; New object("which"; "\"mailId\""; "function"; "copy"))
 			
 		: (Length(String($inMailId))=0)
-			Super._pushError(9; {which: "\"mailId\""; function: "copy"})
+			Super._pushError(9; New object("which"; "\"mailId\""; "function"; "copy"))
 			
 		: (Type($inFolderId)#Is text)
-			Super._pushError(10; {which: "\"folderId\""; function: "move"})
+			Super._pushError(10; New object("which"; "\"folderId\""; "function"; "move"))
 			
 		: (Length(String($inFolderId))=0)
-			Super._pushError(9; {which: "\"folderId\""; function: "copy"})
+			Super._pushError(9; New object("which"; "\"folderId\""; "function"; "copy"))
 			
 		Else 
 			var $URL : Text
@@ -372,16 +371,15 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			End if 
 			$URL+="/messages/"+$inMailId+"/move"
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={destinationId: $inFolderId}
+			$headers:=New object("Content-Type"; "application/json")
+			$body:=New object("destinationId"; $inFolderId)
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)
 	
 	
 	// ----------------------------------------------------
@@ -419,9 +417,9 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	Else 
 		
 		If (Type($inMail)#Is object)
-			Super._pushError(10; {which: "\"reply\""; function: "reply"})
+			Super._pushError(10; New object("which"; "\"reply\""; "function"; "reply"))
 		Else 
-			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "reply"})
+			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "reply"))
 		End if 
 		return This._returnStatus()
 	End if 
@@ -450,7 +448,7 @@ Function send($inMail : Variant) : Object
 Function update($inMailId : Text; $inMail : Object) : Object
 	
 	Super._throwErrors(False)
-	
+
 	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
 		var $URL : Text
@@ -468,26 +466,25 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		If (This.mailType="Microsoft")
 			
 			var $headers : Object
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
+			$headers:=New object("Content-Type"; "application/json")
 			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
 			
 		Else 
 			
-			Super._pushError(3; {attribute: "\"mail\""})
+			Super._pushError(3; New object("attribute"; "\"mail\""))
 		End if 
 		
 	Else 
 		
 		If (Type($inMail)#Is object)
 			
-			Super._pushError(10; {which: "\"mail\""; function: "update"})
+			Super._pushError(10; New object("which"; "\"mail\""; "function"; "update"))
 		Else 
 			
-			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "update"})
+			Super._pushError((Length(String($inMailId))=0) ? 9 : 10; New object("which"; "\"mailId\""; "function"; "update"))
 		End if 
 	End if 
-	
+
 	Super._throwErrors(True)
 	
 	return This._returnStatus()
@@ -505,10 +502,10 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 	Case of 
 		: (Type($inFolderName)#Is text)
-			Super._pushError(10; {which: "\"folderName\""; function: "createFolder"})
+			Super._pushError(10; New object("which"; "\"folderName\""; "function"; "createFolder"))
 			
 		: (Length(String($inFolderName))=0)
-			Super._pushError(9; {which: "\"folderName\""; function: "createFolder"})
+			Super._pushError(9; New object("which"; "\"folderName\""; "function"; "createFolder"))
 			
 		Else 
 			var $URL : Text
@@ -525,15 +522,14 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 				$URL+="/"+$inParentFolderId+"/childFolders"
 			End if 
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
+			$headers:=New object("Content-Type"; "application/json")
+			$body:=New object("displayName"; $inFolderName; "isHidden"; ($bIsHidden ? "true" : "false"))
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)
 	
 	
 	// ----------------------------------------------------
@@ -547,10 +543,10 @@ Function deleteFolder($inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._pushError(10; {which: "\"folderId\""; function: "deleteFolder"})
+			Super._pushError(10; New object("which"; "\"folderId\""; "function"; "deleteFolder"))
 			
 		: (Length(String($inFolderId))=0)
-			Super._pushError(9; {which: "\"folderId\""; function: "deleteFolder"})
+			Super._pushError(9; New object("which"; "\"folderId\""; "function"; "deleteFolder"))
 			
 		Else 
 			var $URL : Text
@@ -583,10 +579,10 @@ Function getFolder($inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._pushError(10; {which: "\"folderId\""; function: "getFolder"})
+			Super._pushError(10; New object("which"; "\"folderId\""; "function"; "getFolder"))
 			
 		: (Length(String($inFolderId))=0)
-			Super._pushError(9; {which: "\"folderId\""; function: "getFolder"})
+			Super._pushError(9; New object("which"; "\"folderId\""; "function"; "getFolder"))
 			
 		Else 
 			var $URL : Text
@@ -628,7 +624,7 @@ Function getFolderList($inParameters : Object) : Object
 	End if 
 	
 	If (Length(String($inParameters.search))>0)
-		$headers:={ConsistencyLevel: "eventual"}
+		$headers:=New object("ConsistencyLevel"; "eventual")
 	End if 
 	
 	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
@@ -648,16 +644,16 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._pushError(10; {which: "\"folderId\""; function: "renameFolder"})
+			Super._pushError(10; New object("which"; "\"folderId\""; "function"; "renameFolder"))
 			
 		: (Length(String($inFolderId))=0)
-			Super._pushError(9; {which: "\"folderId\""; function: "renameFolder"})
+			Super._pushError(9; New object("which"; "\"folderId\""; "function"; "renameFolder"))
 			
 		: (Type($inNewFolderName)#Is text)
-			Super._pushError(10; {which: "\"folderName\""; function: "renameFolder"})
+			Super._pushError(10; New object("which"; "\"folderName\""; "function"; "renameFolder"))
 			
 		: (Length(String($inNewFolderName))=0)
-			Super._pushError(9; {which: "\"folderName\""; function: "renameFolder"})
+			Super._pushError(9; New object("which"; "\"folderName\""; "function"; "renameFolder"))
 		Else 
 			var $URL : Text
 			var $headers; $body : Object
@@ -670,13 +666,12 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 			End if 
 			$URL+="/mailFolders/"+$inFolderId
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={displayName: $inNewFolderName}
+			$headers:=New object("Content-Type"; "application/json")
+			$body:=New object("displayName"; $inNewFolderName)
 			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($body))
 			
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	return This._returnStatus((Length(String($response.id))>0) ? New object("id"; $response.id) : Null)

@@ -199,7 +199,7 @@ Function _getErrorDescription($inObject : Object) : Text
 	var $keys : Collection
 	var $key : Text
 	
-	$result:={}
+	$result:=New object
 	$keys:=OB Keys($inObject)
 	For each ($key; $keys)
 		If (Position("error"; $key)=1)
@@ -258,19 +258,19 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	Case of 
 			
 		: (Length(String(This.clientId))=0)
-			This._throwError(2; {attribute: "clientId"})
+			This._throwError(2; New object("attribute"; "clientId"))
 			
 		: (Length(String($url))=0)
-			This._throwError(2; {attribute: "authenticateURI"})
+			This._throwError(2; New object("attribute"; "authenticateURI"))
 			
 		: ((This._isGoogle() || This._isMicrosoft()) && (Length(String($scope))=0))
-			This._throwError(2; {attribute: "scope"})
+			This._throwError(2; New object("attribute"; "scope"))
 			
 		: (This._isMicrosoft() && (Length(String(This.tenant))=0))
-			This._throwError(2; {attribute: "tenant"})
+			This._throwError(2; New object("attribute"; "tenant"))
 			
 		: (This._isSignedIn() & (Length(String($redirectURI))=0))
-			This._throwError(2; {attribute: "redirectURI"})
+			This._throwError(2; New object("attribute"; "redirectURI"))
 			
 		Else 
 			
@@ -321,7 +321,9 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 						//End if
 						
 						If (OB Is defined(Storage.requests[$state].token; "error"))
-							This._throwError(12; {function: Current method name; message: This._getErrorDescription(Storage.requests[$state].token)})
+							This._throwError(12; \
+								New object("function"; Current method name; \
+								"message"; This._getErrorDescription(Storage.requests[$state].token)))
 						End if 
 					End use 
 					OB REMOVE(Storage.requests; $state)
@@ -357,7 +359,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
 			
 			var $options : Object
-			$options:={}
+			$options:=New object
 			$options.port:=_getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
@@ -394,7 +396,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 			Else 
 				
 				$bSendRequest:=False
-				This._throwError(7; {port: $options.port})
+				This._throwError(7; New object("port"; $options.port))
 				
 			End if 
 		End if 
@@ -422,9 +424,9 @@ Function _getToken_Service()->$result : Object
 			var $options : Object
 			var $bearer : Text
 			
-			$options:={header: {alg: "RS256"; typ: "JWT"}}
+			$options:=New object("header"; New object("alg"; "RS256"; "typ"; "JWT"))
 			
-			$options.payload:={}
+			$options.payload:=New object
 			$options.payload.iss:=This.clientEmail
 			$options.payload.scope:=This.scope
 			$options.payload.aud:=This.tokenURI
@@ -468,19 +470,19 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 		Case of 
 				
 			: (Length(String($obj.clientId))=0)
-				This._throwError(2; {attribute: "clientId"})
+				This._throwError(2; New object("attribute"; "clientId"))
 				
 			: ((Length(String($obj.name))>0) && (Length(String($obj.scope))=0))
-				This._throwError(2; {attribute: "scope"})
+				This._throwError(2; New object("attribute"; "scope"))
 				
 			: (Length(String($obj.permission))=0)
-				This._throwError(2; {attribute: "permission"})
+				This._throwError(2; New object("attribute"; "permission"))
 				
 			: (Not(String($obj.permission)="signedIn") & Not(String($obj.permission)="service"))
-				This._throwError(3; {attribute: "permission"})
+				This._throwError(3; New object("attribute"; "permission"))
 				
 			: ((String($obj.permission)="signedIn") & (Length(String($obj.redirectURI))=0))
-				This._throwError(2; {attribute: "redirectURI"})
+				This._throwError(2; New object("attribute"; "redirectURI"))
 				
 			Else 
 				$OK:=True
@@ -505,9 +507,9 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	var $options : Object
 	var $request : 4D.HTTPRequest
 	
-	$options:={headers: {}}
-	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
-	$options.headers["Accept"]:="application/json"
+	$options:=New object
+	$options.headers:=New object("Content-Type"; "application/x-www-form-urlencoded"; \
+		"Accept"; "application/json")
 	$options.method:=HTTP POST method
 	$options.body:=$params
 	$options.dataType:="text"
@@ -585,10 +587,10 @@ Function _sendTokenRequest($params : Text)->$result : Object
 			End if 
 			$message:=String($error.error_description)
 			
-			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+			This._throwError(8; New object("status"; $status; "explanation"; $explanation; "message"; $message))
 		Else 
 			
-			This._throwError(5; {received: $status; expected: 200})
+			This._throwError(5; New object("received"; $status; "expected"; 200))
 		End if 
 		
 	End if 
@@ -666,28 +668,28 @@ Function getToken()->$result : Object
 		Case of 
 				
 			: (Length(String(This.clientId))=0)
-				This._throwError(2; {attribute: "clientId"})
+				This._throwError(2; New object("attribute"; "clientId"))
 				
 			: (Length(String($authenticateURI))=0)
-				This._throwError(2; {attribute: "authenticateURI"})
+				This._throwError(2; New object("attribute"; "authenticateURI"))
 				
 			: ((This._isGoogle() || This._isMicrosoft()) && (Length(String(This.scope))=0))
-				This._throwError(2; {attribute: "scope"})
+				This._throwError(2; New object("attribute"; "scope"))
 				
 			: (Length(String($tokenURI))=0)
-				This._throwError(2; {attribute: "tokenURI"})
+				This._throwError(2; New object("attribute"; "tokenURI"))
 				
 			: (This._isMicrosoft() && (Length(String(This.tenant))=0))
-				This._throwError(2; {attribute: "tenant"})
+				This._throwError(2; New object("attribute"; "tenant"))
 				
 			: (Length(String(This.permission))=0)
-				This._throwError(2; {attribute: "permission"})
+				This._throwError(2; New object("attribute"; "permission"))
 				
 			: (This._isSignedIn() & (Length(String($redirectURI))=0))
-				This._throwError(2; {attribute: "permission"})
+				This._throwError(2; New object("attribute"; "permission"))
 				
 			: (Not(This._isSignedIn()) & Not(This._isService()))
-				This._throwError(3; {attribute: "permission"})
+				This._throwError(3; New object("attribute"; "permission"))
 				
 			Else 
 				

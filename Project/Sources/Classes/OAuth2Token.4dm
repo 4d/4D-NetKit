@@ -26,7 +26,7 @@ Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null) & (Not(OB Is empty($inObject))))
 		
-		This.token:={}
+		This.token:=New object
 		If (OB Get type($inObject; "token")=Is object)
 			
 			var $keys; $values : Collection
@@ -35,6 +35,7 @@ Function _loadFromObject($inObject : Object)
 			$keys:=OB Keys($inObject.token)
 			$values:=OB Values($inObject.token)
 			
+			This.token:=New object
 			For ($i; 0; $keys.length-1)
 				This.token[$keys[$i]]:=$values[$i]
 			End for 
@@ -63,7 +64,7 @@ Function _loadFromResponse($inResponseString : Text)
 	$token:=JSON Parse($inResponseString)
 	If (($token#Null) & (Not(OB Is empty($token))))
 		
-		This._loadFromObject({token: $token})
+		This._loadFromObject(New object("token"; $token))
 		
 	End if 
 	
@@ -77,7 +78,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	var $params : Collection
 	var $iter : Text
 	
-	$token:={}
+	$token:=New object
 	$params:=Split string($inResponseString; "&")
 	For each ($iter; $params)
 		var $pair : Collection
@@ -89,7 +90,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	
 	If (Not(OB Is empty($token)))
 		
-		This._loadFromObject({token: $token})
+		This._loadFromObject(New object("token"; $token))
 		
 	End if 
 	

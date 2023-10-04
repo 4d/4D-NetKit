@@ -1,6 +1,6 @@
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	This._internals:={}
+	This._internals:=New object
 	This._internals._oAuth2Provider:=$inProvider
 	This._internals._mail:=Null
 	This._internals._parameters:=$inParameters

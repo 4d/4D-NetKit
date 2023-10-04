@@ -66,7 +66,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	var $token : Text
 	
 	$token:=This._getAcessToken()
-	$options:={headers: {}}
+	$options:=New object()
+	$options.headers:=New object()
 	If (Length(String($token))>0)
 		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
 	End if 
@@ -155,7 +156,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 				
 		End case 
 		
-		This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+		This._throwError(8; New object("status"; $status; "explanation"; $explanation; "message"; $message))
 		$response:=Null
 		
 	End if 
@@ -194,7 +195,7 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 	var $errorStack : Collection
 	$errorStack:=Super._getErrorStack()
-	$status:={}
+	$status:=New object
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
 		var $keys : Collection
