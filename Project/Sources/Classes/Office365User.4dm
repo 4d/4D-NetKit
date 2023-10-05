@@ -50,7 +50,7 @@ Function get($inID : Text; $inSelect : Text) : Object
 		return This._getUserInfo($URL)
 	Else 
 		This._try()
-		This._throwError(9; New object("which"; 1; "function"; "get"))
+		This._throwError(9; {which: 1; function: "get"})
 		This._finally()
 		return Null
 	End if 
@@ -70,7 +70,7 @@ Function list($inParameters : Object) : Object
 	If (Length(String($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
 		$delimiter:="&"
-		$headers:=New object("ConsistencyLevel"; "eventual")
+		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	If (Length(String($inParameters.filter))>0)
 		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
@@ -109,7 +109,7 @@ Function count($inParameters : Object) : Object
 	If (Length(String($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
 		$delimiter:="&"
-		$headers:=New object("ConsistencyLevel"; "eventual")
+		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	If (Length(String($inParameters.filter))>0)
 		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
@@ -129,7 +129,7 @@ Function count($inParameters : Object) : Object
 		$delimiter:="&"
 	End if 
 	$urlParams:=$urlParams+$delimiter+"$count"
-	$headers:=New object("ConsistencyLevel"; "eventual")
+	$headers:={ConsistencyLevel: "eventual"}
 	
 	$URL:=This._getURL()+$urlParams
 	

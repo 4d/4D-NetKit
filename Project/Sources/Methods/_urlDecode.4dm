@@ -5,8 +5,8 @@
 */
 #DECLARE($inURL : Text) : Text
 
-C_LONGINT($charCode; $i; $urlLength)
-C_TEXT($result; $hexValues)
+var $charCode; $i; $urlLength: Integer
+var $result; $hexValues: Text
 
 $hexValues:="123456789ABCDEF"
 $urlLength:=Length($inURL)

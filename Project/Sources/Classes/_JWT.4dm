@@ -9,14 +9,16 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	This.header:=New object
-	This.header.alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
-	This.header.typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
+	var $alg; $typ: Text
+
+	$alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
+	$typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
+	This.header:={alg: $alg; typ: $typ}
 	
 	If (OB Get type($inParam; "payload")=Is object)
 		This.payload:=$inParam.payload
 	Else 
-		This.payload:=New object
+		This.payload:={}
 	End if 
 	
 	This.privateKey:=String($inParam.privateKey)
@@ -65,9 +67,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 		// Decode Header and Payload into Objects
 		BASE64 DECODE($parts[0]; $header; *)
 		BASE64 DECODE($parts[1]; $payload; *)
-		$jwt:=New object("header"; JSON Parse($header); \
-			"payload"; JSON Parse($payload); \
-			"privateKey"; String($inPrivateKey))
+		$jwt:={header: JSON Parse($header); payload: JSON Parse($payload); privateKey: String($inPrivateKey)}
 		
 		// Parse Header for Algorithm Family
 		$algorithm:=Substring($jwt.header.alg; 1; 2)
@@ -168,9 +168,9 @@ Function _hashSign($inJWT : Object)->$result : Text
 	
 	// Prepare CryptoKey settings
 	If ($privateKey="")
-		$settings:=New object("type"; "RSA")  // 4D will automatically create RSA key pair
+		$settings:={type: "RSA"}  // 4D will automatically create RSA key pair
 	Else 
-		$settings:=New object("type"; "PEM"; "pem"; $privateKey)  // Use specified PEM format Key
+		$settings:={type: "PEM"; pem: $privateKey}  // Use specified PEM format Key
 	End if 
 	
 	// Create new CryptoKey
@@ -189,7 +189,7 @@ Function _hashSign($inJWT : Object)->$result : Text
 		End if 
 		
 		// Sign Message with CryptoKey to generate hashed verify signature
-		$signOptions:=New object("hash"; $hashAlgorithm; "pss"; $inJWT.header.alg="PS@"; "encoding"; "Base64URL")
+		$signOptions:={hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"}
 		
 		$result:=$cryptoKey.sign($encodedHead+"."+$encodedPayload; $signOptions)
 	End if 

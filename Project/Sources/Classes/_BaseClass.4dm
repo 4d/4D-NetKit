@@ -2,20 +2,18 @@ property _internals : Object
 
 Class constructor()
 	
-	This._internals:=New object
-	This._internals._errorStack:=Null
-	This._internals._throwErrors:=True
-	This._internals._savedErrorHandler:=""
+	This._internals:={_errorStack: Null; _throwErrors: True; _savedErrorHandler: ""}
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _pushError($inCode : Integer; $inParameters : Object)
+Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
 	var $description : Text
+	var $error : Object
 	
 	$description:=Get localized string("ERR_4DNK_"+String($inCode))
 	
@@ -26,22 +24,14 @@ Function _pushError($inCode : Integer; $inParameters : Object)
 		End for each 
 	End if 
 	
-	This._pushInErrorStack($inCode; $description)
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
-	
-	// Push error into errorStack without throwing it
-	var $error : Object
-	
-	$error:=New object("errCode"; $inErrorCode; "componentSignature"; "4DNK"; "message"; $inErrorDescription)
+	// Push error into errorStack 
+	$error:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
 	If (This._internals._errorStack=Null)
-		This._internals._errorStack:=New collection
+		This._internals._errorStack:=[]
 	End if 
 	This._internals._errorStack.push($error)
+	
+	return $error
 	
 	
 	// ----------------------------------------------------
@@ -50,20 +40,12 @@ Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
-	This._pushError($inCode; $inParameters)
+	var $error : Object
+	$error:=This._pushError($inCode; $inParameters)
 	
 	If (This._internals._throwErrors)
-		var $error : Object
-		$error:=New object("code"; $inCode; "component"; "4DNK"; "deferred"; True)
-		
-		If (Not(OB Is empty($inParameters)))
-			var $key : Text
-			For each ($key; $inParameters)
-				$error[$key]:=$inParameters[$key]
-			End for each 
-		End if 
-		
-		_4D THROW ERROR($error)
+		$error.deferred:=True
+		throw($error)
 	End if 
 	
 	
@@ -94,7 +76,7 @@ Function _finally
 Function _getErrorStack : Collection
 	
 	If (This._internals._errorStack=Null)
-		This._internals._errorStack:=New collection
+		This._internals._errorStack:=[]
 	End if 
 	return This._internals._errorStack
 	

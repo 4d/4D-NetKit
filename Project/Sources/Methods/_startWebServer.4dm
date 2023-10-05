@@ -4,11 +4,10 @@
 var $webServer : 4D.WebServer
 var $settings; $status : Object
 
-$settings:=New object
-$settings.HTTPEnabled:=True
-$settings.HTTPSEnabled:=False
-$settings.HTTPPort:=(OB Is defined($inParameters; "port")) ? Num($inParameters.port) : 50993
-$settings.debugLog:=(OB Is defined($inParameters; "enableDebugLog") && $inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log
+$settings:={HTTPEnabled: True; \
+			HTTPSEnabled: False; \
+			HTTPPort: (Num($inParameters.port)>0) ? Num($inParameters.port) : 50993; \
+			debugLog: Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log}
 
 If (OB Is defined($inParameters; "webFolder"))
 	If (OB Instance of($inParameters.webFolder; 4D.Folder))
