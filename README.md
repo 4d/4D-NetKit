@@ -837,13 +837,13 @@ The method returns a [status object](#status-object).
 
 ### Office365.mail.update()
 
-**Office365.mail.send**( *mailId* : Text ; *updatedFields* : Object ) : Object
+**Office365.mail.update**( *mailId* : Text ; *updatedFields* : Object ) : Object
 
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->|The ID of the email to update|
-|updatedFields|Object|<-|email fields to update|
+|updatedFields|Object|->|email fields to update|
 |Result|Object|<-| [Status object](#status-object) |
 
 #### Description
@@ -871,13 +871,10 @@ In *updatedFields*, you can pass several properties:
 |subject|String|The subject of the message.|X|
 |toRecipients|Recipient collection|The To recipients for the message.| |
 
-Existing properties that are not included in the updatedFields object will maintain their previous values or be recalculated based on changes to other property values.
+**Notes:**
 
-:::note
-
-Specific properties, such as the body or subject, can only be updated for emails in draft status (isDraft = true).
-
-:::
+* Existing properties that are not included in the *updatedFields* object will maintain their previous values or be recalculated based on changes to other property values.
+* Specific properties, such as the body or subject, can only be updated for emails in draft status (isDraft = true).
 
 #### Returned object 
 
@@ -1013,7 +1010,7 @@ $status:=$Office365.mail.send($email)
 
 ### Status object
 
-Several Office368.mail functions return a standard `**status object**`, containing the following properties:
+Several Office365.mail functions return a standard `**status object**`, containing the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -1027,7 +1024,7 @@ Basically, you can test the `success` and `statusText` properties of this object
 
 ### Error handling
 
-When an error occurs during the execution of an Office368.mail function: 
+When an error occurs during the execution of an Office365.mail function: 
 
 - if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
 - if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
