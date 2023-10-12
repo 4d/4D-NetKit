@@ -24,6 +24,7 @@
 	- [Office365.mail.renameFolder()](#office365mailrenameFolder)
 	- [Office365.mail.reply()](#office365mailreply)
 	- [Office365.mail.send()](#office365mailsend)
+	- [Office365.mail.update()](#office365mailupdate)
 	- [Well-known folder names](well-known-folder-names)
 	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
 	- [Status object (Office365 Class)](#status-object)
@@ -834,6 +835,51 @@ $status:=$Office365.mail.send($email)
 
 The method returns a [status object](#status-object).
 
+### Office365.mail.update()
+
+**Office365.mail.update**( *mailId* : Text ; *updatedFields* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailId|Text|->|The ID of the email to update|
+|updatedFields|Object|->|email fields to update|
+|Result|Object|<-| [Status object](#status-object) |
+
+#### Description
+
+`Office365.mail.update()` allows you to update various properties of received or drafted emails.
+
+In *updatedFields*, you can pass several properties:
+
+|Property|Type|Description|Updatable only if isDraft = true|
+|:----|:----|:----|:----|
+|bccRecipients|Recipient|The Bcc recipients for the message.| |
+|body|ItemBody|The body of the message.|X|
+|categories|String collection|The categories associated with the message.| |
+|ccRecipients|Recipient collection|The Cc recipients for the message.| |
+|flag|followupFlag|The flag value that indicates the status, start date, due date, or completion date for the message.| |
+|from|Recipient|The mailbox owner and sender of the message. Must correspond to the actual mailbox used.|X|
+|importance|String|The importance of the message. The possible values are: Low, Normal, High.| |
+|inferenceClassification|String|The classification of the message for the user, based on inferred relevance or importance, or on an explicit override. The possible values are: focused or other.| |
+|internetMessageId|String|The message ID in the format specified by RFC2822.|X|
+|isDeliveryReceiptRequested|Boolean|Indicates whether a read receipt is requested for the message.|X|
+|isRead|Boolean|Indicates whether the message has been read.| |
+|isReadReceiptRequested|Boolean|Indicates whether a read receipt is requested for the message.|X|
+|replyTo|Recipient collection|The email addresses to use when replying.|X|
+|sender|Recipient|The account that is actually used to generate the message. Updatable when sending a message from a shared mailbox, or sending a message as a delegate. In any case, the value must correspond to the actual mailbox used.|X|
+|subject|String|The subject of the message.|X|
+|toRecipients|Recipient collection|The To recipients for the message.| |
+
+**Notes:**
+
+* Existing properties that are not included in the *updatedFields* object will maintain their previous values or be recalculated based on changes to other property values.
+* Specific properties, such as the body or subject, can only be updated for emails in draft status (isDraft = true).
+
+#### Returned object 
+
+The method returns a [status object](#status-object).
+
 ### Well-known folder names
 
 
@@ -964,7 +1010,7 @@ $status:=$Office365.mail.send($email)
 
 ### Status object
 
-Several Office368.mail functions return a standard `**status object**`, containing the following properties:
+Several Office365.mail functions return a standard `**status object**`, containing the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -978,7 +1024,7 @@ Basically, you can test the `success` and `statusText` properties of this object
 
 ### Error handling
 
-When an error occurs during the execution of an Office368.mail function: 
+When an error occurs during the execution of an Office365.mail function: 
 
 - if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
 - if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
