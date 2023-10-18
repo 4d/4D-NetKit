@@ -16,6 +16,7 @@
 		"classes": [
 			"_BaseAPI",
 			"_BaseClass",
+			"_BatchRequest",
 			"_GoogleAPI",
 			"_GoogleBaseList",
 			"_GraphAPI",
@@ -43,6 +44,7 @@
 			"_retainFileObject",
 			"_startWebServer",
 			"_stopWebServer",
+			"_testBatchRequest",
 			"_throwError",
 			"_urlDecode",
 			"_urlEncode"
