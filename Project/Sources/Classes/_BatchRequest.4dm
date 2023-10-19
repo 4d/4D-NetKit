@@ -9,13 +9,13 @@ property _body : Text
 
 Class constructor($inParam : Object)
 	
-	This:C1470.verb:=(OB Is defined:C1231($inParam; "verb")) ? String:C10($inParam.verb) : "GET"
-	This:C1470.URL:=(OB Is defined:C1231($inParam; "URL")) ? String:C10($inParam.URL) : ""
-	This:C1470.headers:=(Value type:C1509($inParam.headers)=Is collection:K8:32) ? $inParam.headers : []
-	This:C1470.batchRequestes:=(Value type:C1509($inParam.batchRequestes)=Is collection:K8:32) ? $inParam.batchRequestes : []
+	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "GET"
+	This.URL:=(OB Is defined($inParam; "URL")) ? String($inParam.URL) : ""
+	This.headers:=(Value type($inParam.headers)=Is collection) ? $inParam.headers : []
+	This.batchRequestes:=(Value type($inParam.batchRequestes)=Is collection) ? $inParam.batchRequestes : []
 	
-	This:C1470._boundary:=(OB Is defined:C1231($inParam; "boundary")) ? String:C10($inParam.boundary) : "batch"
-	This:C1470._body:=""
+	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch"
+	This._body:=""
 	
 	
 	// Mark: - [Public]
@@ -24,7 +24,7 @@ Class constructor($inParam : Object)
 	
 Function get boundary() : Text
 	
-	return This:C1470._boundary
+	return This._boundary
 	
 	
 	// ----------------------------------------------------
@@ -32,11 +32,11 @@ Function get boundary() : Text
 	
 Function get body() : Text
 	
-	If (Length:C16(This:C1470._body)=0)
-		This:C1470._body:=This:C1470.generateBody()
+	If (Length(This._body)=0)
+		This._body:=This.generateBody()
 	End if 
 	
-	return This:C1470._body
+	return This._body
 	
 	
 	// ----------------------------------------------------
@@ -46,29 +46,29 @@ Function generateBody() : Text
 	
 	var $body : Text:=""
 	
-	If (This:C1470.batchRequestes.length>0)
+	If (This.batchRequestes.length>0)
 		
 		var $batchRequest : Object
-		For each ($batchRequest; This:C1470.batchRequestes)
+		For each ($batchRequest; This.batchRequestes)
 			
-			$body+="--"+This:C1470._boundary+"\r\n"
+			$body+="--"+This._boundary+"\r\n"
 			$body+="Content-Type: application/http\r\n"
-			$body+="Content-ID: "+String:C10($batchRequest.id)+"\r\n\r\n"
+			$body+="Content-ID: "+String($batchRequest.id)+"\r\n\r\n"
 			
-			$body+=String:C10($batchRequest.request.verb)+" "+String:C10($batchRequest.request.URL)+" HTTP/1.1\r\n"
+			$body+=String($batchRequest.request.verb)+" "+String($batchRequest.request.URL)+" HTTP/1.1\r\n"
 			
 			var $header : Object
 			For each ($header; $batchRequest.headers)
-				$body+=String:C10($header.name)+": "+String:C10($header.value)+"\r\n"
+				$body+=String($header.name)+": "+String($header.value)+"\r\n"
 			End for each 
 			$body+="\r\n"
-			If (Length:C16(String:C10($batchRequest.request.body))>0)
-				$body+=String:C10($batchRequest.request.body)+"\r\n"
+			If (Length(String($batchRequest.request.body))>0)
+				$body+=String($batchRequest.request.body)+"\r\n"
 			End if 
 			$body+="\r\n"
 		End for each 
 		
-		$body+="--"+This:C1470._boundary+"--\r\n"
+		$body+="--"+This._boundary+"--\r\n"
 	End if 
 	
 	return $body
@@ -80,11 +80,10 @@ Function generateBody() : Text
 Function sendRequestAndWaitResponse() : Object
 	
 	var $result : Object:={}
-	var $response : Blob:=This:C1470._sendRequestAndWaitResponse(This:C1470.verb; This:C1470.URL; This:C1470.headers; This:C1470._body)
+	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This.URL; This.headers; This._body)
 	
-	If ($response#Null:C1517)
-		$result:=Parse HTTP message:C1824($response)
+	If ($response#Null)
+		$result:=Parse HTTP message($response)
 	End if 
 	
 	return $result
-	
