@@ -83,7 +83,8 @@ Function sendRequestAndWaitResponse() : Object
 	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This.URL; This.headers; This._body)
 	
 	If ($response#Null)
-		$result:=Parse HTTP message($response)
+		// Disabled for the moment tool4D does not recognize the command yet
+		//$result:=Parse HTTP message($response)
 	End if 
 	
 	return $result
