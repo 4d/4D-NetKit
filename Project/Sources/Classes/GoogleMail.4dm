@@ -3,12 +3,12 @@ Class extends _GoogleAPI
 property mailType : Text
 property userId : Text
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "JMAP"
-	This:C1470.userId:=String:C10($inParameters.userId)
+	This.mailType:=(Length(String($inParameters.mailType))>0) ? String($inParameters.mailType) : "JMAP"
+	This.userId:=String($inParameters.userId)
 	
 	
 	// ----------------------------------------------------
@@ -19,27 +19,27 @@ Function _postJSONMessage($inURL : Text; \
 $inMail : Object; \
 $inHeader : Object) : Object
 	
-	If ($inMail#Null:C1517)
+	If ($inMail#Null)
 		var $headers; $message; $messageCopy; $response : Object
 		
 		$headers:={}
 		$headers["Content-Type"]:="message/rfc822"
-		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
+		If (($inHeader#Null) && (Value type($inHeader)=Is object))
 			var $keys : Collection
 			var $key : Text
-			$keys:=OB Keys:C1719($inHeader)
+			$keys:=OB Keys($inHeader)
 			For each ($key; $keys)
 				$headers[$key]:=$inHeader[$key]
 			End for each 
 		End if 
 		
-		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
-		This:C1470._internals._response:=OB Copy:C1225($response)
+		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
+		This._internals._response:=OB Copy($response)
 	Else 
-		Super:C1706._throwError(1)
+		Super._throwError(1)
 	End if 
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? {id: $response.id} : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -54,21 +54,21 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	$headers["Content-Type"]:="application/json"
 	
 	Case of 
-		: (Value type:C1509($inMail)=Is BLOB:K8:12)
-			$requestBody:=Convert to text:C1012($inMail; "UTF-8")
+		: (Value type($inMail)=Is BLOB)
+			$requestBody:=Convert to text($inMail; "UTF-8")
 			
-		: (Value type:C1509($inMail)=Is object:K8:27)
-			$requestBody:=MAIL Convert to MIME:C1604($inMail)
+		: (Value type($inMail)=Is object)
+			$requestBody:=MAIL Convert to MIME($inMail)
 			
 		Else 
 			$requestBody:=$inMail
 	End case 
-	BASE64 ENCODE:C895($requestBody)
+	BASE64 ENCODE($requestBody)
 	
-	$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
-	This:C1470._internals._response:=OB Copy:C1225($response)
+	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
+	This._internals._response:=OB Copy($response)
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
@@ -81,24 +81,24 @@ $inHeader : Object) : Object
 	
 	var $status : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: ((This:C1470.mailType="MIME") && (\
-			(Value type:C1509($inMail)=Is text:K8:3) || \
-			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="MIME") && (\
+			(Value type($inMail)=Is text) || \
+			(Value type($inMail)=Is BLOB)))
+			$status:=This._postMailMIMEMessage($inURL; $inMail)
 			
-		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
+			$status:=This._postMailMIMEMessage($inURL; $inMail)
 			
 		Else 
-			Super:C1706._throwError(10; {which: 1; function: $inFunction})
-			$status:=This:C1470._returnStatus()
+			Super._throwError(10; {which: 1; function: $inFunction})
+			$status:=This._returnStatus()
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
 	return $status
 	
@@ -111,17 +111,17 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $result : Object
 	var $keys : Collection
 	var $key; $name; $string : Text
-	var $email : cs:C1710.EmailAddress
+	var $email : cs.EmailAddress
 	
 	$result:={}
-	$keys:=OB Keys:C1719($inMail)
+	$keys:=OB Keys($inMail)
 	For each ($key; $keys)
 		$name:=_getJMAPAttribute($key)
-		If (Length:C16($name)>0)
+		If (Length($name)>0)
 			If ($key="labelIds")
-				If (Num:C11($inMail.labelIds.length)>0)
-					$string:=$inMail.labelIds.join("=true,"; ck ignore null or empty:K85:5)+"=true"
-					$result[$name]:=Split string:C1554($string; ","; sk trim spaces:K86:2)
+				If (Num($inMail.labelIds.length)>0)
+					$string:=$inMail.labelIds.join("=true,"; ck ignore null or empty)+"=true"
+					$result[$name]:=Split string($string; ","; sk trim spaces)
 				End if 
 			Else 
 				$result[$name]:=$inMail[$key]
@@ -129,24 +129,24 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 		End if 
 	End for each 
 	
-	If (OB Is defined:C1231($inMail; "payload"))
-		$keys:=OB Keys:C1719($inMail.payload)
+	If (OB Is defined($inMail; "payload"))
+		$keys:=OB Keys($inMail.payload)
 		For each ($key; $keys)
 			If ($key="headers")
 				var $header : Object
 				For each ($header; $inMail.payload.headers)
 					$name:=_getJMAPAttribute($header.name)
-					If (Length:C16($name)>0)
+					If (Length($name)>0)
 						Case of 
 							: ($header.name="Keywords")
-								If (Length:C16($header.value)>0)
-									$string:=$header.value.join("=true,"; ck ignore null or empty:K85:5)+"=true"
-									$result[$name]:=Split string:C1554($string; ","; sk trim spaces:K86:2)
+								If (Length($header.value)>0)
+									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
+									$result[$name]:=Split string($string; ","; sk trim spaces)
 								End if 
 							: (_IsEmailAddressHeader($header.name))
-								If (Length:C16($header.value)>0)
-									$email:=cs:C1710.EmailAddress.new($header.value)
-									$result[$name]:=OB Copy:C1225($email)
+								If (Length($header.value)>0)
+									$email:=cs.EmailAddress.new($header.value)
+									$result[$name]:=OB Copy($email)
 								End if 
 							Else 
 								$result[$name]:=$header.value
@@ -169,11 +169,11 @@ Function send($inMail : Variant) : Object
 	
 	var $URL; $userId : Text
 	
-	$URL:=Super:C1706._getURL()
-	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/send"
 	
-	return This:C1470._postMessage("send"; $URL; $inMail)
+	return This._postMessage("send"; $URL; $inMail)
 	
 	
 	// ----------------------------------------------------
@@ -184,13 +184,13 @@ Function getLabelList() : Object
 	var $URL; $userId : Text
 	var $response : Object
 	
-	$URL:=Super:C1706._getURL()
-	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/labels"
 	
-	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 	
-	return This:C1470._returnStatus(OB Copy:C1225($response))
+	return This._returnStatus(OB Copy($response))
 	
 	
 	// ----------------------------------------------------
@@ -198,35 +198,35 @@ Function getLabelList() : Object
 	
 Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailId)#Is text:K8:3)
-			Super:C1706._throwError(10; {which: "\"mailId\""; function: "delete"})
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "delete"})
 			
-		: (Length:C16(String:C10($inMailId))=0)
-			Super:C1706._throwError(9; {which: "\"mailId\""; function: "delete"})
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "delete"})
 			
 		Else 
 			
 			var $URL; $verb; $userId : Text
 			var $response : Object
 			
-			$URL:=Super:C1706._getURL()
-			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId
-			If (Not:C34(Bool:C1537($permanently)))
+			If (Not(Bool($permanently)))
 				$URL+="/trash"
 			End if 
-			$verb:=Bool:C1537($permanently) ? "DELETE" : "POST"
+			$verb:=Bool($permanently) ? "DELETE" : "POST"
 			
-			$response:=Super:C1706._sendRequestAndWaitResponse($verb; $URL)
-			This:C1470._internals._response:=OB Copy:C1225($response)
+			$response:=Super._sendRequestAndWaitResponse($verb; $URL)
+			This._internals._response:=OB Copy($response)
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
@@ -234,31 +234,31 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
 Function untrash($inMailId : Text) : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailId)#Is text:K8:3)
-			Super:C1706._throwError(10; {which: "\"mailId\""; function: "untrash"})
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "untrash"})
 			
-		: (Length:C16(String:C10($inMailId))=0)
-			Super:C1706._throwError(9; {which: "\"mailId\""; function: "untrash"})
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "untrash"})
 			
 		Else 
 			
 			var $URL; $userId : Text
 			var $response : Object
 			
-			$URL:=Super:C1706._getURL()
-			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
 			
-			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL)
-			This:C1470._internals._response:=OB Copy:C1225($response)
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL)
+			This._internals._response:=OB Copy($response)
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
@@ -268,11 +268,11 @@ Function getMailIds($inParameters : Object) : Object
 	
 	var $URL; $userId; $urlParams : Text
 	
-	$URL:=Super:C1706._getURL()
-	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
-	$urlParams+="users/"+$userId+"/messages"+This:C1470._getURLParamsFromObject($inParameters)
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$urlParams+="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
 	
-	return cs:C1710.GoogleMailIdList.new(This:C1470._getOAuth2Provider(); $URL+$urlParams)
+	return cs.GoogleMailIdList.new(This._getOAuth2Provider(); $URL+$urlParams)
 	
 	
 	// ----------------------------------------------------
@@ -280,59 +280,59 @@ Function getMailIds($inParameters : Object) : Object
 	
 Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailId)#Is text:K8:3)
-			Super:C1706._throwError(10; {which: "\"mailId\""; function: "getMail"})
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "getMail"})
 			
-		: (Length:C16(String:C10($inMailId))=0)
-			Super:C1706._throwError(9; {which: "\"mailId\""; function: "getMail"})
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "getMail"})
 			
 		Else 
 			
 			var $URL; $userId; $urlParams; $mailType; $format : Text
 			var $result : Object
 			
-			$URL:=Super:C1706._getURL()
-			$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
-			$mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? $inParameters.mailType : This:C1470.mailType
-			$format:=String:C10($inParameters.format)
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+			$format:=String($inParameters.format)
 			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
 			
-			$urlParams+="users/"+$userId+"/messages/"+String:C10($inMailId)+This:C1470._getURLParamsFromObject($inParameters)
+			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($inParameters)
 			
-			$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
+			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
 			
-			If ($result#Null:C1517)
+			If ($result#Null)
 				
 				var $rawMessage : Text
 				
 				Case of 
 					: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
-						If (Value type:C1509($result.raw)=Is text:K8:3)
+						If (Value type($result.raw)=Is text)
 							
 							$rawMessage:=_base64UrlSafeDecode($result.raw)
 							If ($mailType="JMAP")
 								
 								var $copy : Object
 								
-								$copy:=OB Copy:C1225($result)
-								$response:=MAIL Convert from MIME:C1681($rawMessage)
-								$response.id:=String:C10($copy.id)
-								$response.threadId:=String:C10($copy.threadId)
-								$response.labelIds:=OB Is defined:C1231($copy; "labelIds") ? $copy.labelIds : []
+								$copy:=OB Copy($result)
+								$response:=MAIL Convert from MIME($rawMessage)
+								$response.id:=String($copy.id)
+								$response.threadId:=String($copy.threadId)
+								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : []
 							Else 
 								
-								$response:=(Length:C16($rawMessage)>0) ? $rawMessage : $result.raw
+								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
 							End if 
 						End if 
 						
 					: (($format="minimal") || ($format="metadata"))
-						$response:=This:C1470._convertMailObjectToJMAP($result)
+						$response:=This._convertMailObjectToJMAP($result)
 						
 					Else 
-						Super:C1706._throwError(10; {which: 1; function: "getMail"})
+						Super._throwError(10; {which: 1; function: "getMail"})
 						
 				End case 
 				
@@ -340,7 +340,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
 	return $response
 	
@@ -350,14 +350,14 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailIds)#Is collection:K8:32)
-			Super:C1706._throwError(10; {which: "\"mailIds\""; function: "getMails"})
+		: (Type($inMailIds)#Is collection)
+			Super._throwError(10; {which: "\"mailIds\""; function: "getMails"})
 			
-		: (Num:C11($inMailIds.length)=0)
-			Super:C1706._throwError(9; {which: "\"mailIds\""; function: "getMails"})
+		: (Num($inMailIds.length)=0)
+			Super._throwError(9; {which: "\"mailIds\""; function: "getMails"})
 			
 		Else 
 			
@@ -366,21 +366,54 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			
 			If ($inMailIds.length=1)
 				
-				$response:=This:C1470.getMail($inMailIds[0]; $inParameters)
+				$response:=This.getMail($inMailIds[0]; $inParameters)
 				$result.push($response)
 				
 			Else 
 				
 				// TODO use cs._batchRequest Object
-				
-				If ($response#Null:C1517)
-					
-				End if 
+				ASSERT(false;"Unimplemented")
 			End if 
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
 	return $result
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function update($inMailIds : Collection; $inParameters : Object) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inMailIds)#Is collection)
+			Super._throwError(10; {which: "\"mailIds\""; function: "update"})
+			
+		: (Num($inMailIds.length)=0)
+			Super._throwError(9; {which: "\"mailIds\""; function: "update"})
+
+		: (Type($inParameters)#Is object)
+			Super._throwError(10; {which: "\"parameters\""; function: "update"})
+			
+		Else 
+			
+			var $URL; $userId: Text
+			var $response : Object
+			var $headers : Object:={}
+	
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/messages/batchModify"
+					
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inParameters)
+			This._internals._response:=OB Copy($response)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
