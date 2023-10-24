@@ -372,7 +372,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			Else 
 				
 				// TODO use cs._batchRequest Object
-				ASSERT(false;"Unimplemented")
+				ASSERT(False; "Unimplemented")
 			End if 
 			
 	End case 
@@ -395,21 +395,30 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			
 		: (Num($inMailIds.length)=0)
 			Super._throwError(9; {which: "\"mailIds\""; function: "update"})
-
+			
+		: (Num($inMailIds.length)>1000)
+			Super._throwError(13; {which: "\"mailIds\""; function: "update"; max: 1000})
+			
 		: (Type($inParameters)#Is object)
 			Super._throwError(10; {which: "\"parameters\""; function: "update"})
 			
 		Else 
 			
-			var $URL; $userId: Text
+			var $URL; $userId : Text
 			var $response : Object
 			var $headers : Object:={}
-	
+			var $body : Object:={}
+			var $mailIds : Collection:=(Type($inMailIds[0])=Is object) ? $inMailIds.extract("id") : $inMailIds
+			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/batchModify"
-					
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inParameters)
+			
+			$body.ids:=$mailIds
+			$body.addLabelIds:=(Type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
+			$body.removeLabelIds:=(Type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
+			
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
 			This._internals._response:=OB Copy($response)
 			
 	End case 
