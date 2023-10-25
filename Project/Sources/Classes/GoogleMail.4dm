@@ -446,16 +446,12 @@ Function getLabel($inLabelId : Text) : Object
 			var $URL; $userId : Text
 			var $response : Object
 			
-			Super._throwErrors(False)
-			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/labels"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 			This._internals._response:=OB Copy($response)
-			
-			Super._throwErrors(True)
 			
 			return OB Copy($response)
 			
@@ -468,6 +464,8 @@ Function getLabel($inLabelId : Text) : Object
 	
 	
 Function createLabel($inLabelInfo : Object) : Object
+	
+	Super._throwErrors(False)
 	
 	Case of 
 		: (Type($inLabelInfo)#Is object)
@@ -491,6 +489,8 @@ Function createLabel($inLabelInfo : Object) : Object
 			
 	End case 
 	
+	Super._throwErrors(True)
+	
 	return This._returnStatus()
 	
 	
@@ -498,6 +498,8 @@ Function createLabel($inLabelInfo : Object) : Object
 	
 	
 Function deleteLabel($inLabelId : Text) : Object
+	
+	Super._throwErrors(False)
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
@@ -520,6 +522,8 @@ Function deleteLabel($inLabelId : Text) : Object
 			
 	End case 
 	
+	Super._throwErrors(True)
+	
 	return This._returnStatus()
 	
 	
@@ -527,6 +531,8 @@ Function deleteLabel($inLabelId : Text) : Object
 	
 	
 Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
+	
+	Super._throwErrors(False)
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
@@ -555,5 +561,7 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 			This._internals._response:=OB Copy($response)
 			
 	End case 
+	
+	Super._throwErrors(True
 	
 	return This._returnStatus()
