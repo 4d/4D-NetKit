@@ -408,15 +408,15 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			var $response : Object
 			var $headers : Object:={}
 			var $body : Object:={}
-			var $mailIds : Collection:=(Type($inMailIds[0])=Is object) ? $inMailIds.extract("id") : $inMailIds
+			var $mailIds : Collection:=(Value type($inMailIds[0])=Is object && OB Is defined($inMailIds[0];"id")) ? $inMailIds.extract("id") : $inMailIds
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/batchModify"
 			
 			$body.ids:=$mailIds
-			$body.addLabelIds:=(Type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
-			$body.removeLabelIds:=(Type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
+			$body.addLabelIds:=(Value type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
+			$body.removeLabelIds:=(Value type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
 			This._internals._response:=OB Copy($response)
