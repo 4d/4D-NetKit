@@ -443,7 +443,7 @@ Function getLabel($inLabelId : Text) : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-			$URL+="users/"+$userId+"/labels"+$inLabelId
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 			This._internals._response:=OB Copy($response)
@@ -510,7 +510,7 @@ Function deleteLabel($inLabelId : Text) : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-			$URL+="users/"+$userId+"/labels"+$inLabelId
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
 			This._internals._response:=OB Copy($response)
@@ -550,7 +550,7 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-			$URL+="users/"+$userId+"/labels"+$inLabelId
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inLabelInfo)
 			This._internals._response:=OB Copy($response)
