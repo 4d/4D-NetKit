@@ -18,7 +18,6 @@ property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 
 property client_assertion_type : Text  // When authenticating with certificate this one is needed in body
-property client_assertion : Text  // When authenticating with certificate that's the property for the signed jwt token
 property _thumbprint : Text
 
 property _scope : Text
@@ -189,10 +188,13 @@ Class constructor($inParams : Object)
 			This:C1470.enableDebugLog:=True:C214
 		End if 
 		
+/*
+_thumbprint of the public key / certificate  is used for the property x5t in jwt header
+When _thumprint is empty it's not possible to create a proper jwt token for request.
+*/
 		If ((OB Is defined:C1231($inParams; "client_assertion_type")) & (OB Is defined:C1231($inParams; "_thumbprint")))
 			This:C1470.client_assertion_type:=String:C10($inParams.client_assertion_type)
-			This:C1470._thumbprint:=$inParams._thumbprint
-			This:C1470.client_assertion:=""
+			This:C1470._thumbprint:=String:C10($inParams._thumbprint)
 		End if 
 		
 	End if 
@@ -423,26 +425,22 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	
 Function _getToken_Service()->$result : Object
-	
 	var $params : Text
+	var $jwt : cs:C1710._JWT
+	var $options : Object
+	var $bearer : Text
 	
 	Case of 
 		: (This:C1470._useJWTBearer())
-		: (This:C1470._useJWTBearerAssertionType())
 			
-			var $jwt : cs:C1710._JWT
-			var $options : Object
-			var $bearer : Text
-			
-			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This:C1470.hexToBase64Url}}
+			$options:={header: {alg: "RS256"; typ: "JWT"}}
 			
 			$options.payload:={}
-			$options.payload.iss:=This:C1470.clientId
+			$options.payload.iss:=This:C1470.clientEmail
 			$options.payload.scope:=This:C1470.scope
 			$options.payload.aud:=This:C1470.tokenURI
 			$options.payload.iat:=This:C1470._unixTime()
 			$options.payload.exp:=$options.payload.iat+3600
-			$options.payload.sub:=This:C1470.clientId
 			If ((Length:C16(String:C10(This:C1470.tenant))>0) && (Position:C15("@"; This:C1470.tenant)>0))
 				$options.payload.sub:=This:C1470.tenant
 			End if 
@@ -452,9 +450,30 @@ Function _getToken_Service()->$result : Object
 			$jwt:=cs:C1710._JWT.new($options)
 			$bearer:=$jwt.generate()
 			
+			$params:="grant_type="+_urlEncode(This:C1470.grantType)
+			$params+="&assertion="+$bearer
+			
+		: (This:C1470._useJWTBearerAssertionType())
+			// See documentaion of  https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
+			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This:C1470.hexToBase64Url}}
+			
+			$options.payload:={}
+			$options.payload.iss:=This:C1470.clientId  // Must be client id of app registration
+			$options.payload.scope:=This:C1470.scope
+			$options.payload.aud:=This:C1470.tokenURI
+			$options.payload.iat:=This:C1470._unixTime()
+			$options.payload.exp:=$options.payload.iat+3600
+			$options.payload.sub:=This:C1470.clientId  // Same as iss
+			
+			$options.privateKey:=This:C1470.privateKey
+			
+			$jwt:=cs:C1710._JWT.new($options)
+			$bearer:=$jwt.generate()
+			
+			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
 			$params:="grant_type="+This:C1470.grantType
 			$params+="&client_id="+This:C1470.clientId
-			$params+="&scope="+_urlEncode(This:C1470._scope)
+			$params+="&scope="+_urlEncode(This:C1470.scope)
 			$params+="&client_assertion_type="+_urlEncode(This:C1470.client_assertion_type)
 			$params+="&client_assertion="+$bearer
 			
@@ -649,7 +668,7 @@ Function _useJWTBearer() : Boolean
 	
 Function _useJWTBearerAssertionType() : Boolean
 	
-	return (This:C1470.client_assertion_type="urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+	return (OB Is defined:C1231(This:C1470; "_thumbprint") & (This:C1470._thumbprint#""))
 	
 	
 	// Mark: - [Public]
@@ -817,7 +836,6 @@ Function get tokenURI() : Text
 	
 	
 Function get hexToBase64Url() : Text
-	// $t_hex --> thumbprint
 	var $xtoencode; $xencoded : Blob
 	var $t_hex : Text
 	var $l_counter : Integer

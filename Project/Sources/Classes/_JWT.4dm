@@ -9,12 +9,17 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg; $typ : Text
+	var $alg; $typ; $x5t : Text
 	
 	$alg:=(OB Is defined:C1231($inParam; "header") && OB Is defined:C1231($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
 	$typ:=(OB Is defined:C1231($inParam; "header") && OB Is defined:C1231($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
 	$x5t:=(OB Is defined:C1231($inParam; "header") && OB Is defined:C1231($inParam.header; "x5t")) ? $inParam.header.x5t : Null:C1517
-	This:C1470.header:={alg: $alg; typ: $typ; x5t: $x5t}
+	
+	This:C1470.header:={alg: $alg; typ: $typ}
+	If ($x5t#Null:C1517)
+		This:C1470.header.x5t:=$x5t
+	End if 
+	
 	
 	If (OB Get type:C1230($inParam; "payload")=Is object:K8:27)
 		This:C1470.payload:=$inParam.payload
