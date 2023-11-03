@@ -528,6 +528,8 @@ Function deleteLabel($inLabelId : Text) : Object
 	
 Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	
+	var $response : Object:=Null
+	
 	Super._throwErrors(False)
 	
 	Case of 
@@ -546,7 +548,6 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 		Else 
 			
 			var $URL; $userId : Text
-			var $response : Object
 			var $headers : Object:={}
 			
 			$URL:=Super._getURL()
@@ -554,10 +555,9 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inLabelInfo)
-			This._internals._response:=OB Copy($response)
 			
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus()
+	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
