@@ -15,9 +15,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// Mark: - [Private]
 	
 	
-Function _postJSONMessage($inURL : Text; \
-$inMail : Object; \
-$inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
 	If ($inMail#Null)
 		var $headers; $message; $messageCopy; $response : Object
@@ -74,10 +72,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; \
-$inURL : Text; \
-$inMail : Variant; \
-$inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inHeader : Object) : Object
 	
 	var $status : Object
 	
@@ -562,6 +557,6 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 			
 	End case 
 	
-	Super._throwErrors(True
+	Super._throwErrors(True)
 	
 	return This._returnStatus()
