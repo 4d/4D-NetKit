@@ -460,6 +460,8 @@ Function getLabel($inLabelId : Text) : Object
 	
 Function createLabel($inLabelInfo : Object) : Object
 	
+	var $response : Object:=Null
+	
 	Super._throwErrors(False)
 	
 	Case of 
@@ -472,7 +474,6 @@ Function createLabel($inLabelInfo : Object) : Object
 		Else 
 			
 			var $URL; $userId : Text
-			var $response : Object
 			var $headers : Object:={}
 			
 			$URL:=Super._getURL()
@@ -480,13 +481,13 @@ Function createLabel($inLabelInfo : Object) : Object
 			$URL+="users/"+$userId+"/labels"
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inLabelInfo)
-			This._internals._response:=OB Copy($response)
 			
 	End case 
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus()
+	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	
 	
 	
 	// ----------------------------------------------------
