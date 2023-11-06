@@ -7,17 +7,18 @@
 // Method: test_method_sblaser
 // Description
 // 
-//
+
 // Parameters
 // ----------------------------------------------------
 
+
 var $v_privatekey : Variant
 var $o_params : Object
-var $cs_oAuth : cs:C1710.OAuth2Provider
+var $cs_oAuth : cs.OAuth2Provider
 var $v_token : Variant
-$v_privatekey:=File:C1566("..//private.pem").getText("ascii"; Document unchanged:K24:18)
+$v_privatekey:=File("..//private.pem").getText("ascii"; Document unchanged)
 
-$o_params:=New object:C1471()
+$o_params:=New object()
 $o_params.name:="Microsoft"
 $o_params.permission:="service"
 $o_params.clientId:="..."
@@ -31,7 +32,7 @@ $o_params.tokenURI:="https://login.microsoftonline.com/.../oauth2/v2.0/token"
 $o_params.authenticateURI:="https://login.microsoftonline.com/.../oauth2/v2.0/authorize"
 $o_params.grantType:="client_credentials"
 $o_params.client_assertion_type:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-$o_params._thumbprint:=""  //thumbprint
+$o_params._thumbprint:=""  //thumbprint of certificate / public key can be copied in Azure portal at certificated & secrets
 
-$cs_oAuth:=cs:C1710.OAuth2Provider.new($o_params)
-$v_token:=$cs_oAuth.getToken()
+$cs_oAuth:=cs.OAuth2Provider.new($o_params)
+//$v_token:=$cs_oAuth.getToken()
