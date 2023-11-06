@@ -23,7 +23,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: '.github/cla/signatures.json'
-          path-to-document: 'https://github.com/${GITHUB_REPOSITORY}/blob/main/.github/cla/4DCLA.md'
+          path-to-document: 'https://github.com/${{GITHUB_REPOSITORY}}/blob/main/.github/cla/4DCLA.md'
           # branch should not be protected
           branch: 'main'
           allowlist: 4DBuildMgr,CGareau,DamienFuzeau,EricMinyem,Hafid4D,Ilhaba,JarosMachacek,Mohammed-Ouakani,RickiBarragan,Roland-Lannuzel,Souhail-Elmouhtadi,StephanieTrt,ThomasMaul,abdelkrim-bouhoute,addkomo4d,ahmed-rajouani-alaoui,amine-maqrot,anass-talii,arnaud4d,azzeddine-simmad,berengerelagrange,bfremont,brahim-boukobba,client-bugbase,crugeles,cyril-makloufi,david-azancot,delahaye-4D,djotandjigora,e-marchand,emmanuel-craeymeersch,fabrice-mainguene,franck-louvigne,francois-marchal,guillaume-kotulski,halima-laghroubi,hassan-ettanany,htemanni92,imjabber,intissarMez,isaac-gonzalezbottini,jacques-quidu,jean-laguerre,laurent-esnault,llaunay,lribardi,majda-elmaazouzi,mathieu-ferry,michel-blaise,mickael-cerisier,mickaelr4d,migad-negib,miyako,mouna-elmaazouzi,moussa-bellahcene,ms-landrieu,nhat-do1,nicolas-brachfogel,nobuteshima,noreddine-margoum,omar-hcine,omar-lakrari,omar-zaida,ossama-mourini,patrick-poly,pfhuillet,sclairet,shayanna-gatchalian,tai-bui1,vanessa-talbot,vdelachaux,vincent-laluque,walid-chekkouri,wtaylor-4d,yannicktrinh,zineb-aslioui
