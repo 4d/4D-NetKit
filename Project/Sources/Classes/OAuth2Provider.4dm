@@ -17,7 +17,7 @@ property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 
-property client_assertion_type : Text  // When authenticating with certificate this one is needed in body
+property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
 property _thumbprint : Text
 
 property _scope : Text
@@ -192,8 +192,8 @@ Enable HTTP Server debug log for Debug purposes only
 _thumbprint of the public key / certificate  is used for the property x5t in jwt header
 When _thumprint is empty it's not possible to create a proper jwt token for request.
 */
-		If ((OB Is defined($inParams; "client_assertion_type")) & (OB Is defined($inParams; "_thumbprint")))
-			This.client_assertion_type:=String($inParams.client_assertion_type)
+		If ((OB Is defined($inParams; "clientAssertionType")) & (OB Is defined($inParams; "_thumbprint")))
+			This.clientAssertionType:=String($inParams.clientAssertionType)
 			This._thumbprint:=String($inParams._thumbprint)
 		End if 
 		
@@ -455,7 +455,7 @@ Function _getToken_Service()->$result : Object
 			
 		: (This._useJWTBearerAssertionType())
 			// See documentaion of  https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
-			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This.hexToBase64Url}}
+			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._hexToBase64Url}}
 			
 			$options.payload:={}
 			$options.payload.iss:=This.clientId  // Must be client id of app registration
@@ -474,7 +474,7 @@ Function _getToken_Service()->$result : Object
 			$params:="grant_type="+This.grantType
 			$params+="&client_id="+This.clientId
 			$params+="&scope="+_urlEncode(This.scope)
-			$params+="&client_assertion_type="+_urlEncode(This.client_assertion_type)
+			$params+="&client_assertion_type="+_urlEncode(This.clientAssertionType)
 			$params+="&client_assertion="+$bearer
 			
 		Else 
@@ -668,7 +668,7 @@ Function _useJWTBearer() : Boolean
 	
 Function _useJWTBearerAssertionType() : Boolean
 	
-	return (OB Is defined(This; "_thumbprint") & (This._thumbprint#""))
+	return Length(String(This._thumbprint))>0
 	
 	
 	// Mark: - [Public]
@@ -835,14 +835,13 @@ Function get tokenURI() : Text
 	return $tokenURI
 	
 	
-Function get hexToBase64Url() : Text
+Function get _hexToBase64Url() : Text
 	var $xtoencode; $xencoded : Blob
 	var $t_hex : Text
-	var $l_counter : Integer
+	var $i; $l_counter : Integer
+	
 	$t_hex:=This._thumbprint
 	SET BLOB SIZE($xtoencode; Length($t_hex)/2)
-	
-	$l_counter:=0
 	
 	For ($i; 1; Length($t_hex))
 		

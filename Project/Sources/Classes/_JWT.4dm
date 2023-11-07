@@ -13,10 +13,10 @@ Class constructor($inParam : Object)
 	
 	$alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
 	$typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
-	$x5t:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "x5t")) ? $inParam.header.x5t : Null
+	$x5t:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "x5t")) ? $inParam.header.x5t : ""
 	
 	This.header:={alg: $alg; typ: $typ}
-	If ($x5t#Null)
+	If ($x5t#"")
 		This.header.x5t:=$x5t
 	End if 
 	
