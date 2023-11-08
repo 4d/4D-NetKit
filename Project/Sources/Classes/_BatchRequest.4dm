@@ -7,14 +7,18 @@ property batchRequestes : Collection
 property _boundary : Text
 property _body : Text
 
-Class constructor($inParam : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
+	
+	Super($inProvider)
 	
 	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "GET"
 	This.URL:=(OB Is defined($inParam; "URL")) ? String($inParam.URL) : ""
-	This.headers:=(Value type($inParam.headers)=Is collection) ? $inParam.headers : []
+	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
 	This.batchRequestes:=(Value type($inParam.batchRequestes)=Is collection) ? $inParam.batchRequestes : []
 	
 	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch"
+	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
+	
 	This._body:=""
 	
 	
@@ -53,7 +57,7 @@ Function generateBody() : Text
 			
 			$body+="--"+This._boundary+"\r\n"
 			$body+="Content-Type: application/http\r\n"
-			$body+="Content-ID: "+String($batchRequest.id)+"\r\n\r\n"
+			$body+="Content-ID: "+String($batchRequest.request.id)+"\r\n\r\n"
 			
 			$body+=String($batchRequest.request.verb)+" "+String($batchRequest.request.URL)+" HTTP/1.1\r\n"
 			
@@ -83,8 +87,7 @@ Function sendRequestAndWaitResponse() : Object
 	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This.URL; This.headers; This._body)
 	
 	If ($response#Null)
-		// Disabled for the moment tool4D does not recognize the command yet
-		//$result:=Parse HTTP message($response)
+		$result:=Parse HTTP message($response)
 	End if 
 	
 	return $result

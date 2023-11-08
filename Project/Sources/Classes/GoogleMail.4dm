@@ -371,8 +371,36 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				
 			Else 
 				
-				// TODO use cs._batchRequest Object
-				ASSERT(False; "Unimplemented")
+				var $URL; $urlParams; $userId; $mailType; $mailId : Text
+				var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+			
+				If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+					$mailIds:=$mailIds.extract("id")
+				End if 
+					
+				$URL:=Super._getURL()
+				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+				$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+				
+				var $i : Integer:=1
+				var $batchRequestes : Collection:=[]
+				var $boundary : Text:="batch_"+Generate UUID
+				
+				For each ($mailId; $mailIds)
+					var $item : Text:="<item"+String($i)+">"
+					$i+=1
+					$urlParams:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($inParameters)
+					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+				End for each 
+				
+				var $parameters : Object:={verb: "GET"; \
+					URL: $URL+"/batch/users/"+$userId+"/messages/v1"; \
+					headers: {}; \
+					batchRequestes: $batchRequestes; \
+					boundary: $boundary}
+				var $batchRequest : cs._BatchRequest:=cs._BatchRequest.new(This._getOAuth2Provider(); $parameters)
+				$response:=$batchRequest.sendRequestAndWaitResponse()
+				
 			End if 
 			
 	End case 
@@ -408,7 +436,11 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			var $response : Object
 			var $headers : Object:={}
 			var $body : Object:={}
-			var $mailIds : Collection:=(Value type($inMailIds[0])=Is object && OB Is defined($inMailIds[0];"id")) ? $inMailIds.extract("id") : $inMailIds
+			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+			
+			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+				$mailIds:=$mailIds.extract("id")
+			End if 
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
