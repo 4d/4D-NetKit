@@ -1,6 +1,6 @@
 /*
-	Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
-	See: https://kb.4d.com/assetid=79100
+Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
+See: https://kb.4d.com/assetid=79100
 */
 
 property header : Object
@@ -9,11 +9,17 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg; $typ : Text
+	var $alg; $typ; $x5t : Text
 	
 	$alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
 	$typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
+	$x5t:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "x5t")) ? $inParam.header.x5t : ""
+	
 	This.header:={alg: $alg; typ: $typ}
+	If ($x5t#"")
+		This.header.x5t:=$x5t
+	End if 
+	
 	
 	If (OB Get type($inParam; "payload")=Is object)
 		This.payload:=$inParam.payload
@@ -191,3 +197,4 @@ Function _hashSign($inJWT : Object)->$hash : Text
 		// Sign Message with CryptoKey to generate hashed verify signature
 		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 
+	

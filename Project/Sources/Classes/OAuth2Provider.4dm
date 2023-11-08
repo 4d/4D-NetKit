@@ -17,6 +17,9 @@ property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 
+property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
+property _thumbprint : Text
+
 property _scope : Text
 property _authenticateURI : Text
 property _tokenURI : Text
@@ -188,7 +191,14 @@ Class constructor($inParams : Object)
 	
 	This._finally()
 	
-	
+/*
+_thumbprint of the public key / certificate  is used for the property x5t in jwt header
+When _thumprint is empty it's not possible to create a proper jwt token for request.
+*/
+	If ((OB Is defined($inParams; "clientAssertionType")) & (OB Is defined($inParams; "_thumbprint")))
+		This.clientAssertionType:=String($inParams.clientAssertionType)
+		This._thumbprint:=String($inParams._thumbprint)
+	End if 
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
@@ -414,13 +424,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 Function _getToken_Service()->$result : Object
 	
 	var $params : Text
+	var $jwt : cs._JWT
+	var $options : Object
+	var $bearer : Text
 	
 	Case of 
 		: (This._useJWTBearer())
-			
-			var $jwt : cs._JWT
-			var $options : Object
-			var $bearer : Text
 			
 			$options:={header: {alg: "RS256"; typ: "JWT"}}
 			
@@ -441,6 +450,30 @@ Function _getToken_Service()->$result : Object
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
+			
+		: (This._useJWTBearerAssertionType())
+			// See documentaion of  https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
+			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._hexToBase64Url}}
+			
+			$options.payload:={}
+			$options.payload.iss:=This.clientId  // Must be client id of app registration
+			$options.payload.scope:=This.scope
+			$options.payload.aud:=This.tokenURI
+			$options.payload.iat:=This._unixTime()
+			$options.payload.exp:=$options.payload.iat+3600
+			$options.payload.sub:=This.clientId  // Same as iss
+			
+			$options.privateKey:=This.privateKey
+			
+			$jwt:=cs._JWT.new($options)
+			$bearer:=$jwt.generate()
+			
+			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
+			$params:="grant_type="+This.grantType
+			$params+="&client_id="+This.clientId
+			$params+="&scope="+_urlEncode(This.scope)
+			$params+="&client_assertion_type="+_urlEncode(This.clientAssertionType)
+			$params+="&client_assertion="+$bearer
 			
 		Else 
 			
@@ -540,7 +573,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 					$result._loadFromURLEncodedResponse($response)
 					
 				Else 
-					/*
+/*
 						We have a status 200 (no error) and a response that we don't know/want to interpret.
 						Simply return a null result (to be consistent with the specifications) and
 						copy the raw response body in a private member of the class
@@ -630,6 +663,10 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 Function _useJWTBearer() : Boolean
 	
 	return (This.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
+	
+Function _useJWTBearerAssertionType() : Boolean
+	
+	return Length(String(This._thumbprint))>0
 	
 	
 	// Mark: - [Public]
@@ -794,3 +831,56 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
+	
+Function get _hexToBase64Url() : Text
+	var $xtoencode; $xencoded : Blob
+	var $t_hex : Text
+	var $i; $l_counter : Integer
+	
+	$t_hex:=This._thumbprint
+	SET BLOB SIZE($xtoencode; Length($t_hex)/2)
+	
+	For ($i; 1; Length($t_hex))
+		
+		Case of 
+			: ($t_hex[[$i]]="A")
+				$xtoencode{$l_counter}:=10*16
+			: ($t_hex[[$i]]="B")
+				$xtoencode{$l_counter}:=11*16
+			: ($t_hex[[$i]]="C")
+				$xtoencode{$l_counter}:=12*16
+			: ($t_hex[[$i]]="D")
+				$xtoencode{$l_counter}:=13*16
+			: ($t_hex[[$i]]="E")
+				$xtoencode{$l_counter}:=14*16
+			: ($t_hex[[$i]]="F")
+				$xtoencode{$l_counter}:=15*16
+			Else 
+				$xtoencode{$l_counter}:=Num($t_hex[[$i]])*16
+		End case 
+		
+		$i:=$i+1
+		
+		Case of 
+			: ($t_hex[[$i]]="A")
+				$xtoencode{$l_counter}+=10
+			: ($t_hex[[$i]]="B")
+				$xtoencode{$l_counter}+=11
+			: ($t_hex[[$i]]="C")
+				$xtoencode{$l_counter}+=12
+			: ($t_hex[[$i]]="D")
+				$xtoencode{$l_counter}+=13
+			: ($t_hex[[$i]]="E")
+				$xtoencode{$l_counter}+=14
+			: ($t_hex[[$i]]="F")
+				$xtoencode{$l_counter}+=15
+			Else 
+				$xtoencode{$l_counter}+=Num($t_hex[[$i]])
+		End case 
+		
+		$l_counter+=1
+	End for 
+	
+	BASE64 ENCODE($xtoencode; $xencoded; *)
+	
+	return BLOB to text($xencoded; UTF8 text without length)
