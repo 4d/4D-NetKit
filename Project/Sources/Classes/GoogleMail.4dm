@@ -373,11 +373,11 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				
 				var $URL; $urlParams; $userId; $mailType; $mailId : Text
 				var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
-			
+				
 				If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
 					$mailIds:=$mailIds.extract("id")
 				End if 
-					
+				
 				$URL:=Super._getURL()
 				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 				$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
@@ -394,14 +394,14 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				End for each 
 				
 				var $parameters : Object:={verb: "POST"; \
-					URL: $URL+"batch/users/"+$userId+"/messages"; \
+					URL: $URL+"users/"+$userId+"/messages/batch/"; \
 					headers: {}; \
 					batchRequestes: $batchRequestes; \
 					boundary: $boundary}
 				var $batchRequest : cs._BatchRequest:=cs._BatchRequest.new(This._getOAuth2Provider(); $parameters)
 				$response:=$batchRequest.sendRequestAndWaitResponse()
 				$result.push($response)
-
+				
 			End if 
 			
 	End case 
