@@ -393,14 +393,15 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
-				var $parameters : Object:={verb: "GET"; \
-					URL: $URL+"/batch/users/"+$userId+"/messages/v1"; \
+				var $parameters : Object:={verb: "POST"; \
+					URL: $URL+"batch/users/"+$userId+"/messages"; \
 					headers: {}; \
 					batchRequestes: $batchRequestes; \
 					boundary: $boundary}
 				var $batchRequest : cs._BatchRequest:=cs._BatchRequest.new(This._getOAuth2Provider(); $parameters)
 				$response:=$batchRequest.sendRequestAndWaitResponse()
-				
+				$result.push($response)
+
 			End if 
 			
 	End case 
