@@ -26,4 +26,3 @@ jobs:
           sudo apt-get install libxml2-utils
           # shellcheck disable=2046
           find . \( -name "*.xlf" -o -name '*.4DCatalog' -o -name "*.4DSettings" \) -type f -exec xmllint --noout '{}' +
-
