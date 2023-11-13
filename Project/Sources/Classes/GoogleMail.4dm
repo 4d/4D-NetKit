@@ -292,15 +292,18 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 		Else 
 			
 			var $URL; $userId; $urlParams; $mailType; $format : Text
-			var $result : Object
+			var $result; $parameters : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
 			$format:=String($inParameters.format)
 			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
-			
-			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($inParameters)
+			$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+			If ($parameters.format#$format)
+				$parameters.format:=$format
+			End if 
+			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
 			
 			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
 			
