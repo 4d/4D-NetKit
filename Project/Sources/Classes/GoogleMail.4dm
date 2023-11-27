@@ -365,11 +365,10 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 		Else 
 			
 			var $result : Collection:=[]
-			var $response : Variant
 			
 			If ($inMailIds.length=1)
 				
-				$response:=This.getMail($inMailIds[0]; $inParameters)
+				var $response : Variant:=This.getMail($inMailIds[0]; $inParameters)
 				$result.push($response)
 				
 			Else 
@@ -398,8 +397,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				var $parameters : Object:={headers: {}; \
 					batchRequestes: $batchRequestes}
 				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $parameters)
-				$response:=$batchRequest.sendRequestAndWaitResponse()
-				$result.push($response)
+				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
 			End if 
 			

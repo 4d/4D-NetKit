@@ -82,14 +82,19 @@ Function generateBody() : Text
 	// ----------------------------------------------------
 	
 	
-Function sendRequestAndWaitResponse() : Object
+Function sendRequestAndWaitResponse() : Collection
 	
-	var $result : Object:={}
+	var $result : Collection:=[]
 	var $body : Text:=This.body
-	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This._internals._URL; This.headers; $body)
+	var $response : Text:=This._sendRequestAndWaitResponse(This.verb; This._internals._URL; This.headers; $body)
 	
-	If ($response#Null)
-		$result:=Parse HTTP message($response)
+	If (Length($response)>0)
+		var $message : Object:=Parse HTTP message($response)
+		var $part : Object
+		For each ($part; $message.parts)
+			$result.push(Parse HTTP message(String($part.content)))
+		End for each 
+		
 	End if 
 	
 	return $result
