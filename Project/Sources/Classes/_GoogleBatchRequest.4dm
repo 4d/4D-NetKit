@@ -1,4 +1,4 @@
-Class extends _BaseAPI
+Class extends _GoogleAPI
 
 property verb : Text
 property URL : Text
@@ -11,12 +11,13 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	Super($inProvider)
 	
-	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "GET"
-	This.URL:=(OB Is defined($inParam; "URL")) ? String($inParam.URL) : ""
+	This._internals._URL:="https://gmail.googleapis.com/batch/gmail/v1/"
+	
+	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "POST"
 	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
 	This.batchRequestes:=(Value type($inParam.batchRequestes)=Is collection) ? $inParam.batchRequestes : []
 	
-	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch"
+	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch_"+Generate UUID
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
 	
 	This._body:=""
@@ -84,7 +85,8 @@ Function generateBody() : Text
 Function sendRequestAndWaitResponse() : Object
 	
 	var $result : Object:={}
-	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This.URL; This.headers; This._body)
+	var $body : Text:=This.body
+	var $response : Blob:=This._sendRequestAndWaitResponse(This.verb; This._internals._URL; This.headers; $body)
 	
 	If ($response#Null)
 		$result:=Parse HTTP message($response)

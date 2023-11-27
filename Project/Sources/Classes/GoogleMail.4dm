@@ -387,7 +387,6 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				
 				var $i : Integer:=1
 				var $batchRequestes : Collection:=[]
-				var $boundary : Text:="batch_"+Generate UUID
 				
 				For each ($mailId; $mailIds)
 					var $item : Text:="<item"+String($i)+">"
@@ -396,12 +395,9 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
-				var $parameters : Object:={verb: "POST"; \
-					URL: $URL+"users/"+$userId+"/messages/batch/"; \
-					headers: {}; \
-					batchRequestes: $batchRequestes; \
-					boundary: $boundary}
-				var $batchRequest : cs._BatchRequest:=cs._BatchRequest.new(This._getOAuth2Provider(); $parameters)
+				var $parameters : Object:={headers: {}; \
+					batchRequestes: $batchRequestes}
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $parameters)
 				$response:=$batchRequest.sendRequestAndWaitResponse()
 				$result.push($response)
 				

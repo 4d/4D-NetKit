@@ -16,9 +16,9 @@
 		"classes": [
 			"_BaseAPI",
 			"_BaseClass",
-			"_BatchRequest",
 			"_GoogleAPI",
 			"_GoogleBaseList",
+			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
