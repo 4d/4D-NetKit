@@ -364,12 +364,14 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			
 		Else 
 			
-			var $result : Collection:=[]
+			var $result : Collection:=Null
 			
 			If ($inMailIds.length=1)
 				
 				var $response : Variant:=This.getMail($inMailIds[0]; $inParameters)
-				$result.push($response)
+				If ($response#Null)
+					$result:=New collection($response)
+				End if 
 				
 			Else 
 				
