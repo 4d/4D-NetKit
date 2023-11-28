@@ -375,8 +375,9 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				
 			Else 
 				
-				var $URL; $urlParams; $userId; $mailType; $mailId : Text
+				var $URL; $urlParams; $userId; $mailType; $mailId; $format : Text
 				var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+				var $parameters : Object
 				
 				If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
 					$mailIds:=$mailIds.extract("id")
@@ -385,6 +386,12 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				$URL:=Super._getURL()
 				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 				$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+				$format:=String($inParameters.format)
+				$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
+				$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+				If ($parameters.format#$format)
+					$parameters.format:=$format
+				End if 
 				
 				var $i : Integer:=1
 				var $batchRequestes : Collection:=[]
@@ -392,13 +399,12 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				For each ($mailId; $mailIds)
 					var $item : Text:="<item"+String($i)+">"
 					$i+=1
-					$urlParams:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($inParameters)
+					$urlParams:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
-				var $parameters : Object:={headers: {}; \
-					batchRequestes: $batchRequestes}
-				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $parameters)
+				var $batchParams : Object:={headers: {}; batchRequestes: $batchRequestes}
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
 			End if 
