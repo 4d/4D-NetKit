@@ -6,6 +6,9 @@ property headers : Object
 property batchRequestes : Collection
 property _boundary : Text
 property _body : Text
+property _mailType : Text
+property _format : Text
+
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
@@ -21,6 +24,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
 	
 	This._body:=""
+	This._mailType:=(OB Is defined($inParam; "mailType")) ? String($inParam.mailType) : "MIME"
+	This._format:=(OB Is defined($inParam; "format")) ? String($inParam.format) : "raw"
 	
 	
 	// Mark: - [Public]
@@ -84,7 +89,7 @@ Function generateBody() : Text
 	
 Function sendRequestAndWaitResponse() : Collection
 	
-	var $result : Collection:=Null
+	var $collection : Collection:=Null
 	var $verb:=This.verb
 	var $URL : Text:=This._internals._URL
 	var $body : Text:=This.body
@@ -96,20 +101,25 @@ Function sendRequestAndWaitResponse() : Collection
 		var $message : Object:=Parse HTTP message($response)
 		var $part; $subPart : Object
 		
-		$result:=[]
+		$collection:=[]
 		For each ($part; $message.parts)
 			
 			$part:=Parse HTTP message(String($part.content))
 			For each ($subPart; $part.parts)
 				
+				var $result : Variant:=Null
 				If ($subPart.contentType="application/json")
-					$result.push(JSON Parse($subPart.content))
+					$result:=This._extractRawMessage(JSON Parse($subPart.content); This._format; This._mailType)
 				Else 
-					$result.push(4D.Blob.new($subPart.content))
+					$result:=4D.Blob.new($subPart.content)
+				End if 
+				
+				If ($result#Null)
+					$collection.push($result)
 				End if 
 			End for each 
 		End for each 
 		
 	End if 
 	
-	return $result
+	return $collection

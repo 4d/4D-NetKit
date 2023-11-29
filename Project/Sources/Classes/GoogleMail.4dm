@@ -306,40 +306,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
 			
 			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
-			
-			If ($result#Null)
-				
-				var $rawMessage : Text
-				
-				Case of 
-					: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
-						If (Value type($result.raw)=Is text)
-							
-							$rawMessage:=_base64UrlSafeDecode($result.raw)
-							If ($mailType="JMAP")
-								
-								var $copy : Object
-								
-								$copy:=OB Copy($result)
-								$response:=MAIL Convert from MIME($rawMessage)
-								$response.id:=String($copy.id)
-								$response.threadId:=String($copy.threadId)
-								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : []
-							Else 
-								
-								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
-							End if 
-						End if 
-						
-					: (($format="minimal") || ($format="metadata"))
-						$response:=This._convertMailObjectToJMAP($result)
-						
-					Else 
-						Super._throwError(10; {which: 1; function: "getMail"})
-						
-				End case 
-				
-			End if 
+			$response:=This._extractRawMessage($result; $format; $mailType)
 			
 	End case 
 	
@@ -403,7 +370,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
-				var $batchParams : Object:={headers: {}; batchRequestes: $batchRequestes}
+				var $batchParams : Object:={batchRequestes: $batchRequestes; $mailType: $mailType; format: $format}
 				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
