@@ -103,63 +103,6 @@ $inHeader : Object) : Object
 	return $status
 	
 	
-	// ----------------------------------------------------
-	
-	
-Function _convertMailObjectToJMAP($inMail : Object) : Object
-	
-	var $result : Object
-	var $keys : Collection
-	var $key; $name; $string : Text
-	var $email : cs.EmailAddress
-	
-	$result:={}
-	$keys:=OB Keys($inMail)
-	For each ($key; $keys)
-		$name:=_getJMAPAttribute($key)
-		If (Length($name)>0)
-			If ($key="labelIds")
-				If (Num($inMail.labelIds.length)>0)
-					$string:=$inMail.labelIds.join("=true,"; ck ignore null or empty)+"=true"
-					$result[$name]:=Split string($string; ","; sk trim spaces)
-				End if 
-			Else 
-				$result[$name]:=$inMail[$key]
-			End if 
-		End if 
-	End for each 
-	
-	If (OB Is defined($inMail; "payload"))
-		$keys:=OB Keys($inMail.payload)
-		For each ($key; $keys)
-			If ($key="headers")
-				var $header : Object
-				For each ($header; $inMail.payload.headers)
-					$name:=_getJMAPAttribute($header.name)
-					If (Length($name)>0)
-						Case of 
-							: ($header.name="Keywords")
-								If (Length($header.value)>0)
-									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
-									$result[$name]:=Split string($string; ","; sk trim spaces)
-								End if 
-							: (_IsEmailAddressHeader($header.name))
-								If (Length($header.value)>0)
-									$email:=cs.EmailAddress.new($header.value)
-									$result[$name]:=OB Copy($email)
-								End if 
-							Else 
-								$result[$name]:=$header.value
-						End case 
-					End if 
-				End for each 
-			End if 
-		End for each 
-	End if 
-	
-	return $result
-	
-	
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
@@ -370,7 +313,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
-				var $batchParams : Object:={batchRequestes: $batchRequestes; $mailType: $mailType; format: $format}
+				var $batchParams : Object:={batchRequestes: $batchRequestes; mailType: $mailType; format: $format}
 				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
