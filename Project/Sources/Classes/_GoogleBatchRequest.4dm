@@ -89,7 +89,7 @@ Function generateBody() : Text
 	
 Function sendRequestAndWaitResponse() : Collection
 	
-	var $collection : Collection:=Null
+	var $collection : Collection
 	var $verb:=This.verb
 	var $URL : Text:=This._internals._URL
 	var $body : Text:=This.body
@@ -122,4 +122,4 @@ Function sendRequestAndWaitResponse() : Collection
 		
 	End if 
 	
-	return $collection
+	return ($collection.length>0) ? $collection : Null
