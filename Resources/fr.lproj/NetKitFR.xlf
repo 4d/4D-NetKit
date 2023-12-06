@@ -65,6 +65,10 @@
           <source>The '{function}' function returned an unexpected error : {message}.</source>
           <target>La fonction '{function}' a retourné une erreur inattendue : {message}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_13">
+          <source>The '{which}' parameter value in function {function} is too large and must not exceed {max}.</source>
+          <target>La valeur du paramètre '{which}' dans la fonction {function} est trop grande et ne doit pas dépasser {max}.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>Composant 4D NetKit</source>

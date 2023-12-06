@@ -9,8 +9,8 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg; $typ: Text
-
+	var $alg; $typ : Text
+	
 	$alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
 	$typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
 	This.header:={alg: $alg; typ: $typ}
@@ -153,10 +153,10 @@ Function _hashHS($inJWT : Object) : Text
 	// ----------------------------------------------------
 	
 	
-Function _hashSign($inJWT : Object)->$result : Text
+Function _hashSign($inJWT : Object)->$hash : Text
 	
 	var $encodedHead; $encodedPayload; $algorithm; $privateKey : Text
-	var $settings; $signOptions : Object
+	var $settings : Object
 	var $hashAlgorithm : Integer
 	var $cryptoKey : 4D.CryptoKey
 	
@@ -189,7 +189,5 @@ Function _hashSign($inJWT : Object)->$result : Text
 		End if 
 		
 		// Sign Message with CryptoKey to generate hashed verify signature
-		$signOptions:={hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"}
-		
-		$result:=$cryptoKey.sign($encodedHead+"."+$encodedPayload; $signOptions)
+		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 

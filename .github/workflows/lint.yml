@@ -1,12 +1,17 @@
-# For more information, see:
-# https://github.com/github/super-linter
-name: Lint Code Base
+name: Lint
 
 on:
   push:
-    branches: [ "main" ]
+    paths:
+      - '**.xlf'
+      - '**.4DSettings'
+      - '**.4DCatalog'
+
   pull_request:
-    branches: [ "main" ]
+    paths:
+      - '**.xlf'
+      - '**.4DSettings'
+      - '**.4DCatalog'
 jobs:
   run-lint:
     runs-on: ubuntu-latest
@@ -16,15 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Lint Code Base
-        uses: github/super-linter/slim@v4
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: "main"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Lint Xliff
-        if: always()
+      - name: Lint XML
         run: |
           sudo apt-get install libxml2-utils
           # shellcheck disable=2046

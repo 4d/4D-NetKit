@@ -18,6 +18,7 @@
 			"_BaseClass",
 			"_GoogleAPI",
 			"_GoogleBaseList",
+			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
@@ -43,6 +44,8 @@
 			"_retainFileObject",
 			"_startWebServer",
 			"_stopWebServer",
+			"_testBatchRequest",
+			"_testJWT",
 			"_throwError",
 			"_urlDecode",
 			"_urlEncode"
