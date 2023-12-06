@@ -37,8 +37,10 @@
 	- [Google.mail.getLabelList()](#googlemailgetlabellist)
 	- [Google.mail.getMail()](#googlemailgetmail)
  	- [Google.mail.getMailIds()](#googlemailgetmailids)
+	- [Google.mail.getMails()](#googlemailgetmails)
  	- [Google.mail.send()](#googlemailsend)
  	- [Google.mail.untrash()](#googlemailuntrash)
+ 	- [Google.mail.update()](#googlemailupdate)
  	- [Status object (Google Class)](#status-object-google-class)
 
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
@@ -1411,6 +1413,45 @@ https://www.googleapis.com/auth/gmail.readonly
 https://www.googleapis.com/auth/gmail.metadata
 ```
 
+### Google.mail.getMails()
+
+**Google.mail.getMails**( *mailID* : Collection { ; *options* : Object } ) : Collection
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Collection|->|object collection. Each object contains: id : text : mail id </br>text collection. Each item contains an id|
+|options|Object|->|Options|
+|Result|Collection Object &#124; Collection Blob|<-|Collection of emails depending on the *mailType* (JMAP or MIME format)</br>If no mail is returned, the collection is empty|
+
+
+#### Description
+
+`Google.mail.getMails()` Gets an emails collection based on the specified mailsIds collection.
+
+> The maximum supported ids number is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` will return null. 
+
+In *options*, you can pass several properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|format|Text| The format to return the message in. Can be: <ul><li>"minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. </li><li>"raw": Returns the full email message (default)</li><li>"metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.</li></ul>|
+|headers|Collection|Collection of strings containing the email headers to be returned. When given and format is "metadata", only include headers specified.|
+|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <ul><li>"MIME"</li><li>"JMAP"(Default)</li></ul>|
+
+
+
+#### Returned object 
+
+The method returns a collection of mails in one of the following formats, depending on the `mailType`:
+
+|Format|Type|Comment|
+|---|---|---|
+|MIME|Blob||
+|JMAP|Object|Contains an `id` attribute|
+
+
+
 ### Google.mail.send()
 
 **Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
@@ -1470,6 +1511,38 @@ This method requires one of the following OAuth scopes:
 https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
+
+
+### Google.mail.update()
+
+**Google.mail.update**( *mailID* : Text ; *options* : Object) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mailID|Collection|->|Object collection of the IDs of the messages to modify. Each object contains: id : text : mail id </br> Text collection. Each item contains an id|
+|options|Object|->|Options|
+|Result|Object|<-| [Status object](#status-object-google-class) |
+
+> There is a limit of 1000 IDs per request.
+
+#### Description
+
+`Google.mail.update()`  adds or removes labels on the specified messages to help categorizing emails. The label can be system labels (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT)or custom labels. Multiple labels could be applied simultaneously.
+
+For more information check out the [label management documentation](https://developers.google.com/gmail/api/guides/labels).
+
+In *options*, you can pass the following two properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|addLabelIds|Collection|A collection of label IDs to add to messages.|
+|removeLabelIds|Collection|A collection of label IDs to remove from messages.|
+
+
+#### Returned object 
+
+The method returns a standard [**status object**](#status-object-google-class). 
 
 
 ### Status object (Google class)
