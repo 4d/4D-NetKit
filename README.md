@@ -1528,7 +1528,7 @@ https://www.googleapis.com/auth/gmail.modify
 
 #### Description
 
-`Google.mail.update()`  adds or removes labels on the specified messages to help categorizing emails. The label can be system labels (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT)or custom labels. Multiple labels could be applied simultaneously.
+`Google.mail.update()`  adds or removes labels on the specified messages to help categorizing emails. The label can be system labels (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or custom labels. Multiple labels could be applied simultaneously. 
 
 For more information check out the [label management documentation](https://developers.google.com/gmail/api/guides/labels).
 
