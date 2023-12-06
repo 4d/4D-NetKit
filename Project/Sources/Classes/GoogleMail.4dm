@@ -317,6 +317,15 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
+				If (($result=Null) || ($batchRequest._getLastError()#Null))
+					var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+					var $error : Object
+					
+					For each ($error; $stack)
+						This._getErrorStack().push($error)
+					End for each 
+				End if 
+				
 			End if 
 			
 	End case 
