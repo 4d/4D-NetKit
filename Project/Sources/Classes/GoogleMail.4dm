@@ -127,6 +127,7 @@ Function getLabelList() : Object
 	var $URL; $userId : Text
 	var $response : Object
 	
+	Super._clearErrorStack()
 	$URL:=Super._getURL()
 	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/labels"
@@ -211,6 +212,7 @@ Function getMailIds($inParameters : Object) : Object
 	
 	var $URL; $userId; $urlParams : Text
 	
+	Super._clearErrorStack()
 	$URL:=Super._getURL()
 	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$urlParams+="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
@@ -263,8 +265,8 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
-	Super._throwErrors(False)
-	
+	Super._clearErrorStack()
+
 	Case of 
 		: (Type($inMailIds)#Is collection)
 			Super._throwError(10; {which: "\"mailIds\""; function: "getMails"})
@@ -323,14 +325,13 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					
 					For each ($error; $stack)
 						This._getErrorStack().push($error)
+						throw($error)
 					End for each 
 				End if 
 				
 			End if 
 			
 	End case 
-	
-	Super._throwErrors(True)
 	
 	return $result
 	
