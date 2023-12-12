@@ -129,7 +129,7 @@ Function _throwErrors($inThrowErrors : Boolean)
 Function _installErrorHandler($inErrorHandler : Text)
 	
 	This._internals._savedErrorHandler:=Method called on error
-	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler"; ek errors from components)
+	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler"; ek global)
 	
 	
 	// ----------------------------------------------------
@@ -137,5 +137,5 @@ Function _installErrorHandler($inErrorHandler : Text)
 	
 Function _resetErrorHandler
 	
-	ON ERR CALL(This._internals._savedErrorHandler; ek errors from components)
+	ON ERR CALL(This._internals._savedErrorHandler; ek global)
 	This._internals._savedErrorHandler:=""
