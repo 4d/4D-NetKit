@@ -1436,7 +1436,7 @@ https://www.googleapis.com/auth/gmail.metadata
 
 `Google.mail.getMails()` gets a collection of emails based on the specified *mailIDs* collection.
 
-> The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function will return null. 
+> The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function returns null and throws an error. 
 
 In *options*, you can pass several properties:
 
