@@ -1264,7 +1264,7 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the mail to delete |
-|permanently|Boolean|->|if permanently is true, deletes a message. Otherwise, moves the specified message to the trash |
+|permanently|Boolean|->|if permanently is true, deletes a message permanently. Otherwise, moves the specified message to the trash |
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
 
@@ -1285,6 +1285,13 @@ https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
 
+#### Example
+
+To delete an email permanently:
+
+```4d
+$status:=$google.mail.delete($mailId; True)
+```
 
 ### Google.mail.getLabelList()
 
@@ -1415,21 +1422,21 @@ https://www.googleapis.com/auth/gmail.metadata
 
 ### Google.mail.getMails()
 
-**Google.mail.getMails**( *mailID* : Collection { ; *options* : Object } ) : Collection
+**Google.mail.getMails**( *mailIDs* : Collection { ; *options* : Object } ) : Collection
 
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|mailID|Collection|->|object collection. Each object contains: id : text : mail id </br>text collection. Each item contains an id|
+|mailIDs|Collection|->|Collection of strings (mail IDs), or a collection of objects (each object contains an ID property)|
 |options|Object|->|Options|
-|Result|Collection Object &#124; Collection Blob|<-|Collection of emails depending on the *mailType* (JMAP or MIME format)</br>If no mail is returned, the collection is empty|
+|Result|Collection|<-|Collection of mails in format depending on *mailType*: JMAP (collection of objects) or MIME (collection of blobs)</br>If no mail is returned, the collection is empty|
 
 
 #### Description
 
-`Google.mail.getMails()` Gets an emails collection based on the specified mailsIds collection.
+`Google.mail.getMails()` gets a collection of emails based on the specified *mailIDs* collection.
 
-> The maximum supported ids number is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` will return null. 
+> The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function will return null. 
 
 In *options*, you can pass several properties:
 
@@ -1441,7 +1448,7 @@ In *options*, you can pass several properties:
 
 
 
-#### Returned object 
+#### Returned value 
 
 The method returns a collection of mails in one of the following formats, depending on the `mailType`:
 
@@ -1515,12 +1522,12 @@ https://www.googleapis.com/auth/gmail.modify
 
 ### Google.mail.update()
 
-**Google.mail.update**( *mailID* : Text ; *options* : Object) : Object
+**Google.mail.update**( *mailIDs* : Collection ; *options* : Object) : Object
 
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|mailID|Collection|->|Object collection of the IDs of the messages to modify. Each object contains: id : text : mail id </br> Text collection. Each item contains an id|
+|mailIDs|Collection|->|Collection of strings (mail IDs), or collection of objects (each object contains an ID property)|
 |options|Object|->|Options|
 |Result|Object|<-| [Status object](#status-object-google-class) |
 
@@ -1528,7 +1535,7 @@ https://www.googleapis.com/auth/gmail.modify
 
 #### Description
 
-`Google.mail.update()`  adds or removes labels on the specified messages to help categorizing emails. The label can be system labels (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or custom labels. Multiple labels could be applied simultaneously. 
+`Google.mail.update()` adds or removes labels on the specified messages to help categorizing emails. The label can be a system label (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or a custom label. Multiple labels could be applied simultaneously. 
 
 For more information check out the [label management documentation](https://developers.google.com/gmail/api/guides/labels).
 
@@ -1543,6 +1550,15 @@ In *options*, you can pass the following two properties:
 #### Returned object 
 
 The method returns a standard [**status object**](#status-object-google-class). 
+
+
+#### Example
+
+To mark a collection of emails as "unread":
+
+```4d
+$result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
+```
 
 
 ### Status object (Google class)
