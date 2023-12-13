@@ -64,6 +64,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	var $options : Object
 	var $token : Text
+	var $keys : Collection
+	var $key : Text
 	
 	$token:=This._getAcessToken()
 	$options:={headers: {}}
@@ -71,8 +73,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
-		var $keys : Collection
-		var $key : Text
 		$keys:=OB Keys($inHeaders)
 		For each ($key; $keys)
 			$options.headers[$key]:=$inHeaders[$key]
@@ -104,7 +104,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		var $contentType; $charset : Text
+		var $contentType; $charset; $text : Text
 		var $blob : Blob
 		
 		$contentType:=String($request["response"]["headers"]["content-type"])
@@ -116,7 +116,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					$response:=$request["response"]["body"]
 					
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
-					var $text : Text
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
@@ -130,6 +129,21 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					
 				: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
 					$response:=4D.Blob.new($request["response"]["body"])
+					
+				: ($contentType="multipart/@")
+					var $headers : Text
+					$headers:="HTTP/1.1 "+This._internals._statusLine+"\r\n"
+					$keys:=OB Keys($request.response.headers)
+					For each ($key; $keys)
+						$headers+=$key+": "+$request.response.headers[$key]+"\r\n"
+					End for each 
+					$headers+="\r\n"
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Convert to text($request["response"]["body"]; $charset)
+					End if 
+					$response:=$headers+$text
 					
 			End case 
 			

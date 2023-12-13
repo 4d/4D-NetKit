@@ -98,63 +98,6 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inH
 	return $status
 	
 	
-	// ----------------------------------------------------
-	
-	
-Function _convertMailObjectToJMAP($inMail : Object) : Object
-	
-	var $result : Object
-	var $keys : Collection
-	var $key; $name; $string : Text
-	var $email : cs.EmailAddress
-	
-	$result:={}
-	$keys:=OB Keys($inMail)
-	For each ($key; $keys)
-		$name:=_getJMAPAttribute($key)
-		If (Length($name)>0)
-			If ($key="labelIds")
-				If (Num($inMail.labelIds.length)>0)
-					$string:=$inMail.labelIds.join("=true,"; ck ignore null or empty)+"=true"
-					$result[$name]:=Split string($string; ","; sk trim spaces)
-				End if 
-			Else 
-				$result[$name]:=$inMail[$key]
-			End if 
-		End if 
-	End for each 
-	
-	If (OB Is defined($inMail; "payload"))
-		$keys:=OB Keys($inMail.payload)
-		For each ($key; $keys)
-			If ($key="headers")
-				var $header : Object
-				For each ($header; $inMail.payload.headers)
-					$name:=_getJMAPAttribute($header.name)
-					If (Length($name)>0)
-						Case of 
-							: ($header.name="Keywords")
-								If (Length($header.value)>0)
-									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
-									$result[$name]:=Split string($string; ","; sk trim spaces)
-								End if 
-							: (_IsEmailAddressHeader($header.name))
-								If (Length($header.value)>0)
-									$email:=cs.EmailAddress.new($header.value)
-									$result[$name]:=OB Copy($email)
-								End if 
-							Else 
-								$result[$name]:=$header.value
-						End case 
-					End if 
-				End for each 
-			End if 
-		End for each 
-	End if 
-	
-	return $result
-	
-	
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
@@ -169,6 +112,24 @@ Function send($inMail : Variant) : Object
 	$URL+="users/"+$userId+"/messages/send"
 	
 	return This._postMessage("send"; $URL; $inMail)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getLabelList() : Object
+	
+	var $URL; $userId : Text
+	var $response : Object
+	
+	Super._clearErrorStack()
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$URL+="users/"+$userId+"/labels"
+	
+	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	
+	return This._returnStatus(OB Copy($response))
 	
 	
 	// ----------------------------------------------------
@@ -246,6 +207,7 @@ Function getMailIds($inParameters : Object) : Object
 	
 	var $URL; $userId; $urlParams : Text
 	
+	Super._clearErrorStack()
 	$URL:=Super._getURL()
 	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$urlParams+="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
@@ -270,51 +232,21 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 		Else 
 			
 			var $URL; $userId; $urlParams; $mailType; $format : Text
-			var $result : Object
+			var $result; $parameters : Object
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
 			$format:=String($inParameters.format)
 			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
-			
-			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($inParameters)
+			$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+			If ($parameters.format#$format)
+				$parameters.format:=$format
+			End if 
+			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
 			
 			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
-			
-			If ($result#Null)
-				
-				var $rawMessage : Text
-				
-				Case of 
-					: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
-						If (Value type($result.raw)=Is text)
-							
-							$rawMessage:=_base64UrlSafeDecode($result.raw)
-							If ($mailType="JMAP")
-								
-								var $copy : Object
-								
-								$copy:=OB Copy($result)
-								$response:=MAIL Convert from MIME($rawMessage)
-								$response.id:=String($copy.id)
-								$response.threadId:=String($copy.threadId)
-								$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : []
-							Else 
-								
-								$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
-							End if 
-						End if 
-						
-					: (($format="minimal") || ($format="metadata"))
-						$response:=This._convertMailObjectToJMAP($result)
-						
-					Else 
-						Super._throwError(10; {which: 1; function: "getMail"})
-						
-				End case 
-				
-			End if 
+			$response:=This._extractRawMessage($result; $format; $mailType)
 			
 	End case 
 	
@@ -328,8 +260,8 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
-	Super._throwErrors(False)
-	
+	Super._clearErrorStack()
+
 	Case of 
 		: (Type($inMailIds)#Is collection)
 			Super._throwError(10; {which: "\"mailIds\""; function: "getMails"})
@@ -339,23 +271,62 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			
 		Else 
 			
-			var $result : Collection:=[]
-			var $response : Variant
+			var $result : Collection:=Null
 			
 			If ($inMailIds.length=1)
 				
-				$response:=This.getMail($inMailIds[0]; $inParameters)
-				$result.push($response)
+				var $response : Variant:=This.getMail($inMailIds[0]; $inParameters)
+				If ($response#Null)
+					$result:=New collection($response)
+				End if 
 				
 			Else 
 				
-				// TODO use cs._batchRequest Object
-				ASSERT(False; "Unimplemented")
+				var $URL; $urlParams; $userId; $mailType; $mailId; $format : Text
+				var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+				var $parameters : Object
+				
+				If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+					$mailIds:=$mailIds.extract("id")
+				End if 
+				
+				$URL:=Super._getURL()
+				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+				$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+				$format:=String($inParameters.format)
+				$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
+				$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+				If ($parameters.format#$format)
+					$parameters.format:=$format
+				End if 
+				
+				var $i : Integer:=1
+				var $batchRequestes : Collection:=[]
+				
+				For each ($mailId; $mailIds)
+					var $item : Text:="<item"+String($i)+">"
+					$i+=1
+					$urlParams:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
+					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+				End for each 
+				
+				var $batchParams : Object:={batchRequestes: $batchRequestes; mailType: $mailType; format: $format}
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
+				$result:=$batchRequest.sendRequestAndWaitResponse()
+				
+				If (($result=Null) || ($batchRequest._getLastError()#Null))
+					var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+					var $error : Object
+					
+					For each ($error; $stack)
+						This._getErrorStack().push($error)
+						throw($error)
+					End for each 
+				End if 
+				
 			End if 
 			
 	End case 
-	
-	Super._throwErrors(True)
 	
 	return $result
 	
@@ -386,15 +357,19 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			var $response : Object
 			var $headers : Object:={}
 			var $body : Object:={}
-			var $mailIds : Collection:=(Type($inMailIds[0])=Is object) ? $inMailIds.extract("id") : $inMailIds
+			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+			
+			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+				$mailIds:=$mailIds.extract("id")
+			End if 
 			
 			$URL:=Super._getURL()
 			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/batchModify"
 			
 			$body.ids:=$mailIds
-			$body.addLabelIds:=(Type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
-			$body.removeLabelIds:=(Type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
+			$body.addLabelIds:=(Value type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
+			$body.removeLabelIds:=(Value type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
 			This._internals._response:=OB Copy($response)

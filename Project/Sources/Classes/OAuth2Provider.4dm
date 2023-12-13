@@ -621,7 +621,7 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 	End if 
 	
 	$days:=$date-$start
-	$result:=($days*86400)+($time+0)  // convert in seconds
+	$result:=Num(($days*86400)+($time+0))  // convert in seconds
 	
 	
 	// ----------------------------------------------------
