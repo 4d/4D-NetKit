@@ -79,6 +79,9 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 			$signature:=This._hashSign($jwt)
 		End if 
 		
+		This.header:=$jwt.header
+		This.payload:=$jwt.payload
+		
 		//Compare Verify Signatures to return Result
 		return ($signature=$parts[2])
 		
