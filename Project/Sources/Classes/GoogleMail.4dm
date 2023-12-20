@@ -117,6 +117,24 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function getLabelList() : Object
+	
+	var $URL; $userId : Text
+	var $response : Object
+	
+	Super._clearErrorStack()
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$URL+="users/"+$userId+"/labels"
+	
+	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	
+	return This._returnStatus(OB Copy($response))
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
 	Super._throwErrors(False)
@@ -372,7 +390,6 @@ Function getLabelList() : Object
 	var $URL; $userId : Text
 	var $response : Object
 	
-	Super._clearErrorStack()
 	$URL:=Super._getURL()
 	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/labels"
