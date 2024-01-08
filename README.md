@@ -220,7 +220,7 @@ The returned `Office365` object contains the following properties:
 ||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
 
 
-#### Example
+#### Example 1
 
 To create the OAuth2 connection object and an Office365 object:
 
@@ -232,6 +232,9 @@ $oAuth2:=New OAuth2 provider($param)
 $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 ```
 
+#### Example 2
+
+Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode. 
 
 ### Office365.mail.append()
 
@@ -1598,21 +1601,28 @@ Once you have your client ID and client secret, you're ready to establish a conn
 
 ```4d
 var $oAuth2 : cs.NetKit.OAuth2Provider
+var $office365 : cs.NetKit.Office365
 var $token : Object
 
-$param:=New object()
-$param.name:="Microsoft"
-$param.permission:="service"
+var $credential:={}
+$credential.name:="Microsoft"
+$credential.permission:="service"
 
-$param.clientId:="your-client-id" // Replace with your Microsoft identity platform client ID
-$param.clientSecret:="your-client-secret" // Replace with your client secret
-$param.tenant:="your-tenant-id" // Replace with your tenant ID
-$param.tokenURI:="https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token/" //Replace ID
-$param.scope:="https://graph.microsoft.com/.default"
+$credential.clientId:="your-client-id" //Replace with your Microsoft identity platform client ID
+$credential.clientSecret:="your-client-secret" //Replace with your client secret
+$credential.tenant:="your-tenant-id" // Replace with your tenant ID
+$credential.tokenURI:="https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token/" //Replace ID
+$credential.scope:="https://graph.microsoft.com/.default"
 
-$oAuth2:=New OAuth2 provider($param)
-
+$oAuth2:=New OAuth2 provider($credential)
 $token:=$oAuth2.getToken()
+
+$office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
+// In service mode, you need to indicate on behalf of which user you are sending the request: 
+$office365.mail.UserId:="MyUserPrincipalName"
+// Get mails of MyUserPrincipalName account
+$mailList:=$office.mail.getMails()
+
 ```
 
 2. Execute the method to establish the connection.
