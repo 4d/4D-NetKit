@@ -1602,7 +1602,6 @@ Once you have your client ID and client secret, you're ready to establish a conn
 ```4d
 var $oAuth2 : cs.NetKit.OAuth2Provider
 var $office365 : cs.NetKit.Office365
-var $token : Object
 
 var $credential:={}
 $credential.name:="Microsoft"
@@ -1611,11 +1610,9 @@ $credential.permission:="service"
 $credential.clientId:="your-client-id" //Replace with your Microsoft identity platform client ID
 $credential.clientSecret:="your-client-secret" //Replace with your client secret
 $credential.tenant:="your-tenant-id" // Replace with your tenant ID
-$credential.tokenURI:="https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token/" //Replace ID
 $credential.scope:="https://graph.microsoft.com/.default"
 
 $oAuth2:=New OAuth2 provider($credential)
-$token:=$oAuth2.getToken()
 
 $office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
 // In service mode, you need to indicate on behalf of which user you are sending the request: 
