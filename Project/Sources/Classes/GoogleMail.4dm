@@ -254,10 +254,15 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 		Else 
 			
 			var $result : Collection:=Null
+			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
 			
-			If ($inMailIds.length=1)
+			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+				$mailIds:=$mailIds.extract("id")
+			End if 
+			
+			If ($mailIds.length=1)
 				
-				var $response : Variant:=This.getMail($inMailIds[0]; $inParameters)
+				var $response : Variant:=This.getMail($mailIds[0]; $inParameters)
 				If ($response#Null)
 					$result:=New collection($response)
 				End if 
@@ -265,12 +270,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			Else 
 				
 				var $URL; $urlParams; $userId; $mailType; $mailId; $format : Text
-				var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
 				var $parameters : Object
-				
-				If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
-					$mailIds:=$mailIds.extract("id")
-				End if 
 				
 				$URL:=Super._getURL()
 				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
