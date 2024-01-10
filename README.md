@@ -225,7 +225,7 @@ The returned `Office365` object contains the following properties:
 ||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
 
 
-#### Example
+#### Example 1
 
 To create the OAuth2 connection object and an Office365 object:
 
@@ -237,6 +237,9 @@ $oAuth2:=New OAuth2 provider($param)
 $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 ```
 
+#### Example 2
+
+Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode. 
 
 ### Office365.mail.append()
 
@@ -1712,6 +1715,7 @@ Several Google.mail label management methods use a `labelInfo` object, containin
 |[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <ul><li> textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. </li><li> backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
 |type|Text|The owner type for the label. <br></br> Can be: <ul><li>"system": Labels created by Gmail.</li><li>"user": Custom labels created by the user or application.</li></ul>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
 
+
 ### Status object (Google class)
 
 Several Google.mail functions return a `status object`, containing the following properties:
@@ -1749,21 +1753,25 @@ Once you have your client ID and client secret, you're ready to establish a conn
 
 ```4d
 var $oAuth2 : cs.NetKit.OAuth2Provider
-var $token : Object
+var $office365 : cs.NetKit.Office365
 
-$param:=New object()
-$param.name:="Microsoft"
-$param.permission:="service"
+var $credential:={}
+$credential.name:="Microsoft"
+$credential.permission:="service"
 
-$param.clientId:="your-client-id" // Replace with your Microsoft identity platform client ID
-$param.clientSecret:="your-client-secret" // Replace with your client secret
-$param.tenant:="your-tenant-id" // Replace with your tenant ID
-$param.tokenURI:="https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token/" //Replace ID
-$param.scope:="https://graph.microsoft.com/.default"
+$credential.clientId:="your-client-id" //Replace with your Microsoft identity platform client ID
+$credential.clientSecret:="your-client-secret" //Replace with your client secret
+$credential.tenant:="your-tenant-id" // Replace with your tenant ID
+$credential.scope:="https://graph.microsoft.com/.default"
 
-$oAuth2:=New OAuth2 provider($param)
+$oAuth2:=New OAuth2 provider($credential)
 
-$token:=$oAuth2.getToken()
+$office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
+// In service mode, you need to indicate on behalf of which user you are sending the request: 
+$office365.mail.UserId:="MyUserPrincipalName"
+// Get mails of MyUserPrincipalName account
+$mailList:=$office.mail.getMails()
+
 ```
 
 2. Execute the method to establish the connection.

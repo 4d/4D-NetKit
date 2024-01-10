@@ -44,8 +44,6 @@
 			"_retainFileObject",
 			"_startWebServer",
 			"_stopWebServer",
-			"_testBatchRequest",
-			"_testJWT",
 			"_throwError",
 			"_urlDecode",
 			"_urlEncode"

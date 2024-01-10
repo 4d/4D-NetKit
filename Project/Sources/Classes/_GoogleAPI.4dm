@@ -126,7 +126,9 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)-
 						$response.labelIds:=OB Is defined($copy; "labelIds") ? $copy.labelIds : []
 					Else 
 						
-						$response:=(Length($rawMessage)>0) ? $rawMessage : $result.raw
+						var $blob : Blob
+						CONVERT FROM TEXT((Length($rawMessage)>0) ? $rawMessage : $result.raw; "UTF-8"; $blob)
+						$response:=4D.Blob.new($blob)
 					End if 
 				End if 
 				

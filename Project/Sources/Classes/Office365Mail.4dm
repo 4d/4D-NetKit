@@ -67,6 +67,8 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 		See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
 	*/
 	
+	This._installErrorHandler()
+	
 	Case of 
 		: (Value type($inMail)=Is BLOB)
 			$requestBody:=Convert to text($inMail; "UTF-8")
@@ -78,6 +80,8 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 			$requestBody:=$inMail
 	End case 
 	BASE64 ENCODE($requestBody)
+	
+	This._resetErrorHandler()
 	
 	Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	return This._returnStatus()
