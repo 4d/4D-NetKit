@@ -15,9 +15,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// Mark: - [Private]
 	
 	
-Function _postJSONMessage($inURL : Text; \
-$inMail : Object; \
-$inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
 	If ($inMail#Null)
 		var $headers; $message; $messageCopy; $response : Object
@@ -74,10 +72,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; \
-$inURL : Text; \
-$inMail : Variant; \
-$inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inHeader : Object) : Object
 	
 	var $status : Object
 	
@@ -384,3 +379,160 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	Super._throwErrors(True)
 	
 	return This._returnStatus()
+	
+	
+	// Mark: - Labels
+	// ----------------------------------------------------
+	
+	
+Function getLabelList() : Object
+	
+	var $URL; $userId : Text
+	var $response : Object
+	
+	$URL:=Super._getURL()
+	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$URL+="users/"+$userId+"/labels"
+	
+	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	
+	return This._returnStatus(OB Copy($response))
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getLabel($inLabelId : Text) : Object
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "getLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "getLabel"})
+			
+		Else 
+			
+			var $URL; $userId : Text
+			var $response : Object
+			
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+			This._internals._response:=OB Copy($response)
+			
+			return OB Copy($response)
+			
+	End case 
+	
+	return Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function createLabel($inLabelInfo : Object) : Object
+	
+	var $response : Object:=Null
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelInfo)#Is object)
+			Super._throwError(10; {which: "\"labelInfo\""; function: "createLabel"})
+			
+		: (OB Is empty($inLabelInfo))
+			Super._throwError(9; {which: "\"labelInfo\""; function: "createLabel"})
+			
+		Else 
+			
+			var $URL; $userId : Text
+			var $headers : Object:={}
+			
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels"
+			
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inLabelInfo)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function deleteLabel($inLabelId : Text) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "deleteLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "deleteLabel"})
+			
+		Else 
+			
+			var $URL; $userId : Text
+			var $response : Object
+			
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			$response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
+			This._internals._response:=OB Copy($response)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
+	
+	var $response : Object:=Null
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "updateLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "updateLabel"})
+			
+		: (Type($inLabelInfo)#Is object)
+			Super._throwError(10; {which: "\"labelInfo\""; function: "updateLabel"})
+			
+		: (OB Is empty($inLabelInfo))
+			Super._throwError(9; {which: "\"labelInfo\""; function: "updateLabel"})
+			
+		Else 
+			
+			var $URL; $userId : Text
+			var $headers : Object:={}
+			
+			$URL:=Super._getURL()
+			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			$response:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inLabelInfo)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
