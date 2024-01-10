@@ -33,7 +33,10 @@
 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
 	- [cs.NetKit.Google.new()](#csnetkitgooglenew)
+	- [Google.mail.createLabel()](#googlemailcreatelabel)
 	- [Google.mail.delete()](#googlemaildelete)
+	- [Google.mail.deleteLabel()](#googlemaildeletelabel)
+	- [Google.mail.getLabel()](#googlemailgetlabel)
 	- [Google.mail.getLabelList()](#googlemailgetlabellist)
 	- [Google.mail.getMail()](#googlemailgetmail)
  	- [Google.mail.getMailIds()](#googlemailgetmailids)
@@ -41,6 +44,8 @@
  	- [Google.mail.send()](#googlemailsend)
  	- [Google.mail.untrash()](#googlemailuntrash)
  	- [Google.mail.update()](#googlemailupdate)
+	- [Google.mail.updateLabel()](#googlemailupdatelabel)
+	- [labelInfo object](#labelinfo-object)
  	- [Status object (Google Class)](#status-object-google-class)
 
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
@@ -1256,6 +1261,40 @@ $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
 
+### Google.mail.createLabel()
+
+**Google.mail.createLabel**( *labelInfo* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|[labelInfo](#labelinfo-object)|Object|->|Label information.|
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+#### Description
+
+`Google.mail.createLabel()` creates a new label.
+
+#### Returned object 
+
+The method returns a [**status object**](status-object-google-class) with an additional "label" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|label|Object|contains a newly created instance of Label (see [labelInfo](#labelinfo-object))|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)| 
+
+#### Example
+
+To create a label named 'Backup':
+
+```4d
+$status:=$google.mail.createLabel({name: "Backup"})
+$labelId:=$status.label.id
+```
+
 ### Google.mail.delete()
 
 **Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
@@ -1291,6 +1330,71 @@ To delete an email permanently:
 
 ```4d
 $status:=$google.mail.delete($mailId; True)
+```
+
+### Google.mail.deleteLabel()
+
+**Google.mail.deleteLabel**( *labelId* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|labelId|Text|->|The ID of the label|
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+#### Description
+
+`Google.mail.deleteLabel()` immediately and permanently deletes the specified label and removes it from any messages and threads that it is applied to. 
+> This method is only available for labels with type="user".
+
+#### Returned object 
+
+The method returns a standard [**status object**](#status-object-google-class).
+
+#### Example
+
+To delete a label:
+
+```4d
+$status:=$google.mail.deleteLabel($labelId)
+
+```
+
+### Google.mail.getLabel()
+
+**Google.mail.getLabel**( *labelId* : Text ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|labelId|Text|->|The ID of the label|
+|Result|Object|<-|[labelInfo](#labelinfo-object)|
+
+#### Description
+
+`Google.mail.getLabel()` returns the information of a label as a [labelInfo](#labelinfo-object) object.
+
+#### Returned object 
+
+The returned [**labelInfo**](#labelinfo-object) object contains the following additional properties:
+
+
+|Property|Type|Description|
+|---------|---|------|
+|messagesTotal|Integer|The total number of messages with the label.|
+|messagesUnread|Integer|The number of unread messages with the label.|
+|threadsTotal|Integer|The total number of threads with the label.|
+|threadsUnread|Integer|The number of unread threads with the label.|
+
+#### Example
+
+To retrieve the label name, total message count, and unread messages:
+
+```4d
+$info:=$google.mail.getLabel($labelId)
+$name:=$info.name
+$emailNumber:=$info.messagesTotal
+$unread:=$info.messagesUnread
 ```
 
 ### Google.mail.getLabelList()
@@ -1560,6 +1664,53 @@ To mark a collection of emails as "unread":
 $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 ```
 
+### Google.mail.updateLabel()
+
+**Google.mail.updateLabel**( *labelId* : Text ; *labelInfo* : Object ) : Object
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|labelId|Text|->|The ID of the label|
+|[labelInfo](#labelinfo-object)|Object|->|Label information to update|
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+#### Description
+
+`Google.mail.updateLabel()` updates the specified label.
+> This method is only available for labels with type="user".
+
+#### Returned object 
+
+The method returns a [**status object**](status-object-google-class) with an additional "label" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|label|Object|contains an instance of Label (see [labelInfo](#labelinfo-object))|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+#### Example
+
+To update a previously created label  to 'Backup January':
+
+```4d
+$status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
+
+```
+### labelInfo object 
+
+Several Google.mail label management methods use a `labelInfo` object, containing the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|id|Text|The ID of the label.|
+|name|Text|The display name of the label. (mandatory)|
+|messageListVisibility|Text|The visibility of messages with this label in the message list.<br></br> Can be: <ul><li>"show": Show the label in the message list. </li><li>"hide": Do not show the label in the message list. </li></ul>|
+|labelListVisibility|Text|The visibility of the label in the label list. <br></br> Can be:<ul><li>"labelShow": Show the label in the label list. </li><li>"labelShowIfUnread" : Show the label if there are any unread messages with that label. </li><li>"labelHide": Do not show the label in the label list. </li></ul>|
+|[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <ul><li> textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. </li><li> backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
+|type|Text|The owner type for the label. <br></br> Can be: <ul><li>"system": Labels created by Gmail.</li><li>"user": Custom labels created by the user or application.</li></ul>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
 
 ### Status object (Google class)
 
