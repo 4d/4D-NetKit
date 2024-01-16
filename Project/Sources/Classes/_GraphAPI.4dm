@@ -81,14 +81,10 @@ Function _loadFromObject($inObject : Object)
 	If (($inObject#Null) & (Not(OB Is empty($inObject))))
 		
 		var $key : Text
-		var $keys : Collection
-		var $objectCopy : Object
-		
-		$objectCopy:=OB Copy($inObject)
-		$keys:=OB Keys($objectCopy)
+		var $keys : Collection:=$keys:=OB Keys($inObject)
 		
 		For each ($key; $keys)
-			This[$key]:=$objectCopy[$key]
+			This[$key]:=$inObject[$key]
 		End for each 
 		
 	End if 
