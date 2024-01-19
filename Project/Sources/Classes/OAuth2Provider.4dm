@@ -16,11 +16,13 @@ property loginHint : Text
 property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
+property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
 
 property _scope : Text
 property _authenticateURI : Text
 property _tokenURI : Text
 property _grantType : Text
+property _codeVerifier : Text
 
 Class constructor($inParams : Object)
 	
@@ -184,12 +186,47 @@ Class constructor($inParams : Object)
 		If (Bool($inParams.enableDebugLog))
 			This.enableDebugLog:=True
 		End if 
+		
+/*
+	PKCEEnabled : Boolean: if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+	PKCEMethod : Text: PKCE Encoding method. The only supported values for are "S256" or "plain" ("S256" by default)
+		
+	See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-authorization-code-flow-with-pkce
+*/
+		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
+/*
+		If (This.PKCEEnabled)
+			If ((String($inParams.PKCEMethod)="plain") || \
+				(String($inParams.PKCEMethod)="S256"))
+				This.PKCEMethod:=String($inParams.PKCEMethod)
+			Else 
+				This.PKCEMethod:="S256"  // Default PKCEMethod
+			End if 
+		End if 
+*/		
 	End if 
 	
 	This._finally()
 	
 	
 	// Mark: - [Private]
+	// ----------------------------------------------------
+	
+	
+Function _generateCodeChallenge($codeVerifier : Text) : Text
+	
+	// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	return Generate digest($codeVerifier; SHA-256 digest; *)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _generateCodeVerifier : Text
+	
+	return Generate digest(Generate UUID+String(Milliseconds); SHA-256 digest; *)
+	
+	
 	// ----------------------------------------------------
 	
 	
@@ -224,6 +261,14 @@ Function _isMicrosoft() : Boolean
 Function _isGoogle() : Boolean
 	
 	return (This.name="Google")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _isPKCE() : Boolean
+	
+	return (This.PKCEEnabled)
 	
 	
 	// ----------------------------------------------------
@@ -329,6 +374,49 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			End use 
 			
 	End case 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getToken_PKE($bUseRefreshToken : Boolean)->$result : Object
+	
+	var $params : Text
+	var $bSendRequest : Boolean
+	
+	$bSendRequest:=True
+	If ($bUseRefreshToken)
+		
+/*
+		$params:="client_id="+This.clientId
+		If (Length(This.scope)>0)
+			$params+="&scope="+_urlEncode(This.scope)
+		End if 
+		$params+="&refresh_token="+This.token.refresh_token
+		$params+="&grant_type=refresh_token"
+*/
+		
+	Else 
+		
+		var $state : Text:=Generate UUID
+		
+		$params+="?response_type=code"
+		$params+="&code_challenge="+This._generateCodeChallenge(This._codeVerifier)
+		$params+="&code_challenge_method=S256"
+		$params+="&client_id="+This.clientId
+		$params+="&redirect_uri="+_urlEncode(This.redirectURI)
+		If (Length(String($scope))>0)
+			$url+="&scope="+_urlEncode(This.scope)
+		End if 
+		$url+="&state="+String($state)
+		
+	End if 
+	
+	If ($bSendRequest)
+		
+		$result:=This._sendTokenRequest($params)
+		
+	End if 
 	
 	
 	// ----------------------------------------------------
@@ -540,11 +628,11 @@ Function _sendTokenRequest($params : Text)->$result : Object
 					$result._loadFromURLEncodedResponse($response)
 					
 				Else 
-					/*
-						We have a status 200 (no error) and a response that we don't know/want to interpret.
-						Simply return a null result (to be consistent with the specifications) and
-						copy the raw response body in a private member of the class
-					*/
+/*
+ *					We have a status 200 (no error) and a response that we don't know/want to interpret.
+ *					Simply return a null result (to be consistent with the specifications) and
+ *					copy the raw response body in a private member of the class
+ */
 					var $blob : Blob
 					CONVERT FROM TEXT($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
 					This._internals._rawBody:=4D.Blob.new($blob)
@@ -691,15 +779,20 @@ Function getToken()->$result : Object
 				
 			Else 
 				
-				If (This._isSignedIn())
-					
-					$result:=This._getToken_SignedIn($bUseRefreshToken)
-					
-				Else 
-					
-					$result:=This._getToken_Service()
-					
-				End if 
+				Case of 
+					: (This_isPKCE())
+						
+						$result:=This._getToken_PKCE($bUseRefreshToken)
+						
+					: (This._isSignedIn())
+						
+						$result:=This._getToken_SignedIn($bUseRefreshToken)
+						
+					Else 
+						
+						$result:=This._getToken_Service()
+						
+				End case 
 				
 				If ($result#Null)
 					// Save token internally
