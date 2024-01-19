@@ -203,7 +203,7 @@ Class constructor($inParams : Object)
 				This.PKCEMethod:="S256"  // Default PKCEMethod
 			End if 
 		End if 
-*/		
+*/
 	End if 
 	
 	This._finally()
@@ -216,7 +216,7 @@ Class constructor($inParams : Object)
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 	// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-	return Generate digest($codeVerifier; SHA-256 digest; *)
+	return Generate digest($codeVerifier; SHA256 digest; *)
 	
 	
 	// ----------------------------------------------------
@@ -224,7 +224,7 @@ Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 Function _generateCodeVerifier : Text
 	
-	return Generate digest(Generate UUID+String(Milliseconds); SHA-256 digest; *)
+	return Generate digest(Generate UUID+String(Milliseconds); SHA256 digest; *)
 	
 	
 	// ----------------------------------------------------
@@ -379,7 +379,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	// ----------------------------------------------------
 	
 	
-Function _getToken_PKE($bUseRefreshToken : Boolean)->$result : Object
+Function _getToken_PKCE($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
 	var $bSendRequest : Boolean
@@ -405,10 +405,10 @@ Function _getToken_PKE($bUseRefreshToken : Boolean)->$result : Object
 		$params+="&code_challenge_method=S256"
 		$params+="&client_id="+This.clientId
 		$params+="&redirect_uri="+_urlEncode(This.redirectURI)
-		If (Length(String($scope))>0)
-			$url+="&scope="+_urlEncode(This.scope)
+		If (Length(String(This.scope))>0)
+			$params+="&scope="+_urlEncode(This.scope)
 		End if 
-		$url+="&state="+String($state)
+		$params+="&state="+String($state)
 		
 	End if 
 	
@@ -780,7 +780,7 @@ Function getToken()->$result : Object
 			Else 
 				
 				Case of 
-					: (This_isPKCE())
+					: (This._isPKCE())
 						
 						$result:=This._getToken_PKCE($bUseRefreshToken)
 						
