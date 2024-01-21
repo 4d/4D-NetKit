@@ -81,7 +81,7 @@ Function _loadFromObject($inObject : Object)
 	If (($inObject#Null) & (Not(OB Is empty($inObject))))
 		
 		var $key : Text
-		var $keys : Collection:=$keys:=OB Keys($inObject)
+		var $keys : Collection:=OB Keys($inObject)
 		
 		For each ($key; $keys)
 			This[$key]:=$inObject[$key]
