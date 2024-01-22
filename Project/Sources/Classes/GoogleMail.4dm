@@ -18,7 +18,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
 	If ($inMail#Null)
-		var $headers; $message; $messageCopy; $response : Object
+		var $headers; $response : Object
 		
 		$headers:={}
 		$headers["Content-Type"]:="message/rfc822"
@@ -32,7 +32,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
 		End if 
 		
 		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
-		This._internals._response:=OB Copy($response)
+		This._internals._response:=$response
 	Else 
 		Super._throwError(1)
 	End if 
@@ -64,7 +64,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	BASE64 ENCODE($requestBody)
 	
 	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
-	This._internals._response:=OB Copy($response)
+	This._internals._response:=$response
 	
 	return This._returnStatus()
 	
@@ -142,7 +142,7 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 			$verb:=Bool($permanently) ? "DELETE" : "POST"
 			
 			$response:=Super._sendRequestAndWaitResponse($verb; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=$response
 	End case 
 	
 	Super._throwErrors(True)
@@ -174,7 +174,7 @@ Function untrash($inMailId : Text) : Object
 			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=$response
 	End case 
 	
 	Super._throwErrors(True)
@@ -354,7 +354,7 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			$body.removeLabelIds:=(Value type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=$response
 			
 	End case 
 	
@@ -379,7 +379,7 @@ Function getLabelList() : Object
 	
 	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 	
-	return This._returnStatus(OB Copy($response))
+	return This._returnStatus($response)
 	
 	
 	// ----------------------------------------------------
@@ -404,9 +404,9 @@ Function getLabel($inLabelId : Text) : Object
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=$response
 			
-			return OB Copy($response)
+			return $response
 			
 	End case 
 	
@@ -444,7 +444,7 @@ Function createLabel($inLabelInfo : Object) : Object
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)
 	
 	
 	
@@ -472,7 +472,7 @@ Function deleteLabel($inLabelId : Text) : Object
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=$response
 			
 	End case 
 	
@@ -518,4 +518,4 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)
