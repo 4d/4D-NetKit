@@ -194,16 +194,13 @@ Class constructor($inParams : Object)
 	See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-authorization-code-flow-with-pkce
 */
 		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
-/*
 		If (This.PKCEEnabled)
-			If ((String($inParams.PKCEMethod)="plain") || \
-				(String($inParams.PKCEMethod)="S256"))
+			If ((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256"))
 				This.PKCEMethod:=String($inParams.PKCEMethod)
 			Else 
 				This.PKCEMethod:="S256"  // Default PKCEMethod
 			End if 
-		End if 
-*/
+		End if
 	End if 
 	
 	This._finally()
@@ -314,7 +311,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: (This._isMicrosoft() && (Length(String(This.tenant))=0))
 			This._throwError(2; {attribute: "tenant"})
 			
-		: (This._isSignedIn() & (Length(String($redirectURI))=0))
+		: (This._isSignedIn() && (Length(String($redirectURI))=0))
 			This._throwError(2; {attribute: "redirectURI"})
 			
 		Else 
@@ -353,7 +350,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 			var $endTime : Integer
 			$endTime:=Milliseconds+(This.timeout*1000)
-			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
+			While ((Milliseconds<=$endTime) && (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
 				DELAY PROCESS(Current process; 10)
 			End while 
 			
@@ -361,7 +358,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 				If (OB Is defined(Storage.requests; $state))
 					Use (Storage.requests[$state])
 						$authorizationCode:=Storage.requests[$state].token.code
-						//If (OB Is defined(Storage.requests[$state].token; "state") & (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
+						//If (OB Is defined(Storage.requests[$state].token; "state") && (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
 						//ASSERT(Storage.requests[$state].token.state=$state; "state changed !!! CSRF Attack ?")
 						//End if
 						
@@ -551,7 +548,7 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 	$OK:=False
 	
-	If (($obj#Null) & (Value type($obj)=Is object))
+	If (($obj#Null) && (Value type($obj)=Is object))
 		
 		Case of 
 				
@@ -564,10 +561,10 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 			: (Length(String($obj.permission))=0)
 				This._throwError(2; {attribute: "permission"})
 				
-			: (Not(String($obj.permission)="signedIn") & Not(String($obj.permission)="service"))
+			: (Not(String($obj.permission)="signedIn") && Not(String($obj.permission)="service"))
 				This._throwError(3; {attribute: "permission"})
 				
-			: ((String($obj.permission)="signedIn") & (Length(String($obj.redirectURI))=0))
+			: ((String($obj.permission)="signedIn") && (Length(String($obj.redirectURI))=0))
 				This._throwError(2; {attribute: "redirectURI"})
 				
 			Else 
@@ -771,10 +768,10 @@ Function getToken()->$result : Object
 			: (Length(String(This.permission))=0)
 				This._throwError(2; {attribute: "permission"})
 				
-			: (This._isSignedIn() & (Length(String($redirectURI))=0))
+			: (This._isSignedIn() && (Length(String($redirectURI))=0))
 				This._throwError(2; {attribute: "permission"})
 				
-			: (Not(This._isSignedIn()) & Not(This._isService()))
+			: (Not(This._isSignedIn()) && Not(This._isService()))
 				This._throwError(3; {attribute: "permission"})
 				
 			Else 
@@ -788,11 +785,15 @@ Function getToken()->$result : Object
 						
 						$result:=This._getToken_SignedIn($bUseRefreshToken)
 						
-					Else 
+					: (This._isService())
 						
 						$result:=This._getToken_Service()
 						
-				End case 
+					Else 
+						
+						This._throwError(3; {attribute: "permission"})
+
+					End case 
 				
 				If ($result#Null)
 					// Save token internally

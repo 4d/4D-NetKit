@@ -19,7 +19,7 @@ End if
 
 $webServer:=WEB Server(Web server database)
 
-If ($webServer.isRunning & (($webServer.HTTPPort#$settings.HTTPPort) || \
+If ($webServer.isRunning && (($webServer.HTTPPort#$settings.HTTPPort) || \
 ($webServer.debugLog#$settings.debugLog)))
 	
 	$webServer.stop()
