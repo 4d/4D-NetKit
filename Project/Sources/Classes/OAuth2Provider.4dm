@@ -200,7 +200,7 @@ Class constructor($inParams : Object)
 			Else 
 				This.PKCEMethod:="S256"  // Default PKCEMethod
 			End if 
-		End if
+		End if 
 	End if 
 	
 	This._finally()
@@ -211,9 +211,33 @@ Class constructor($inParams : Object)
 	
 	
 Function _generateCodeChallenge($codeVerifier : Text) : Text
-	
-	// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-	return Generate digest($codeVerifier; SHA256 digest; *)
+    
+    // code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+    return Generate digest($codeVerifier; SHA256 digest; *)
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _rangeRandom($min : Integer; $max : Integer) : Integer
+    
+    return (Random%($max-$min+1))+$min
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _randomString($size : Integer) : Text
+    
+    var $tab:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+    var $string : Text:=""
+    
+    While (Length($string)<$size)
+        var $rnd:=This._rangeRandom(1; Length($tab))
+        $string+=$tab[[$rnd]]
+    End while 
+    
+    return $string
 	
 	
 	// ----------------------------------------------------
@@ -221,7 +245,7 @@ Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 Function _generateCodeVerifier : Text
 	
-	return Generate digest(Generate UUID+String(Milliseconds); SHA256 digest; *)
+	return This._randomString(This._rangeRandom(43; 128))
 	
 	
 	// ----------------------------------------------------
@@ -398,10 +422,11 @@ Function _getToken_PKCE($bUseRefreshToken : Boolean)->$result : Object
 		var $state : Text:=Generate UUID
 		
 		$params+="?response_type=code"
-		$params+="&code_challenge="+This._generateCodeChallenge(This._codeVerifier)
+		$params+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
 		$params+="&code_challenge_method=S256"
 		$params+="&client_id="+This.clientId
 		$params+="&redirect_uri="+_urlEncode(This.redirectURI)
+		//		$params+="&grant_type="+_urlEncode(This.grantType)
 		If (Length(String(This.scope))>0)
 			$params+="&scope="+_urlEncode(This.scope)
 		End if 
@@ -792,8 +817,8 @@ Function getToken()->$result : Object
 					Else 
 						
 						This._throwError(3; {attribute: "permission"})
-
-					End case 
+						
+				End case 
 				
 				If ($result#Null)
 					// Save token internally
@@ -835,9 +860,21 @@ Function get authenticateURI() : Text
 	// ----------------------------------------------------
 	
 	
+Function get codeVerifier() : Text
+	
+	If (Length(String(This._codeVerifier))=0)
+		This._codeVerifier:=This._generateCodeVerifier()
+	End if 
+	
+	return This._codeVerifier
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function get grantType() : Text
 	
-	If (Length(This._grantType)=0)
+	If (Length(String(This._grantType))=0)
 		If (This._isService() && This._isGoogle())
 			return "urn:ietf:params:oauth:grant-type:jwt-bearer"
 		Else 
