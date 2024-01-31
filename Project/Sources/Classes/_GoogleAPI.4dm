@@ -89,7 +89,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 							: (_IsEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
 									$email:=cs.EmailAddress.new($header.value)
-									$result[$name]:=OB Copy($email)
+									$result[$name]:=$email
 								End if 
 							Else 
 								$result[$name]:=$header.value
@@ -119,7 +119,7 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)-
 						
 						var $copy : Object
 						
-						$copy:=OB Copy($result)
+						$copy:=$result
 						$response:=MAIL Convert from MIME($rawMessage)
 						$response.id:=String($copy.id)
 						$response.threadId:=String($copy.threadId)
