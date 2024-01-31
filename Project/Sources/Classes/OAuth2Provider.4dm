@@ -347,11 +347,11 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			End if 
 			$url+="&state="+String($state)
 			$url+="&response_mode=query"
+			$url+="&redirect_uri="+_urlEncode($redirectURI)
 			If (This._isPKCE())
 				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
 				$url+="&code_challenge_method=S256"
 			Else 
-				$url+="&redirect_uri="+_urlEncode($redirectURI)
 				If (Length(String(This.accessType))>0)
 					$url+="&access_type="+This.accessType
 				End if 
@@ -448,13 +448,12 @@ Function _getToken($bUseRefreshToken : Boolean)->$result : Object
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
 					If (This._isPKCE())
 						$params+="&code_verifier="+This.codeVerifier
-					Else 
-						$params+="&scope="+_urlEncode(This.scope)
-						If (Length(This.clientSecret)>0)
-							$params+="&client_secret="+This.clientSecret
-						End if 
 					End if 
-					
+					$params+="&scope="+_urlEncode(This.scope)
+					If (Length(This.clientSecret)>0)
+						$params+="&client_secret="+This.clientSecret
+					End if 
+				
 				Else 
 					
 					$bSendRequest:=False
@@ -670,9 +669,9 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	
 Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
-	Unix_Time stolen from ThomasMaul/JWT_Token_Example
-	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
-*/
+ *	Unix_Time stolen from ThomasMaul/JWT_Token_Example
+ *	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+ */
 	
 	var $start; $date : Date
 	var $now : Text
