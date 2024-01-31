@@ -211,33 +211,33 @@ Class constructor($inParams : Object)
 	
 	
 Function _generateCodeChallenge($codeVerifier : Text) : Text
-    
-    // code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-    return Generate digest($codeVerifier; SHA256 digest; *)
-    
-    
-    // ----------------------------------------------------
-    
-    
+	
+	// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	return Generate digest($codeVerifier; SHA256 digest; *)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _rangeRandom($min : Integer; $max : Integer) : Integer
-    
-    return (Random%($max-$min+1))+$min
-    
-    
-    // ----------------------------------------------------
-    
-    
+	
+	return (Random%($max-$min+1))+$min
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _randomString($size : Integer) : Text
-    
-    var $tab:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
-    var $string : Text:=""
-    
-    While (Length($string)<$size)
-        var $rnd:=This._rangeRandom(1; Length($tab))
-        $string+=$tab[[$rnd]]
-    End while 
-    
-    return $string
+	
+	var $tab:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $string : Text:=""
+	
+	While (Length($string)<$size)
+		var $rnd:=This._rangeRandom(1; Length($tab))
+		$string+=$tab[[$rnd]]
+	End while 
+	
+	return $string
 	
 	
 	// ----------------------------------------------------
@@ -311,7 +311,7 @@ Function _isService() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
+Function _getAuthorizationCode()->$authorizationCode : Text
 	
 	var $url; $redirectURI; $state; $scope : Text
 	
@@ -342,20 +342,25 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 			$url+="?client_id="+This.clientId
 			$url+="&response_type=code"
-			$url+="&redirect_uri="+_urlEncode($redirectURI)
-			$url+="&response_mode=query"
 			If (Length(String($scope))>0)
 				$url+="&scope="+_urlEncode($scope)
 			End if 
 			$url+="&state="+String($state)
-			If (Length(String(This.accessType))>0)
-				$url+="&access_type="+This.accessType
-			End if 
-			If (Length(String(This.loginHint))>0)
-				$url+="&login_hint="+This.loginHint
-			End if 
-			If (Length(String(This.prompt))>0)
-				$url+="&prompt="+This.prompt
+			$url+="&response_mode=query"
+			If (This._isPKCE())
+				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
+				$url+="&code_challenge_method=S256"
+			Else 
+				$url+="&redirect_uri="+_urlEncode($redirectURI)
+				If (Length(String(This.accessType))>0)
+					$url+="&access_type="+This.accessType
+				End if 
+				If (Length(String(This.loginHint))>0)
+					$url+="&login_hint="+This.loginHint
+				End if 
+				If (Length(String(This.prompt))>0)
+					$url+="&prompt="+This.prompt
+				End if 
 			End if 
 			
 			Use (Storage)
@@ -381,12 +386,9 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			Use (Storage.requests)
 				If (OB Is defined(Storage.requests; $state))
 					Use (Storage.requests[$state])
-						$authorizationCode:=Storage.requests[$state].token.code
-						//If (OB Is defined(Storage.requests[$state].token; "state") && (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
-						//ASSERT(Storage.requests[$state].token.state=$state; "state changed !!! CSRF Attack ?")
-						//End if
-						
-						If (OB Is defined(Storage.requests[$state].token; "error"))
+						$authorizationCode:=String(Storage.requests[$state].token.code)
+
+						If (OB Is defined(Storage.requests[$state];"token") && OB Is defined(Storage.requests[$state].token; "error"))
 							This._throwError(12; {function: Current method name; message: This._getErrorDescription(Storage.requests[$state].token)})
 						End if 
 					End use 
@@ -400,51 +402,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	// ----------------------------------------------------
 	
 	
-Function _getToken_PKCE($bUseRefreshToken : Boolean)->$result : Object
-	
-	var $params : Text
-	var $bSendRequest : Boolean
-	
-	$bSendRequest:=True
-	If ($bUseRefreshToken)
-		
-/*
-		$params:="client_id="+This.clientId
-		If (Length(This.scope)>0)
-			$params+="&scope="+_urlEncode(This.scope)
-		End if 
-		$params+="&refresh_token="+This.token.refresh_token
-		$params+="&grant_type=refresh_token"
-*/
-		
-	Else 
-		
-		var $state : Text:=Generate UUID
-		
-		$params+="?response_type=code"
-		$params+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
-		$params+="&code_challenge_method=S256"
-		$params+="&client_id="+This.clientId
-		$params+="&redirect_uri="+_urlEncode(This.redirectURI)
-		//		$params+="&grant_type="+_urlEncode(This.grantType)
-		If (Length(String(This.scope))>0)
-			$params+="&scope="+_urlEncode(This.scope)
-		End if 
-		$params+="&state="+String($state)
-		
-	End if 
-	
-	If ($bSendRequest)
-		
-		$result:=This._sendTokenRequest($params)
-		
-	End if 
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
+Function _getToken($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
 	var $bSendRequest : Boolean
@@ -480,18 +438,21 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 			
 			If (_startWebServer($options))
 				
-				var $authorizationCode : Text
-				$authorizationCode:=This._OpenBrowserForAuthorisation()
+				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
 				If (Length($authorizationCode)>0)
 					
 					$params:="client_id="+This.clientId
-					$params+="&scope="+_urlEncode(This.scope)
+					$params+="&grant_type=authorization_code"
 					$params+="&code="+$authorizationCode
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
-					$params+="&grant_type=authorization_code"
-					If (Length(This.clientSecret)>0)
-						$params+="&client_secret="+This.clientSecret
+					If (This._isPKCE())
+						$params+="&code_verifier="+This.codeVerifier
+					Else 
+						$params+="&scope="+_urlEncode(This.scope)
+						If (Length(This.clientSecret)>0)
+							$params+="&client_secret="+This.clientSecret
+						End if 
 					End if 
 					
 				Else 
@@ -802,13 +763,10 @@ Function getToken()->$result : Object
 			Else 
 				
 				Case of 
-					: (This._isPKCE())
 						
-						$result:=This._getToken_PKCE($bUseRefreshToken)
+					: (This._isSignedIn() || This._isPKCE())
 						
-					: (This._isSignedIn())
-						
-						$result:=This._getToken_SignedIn($bUseRefreshToken)
+						$result:=This._getToken($bUseRefreshToken)
 						
 					: (This._isService())
 						
