@@ -15,10 +15,10 @@ For ($i; 1; $length)
 	Case of 
 		: ($code=45)
 		: ($code=46)
-		: ($code>47) & ($code<58)
-		: ($code>63) & ($code<91)
+		: ($code>47) && ($code<58)
+		: ($code>63) && ($code<91)
 		: ($code=95)
-		: ($code>96) & ($code<123)
+		: ($code>96) && ($code<123)
 		: ($code=126)
 		Else 
 			$shouldEscape:=True

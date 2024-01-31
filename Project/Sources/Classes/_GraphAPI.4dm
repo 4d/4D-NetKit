@@ -78,7 +78,7 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	
 Function _loadFromObject($inObject : Object)
 	
-	If (($inObject#Null) & (Not(OB Is empty($inObject))))
+	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
 		var $key : Text
 		var $keys : Collection:=OB Keys($inObject)

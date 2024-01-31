@@ -67,10 +67,12 @@ Function generateBody() : Text
 			
 			$body+=String($batchRequest.request.verb)+" "+String($batchRequest.request.URL)+" HTTP/1.1\r\n"
 			
-			var $header : Object
-			For each ($header; $batchRequest.headers)
-				$body+=String($header.name)+": "+String($header.value)+"\r\n"
-			End for each 
+			If (Num($batchRequest.headers.length)>0)
+				var $header : Object
+				For each ($header; $batchRequest.headers)
+					$body+=String($header.name)+": "+String($header.value)+"\r\n"
+				End for each 
+			End if 
 			$body+="\r\n"
 			If (Length(String($batchRequest.request.body))>0)
 				$body+=String($batchRequest.request.body)+"\r\n"

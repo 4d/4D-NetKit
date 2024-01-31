@@ -17,6 +17,6 @@ If (Match regex($pattern; $headerValue; 1; $foundPosArr; $foundLenArr))
 		End if 
 	End if 
 End if 
-If (($startPos>0) & ($endPos>$startPos))
+If (($startPos>0) && ($endPos>$startPos))
 	$paramValue:=Substring($headerValue; $startPos; $endPos-$startPos)
 End if 

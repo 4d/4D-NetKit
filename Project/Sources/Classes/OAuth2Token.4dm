@@ -6,7 +6,7 @@ Class constructor($inParams : Object)
 	var $params : Object
 	$params:=Null
 	If (Count parameters>0)
-		If ((Type($inParams)=Is object) & (Not(OB Is empty($inParams))))
+		If ((Type($inParams)=Is object) && (Not(OB Is empty($inParams))))
 			$params:=$inParams
 		End if 
 	End if 
@@ -24,7 +24,7 @@ Class constructor($inParams : Object)
 	
 Function _loadFromObject($inObject : Object)
 	
-	If (($inObject#Null) & (Not(OB Is empty($inObject))))
+	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
 		This.token:={}
 		If (OB Get type($inObject; "token")=Is object)
@@ -62,7 +62,7 @@ Function _loadFromResponse($inResponseString : Text)
 	var $token : Object
 	
 	$token:=JSON Parse($inResponseString)
-	If (($token#Null) & (Not(OB Is empty($token))))
+	If (($token#Null) && (Not(OB Is empty($token))))
 		
 		This._loadFromObject({token: $token})
 		
@@ -108,7 +108,7 @@ Function _Expired($inParams : Text)->$result : Boolean
 		Case of 
 			: (Current date<Date($expiration))
 				$result:=False
-			: ((Current date=Date($expiration)) & \
+			: ((Current date=Date($expiration)) && \
 				((Current time+0)<(Time($expiration)+0)))
 				$result:=False
 		End case 
