@@ -12,10 +12,7 @@ Class constructor()
 Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
-	var $description : Text
-	var $error : Object
-	
-	$description:=Get localized string("ERR_4DNK_"+String($inCode))
+	var $description : Text:=Get localized string("ERR_4DNK_"+String($inCode))
 	
 	If (Not(OB Is empty($inParameters)))
 		var $key : Text
@@ -25,7 +22,7 @@ Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	End if 
 	
 	// Push error into errorStack 
-	$error:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
 	If (This._internals._errorStack=Null)
 		This._internals._errorStack:=[]
 	End if 

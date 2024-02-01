@@ -25,8 +25,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	
 Function _getList($inURL : Text) : Boolean
 	
-	var $response : Object
-	$response:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
@@ -35,18 +34,15 @@ Function _getList($inURL : Text) : Boolean
 	This._internals._list:=[]
 	
 	If ($response#Null)
-		var $result : Collection
-		var $object : Object
-		var $nextLink : Text
-		var $count : Integer
 		
-		$result:=$response["value"]
+		var $result : Collection:=$response["value"]
+		var $object : Object
 		For each ($object; $result)
 			This._internals._list.push(Super._cleanGraphObject($object))
 		End for each 
 		This.success:=True
-		$nextLink:=_urlDecode(String($response["@odata.nextLink"]))
-		$count:=Num($response["@odata.count"])
+		var $nextLink : Text:=_urlDecode(String($response["@odata.nextLink"]))
+		var $count : Integer:=Num($response["@odata.count"])
 		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
 			$nextLink:=""
 		End if 
@@ -54,8 +50,7 @@ Function _getList($inURL : Text) : Boolean
 		This.isLastPage:=(Length(This._internals._nextLink)=0)
 		return True
 	Else 
-		var $errorStack : Collection
-		$errorStack:=Super._getErrorStack()
+		var $errorStack : Collection:=Super._getErrorStack()
 		If ($errorStack.length>0)
 			This.errors:=$errorStack
 			This.statusText:=$errorStack.first().message
@@ -70,11 +65,9 @@ Function _getList($inURL : Text) : Boolean
 	
 Function next() : Boolean
 	
-	var $URL : Text
-	$URL:=String(This._internals._nextLink)
+	var $URL : Text:=String(This._internals._nextLink)
 	If (Length($URL)>0)
-		var $bIsOK : Boolean
-		$bIsOK:=This._getList($URL)
+		var $bIsOK : Boolean:=This._getList($URL)
 		If ($bIsOK)
 			This._internals._history.push($URL)
 			This.page+=1
@@ -92,13 +85,10 @@ Function next() : Boolean
 Function previous() : Boolean
 	
 	If ((Num(This._internals._history.length)>0) && (This.page>1))
-		var $URL : Text
-		var $index : Integer
-		$index:=This.page-1
-		$URL:=String(This._internals._history[$index-1])
+		var $index : Integer:=This.page-1
+		var $URL : Text:=String(This._internals._history[$index-1])
 		If (Length($URL)>0)
-			var $bIsOK : Boolean
-			$bIsOK:=This._getList($URL)
+			var $bIsOK : Boolean:=This._getList($URL)
 			If ($bIsOK)
 				This.page-=1
 				This._internals._history.resize(This.page)

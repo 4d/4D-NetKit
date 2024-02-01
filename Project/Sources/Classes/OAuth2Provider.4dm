@@ -229,11 +229,11 @@ Function _rangeRandom($min : Integer; $max : Integer) : Integer
 	
 Function _randomString($size : Integer) : Text
 	
-	var $tab:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $tab : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
 	var $string : Text:=""
 	
 	While (Length($string)<$size)
-		var $rnd:=This._rangeRandom(1; Length($tab))
+		var $rnd : Integer:=This._rangeRandom(1; Length($tab))
 		$string+=$tab[[$rnd]]
 	End while 
 	
@@ -253,12 +253,9 @@ Function _generateCodeVerifier : Text
 	
 Function _getErrorDescription($inObject : Object) : Text
 	
-	var $result : Object
-	var $keys : Collection
+	var $result : Object:={}
+	var $keys : Collection:=OB Keys($inObject)
 	var $key : Text
-	
-	$result:={}
-	$keys:=OB Keys($inObject)
 	For each ($key; $keys)
 		If (Position("error"; $key)=1)
 			$result[$key]:=$inObject[$key]
@@ -313,12 +310,10 @@ Function _isService() : Boolean
 	
 Function _getAuthorizationCode()->$authorizationCode : Text
 	
-	var $url; $redirectURI; $state; $scope : Text
-	
-	$state:=Generate UUID
-	$redirectURI:=This.redirectURI
-	$url:=This.authenticateURI
-	$scope:=This.scope
+	var $state : Text:=Generate UUID
+	var $redirectURI : Text:=This.redirectURI
+	var $url : Text:=This.authenticateURI
+	var $scope : Text:=This.scope
 	
 	// Sanity check
 	Case of 
@@ -377,8 +372,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			
 			OPEN URL($url; *)
 			
-			var $endTime : Integer
-			$endTime:=Milliseconds+(This.timeout*1000)
+			var $endTime : Integer:=Milliseconds+(This.timeout*1000)
 			While ((Milliseconds<=$endTime) && (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
 				DELAY PROCESS(Current process; 10)
 			End while 
@@ -387,8 +381,8 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 				If (OB Is defined(Storage.requests; $state))
 					Use (Storage.requests[$state])
 						$authorizationCode:=String(Storage.requests[$state].token.code)
-
-						If (OB Is defined(Storage.requests[$state];"token") && OB Is defined(Storage.requests[$state].token; "error"))
+						
+						If (OB Is defined(Storage.requests[$state]; "token") && OB Is defined(Storage.requests[$state].token; "error"))
 							This._throwError(12; {function: Current method name; message: This._getErrorDescription(Storage.requests[$state].token)})
 						End if 
 					End use 
@@ -405,9 +399,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 Function _getToken($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
-	var $bSendRequest : Boolean
-	
-	$bSendRequest:=True
+	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
 		
 		$params:="client_id="+This.clientId
@@ -424,13 +416,11 @@ Function _getToken($bUseRefreshToken : Boolean)->$result : Object
 		
 		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
 			
-			var $options : Object
-			$options:={}
+			var $options : Object:={}
 			$options.port:=_getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
-				var $file : Object
-				$file:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
+				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
 				If (OB Instance of($file; 4D.File))
 					$options.webFolder:=$file.parent
 				End if 
@@ -453,7 +443,7 @@ Function _getToken($bUseRefreshToken : Boolean)->$result : Object
 					If (Length(This.clientSecret)>0)
 						$params+="&client_secret="+This.clientSecret
 					End if 
-				
+					
 				Else 
 					
 					$bSendRequest:=False
@@ -488,11 +478,7 @@ Function _getToken_Service()->$result : Object
 	Case of 
 		: (This._useJWTBearer())
 			
-			var $jwt : cs._JWT
-			var $options : Object
-			var $bearer : Text
-			
-			$options:={header: {alg: "RS256"; typ: "JWT"}}
+			var $options : Object:={header: {alg: "RS256"; typ: "JWT"}}
 			
 			$options.payload:={}
 			$options.payload.iss:=This.clientEmail
@@ -506,8 +492,8 @@ Function _getToken_Service()->$result : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
-			$bearer:=$jwt.generate()
+			var $jwt : cs._JWT:=cs._JWT.new($options)
+			var $bearer : Text:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
@@ -569,13 +555,7 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 Function _sendTokenRequest($params : Text)->$result : Object
 	
-	var $response; $savedMethod : Text
-	var $status : Integer
-	
-	var $options : Object
-	var $request : 4D.HTTPRequest
-	
-	$options:={headers: {}}
+	var $options : Object:={headers: {}}
 	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
 	$options.headers["Accept"]:="application/json"
 	$options.method:=HTTP POST method
@@ -586,19 +566,18 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		OB REMOVE(This._internals; "_rawBody")
 	End if 
 	
-	$savedMethod:=Method called on error
+	var $savedMethod : Text:=Method called on error
 	This._installErrorHandler()
-	$request:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
+	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
 	This._resetErrorHandler()
-	$status:=$request["response"]["status"]
-	$response:=$request["response"]["body"]
+	var $status : Integer:=$request["response"]["status"]
+	var $response : Text:=$request["response"]["body"]
 	
 	If ($status=200)
 		
 		If (Length($response)>0)
 			
-			var $contentType : Text
-			$contentType:=String($request["response"]["headers"]["content-type"])
+			var $contentType : Text:=String($request["response"]["headers"]["content-type"])
 			
 			Case of 
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
@@ -640,20 +619,16 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	Else 
 		
-		var $explanation : Text
-		$explanation:=$request["response"]["statusText"]
-		
-		var $error : Object
-		
-		$error:=JSON Parse($response)
+		var $explanation : Text:=$request["response"]["statusText"]
+		var $error : Object:=JSON Parse($response)
 		If ($error#Null)
+			
 			var $errorCode : Integer
-			var $message : Text
 			
 			If (Num($error.error_codes.length)>0)
 				$errorCode:=Num($error.error_codes[0])
 			End if 
-			$message:=String($error.error_description)
+			var $message : Text:=String($error.error_description)
 			
 			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
 		Else 
@@ -673,15 +648,12 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
  *	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
  */
 	
-	var $start; $date : Date
-	var $now : Text
+	var $start : Date:=!1970-01-01!
+	var $date : Date
 	var $time : Time
-	var $days : Integer
-	
-	$start:=!1970-01-01!
 	
 	If (Count parameters=0)
-		$now:=Timestamp
+		var $now : Text:=Timestamp
 		$now:=Substring($now; 1; Length($now)-5)  // remove milliseconds and Z
 		$date:=Date($now)  // date in UTC
 		$time:=Time($now)  // returns now time in UTC
@@ -690,7 +662,7 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 		$time:=$inTime
 	End if 
 	
-	$days:=$date-$start
+	var $days : Integer:=$date-$start
 	$result:=Num(($days*86400)+($time+0))  // convert in seconds
 	
 	
@@ -710,12 +682,9 @@ Function getToken()->$result : Object
 	
 	This._try()
 	
-	var $bUseRefreshToken : Boolean
-	
-	$bUseRefreshToken:=False
+	var $bUseRefreshToken : Boolean:=False
 	If (This.token#Null)
-		var $token : cs.OAuth2Token
-		$token:=cs.OAuth2Token.new(This)
+		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
 		If (Not($token._Expired()))
 			// Token is still valid.. Simply return it
 			$result:=$token
@@ -726,11 +695,9 @@ Function getToken()->$result : Object
 	
 	If ($result=Null)
 		
-		var $redirectURI; $authenticateURI; $tokenURI : Text
-		
-		$redirectURI:=This.redirectURI
-		$authenticateURI:=This.authenticateURI
-		$tokenURI:=This.tokenURI
+		var $redirectURI : Text:=This.redirectURI
+		var $authenticateURI : Text:=This.authenticateURI
+		var $tokenURI : Text:=This.tokenURI
 		
 		// Sanity check
 		Case of 

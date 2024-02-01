@@ -9,10 +9,8 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg; $typ : Text
-	
-	$alg:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
-	$typ:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
+	var $alg : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
+	var $typ : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
 	This.header:={alg: $alg; typ: $typ}
 	
 	If (OB Get type($inParam; "payload")=Is object)
@@ -30,14 +28,14 @@ Class constructor($inParam : Object)
 	
 Function generate() : Text
 	
-	var $header; $payload; $algorithm; $signature : Text
+	var $header; $payload; $signature : Text
 	
 	// Encode the Header and Payload
 	BASE64 ENCODE(JSON Stringify(This.header); $header; *)
 	BASE64 ENCODE(JSON Stringify(This.payload); $payload; *)
 	
 	// Parse Header for Algorithm Family
-	$algorithm:=Substring(This.header.alg; 1; 2)
+	var $algorithm : Text:=Substring(This.header.alg; 1; 2)
 	
 	// Generate Verify Signature Hash based on Algorithm
 	If ($algorithm="HS")
@@ -56,21 +54,19 @@ Function generate() : Text
 Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	
 	// Split Token into the three parts: Header, Payload, Verify Signature
-	var $parts : Collection
-	$parts:=Split string($inJWT; ".")
+	var $parts : Collection:=Split string($inJWT; ".")
 	
 	If ($parts.length>2)
 		
-		var $header; $payload; $algorithm; $signature : Text
-		var $jwt : Object
+		var $header; $payload; $signature : Text
 		
 		// Decode Header and Payload into Objects
 		BASE64 DECODE($parts[0]; $header; *)
 		BASE64 DECODE($parts[1]; $payload; *)
-		$jwt:={header: JSON Parse($header); payload: JSON Parse($payload); privateKey: String($inPrivateKey)}
+		var $jwt : Object:={header: JSON Parse($header); payload: JSON Parse($payload); privateKey: String($inPrivateKey)}
 		
 		// Parse Header for Algorithm Family
-		$algorithm:=Substring($jwt.header.alg; 1; 2)
+		var $algorithm : Text:=Substring($jwt.header.alg; 1; 2)
 		
 		// Generate Hashed Verify Signature
 		If ($algorithm="HS")
@@ -96,7 +92,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	
 Function _hashHS($inJWT : Object) : Text
 	
-	var $encodedHeader; $encodedPayload; $algorithm : Text
+	var $encodedHeader; $encodedPayload : Text
 	var $headerBlob; $payloadBlob; $intermediateBlob; $privateBlob; $dataBlob : Blob
 	var $blockSize; $i; $byte; $hashAlgorithm : Integer
 	
@@ -106,7 +102,7 @@ Function _hashHS($inJWT : Object) : Text
 	TEXT TO BLOB($encodedHeader+"."+$encodedPayload; $dataBlob; UTF8 text without length)
 	
 	// Parse Hashing Algorithm From Header
-	$algorithm:=Substring($inJWT.header.alg; 3)
+	var $algorithm : Text:=Substring($inJWT.header.alg; 3)
 	If ($algorithm="256")
 		$hashAlgorithm:=SHA256 digest
 		$blockSize:=64
@@ -158,12 +154,9 @@ Function _hashHS($inJWT : Object) : Text
 	
 Function _hashSign($inJWT : Object)->$hash : Text
 	
-	var $encodedHead; $encodedPayload; $algorithm; $privateKey : Text
+	var $encodedHead; $encodedPayload : Text
 	var $settings : Object
-	var $hashAlgorithm : Integer
-	var $cryptoKey : 4D.CryptoKey
-	
-	$privateKey:=(String($inJWT.privateKey)#"") ? String($inJWT.privateKey) : String(This.privateKey)
+	var $privateKey : Text:=(String($inJWT.privateKey)#"") ? String($inJWT.privateKey) : String(This.privateKey)
 	
 	// Encode Header and Payload to build Message
 	BASE64 ENCODE(JSON Stringify($inJWT.header); $encodedHead; *)
@@ -177,14 +170,15 @@ Function _hashSign($inJWT : Object)->$hash : Text
 	End if 
 	
 	// Create new CryptoKey
-	$cryptoKey:=4D.CryptoKey.new($settings)
+	var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
 	If ($cryptoKey#Null)
 		If (String(This.privateKey)="")
 			This.privateKey:=$cryptoKey.getPrivateKey()
 		End if 
 		
 		// Parse Header for Algorithm Family
-		$algorithm:=Substring($inJWT.header.alg; 3)
+		var $algorithm : Text:=Substring($inJWT.header.alg; 3)
+		var $hashAlgorithm : Integer
 		If ($algorithm="256")
 			$hashAlgorithm:=SHA256 digest
 		Else 

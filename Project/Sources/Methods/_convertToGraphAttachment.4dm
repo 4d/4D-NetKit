@@ -20,8 +20,7 @@ If (OB Instance of($inObject; cs.GraphAttachment))
 		$result.contentType:=String($inObject.type)
 	End if 
 	If (Not(OB Is defined($inObject; "contentBytes")))
-		var $blob : Blob
-		$blob:=$inObject.getContent()
+		var $blob : Blob:=$inObject.getContent()
 	End if 
 	$result.contentBytes:=$inObject.contentBytes
 	$result.size:=$inObject.size

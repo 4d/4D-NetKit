@@ -92,7 +92,7 @@ Function generateBody() : Text
 Function sendRequestAndWaitResponse() : Collection
 	
 	var $collection : Collection
-	var $verb:=This.verb
+	var $verb : Text:=This.verb
 	var $URL : Text:=This._internals._URL
 	var $body : Text:=This.body
 	var $headers : Object:=This.headers

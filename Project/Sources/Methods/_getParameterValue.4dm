@@ -1,13 +1,11 @@
 //%attributes = {"invisible":true}
 #DECLARE($headerValue : Text; $paramName : Text)->$paramValue : Text
 
-var $startPos; $endPos : Integer
-var $pattern : Text
-
 ARRAY LONGINT($foundPosArr; 0)
 ARRAY LONGINT($foundLenArr; 0)
 
-$pattern:=$paramName+"=(\"|)([A-Za-z0-9-\\/\\:;??=&\\.]+)(\"|)"
+var $pattern : Text:=$paramName+"=(\"|)([A-Za-z0-9-\\/\\:;??=&\\.]+)(\"|)"
+var $startPos; $endPos : Integer
 
 If (Match regex($pattern; $headerValue; 1; $foundPosArr; $foundLenArr))
 	If (Size of array($foundPosArr)=3)

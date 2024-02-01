@@ -2,7 +2,6 @@
 
 If (False)  // for debug purposes
 	
-	var $stack : Object
-	$stack:=_getErrorStack()
+	var $stack : Object:=_getErrorStack()
 	
 End if 

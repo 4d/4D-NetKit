@@ -1,16 +1,14 @@
 //%attributes = {"invisible":true}
 #DECLARE($value : Text)->$escaped : Text
 
-var $i; $j; $code; $length : Integer
-var $char; $hex : Text
-var $shouldEscape : Boolean
-var $data : Blob
+var $i; $j : Integer
+var $length : Integer:=Length($value)
 
-$length:=Length($value)
 For ($i; 1; $length)
-	$char:=Substring($value; $i; 1)
-	$code:=Character code($char)
-	$shouldEscape:=False
+	
+	var $char : Text:=Substring($value; $i; 1)
+	var $code : Integer:=Character code($char)
+	var $shouldEscape : Boolean:=False
 	
 	Case of 
 		: ($code=45)
@@ -25,9 +23,10 @@ For ($i; 1; $length)
 	End case 
 	
 	If ($shouldEscape)
+		var $data : Blob
 		CONVERT FROM TEXT($char; "utf-8"; $data)
 		For ($j; 0; BLOB size($data)-1)
-			$hex:=String($data{$j}; "&x")
+			var $hex : Text:=String($data{$j}; "&x")
 			$escaped:=$escaped+"%"+Substring($hex; Length($hex)-1)
 		End for 
 	Else 

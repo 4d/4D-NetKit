@@ -1,13 +1,10 @@
 //%attributes = {"invisible":true}
 #DECLARE($inParameters : Object)->$OK : Boolean
 
-var $webServer : 4D.WebServer
-var $settings; $status : Object
-
-$settings:={HTTPEnabled: True; \
-			HTTPSEnabled: False; \
-			HTTPPort: (Num($inParameters.port)>0) ? Num($inParameters.port) : 50993; \
-			debugLog: Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log}
+var $port : Integer:=(Num($inParameters.port)>0) ? Num($inParameters.port) : 50993
+var $debugLog : Integer:=Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log
+var $settings : Object:={HTTPEnabled: True; HTTPSEnabled: False; HTTPPort: $port; debugLog: $debugLog}
+var $webServer : 4D.WebServer:=WEB Server(Web server database)
 
 If (OB Is defined($inParameters; "webFolder"))
 	If (OB Instance of($inParameters.webFolder; 4D.Folder))
@@ -17,10 +14,7 @@ If (OB Is defined($inParameters; "webFolder"))
 	End if 
 End if 
 
-$webServer:=WEB Server(Web server database)
-
-If ($webServer.isRunning && (($webServer.HTTPPort#$settings.HTTPPort) || \
-($webServer.debugLog#$settings.debugLog)))
+If ($webServer.isRunning && (($webServer.HTTPPort#$settings.HTTPPort) || ($webServer.debugLog#$settings.debugLog)))
 	
 	$webServer.stop()
 	
@@ -31,7 +25,7 @@ End if
 
 If (Not($webServer.isRunning))
 	
-	$status:=$webServer.start($settings)
+	var $status : Text:=$webServer.start($settings)
 	
 End if 
 

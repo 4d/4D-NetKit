@@ -4,15 +4,13 @@
 If (Value type($inParameter)#Is undefined)
 	
 	var $platformPath : Text
-	var $file : 4D.File
-	
 	If ((Value type($inParameter)=Is object) && \
 		(OB Instance of($inParameter; 4D.File)))
 		$platformPath:=$inParameter.platformPath
 	Else 
 		$platformPath:=String($inParameter)
 	End if 
-	$file:=File($platformPath; fk platform path)
+	var $file : 4D.File:=File($platformPath; fk platform path)
 	If ($file.exists)
 		return $file
 	End if 

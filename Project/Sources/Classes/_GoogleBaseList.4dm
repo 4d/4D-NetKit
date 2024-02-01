@@ -27,19 +27,15 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text
 	
 Function _getList($inPageToken : Text) : Boolean
 	
-	var $response : Object
-	var $URL : Text
-	
-	$URL:=This._internals._URL
+	var $URL : Text:=This._internals._URL
 	
 	If (Length(String($inPageToken))>0)
 		
-		var $sep : Text
-		$sep:=((Position("?"; $URL)=0) ? "?" : "&")
+		var $sep : Text:=((Position("?"; $URL)=0) ? "?" : "&")
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
-	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
@@ -65,8 +61,7 @@ Function _getList($inPageToken : Text) : Boolean
 		
 	Else 
 		
-		var $errorStack : Collection
-		$errorStack:=Super._getErrorStack()
+		var $errorStack : Collection:=Super._getErrorStack()
 		
 		If ($errorStack.length>0)
 			
@@ -84,8 +79,7 @@ Function _getList($inPageToken : Text) : Boolean
 	
 Function next() : Boolean
 	
-	var $pageToken : Text
-	$pageToken:=String(This._internals._nextPageToken)
+	var $pageToken : Text:=String(This._internals._nextPageToken)
 	
 	If (Length($pageToken)>0)
 		
@@ -111,10 +105,8 @@ Function previous() : Boolean
 	
 	If ((Num(This._internals._history.length)>0) && (This.page>1))
 		
-		var $pageToken : Text
-		var $index : Integer
-		$index:=This.page-1
-		$pageToken:=String(This._internals._history[$index-1])
+		var $index : Integer:=This.page-1
+		var $pageToken : Text:=String(This._internals._history[$index-1])
 		
 		If (This._getList($pageToken))
 			
