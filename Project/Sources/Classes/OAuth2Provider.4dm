@@ -396,7 +396,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 	// ----------------------------------------------------
 	
 	
-Function _getToken($bUseRefreshToken : Boolean)->$result : Object
+Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
 	var $bSendRequest : Boolean:=True
@@ -730,9 +730,9 @@ Function getToken()->$result : Object
 				
 				Case of 
 						
-					: (This._isSignedIn() || This._isPKCE())
+					: (This._isSignedIn())
 						
-						$result:=This._getToken($bUseRefreshToken)
+						$result:=This._getToken_SignedIn($bUseRefreshToken)
 						
 					: (This._isService())
 						
