@@ -25,7 +25,7 @@ End if
 
 If (Not($webServer.isRunning))
 	
-	var $status : Text:=$webServer.start($settings)
+	var $status : Object:=$webServer.start($settings)
 	
 End if 
 
