@@ -195,11 +195,7 @@ Class constructor($inParams : Object)
 */
 		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
 		If (This.PKCEEnabled)
-			If ((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256"))
-				This.PKCEMethod:=String($inParams.PKCEMethod)
-			Else 
-				This.PKCEMethod:="S256"  // Default PKCEMethod
-			End if 
+			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
 		End if 
 	End if 
 	
@@ -438,11 +434,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
 					If (This._isPKCE())
 						$params+="&code_verifier="+This.codeVerifier
+					Else 
+						If (Length(This.clientSecret)>0)
+							$params+="&client_secret="+This.clientSecret
+						End if 
 					End if 
 					$params+="&scope="+_urlEncode(This.scope)
-					If (Length(This.clientSecret)>0)
-						$params+="&client_secret="+This.clientSecret
-					End if 
 					
 				Else 
 					
@@ -731,15 +728,12 @@ Function getToken()->$result : Object
 				Case of 
 						
 					: (This._isSignedIn())
-						
 						$result:=This._getToken_SignedIn($bUseRefreshToken)
 						
 					: (This._isService())
-						
 						$result:=This._getToken_Service()
 						
 					Else 
-						
 						This._throwError(3; {attribute: "permission"})
 						
 				End case 
