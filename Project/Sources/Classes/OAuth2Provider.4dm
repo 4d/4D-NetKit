@@ -434,10 +434,9 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
 					If (This._isPKCE())
 						$params+="&code_verifier="+This.codeVerifier
-					Else 
-						If (Length(This.clientSecret)>0)
-							$params+="&client_secret="+This.clientSecret
-						End if 
+					End if 
+					If (Length(This.clientSecret)>0)
+						$params+="&client_secret="+This.clientSecret
 					End if 
 					$params+="&scope="+_urlEncode(This.scope)
 					

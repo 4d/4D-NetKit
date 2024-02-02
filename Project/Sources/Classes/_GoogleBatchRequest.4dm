@@ -124,4 +124,4 @@ Function sendRequestAndWaitResponse() : Collection
 		
 	End if 
 	
-	return ($collection.length>0) ? $collection : Null
+	return (Num($collection.length)>0) ? $collection : Null
