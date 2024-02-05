@@ -17,6 +17,7 @@ property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
 property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
 property _scope : Text
 property _authenticateURI : Text
@@ -208,13 +209,18 @@ Class constructor($inParams : Object)
 	
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
-	// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-	return Generate digest($codeVerifier; SHA256 digest; *)
-	
-	
-	// ----------------------------------------------------
-	
-	
+	If (This.PKCEMethod="S256")
+		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+		return Generate digest($codeVerifier; SHA256 digest; *)
+	Else 
+		// code_challenge = code_verifier
+		return $codeVerifier
+	End if
+		
+		
+		// ----------------------------------------------------
+		
+		
 Function _rangeRandom($min : Integer; $max : Integer) : Integer
 	
 	return (Random%($max-$min+1))+$min
@@ -341,7 +347,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			$url+="&redirect_uri="+_urlEncode($redirectURI)
 			If (This._isPKCE())
 				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
-				$url+="&code_challenge_method=S256"
+				$url+="&code_challenge_method="+String(This.PKCEMethod)
 			Else 
 				If (Length(String(This.accessType))>0)
 					$url+="&access_type="+This.accessType
