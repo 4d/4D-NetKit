@@ -209,12 +209,10 @@ Class constructor($inParams : Object)
 	
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
-	If (This.PKCEMethod="S256")
-		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-		return Generate digest($codeVerifier; SHA256 digest; *)
+	If (This.PKCEMethod="plain")
+		return $codeVerifier	// code_challenge = code_verifier
 	Else 
-		// code_challenge = code_verifier
-		return $codeVerifier
+		return Generate digest($codeVerifier; SHA256 digest; *)		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
 	End if
 		
 		
@@ -286,14 +284,6 @@ Function _isGoogle() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _isPKCE() : Boolean
-	
-	return (This.PKCEEnabled)
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function _isSignedIn() : Boolean
 	
 	return (This.permission="signedIn")
@@ -345,7 +335,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			$url+="&state="+String($state)
 			$url+="&response_mode=query"
 			$url+="&redirect_uri="+_urlEncode($redirectURI)
-			If (This._isPKCE())
+			If (This.PKCEEnabled)
 				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
 				$url+="&code_challenge_method="+String(This.PKCEMethod)
 			Else 
@@ -438,7 +428,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 					$params+="&grant_type=authorization_code"
 					$params+="&code="+$authorizationCode
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
-					If (This._isPKCE())
+					If (This.PKCEEnabled)
 						$params+="&code_verifier="+This.codeVerifier
 					End if 
 					If (Length(This.clientSecret)>0)
