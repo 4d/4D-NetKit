@@ -12,8 +12,8 @@ Class constructor($inParam : Object)
 	var $alg : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
 	var $typ : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
 	var $x5t : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "x5t")) ? $inParam.header.x5t : ""
-
-  This.header:={alg: $alg; typ: $typ}
+	
+	This.header:={alg: $alg; typ: $typ}
 	If ($x5t#"")
 		This.header.x5t:=$x5t
 	End if 
@@ -194,4 +194,3 @@ Function _hashSign($inJWT : Object)->$hash : Text
 		// Sign Message with CryptoKey to generate hashed verify signature
 		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 
-	
