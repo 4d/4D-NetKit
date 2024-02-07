@@ -497,8 +497,8 @@ Function _getToken_Service()->$result : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt : cs._JWT:=cs._JWT.new($options)
-			$bearer : Text:=$jwt.generate()
+			$jwt:=cs._JWT.new($options)
+			$bearer:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
