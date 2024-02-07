@@ -26,7 +26,7 @@ Function get attachments() : Collection
 	".hasAttachments: This property doesn't include inline attachments, so if a message contains 
 	 only inline attachments, this property is false."
 */
-		var $urlParams; $URL : Text
+		var $urlParams : Text
 		
 		If (Length(String(This._internals._userId))>0)
 			$urlParams:="users/"+This._internals._userId
@@ -36,17 +36,15 @@ Function get attachments() : Collection
 		$urlParams+="/messages/"+String(This.id)+\
 			"/attachments/?select=id,contentType,isInline,name,size,lastModifiedDateTime&$top=999"
 		
-		$URL:=Super._getURL()+$urlParams
-		var $response; $iter : Object
-		$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+		var $URL : Text:=Super._getURL()+$urlParams
+		var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
 		
 		This._internals._attachments:=[]
 		If ($response#Null)
-			var $attachments : Collection
-			$attachments:=$response["value"]
+			var $attachments : Collection:=$response["value"]
+			var $iter : Object
 			For each ($iter; $attachments)
-				var $attachment : Object
-				$attachment:=cs.GraphAttachment.new(This._getOAuth2Provider(); \
+				var $attachment : Object:=cs.GraphAttachment.new(This._getOAuth2Provider(); \
 					{userId: String(This._internals._userId); messageId: String(This.id)}; \
 					$iter)
 				This._internals._attachments.push($attachment)

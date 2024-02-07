@@ -40,8 +40,7 @@ If (Asserted(Count parameters>0; "requires 1 parameter"))
     
     // if the base64 encoded does not contain the padding characters ("="), lets add them
     // base64 encoded data should have a length multiple of 4
-    var $padModulo : Integer
-    $padModulo:=Mod(Length($inBase64Encoded); 4)
+    var $padModulo : Integer:=Mod(Length($inBase64Encoded); 4)
     If ($padModulo>0)
         $inBase64Encoded:=$inBase64Encoded+((4-$padModulo)*"=")
     End if 

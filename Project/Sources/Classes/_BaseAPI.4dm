@@ -36,9 +36,7 @@ Function _getAcessToken() : Text
 Function _getAcessTokenType() : Text
 	
 	var $tokenType : Text
-	var $token : Object
-	
-	$token:=This._getToken()
+	var $token : Object:=This._getToken()
 	
 	Case of 
 		: (Value type($token.token_type)=Is text)
@@ -62,18 +60,15 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	This._try()
 	
-	var $options : Object
-	var $token : Text
+	var $options : Object:={headers: {}}
+	var $token : Text:=This._getAcessToken()
 	
-	$token:=This._getAcessToken()
-	$options:={headers: {}}
 	If (Length(String($token))>0)
 		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
-		var $keys : Collection
+		var $keys : Collection:=OB Keys($inHeaders)
 		var $key : Text
-		$keys:=OB Keys($inHeaders)
 		For each ($key; $keys)
 			$options.headers[$key]:=$inHeaders[$key]
 		End for each 
@@ -90,33 +85,26 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 			$options.dataType:="auto"
 	End case 
 	
-	var $request : 4D.HTTPRequest
-	
 	This._installErrorHandler()
-	$request:=4D.HTTPRequest.new($inURL; $options).wait()
+	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new($inURL; $options).wait()
 	This._resetErrorHandler()
 	
-	var $status : Integer
-	var $statusText : Text
-	$status:=$request["response"]["status"]
-	$statusText:=$request["response"]["statusText"]
+	var $status : Integer:=$request["response"]["status"]
+	var $statusText : Text:=$request["response"]["statusText"]
 	This._internals._statusLine:=String($status)+" "+$statusText
 	
 	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		var $contentType; $charset : Text
-		var $blob : Blob
-		
-		$contentType:=String($request["response"]["headers"]["content-type"])
-		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
+		var $contentType : Text:=String($request["response"]["headers"]["content-type"])
+		var $charset : Text:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		
 		If (OB Is defined($request.response; "body"))
+			var $text : Text
 			Case of 
 				: (Value type($request["response"]["body"])=Is object)
 					$response:=$request["response"]["body"]
 					
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
-					var $text : Text
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
@@ -131,6 +119,20 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 				: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
 					$response:=4D.Blob.new($request["response"]["body"])
 					
+				: ($contentType="multipart/@")
+					var $headers : Text:="HTTP/1.1 "+This._internals._statusLine+"\r\n"
+					$keys:=OB Keys($request.response.headers)
+					For each ($key; $keys)
+						$headers+=$key+": "+$request.response.headers[$key]+"\r\n"
+					End for each 
+					$headers+="\r\n"
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Convert to text($request["response"]["body"]; $charset)
+					End if 
+					$response:=$headers+$text
+					
 			End case 
 			
 		Else 
@@ -140,8 +142,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 		
 	Else 
 		
-		var $explanation; $message : Text
-		$explanation:=$request["response"]["statusText"]
+		var $message : Text
+		var $explanation : Text:=$request["response"]["statusText"]
 		
 		Case of 
 			: (Value type($request["response"]["body"])=Is text)
@@ -192,15 +194,12 @@ Function _getOAuth2Provider() : cs.OAuth2Provider
 	
 Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
-	var $errorStack : Collection
-	$errorStack:=Super._getErrorStack()
+	var $errorStack : Collection:=Super._getErrorStack()
 	$status:={}
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
 		var $key : Text
-		var $keys : Collection
-		
-		$keys:=OB Keys($inAdditionalInfo)
+		var $keys : Collection:=OB Keys($inAdditionalInfo)
 		For each ($key; $keys)
 			$status[$key]:=$inAdditionalInfo[$key]
 		End for each 

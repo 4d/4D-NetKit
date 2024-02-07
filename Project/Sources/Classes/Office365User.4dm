@@ -21,13 +21,13 @@ Function _getUserInfo($inURL : Text)->$userInfo : Object
 	
 Function getCurrent($inSelect : Text)->$userInfo : Object
 	
-	var $urlParams; $URL : Text
+	var $urlParams : Text
 	
 	If (Length(String($inSelect))>0)
 		$urlParams:="?$select="+$inSelect
 	End if 
 	
-	$URL:=This._getURL()+"me"+$urlParams
+	var $URL : Text:=This._getURL()+"me"+$urlParams
 	
 	$userInfo:=This._getUserInfo($URL)
 	
@@ -38,14 +38,14 @@ Function getCurrent($inSelect : Text)->$userInfo : Object
 Function get($inID : Text; $inSelect : Text) : Object
 	
 	If (Length($inID)>0)
-		var $urlParams; $URL : Text
 		
-		$urlParams:=String($inID)
+		var $urlParams : Text:=String($inID)
+		
 		If (Length(String($inSelect))>0)
 			$urlParams:=$urlParams+"?$select="+$inSelect
 		End if 
 		
-		$URL:=This._getURL()+"users/"+$urlParams
+		var $URL : Text:=This._getURL()+"users/"+$urlParams
 		
 		return This._getUserInfo($URL)
 	Else 
@@ -61,11 +61,9 @@ Function get($inID : Text; $inSelect : Text) : Object
 	
 Function list($inParameters : Object) : Object
 	
-	var $urlParams; $URL; $delimiter : Text
 	var $headers : Object
-	
-	$urlParams:="users"
-	$delimiter:="?"
+	var $urlParams : Text:="users"
+	var $delimiter : Text:="?"
 	
 	If (Length(String($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
@@ -90,7 +88,7 @@ Function list($inParameters : Object) : Object
 		$delimiter:="&"
 	End if 
 	
-	$URL:=This._getURL()+$urlParams
+	var $URL : Text:=This._getURL()+$urlParams
 	
 	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
 	
@@ -100,11 +98,9 @@ Function list($inParameters : Object) : Object
 	
 Function count($inParameters : Object) : Object
 	
-	var $urlParams; $URL; $delimiter : Text
 	var $headers : Object
-	
-	$urlParams:="users"
-	$delimiter:="?"
+	var $urlParams : Text:="users"
+	var $delimiter : Text:="?"
 	
 	If (Length(String($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
@@ -131,7 +127,7 @@ Function count($inParameters : Object) : Object
 	$urlParams:=$urlParams+$delimiter+"$count"
 	$headers:={ConsistencyLevel: "eventual"}
 	
-	$URL:=This._getURL()+$urlParams
+	var $URL : Text:=This._getURL()+$urlParams
 	
 	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
 	

@@ -26,14 +26,11 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject
 	
 Function getContent() : 4D.Blob
 	
-	var $contentBytes : Blob
-	
 	If (Not(OB Is defined(This; "contentBytes")))
 		
 		If (Length(String(This._internals._messageId))>0)
 			
-			var $response : Object
-			var $urlParams; $URL : Text
+			var $urlParams : Text
 			
 			If (Length(String(This._internals._userId))>0)
 				$urlParams:="users/"+This._internals._userId
@@ -43,12 +40,12 @@ Function getContent() : 4D.Blob
 			$urlParams+="/messages/"+This._internals._messageId
 			$urlParams+="/attachments/"+This.id
 			
-			$URL:=Super._getURL()+$urlParams
+			var $URL : Text:=Super._getURL()+$urlParams
 			If (This["@odata.type"]="#microsoft.graph.itemAttachment")
 				$URL+="/?$expand=microsoft.graph.itemattachment/item"
 			End if 
-			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 			
+			var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
 			If ($response#Null)
 				If (OB Is defined($response; "contentBytes"))
 					This.contentBytes:=$response.contentBytes
@@ -64,6 +61,7 @@ Function getContent() : 4D.Blob
 		End if 
 	End if 
 	
+	var $contentBytes : Blob
 	If (OB Is defined(This; "contentBytes"))
 		BASE64 DECODE(This.contentBytes; $contentBytes)
 	End if 

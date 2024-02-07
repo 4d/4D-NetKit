@@ -16,6 +16,8 @@ property loginHint : Text
 property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
+property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
 property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
 property _thumbprint : Text
@@ -24,6 +26,7 @@ property _scope : Text
 property _authenticateURI : Text
 property _tokenURI : Text
 property _grantType : Text
+property _codeVerifier : Text
 
 Class constructor($inParams : Object)
 	
@@ -187,6 +190,17 @@ Class constructor($inParams : Object)
 		If (Bool($inParams.enableDebugLog))
 			This.enableDebugLog:=True
 		End if 
+		
+/*
+	PKCEEnabled : Boolean: if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+	PKCEMethod : Text: PKCE Encoding method. The only supported values for are "S256" or "plain" ("S256" by default)
+		
+	See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-authorization-code-flow-with-pkce
+*/
+		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
+		If (This.PKCEEnabled)
+			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
+		End if 
 	End if 
 	
 	This._finally()
@@ -203,14 +217,55 @@ When _thumprint is empty it's not possible to create a proper jwt token for requ
 	// ----------------------------------------------------
 	
 	
+Function _generateCodeChallenge($codeVerifier : Text) : Text
+	
+	If (This.PKCEMethod="plain")
+		return $codeVerifier	// code_challenge = code_verifier
+	Else 
+		return Generate digest($codeVerifier; SHA256 digest; *)		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	End if
+		
+		
+		// ----------------------------------------------------
+		
+		
+Function _rangeRandom($min : Integer; $max : Integer) : Integer
+	
+	return (Random%($max-$min+1))+$min
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _randomString($size : Integer) : Text
+	
+	var $tab : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $string : Text:=""
+	
+	While (Length($string)<$size)
+		var $rnd : Integer:=This._rangeRandom(1; Length($tab))
+		$string+=$tab[[$rnd]]
+	End while 
+	
+	return $string
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _generateCodeVerifier : Text
+	
+	return This._randomString(This._rangeRandom(43; 128))
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _getErrorDescription($inObject : Object) : Text
 	
-	var $result : Object
-	var $keys : Collection
+	var $result : Object:={}
+	var $keys : Collection:=OB Keys($inObject)
 	var $key : Text
-	
-	$result:={}
-	$keys:=OB Keys($inObject)
 	For each ($key; $keys)
 		If (Position("error"; $key)=1)
 			$result[$key]:=$inObject[$key]
@@ -255,14 +310,12 @@ Function _isService() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
+Function _getAuthorizationCode()->$authorizationCode : Text
 	
-	var $url; $redirectURI; $state; $scope : Text
-	
-	$state:=Generate UUID
-	$redirectURI:=This.redirectURI
-	$url:=This.authenticateURI
-	$scope:=This.scope
+	var $state : Text:=Generate UUID
+	var $redirectURI : Text:=This.redirectURI
+	var $url : Text:=This.authenticateURI
+	var $scope : Text:=This.scope
 	
 	// Sanity check
 	Case of 
@@ -279,27 +332,32 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 		: (This._isMicrosoft() && (Length(String(This.tenant))=0))
 			This._throwError(2; {attribute: "tenant"})
 			
-		: (This._isSignedIn() & (Length(String($redirectURI))=0))
+		: (This._isSignedIn() && (Length(String($redirectURI))=0))
 			This._throwError(2; {attribute: "redirectURI"})
 			
 		Else 
 			
 			$url+="?client_id="+This.clientId
 			$url+="&response_type=code"
-			$url+="&redirect_uri="+_urlEncode($redirectURI)
-			$url+="&response_mode=query"
 			If (Length(String($scope))>0)
 				$url+="&scope="+_urlEncode($scope)
 			End if 
 			$url+="&state="+String($state)
-			If (Length(String(This.accessType))>0)
-				$url+="&access_type="+This.accessType
-			End if 
-			If (Length(String(This.loginHint))>0)
-				$url+="&login_hint="+This.loginHint
-			End if 
-			If (Length(String(This.prompt))>0)
-				$url+="&prompt="+This.prompt
+			$url+="&response_mode=query"
+			$url+="&redirect_uri="+_urlEncode($redirectURI)
+			If (This.PKCEEnabled)
+				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
+				$url+="&code_challenge_method="+String(This.PKCEMethod)
+			Else 
+				If (Length(String(This.accessType))>0)
+					$url+="&access_type="+This.accessType
+				End if 
+				If (Length(String(This.loginHint))>0)
+					$url+="&login_hint="+This.loginHint
+				End if 
+				If (Length(String(This.prompt))>0)
+					$url+="&prompt="+This.prompt
+				End if 
 			End if 
 			
 			Use (Storage)
@@ -316,21 +374,17 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 			
 			OPEN URL($url; *)
 			
-			var $endTime : Integer
-			$endTime:=Milliseconds+(This.timeout*1000)
-			While ((Milliseconds<=$endTime) & (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
+			var $endTime : Integer:=Milliseconds+(This.timeout*1000)
+			While ((Milliseconds<=$endTime) && (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
 				DELAY PROCESS(Current process; 10)
 			End while 
 			
 			Use (Storage.requests)
 				If (OB Is defined(Storage.requests; $state))
 					Use (Storage.requests[$state])
-						$authorizationCode:=Storage.requests[$state].token.code
-						//If (OB Is defined(Storage.requests[$state].token; "state") & (Length(OB Get(Storage.requests[$state].token; "state"; Is text))>0))
-						//ASSERT(Storage.requests[$state].token.state=$state; "state changed !!! CSRF Attack ?")
-						//End if
+						$authorizationCode:=String(Storage.requests[$state].token.code)
 						
-						If (OB Is defined(Storage.requests[$state].token; "error"))
+						If (OB Is defined(Storage.requests[$state]; "token") && OB Is defined(Storage.requests[$state].token; "error"))
 							This._throwError(12; {function: Current method name; message: This._getErrorDescription(Storage.requests[$state].token)})
 						End if 
 					End use 
@@ -347,9 +401,7 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
-	var $bSendRequest : Boolean
-	
-	$bSendRequest:=True
+	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
 		
 		$params:="client_id="+This.clientId
@@ -366,13 +418,11 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
 			
-			var $options : Object
-			$options:={}
+			var $options : Object:={}
 			$options.port:=_getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
-				var $file : Object
-				$file:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
+				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
 				If (OB Instance of($file; 4D.File))
 					$options.webFolder:=$file.parent
 				End if 
@@ -380,19 +430,21 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 			
 			If (_startWebServer($options))
 				
-				var $authorizationCode : Text
-				$authorizationCode:=This._OpenBrowserForAuthorisation()
+				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
 				If (Length($authorizationCode)>0)
 					
 					$params:="client_id="+This.clientId
-					$params+="&scope="+_urlEncode(This.scope)
+					$params+="&grant_type=authorization_code"
 					$params+="&code="+$authorizationCode
 					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
-					$params+="&grant_type=authorization_code"
+					If (This.PKCEEnabled)
+						$params+="&code_verifier="+This.codeVerifier
+					End if 
 					If (Length(This.clientSecret)>0)
 						$params+="&client_secret="+This.clientSecret
 					End if 
+					$params+="&scope="+_urlEncode(This.scope)
 					
 				Else 
 					
@@ -432,7 +484,6 @@ Function _getToken_Service()->$result : Object
 		: (This._useJWTBearer())
 			
 			$options:={header: {alg: "RS256"; typ: "JWT"}}
-			
 			$options.payload:={}
 			$options.payload.iss:=This.clientEmail
 			$options.payload.scope:=This.scope
@@ -445,8 +496,8 @@ Function _getToken_Service()->$result : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
-			$bearer:=$jwt.generate()
+			var $jwt : cs._JWT:=cs._JWT.new($options)
+			var $bearer : Text:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
@@ -496,7 +547,7 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 	$OK:=False
 	
-	If (($obj#Null) & (Value type($obj)=Is object))
+	If (($obj#Null) && (Value type($obj)=Is object))
 		
 		Case of 
 				
@@ -509,10 +560,10 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 			: (Length(String($obj.permission))=0)
 				This._throwError(2; {attribute: "permission"})
 				
-			: (Not(String($obj.permission)="signedIn") & Not(String($obj.permission)="service"))
+			: (Not(String($obj.permission)="signedIn") && Not(String($obj.permission)="service"))
 				This._throwError(3; {attribute: "permission"})
 				
-			: ((String($obj.permission)="signedIn") & (Length(String($obj.redirectURI))=0))
+			: ((String($obj.permission)="signedIn") && (Length(String($obj.redirectURI))=0))
 				This._throwError(2; {attribute: "redirectURI"})
 				
 			Else 
@@ -532,13 +583,7 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 Function _sendTokenRequest($params : Text)->$result : Object
 	
-	var $response; $savedMethod : Text
-	var $status : Integer
-	
-	var $options : Object
-	var $request : 4D.HTTPRequest
-	
-	$options:={headers: {}}
+	var $options : Object:={headers: {}}
 	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
 	$options.headers["Accept"]:="application/json"
 	$options.method:=HTTP POST method
@@ -549,19 +594,18 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		OB REMOVE(This._internals; "_rawBody")
 	End if 
 	
-	$savedMethod:=Method called on error
+	var $savedMethod : Text:=Method called on error
 	This._installErrorHandler()
-	$request:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
+	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
 	This._resetErrorHandler()
-	$status:=$request["response"]["status"]
-	$response:=$request["response"]["body"]
+	var $status : Integer:=$request["response"]["status"]
+	var $response : Text:=$request["response"]["body"]
 	
 	If ($status=200)
 		
 		If (Length($response)>0)
 			
-			var $contentType : Text
-			$contentType:=String($request["response"]["headers"]["content-type"])
+			var $contentType : Text:=String($request["response"]["headers"]["content-type"])
 			
 			Case of 
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
@@ -574,10 +618,10 @@ Function _sendTokenRequest($params : Text)->$result : Object
 					
 				Else 
 /*
-						We have a status 200 (no error) and a response that we don't know/want to interpret.
-						Simply return a null result (to be consistent with the specifications) and
-						copy the raw response body in a private member of the class
-					*/
+ *					We have a status 200 (no error) and a response that we don't know/want to interpret.
+ *					Simply return a null result (to be consistent with the specifications) and
+ *					copy the raw response body in a private member of the class
+ */
 					var $blob : Blob
 					CONVERT FROM TEXT($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
 					This._internals._rawBody:=4D.Blob.new($blob)
@@ -603,20 +647,16 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	Else 
 		
-		var $explanation : Text
-		$explanation:=$request["response"]["statusText"]
-		
-		var $error : Object
-		
-		$error:=JSON Parse($response)
+		var $explanation : Text:=$request["response"]["statusText"]
+		var $error : Object:=JSON Parse($response)
 		If ($error#Null)
+			
 			var $errorCode : Integer
-			var $message : Text
 			
 			If (Num($error.error_codes.length)>0)
 				$errorCode:=Num($error.error_codes[0])
 			End if 
-			$message:=String($error.error_description)
+			var $message : Text:=String($error.error_description)
 			
 			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
 		Else 
@@ -632,19 +672,16 @@ Function _sendTokenRequest($params : Text)->$result : Object
 	
 Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
-	Unix_Time stolen from ThomasMaul/JWT_Token_Example
-	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
-*/
+ *	Unix_Time stolen from ThomasMaul/JWT_Token_Example
+ *	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+ */
 	
-	var $start; $date : Date
-	var $now : Text
+	var $start : Date:=!1970-01-01!
+	var $date : Date
 	var $time : Time
-	var $days : Integer
-	
-	$start:=!1970-01-01!
 	
 	If (Count parameters=0)
-		$now:=Timestamp
+		var $now : Text:=Timestamp
 		$now:=Substring($now; 1; Length($now)-5)  // remove milliseconds and Z
 		$date:=Date($now)  // date in UTC
 		$time:=Time($now)  // returns now time in UTC
@@ -653,8 +690,8 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 		$time:=$inTime
 	End if 
 	
-	$days:=$date-$start
-	$result:=($days*86400)+($time+0)  // convert in seconds
+	var $days : Integer:=$date-$start
+	$result:=Num(($days*86400)+($time+0))  // convert in seconds
 	
 	
 	// ----------------------------------------------------
@@ -677,12 +714,9 @@ Function getToken()->$result : Object
 	
 	This._try()
 	
-	var $bUseRefreshToken : Boolean
-	
-	$bUseRefreshToken:=False
+	var $bUseRefreshToken : Boolean:=False
 	If (This.token#Null)
-		var $token : cs.OAuth2Token
-		$token:=cs.OAuth2Token.new(This)
+		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
 		If (Not($token._Expired()))
 			// Token is still valid.. Simply return it
 			$result:=$token
@@ -693,11 +727,9 @@ Function getToken()->$result : Object
 	
 	If ($result=Null)
 		
-		var $redirectURI; $authenticateURI; $tokenURI : Text
-		
-		$redirectURI:=This.redirectURI
-		$authenticateURI:=This.authenticateURI
-		$tokenURI:=This.tokenURI
+		var $redirectURI : Text:=This.redirectURI
+		var $authenticateURI : Text:=This.authenticateURI
+		var $tokenURI : Text:=This.tokenURI
 		
 		// Sanity check
 		Case of 
@@ -720,23 +752,26 @@ Function getToken()->$result : Object
 			: (Length(String(This.permission))=0)
 				This._throwError(2; {attribute: "permission"})
 				
-			: (This._isSignedIn() & (Length(String($redirectURI))=0))
+			: (This._isSignedIn() && (Length(String($redirectURI))=0))
 				This._throwError(2; {attribute: "permission"})
 				
-			: (Not(This._isSignedIn()) & Not(This._isService()))
+			: (Not(This._isSignedIn()) && Not(This._isService()))
 				This._throwError(3; {attribute: "permission"})
 				
 			Else 
 				
-				If (This._isSignedIn())
-					
-					$result:=This._getToken_SignedIn($bUseRefreshToken)
-					
-				Else 
-					
-					$result:=This._getToken_Service()
-					
-				End if 
+				Case of 
+						
+					: (This._isSignedIn())
+						$result:=This._getToken_SignedIn($bUseRefreshToken)
+						
+					: (This._isService())
+						$result:=This._getToken_Service()
+						
+					Else 
+						This._throwError(3; {attribute: "permission"})
+						
+				End case 
 				
 				If ($result#Null)
 					// Save token internally
@@ -778,9 +813,21 @@ Function get authenticateURI() : Text
 	// ----------------------------------------------------
 	
 	
+Function get codeVerifier() : Text
+	
+	If (Length(String(This._codeVerifier))=0)
+		This._codeVerifier:=This._generateCodeVerifier()
+	End if 
+	
+	return This._codeVerifier
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function get grantType() : Text
 	
-	If (Length(This._grantType)=0)
+	If (Length(String(This._grantType))=0)
 		If (This._isService() && This._isGoogle())
 			return "urn:ietf:params:oauth:grant-type:jwt-bearer"
 		Else 

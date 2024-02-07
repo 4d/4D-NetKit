@@ -2,20 +2,12 @@ name: Lint
 
 on:
   push:
-    branches:
-      - "main"
-      - "2?R**"
-      - "2?.x"
     paths:
       - '**.xlf'
       - '**.4DSettings'
       - '**.4DCatalog'
 
   pull_request:
-    branches:
-      - "main"
-      - "2?R**"
-      - "2?.x"
     paths:
       - '**.xlf'
       - '**.4DSettings'

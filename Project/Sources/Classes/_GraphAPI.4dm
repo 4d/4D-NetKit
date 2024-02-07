@@ -13,12 +13,9 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 Function _cleanGraphObject($inObject : Object) : Object
 	
-	var $keys : Collection
+	var $cleanObject : Object:=OB Copy($inObject)
+	var $keys : Collection:=OB Keys($cleanObject)
 	var $key : Text
-	var $cleanObject : Object
-	
-	$cleanObject:=OB Copy($inObject)
-	$keys:=OB Keys($cleanObject)
 	For each ($key; $keys)
 		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
 			OB REMOVE($cleanObject; $key)
@@ -35,17 +32,13 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	
 	If (OB Instance of($inMessage; cs.GraphMessage))
 		
-		var $result; $message : Object
-		var $keys : Collection
-		var $key : Text
-		var $iter; $attachment : Object
-		
-		$message:=OB Copy($inMessage)
-		$result:={}
+		var $result : Object:={}
+		var $message : Object:=OB Copy($inMessage)
 		If (OB Is defined($message; "attachments") && ($message.attachments#Null))
 			$result.attachments:=[]
 		End if 
-		$keys:=OB Keys($message)
+		var $key : Text
+		var $keys : Collection:=OB Keys($message)
 		For each ($key; $keys)
 			
 			Case of 
@@ -53,8 +46,9 @@ Function _copyGraphMessage($inMessage : Object) : Object
 					// do not copy
 					
 				: ($key="attachments")
+					var $iter : Object
 					For each ($iter; $message.attachments)
-						$attachment:=_convertToGraphAttachment($iter)
+						var $attachment : Object:=_convertToGraphAttachment($iter)
 						$result.attachments.push($attachment)
 					End for each 
 					
@@ -78,17 +72,13 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	
 Function _loadFromObject($inObject : Object)
 	
-	If (($inObject#Null) & (Not(OB Is empty($inObject))))
+	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
 		var $key : Text
-		var $keys : Collection
-		var $objectCopy : Object
-		
-		$objectCopy:=OB Copy($inObject)
-		$keys:=OB Keys($objectCopy)
+		var $keys : Collection:=OB Keys($inObject)
 		
 		For each ($key; $keys)
-			This[$key]:=$objectCopy[$key]
+			This[$key]:=$inObject[$key]
 		End for each 
 		
 	End if 
@@ -99,10 +89,8 @@ Function _loadFromObject($inObject : Object)
 	
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
-	var $urlParams; $delimiter : Text
-	
-	$urlParams:=""
-	$delimiter:="?"
+	var $urlParams : Text:=""
+	var $delimiter : Text:="?"
 	If (Bool($inParameters.includeHiddenFolders))
 		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
 		$delimiter:="&"

@@ -12,10 +12,7 @@ Class constructor()
 Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
-	var $description : Text
-	var $error : Object
-	
-	$description:=Get localized string("ERR_4DNK_"+String($inCode))
+	var $description : Text:=Get localized string("ERR_4DNK_"+String($inCode))
 	
 	If (Not(OB Is empty($inParameters)))
 		var $key : Text
@@ -25,7 +22,7 @@ Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	End if 
 	
 	// Push error into errorStack 
-	$error:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
 	If (This._internals._errorStack=Null)
 		This._internals._errorStack:=[]
 	End if 
@@ -40,8 +37,7 @@ Function _pushError($inCode : Integer; $inParameters : Object) : Object
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
-	var $error : Object
-	$error:=This._pushError($inCode; $inParameters)
+	var $error : Object:=This._pushError($inCode; $inParameters)
 	
 	If (This._internals._throwErrors)
 		$error.deferred:=True
@@ -59,7 +55,7 @@ Function _try
 	CLEAR VARIABLE(ERROR LINE)
 	CLEAR VARIABLE(ERROR FORMULA)
 	
-	ON ERR CALL("_catch")
+	ON ERR CALL("_catch"; ek errors from components)
 	
 	
 	// ----------------------------------------------------
@@ -67,7 +63,7 @@ Function _try
 	
 Function _finally
 	
-	ON ERR CALL(This._internals._throwErrors ? "_throwError" : "")
+	ON ERR CALL(This._internals._throwErrors ? "_throwError" : ""; ek errors from components)
 	
 	
 	// ----------------------------------------------------
@@ -129,7 +125,7 @@ Function _throwErrors($inThrowErrors : Boolean)
 Function _installErrorHandler($inErrorHandler : Text)
 	
 	This._internals._savedErrorHandler:=Method called on error
-	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler")
+	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler"; ek errors from components)
 	
 	
 	// ----------------------------------------------------
@@ -137,5 +133,5 @@ Function _installErrorHandler($inErrorHandler : Text)
 	
 Function _resetErrorHandler
 	
-	ON ERR CALL(This._internals._savedErrorHandler)
+	ON ERR CALL(This._internals._savedErrorHandler; ek errors from components)
 	This._internals._savedErrorHandler:=""

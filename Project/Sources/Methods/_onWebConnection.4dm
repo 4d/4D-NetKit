@@ -1,12 +1,10 @@
 //%attributes = {"invisible":true}
 C_TEXT($1; $2; $3; $4; $5; $6)
 
-var $redirectURI; $state : Text
-var $responseFile; $customResponseFile; $customErrorFile : 4D.File
-
-$responseFile:=Folder(fk resources folder).file("Response_Template.html")
-
-$state:=_getURLParameterValue($1; "state")
+var $redirectURI : Text
+var $customResponseFile; $customErrorFile : 4D.File
+var $state : Text:=_getURLParameterValue($1; "state")
+var $responseFile : 4D.File:=Folder(fk resources folder).file("Response_Template.html")
 
 If (OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)

@@ -1,21 +1,16 @@
 //%attributes = {"invisible":true}
 #DECLARE($URL : Text; $paramName : Text)->$paramValue : Text
 
-var $posQuery : Integer
-
-$posQuery:=Position("?"; $URL)
+var $posQuery : Integer:=Position("?"; $URL)
 If ($posQuery>0)
 	
-	var $queryString : Text
+	var $queryString : Text:=Substring($URL; $posQuery+1)
+	var $parameters : Collection:=Split string($queryString; "&"; sk ignore empty strings)
 	var $parameter : Text
-	var $parameters; $values : Collection
-	
-	$queryString:=Substring($URL; $posQuery+1)
-	$parameters:=Split string($queryString; "&"; sk ignore empty strings)
 	
 	For each ($parameter; $parameters)
 		
-		$values:=Split string($parameter; "=")
+		var $values : Collection:=Split string($parameter; "=")
 		
 		If ($values.length=2)
 			If ($values[0]=$paramName)

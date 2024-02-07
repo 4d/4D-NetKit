@@ -18,28 +18,29 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
+	var $response : Object
+	
 	If ($inMail#Null)
-		var $headers; $message; $messageCopy; $response : Object
-		var $requestBody : Text
 		
-		$headers:={}
+		var $headers : Object:={}
 		$headers["Content-Type"]:="application/json"
 		If (($inHeader#Null) && (Value type($inHeader)=Is object))
-			var $keys : Collection
+			
 			var $key : Text
-			$keys:=OB Keys($inHeader)
+			var $keys : Collection:=OB Keys($inHeader)
 			For each ($key; $keys)
 				$headers[$key]:=$inHeader[$key]
 			End for each 
 		End if 
 		
-		$messageCopy:=This._copyGraphMessage($inMail)
+		var $message : Object
+		var $messageCopy : Object:=This._copyGraphMessage($inMail)
 		If (Not(OB Is defined($inMail; "message")) && Not($bSkipMessageEncapsulation))
 			$message:={message: $messageCopy}
 		Else 
 			$message:=$messageCopy
 		End if 
-		$requestBody:=JSON Stringify($message)
+		var $requestBody : Text:=JSON Stringify($message)
 		
 		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	Else 
@@ -54,18 +55,18 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers : Object
-	var $requestBody : Text
+/*
+ *	POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
+ *	An issue has already been registered.
+ *	See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
+ *	See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
+ */
 	
-	$headers:={}
+	var $requestBody : Text
+	var $headers : Object:={}
 	$headers["Content-Type"]:="text/plain"
 	
-/*
-		POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
-		An issue has already been registered.
-		See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
-		See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
-	*/
+	This._installErrorHandler()
 	
 	Case of 
 		: (Value type($inMail)=Is BLOB)
@@ -78,6 +79,8 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 			$requestBody:=$inMail
 	End case 
 	BASE64 ENCODE($requestBody)
+	
+	This._resetErrorHandler()
 	
 	Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	return This._returnStatus()
@@ -124,15 +127,13 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	
 Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
-	var $errorStack : Collection
-	$errorStack:=Super._getErrorStack()
+	var $errorStack : Collection:=Super._getErrorStack()
 	$status:={}
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
-		var $keys : Collection
-		var $key : Text
 		
-		$keys:=OB Keys($inAdditionalInfo)
+		var $key : Text
+		var $keys : Collection:=OB Keys($inAdditionalInfo)
 		For each ($key; $keys)
 			$status[$key]:=$inAdditionalInfo[$key]
 		End for each 
@@ -155,9 +156,7 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 Function append($inMail : Variant; $inFolderId : Text) : Object
 	
-	var $URL : Text
-	
-	$URL:=Super._getURL()
+	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
 		$URL+="users/"+This.userId
 	Else 
@@ -194,10 +193,8 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -205,10 +202,10 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 			End if 
 			$URL+="/messages/"+$inMailId+"/copy"
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={destinationId: $inFolderId}
+			var $headers : Object:={}
+			var $body : Object:={destinationId: $inFolderId}
 			
+			$headers["Content-Type"]:="application/json"
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
@@ -226,9 +223,7 @@ Function delete($inMailId : Text) : Object
 	
 	If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL : Text
-		
-		$URL:=Super._getURL()
+		var $URL : Text:=Super._getURL()
 		If (Length(String(This.userId))>0)
 			$URL+="users/"+This.userId
 		Else 
@@ -257,11 +252,7 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
 	If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL; $mailType; $contentType : Text
-		var $result : Variant
-		var $headers : Object
-		
-		$URL:=Super._getURL()
+		var $URL : Text:=Super._getURL()
 		If (Length(String(This.userId))>0)
 			$URL+="users/"+This.userId
 		Else 
@@ -269,19 +260,20 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		$mailType:=(($inOptions#Null) && \
+		var $mailType : Text:=(($inOptions#Null) && \
 			(Length(String($inOptions.mailType))>0)) ? $inOptions.mailType : This.mailType
 		If (($mailType="JMAP") || ($mailType="MIME"))
 			$URL+="/$value"
 		End if 
 		
-		$contentType:=(($inOptions#Null) && \
+		var $headers : Object
+		var $contentType : Text:=(($inOptions#Null) && \
 			(Length(String($inOptions.contentType))>0)) ? $inOptions.contentType : ""
 		If (($contentType="text") || ($contentType="html"))
 			$headers:={Prefer: String("outlook.body-content-type=\""+$contentType+"\"")}
 		End if 
 		
-		$result:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+		var $result : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null)
 			If ($mailType="Microsoft")
 				$response:=cs.GraphMessage.new(This._internals._oAuth2Provider; \
@@ -313,11 +305,9 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
 Function getMails($inParameters : Object) : Object
 	
-	var $urlParams; $URL : Text
-	var $headers : Object
-	
 	Super._clearErrorStack()
-	$URL:=Super._getURL()
+	
+	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
 		$URL+="users/"+This.userId
 	Else 
@@ -328,11 +318,12 @@ Function getMails($inParameters : Object) : Object
 	End if 
 	$URL+="/messages"
 	
+	var $headers : Object
 	If (Length(String($inParameters.search))>0)
 		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	
-	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
+	var $urlParams : Text:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
 	return cs.GraphMessageList.new(This; This._getOAuth2Provider(); $URL; $headers)
@@ -361,10 +352,8 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -372,10 +361,10 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 			End if 
 			$URL+="/messages/"+$inMailId+"/move"
 			
-			$headers:={}
-			$headers["Content-Type"]:="application/json"
-			$body:={destinationId: $inFolderId}
+			var $headers : Object:={}
+			var $body : Object:={destinationId: $inFolderId}
 			
+			$headers["Content-Type"]:="application/json"
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
@@ -393,11 +382,7 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	
 	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL : Text
-		var $body : Variant
-		var $bUseCreateReply : Boolean
-		
-		$URL:=Super._getURL()
+		var $URL : Text:=Super._getURL()
 		If (Length(String(This.userId))>0)
 			$URL+="users/"+This.userId
 		Else 
@@ -406,6 +391,7 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 		
 		$URL+="/messages/"+$inMailId+(Bool($bReplyAll) ? "/replyAll" : "/reply")
 		
+		var $body : Variant
 		If ((This.mailType="MIME") || (This.mailType="JMAP"))
 			If (OB Is defined($inMail; "message"))
 				$body:=$inMail.message
@@ -435,9 +421,7 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	
 Function send($inMail : Variant) : Object
 	
-	var $URL : Text
-	
-	$URL:=Super._getURL()
+	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
 		$URL+="users/"+This.userId+"/sendMail"
 	Else 
@@ -456,11 +440,9 @@ Function update($inMailId : Text; $inMail : Object) : Object
 	
 	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL : Text
 		var $response : Object
-		var $bUseCreateReply : Boolean
+		var $URL : Text:=Super._getURL()
 		
-		$URL:=Super._getURL()
 		If (Length(String(This.userId))>0)
 			$URL+="users/"+This.userId
 		Else 
@@ -470,8 +452,7 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		
 		If (This.mailType="Microsoft")
 			
-			var $headers : Object
-			$headers:={}
+			var $headers : Object:={}
 			$headers["Content-Type"]:="application/json"
 			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
 			
@@ -514,10 +495,9 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 			Super._throwError(9; {which: "\"folderName\""; function: "createFolder"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
+			
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -528,9 +508,10 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 				$URL+="/"+$inParentFolderId+"/childFolders"
 			End if 
 			
-			$headers:={}
+			var $headers : Object:={}
+			var $body : Object:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
+			
 			$headers["Content-Type"]:="application/json"
-			$body:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
@@ -544,8 +525,6 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 Function deleteFolder($inFolderId : Text) : Object
 	
-	var $response : Object
-	
 	Super._throwErrors(False)
 	
 	Case of 
@@ -556,9 +535,9 @@ Function deleteFolder($inFolderId : Text) : Object
 			Super._throwError(9; {which: "\"folderId\""; function: "deleteFolder"})
 			
 		Else 
-			var $URL : Text
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
+			
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -592,9 +571,9 @@ Function getFolder($inFolderId : Text) : Object
 			Super._throwError(9; {which: "\"folderId\""; function: "getFolder"})
 			
 		Else 
-			var $URL : Text
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
+			
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -614,12 +593,9 @@ Function getFolder($inFolderId : Text) : Object
 	
 Function getFolderList($inParameters : Object) : Object
 	
-	var $response : Object
-	var $urlParams; $URL : Text
-	var $headers : Object
-	
 	Super._clearErrorStack()
-	$URL:=Super._getURL()
+	
+	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
 		$URL+="users/"+This.userId
 	Else 
@@ -634,7 +610,8 @@ Function getFolderList($inParameters : Object) : Object
 		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	
-	$urlParams:=Super._getURLParamsFromObject($inParameters; True)
+	var $headers : Object
+	var $urlParams : Text:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
 	return cs.GraphFolderList.new(This._getOAuth2Provider(); $URL; $headers)
@@ -662,10 +639,9 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 		: (Length(String($inNewFolderName))=0)
 			Super._throwError(9; {which: "\"folderName\""; function: "renameFolder"})
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super._getURL()
+			var $URL : Text:=Super._getURL()
+			
 			If (Length(String(This.userId))>0)
 				$URL+="users/"+This.userId
 			Else 
@@ -673,9 +649,10 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 			End if 
 			$URL+="/mailFolders/"+$inFolderId
 			
-			$headers:={}
+			var $headers : Object:={}
+			var $body : Object:={displayName: $inNewFolderName}
+			
 			$headers["Content-Type"]:="application/json"
-			$body:={displayName: $inNewFolderName}
 			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($body))
 			
 	End case 
