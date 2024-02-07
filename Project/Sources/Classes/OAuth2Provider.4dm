@@ -201,18 +201,19 @@ Class constructor($inParams : Object)
 		If (This.PKCEEnabled)
 			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
 		End if 
+		
+/*
+	_thumbprint of the public key / certificate  is used for the property x5t in jwt header
+	When _thumprint is empty it's not possible to create a proper jwt token for request.
+*/
+		If ((OB Is defined($inParams; "clientAssertionType")) & (OB Is defined($inParams; "thumbprint")))
+			This.clientAssertionType:=String($inParams.clientAssertionType)
+			This._thumbprint:=String($inParams.thumbprint)
+		End if 
 	End if 
 	
 	This._finally()
 	
-/*
-_thumbprint of the public key / certificate  is used for the property x5t in jwt header
-When _thumprint is empty it's not possible to create a proper jwt token for request.
-*/
-	If ((OB Is defined($inParams; "clientAssertionType")) & (OB Is defined($inParams; "_thumbprint")))
-		This.clientAssertionType:=String($inParams.clientAssertionType)
-		This._thumbprint:=String($inParams._thumbprint)
-	End if 
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
@@ -220,15 +221,15 @@ When _thumprint is empty it's not possible to create a proper jwt token for requ
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 	If (This.PKCEMethod="plain")
-		return $codeVerifier	// code_challenge = code_verifier
+		return $codeVerifier  // code_challenge = code_verifier
 	Else 
-		return Generate digest($codeVerifier; SHA256 digest; *)		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-	End if
-		
-		
-		// ----------------------------------------------------
-		
-		
+		return Generate digest($codeVerifier; SHA256 digest; *)  // code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _rangeRandom($min : Integer; $max : Integer) : Integer
 	
 	return (Random%($max-$min+1))+$min
@@ -496,14 +497,14 @@ Function _getToken_Service()->$result : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			var $jwt : cs._JWT:=cs._JWT.new($options)
-			var $bearer : Text:=$jwt.generate()
+			$jwt : cs._JWT:=cs._JWT.new($options)
+			$bearer : Text:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
 			
 		: (This._useJWTBearerAssertionType())
-			// See documentaion of  https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
+			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
 			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._hexToBase64Url}}
 			
 			$options.payload:={}
@@ -875,6 +876,10 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
+	
+	
+	// ----------------------------------------------------
+	
 	
 Function get _hexToBase64Url() : Text
 	var $xtoencode; $xencoded : Blob
