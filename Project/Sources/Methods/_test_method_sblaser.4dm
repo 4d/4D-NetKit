@@ -11,12 +11,10 @@
 // ----------------------------------------------------
 
 
-var $t_privatekey : Text
 var $o_params : Object
 var $cs_oAuth : cs.OAuth2Provider
 var $v_token : Variant
-t_privatekey:=""
-$t_privatekey:=File("C:/Users/sblaser/AppData/Local/Temp/O365/Alex/private.pem").getText("ascii"; Document unchanged)
+var $t_privatekey : Text:=File("C:/Users/sblaser/AppData/Local/Temp/O365/Alex/private.pem").getText("ascii"; Document unchanged)
 
 If (Length($t_privatekey)>0)
 	$o_params:=New object()
@@ -38,4 +36,4 @@ If (Length($t_privatekey)>0)
 	
 	$cs_oAuth:=cs.OAuth2Provider.new($o_params)
 	$v_token:=$cs_oAuth.getToken()
-End if 
+End if
