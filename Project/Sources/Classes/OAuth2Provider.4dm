@@ -262,6 +262,64 @@ Function _generateCodeVerifier : Text
 	// ----------------------------------------------------
 	
 	
+Function _hexToBase64Url() : Text
+	
+	var $xtoencode; $xencoded : Blob
+	var $i; $l_counter : Integer
+	var $text : Text:=This._thumbprint
+	var $textSize : Integer:=Length($text)
+	
+	SET BLOB SIZE($xtoencode; ($textSize/2)+1; 0)
+	
+	For ($i; 1; $textSize)
+		
+		Case of 
+			: ($text[[$i]]="A")
+				$xtoencode{$l_counter}:=10*16
+			: ($text[[$i]]="B")
+				$xtoencode{$l_counter}:=11*16
+			: ($text[[$i]]="C")
+				$xtoencode{$l_counter}:=12*16
+			: ($text[[$i]]="D")
+				$xtoencode{$l_counter}:=13*16
+			: ($text[[$i]]="E")
+				$xtoencode{$l_counter}:=14*16
+			: ($text[[$i]]="F")
+				$xtoencode{$l_counter}:=15*16
+			Else 
+				$xtoencode{$l_counter}:=Num($text[[$i]])*16
+		End case 
+		
+		$i:=$i+1
+		
+		Case of 
+			: ($text[[$i]]="A")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+10
+			: ($text[[$i]]="B")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+11
+			: ($text[[$i]]="C")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+12
+			: ($text[[$i]]="D")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+13
+			: ($text[[$i]]="E")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+14
+			: ($text[[$i]]="F")
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+15
+			Else 
+				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+Num($text[[$i]])
+		End case 
+		
+		$l_counter+=1
+	End for 
+	
+	BASE64 ENCODE($xtoencode; $xencoded; *)
+	
+	return BLOB to text($xencoded; UTF8 text without length)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _getErrorDescription($inObject : Object) : Text
 	
 	var $result : Object:={}
@@ -879,60 +937,3 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function get _hexToBase64Url() : Text
-	var $xtoencode; $xencoded : Blob
-	var $t_hex : Text
-	var $i; $l_counter : Integer
-	
-	$t_hex:=This._thumbprint
-	SET BLOB SIZE($xtoencode; Length($t_hex)/2)
-	
-	For ($i; 1; Length($t_hex))
-		
-		Case of 
-			: ($t_hex[[$i]]="A")
-				$xtoencode{$l_counter}:=10*16
-			: ($t_hex[[$i]]="B")
-				$xtoencode{$l_counter}:=11*16
-			: ($t_hex[[$i]]="C")
-				$xtoencode{$l_counter}:=12*16
-			: ($t_hex[[$i]]="D")
-				$xtoencode{$l_counter}:=13*16
-			: ($t_hex[[$i]]="E")
-				$xtoencode{$l_counter}:=14*16
-			: ($t_hex[[$i]]="F")
-				$xtoencode{$l_counter}:=15*16
-			Else 
-				$xtoencode{$l_counter}:=Num($t_hex[[$i]])*16
-		End case 
-		
-		$i:=$i+1
-		
-		Case of 
-			: ($t_hex[[$i]]="A")
-				$xtoencode{$l_counter}+=10
-			: ($t_hex[[$i]]="B")
-				$xtoencode{$l_counter}+=11
-			: ($t_hex[[$i]]="C")
-				$xtoencode{$l_counter}+=12
-			: ($t_hex[[$i]]="D")
-				$xtoencode{$l_counter}+=13
-			: ($t_hex[[$i]]="E")
-				$xtoencode{$l_counter}+=14
-			: ($t_hex[[$i]]="F")
-				$xtoencode{$l_counter}+=15
-			Else 
-				$xtoencode{$l_counter}+=Num($t_hex[[$i]])
-		End case 
-		
-		$l_counter+=1
-	End for 
-	
-	BASE64 ENCODE($xtoencode; $xencoded; *)
-	
-	return BLOB to text($xencoded; UTF8 text without length)
