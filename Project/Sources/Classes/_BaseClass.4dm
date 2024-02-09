@@ -1,44 +1,34 @@
+property _internals : Object
+
 Class constructor()
 	
-	This:C1470._internals:=New object:C1471
-	This:C1470._internals._errorStack:=Null:C1517
-	This:C1470._internals._throwErrors:=True:C214
+	This._internals:={_errorStack: Null; _throwErrors: True; _savedErrorHandler: ""}
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _pushError($inCode : Integer; $inParameters : Object)
+Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
-	var $description : Text
+	var $description : Text:=Get localized string("ERR_4DNK_"+String($inCode))
 	
-	$description:=Get localized string:C991("ERR_4DNK_"+String:C10($inCode))
-	
-	If (Not:C34(OB Is empty:C1297($inParameters)))
+	If (Not(OB Is empty($inParameters)))
 		var $key : Text
 		For each ($key; $inParameters)
-			$description:=Replace string:C233($description; "{"+$key+"}"; String:C10($inParameters[$key]))
+			$description:=Replace string($description; "{"+$key+"}"; String($inParameters[$key]))
 		End for each 
 	End if 
 	
-	This:C1470._pushInErrorStack($inCode; $description)
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
-	
-	// Push error into errorStack without throwing it
-	var $error : Object
-	
-	$error:=New object:C1471("errCode"; $inErrorCode; "componentSignature"; "4DNK"; "message"; $inErrorDescription)
-	If (This:C1470._internals._errorStack=Null:C1517)
-		This:C1470._internals._errorStack:=New collection:C1472
+	// Push error into errorStack 
+	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	If (This._internals._errorStack=Null)
+		This._internals._errorStack:=[]
 	End if 
-	This:C1470._internals._errorStack.push($error)
+	This._internals._errorStack.push($error)
+	
+	return $error
 	
 	
 	// ----------------------------------------------------
@@ -47,20 +37,11 @@ Function _pushInErrorStack($inErrorCode : Integer; $inErrorDescription : Text)
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
-	This:C1470._pushError($inCode; $inParameters)
+	var $error : Object:=This._pushError($inCode; $inParameters)
 	
-	If (This:C1470._internals._throwErrors)
-		var $error : Object
-		$error:=New object:C1471("code"; $inCode; "component"; "4DNK"; "deferred"; True:C214)
-		
-		If (Not:C34(OB Is empty:C1297($inParameters)))
-			var $key : Text
-			For each ($key; $inParameters)
-				$error[$key]:=$inParameters[$key]
-			End for each 
-		End if 
-		
-		_4D THROW ERROR:C1520($error)
+	If (This._internals._throwErrors)
+		$error.deferred:=True
+		throw($error)
 	End if 
 	
 	
@@ -69,12 +50,12 @@ Function _throwError($inCode : Integer; $inParameters : Object)
 	
 Function _try
 	
-	CLEAR VARIABLE:C89(ERROR)
-	CLEAR VARIABLE:C89(ERROR METHOD)
-	CLEAR VARIABLE:C89(ERROR LINE)
-	CLEAR VARIABLE:C89(ERROR FORMULA)
+	CLEAR VARIABLE(ERROR)
+	CLEAR VARIABLE(ERROR METHOD)
+	CLEAR VARIABLE(ERROR LINE)
+	CLEAR VARIABLE(ERROR FORMULA)
 	
-	ON ERR CALL:C155("_catch")
+	ON ERR CALL("_catch"; ek errors from components)
 	
 	
 	// ----------------------------------------------------
@@ -82,7 +63,7 @@ Function _try
 	
 Function _finally
 	
-	ON ERR CALL:C155(This:C1470._internals._throwErrors ? "_throwError" : "")
+	ON ERR CALL(This._internals._throwErrors ? "_throwError" : ""; ek errors from components)
 	
 	
 	// ----------------------------------------------------
@@ -90,10 +71,10 @@ Function _finally
 	
 Function _getErrorStack : Collection
 	
-	If (This:C1470._internals._errorStack=Null:C1517)
-		This:C1470._internals._errorStack:=New collection:C1472
+	If (This._internals._errorStack=Null)
+		This._internals._errorStack:=[]
 	End if 
-	return This:C1470._internals._errorStack
+	return This._internals._errorStack
 	
 	
 	// ----------------------------------------------------
@@ -101,10 +82,10 @@ Function _getErrorStack : Collection
 	
 Function _getLastError : Object
 	
-	If (This:C1470._getErrorStack().length>0)
-		return This:C1470._getErrorStack()[This:C1470._getErrorStack().length-1]
+	If (This._getErrorStack().length>0)
+		return This._getErrorStack().last()
 	End if 
-	return Null:C1517
+	return Null
 	
 	
 	// ----------------------------------------------------
@@ -112,7 +93,7 @@ Function _getLastError : Object
 	
 Function _getLastErrorCode : Integer
 	
-	return Num:C11(This:C1470._getLastError().errCode)
+	return Num(This._getLastError().errCode)
 	
 	
 	// ----------------------------------------------------
@@ -120,7 +101,7 @@ Function _getLastErrorCode : Integer
 	
 Function _clearErrorStack
 	
-	This:C1470._getErrorStack().clear()
+	This._getErrorStack().clear()
 	
 	
 	// ----------------------------------------------------
@@ -128,14 +109,29 @@ Function _clearErrorStack
 	
 Function _throwErrors($inThrowErrors : Boolean)
 	
-	If (Bool:C1537($inThrowErrors))
-		This:C1470._internals._throwErrors:=True:C214
-		ON ERR CALL:C155(String:C10(This:C1470._internals._savedErrorCallMethod))
-		This:C1470._internals._savedErrorCallMethod:=""
+	If (Bool($inThrowErrors))
+		This._internals._throwErrors:=True
+		This._resetErrorHandler()
 	Else 
-		This:C1470._internals._savedErrorCallMethod:=Method called on error:C704
-		ON ERR CALL:C155("_ErrorHandler")
-		This:C1470._internals._throwErrors:=False:C215
-		This:C1470._getErrorStack().clear()
+		This._installErrorHandler()
+		This._internals._throwErrors:=False
+		This._getErrorStack().clear()
 	End if 
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function _installErrorHandler($inErrorHandler : Text)
+	
+	This._internals._savedErrorHandler:=Method called on error
+	ON ERR CALL((Length($inErrorHandler)>0) ? $inErrorHandler : "_errorHandler"; ek errors from components)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _resetErrorHandler
+	
+	ON ERR CALL(This._internals._savedErrorHandler; ek errors from components)
+	This._internals._savedErrorHandler:=""

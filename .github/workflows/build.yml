@@ -1,0 +1,29 @@
+name: Build
+on:
+  push:
+    paths:
+      - '**.4dm'
+  pull_request:
+    paths:
+      - '**.4dm'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Build on ${{ matrix.os }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Build
+      uses: 4d/build4d-action@main
+      with:
+        ignore-warnings: true
+        product-line: vcs
+        version: vcs
+        build: official
+        token: ${{ secrets.DLTK }}

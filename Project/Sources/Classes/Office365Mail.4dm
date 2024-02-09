@@ -1,11 +1,14 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+property mailType : Text
+property userId : Text
+
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "Microsoft"
-	This:C1470.userId:=(Length:C16(String:C10($inParameters.userId))>0) ? String:C10($inParameters.userId) : ""
+	This.mailType:=(Length(String($inParameters.mailType))>0) ? String($inParameters.mailType) : "Microsoft"
+	This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
 	
 	
 	// ----------------------------------------------------
@@ -13,40 +16,38 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-Function _postJSONMessage($inURL : Text; \
-$inMail : Object; \
-$bSkipMessageEncapsulation : Boolean; \
-$inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
-	If ($inMail#Null:C1517)
-		var $headers; $message; $messageCopy; $response : Object
-		var $requestBody : Text
+	var $response : Object
+	
+	If ($inMail#Null)
 		
-		$headers:=New object:C1471
+		var $headers : Object:={}
 		$headers["Content-Type"]:="application/json"
-		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
-			var $keys : Collection
+		If (($inHeader#Null) && (Value type($inHeader)=Is object))
+			
 			var $key : Text
-			$keys:=OB Keys:C1719($inHeader)
+			var $keys : Collection:=OB Keys($inHeader)
 			For each ($key; $keys)
 				$headers[$key]:=$inHeader[$key]
 			End for each 
 		End if 
 		
-		$messageCopy:=This:C1470._copyGraphMessage($inMail)
-		If (Not:C34(OB Is defined:C1231($inMail; "message")) && Not:C34($bSkipMessageEncapsulation))
-			$message:=New object:C1471("message"; $messageCopy)
+		var $message : Object
+		var $messageCopy : Object:=This._copyGraphMessage($inMail)
+		If (Not(OB Is defined($inMail; "message")) && Not($bSkipMessageEncapsulation))
+			$message:={message: $messageCopy}
 		Else 
 			$message:=$messageCopy
 		End if 
-		$requestBody:=JSON Stringify:C1217($message)
+		var $requestBody : Text:=JSON Stringify($message)
 		
-		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	Else 
-		Super:C1706._pushError(1)
+		Super._throwError(1)
 	End if 
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -54,71 +55,69 @@ $inHeader : Object) : Object
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers : Object
-	var $requestBody : Text
+/*
+ *	POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
+ *	An issue has already been registered.
+ *	See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
+ *	See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
+ */
 	
-	$headers:=New object:C1471
+	var $requestBody : Text
+	var $headers : Object:={}
 	$headers["Content-Type"]:="text/plain"
 	
-/*
-POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
-An issue has already been registered.
-See: https://github.com/microsoftgraph/microsoft-graph-docs/issues/16368
-See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodeserializepostbody-error-when-testing-wit.html
-*/
+	This._installErrorHandler()
 	
 	Case of 
-		: (Value type:C1509($inMail)=Is BLOB:K8:12)
-			$requestBody:=Convert to text:C1012($inMail; "UTF-8")
+		: (Value type($inMail)=Is BLOB)
+			$requestBody:=Convert to text($inMail; "UTF-8")
 			
-		: (Value type:C1509($inMail)=Is object:K8:27)
-			$requestBody:=MAIL Convert to MIME:C1604($inMail)
+		: (Value type($inMail)=Is object)
+			$requestBody:=MAIL Convert to MIME($inMail)
 			
 		Else 
 			$requestBody:=$inMail
 	End case 
-	BASE64 ENCODE:C895($requestBody)
+	BASE64 ENCODE($requestBody)
 	
-	Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
-	return This:C1470._returnStatus()
+	This._resetErrorHandler()
+	
+	Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; \
-$inURL : Text; \
-$inMail : Variant; \
-$bSkipMessageEncapsulation : Boolean; \
-$inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
 	var $status : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
-	If (Length:C16(String:C10(This:C1470.mailType))=0)
-		This:C1470.mailType:="Microsoft"
+	If (Length(String(This.mailType))=0)
+		This.mailType:="Microsoft"
 	End if 
 	
 	Case of 
-		: ((This:C1470.mailType="MIME") && (\
-			(Value type:C1509($inMail)=Is text:K8:3) || \
-			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="MIME") && (\
+			(Value type($inMail)=Is text) || \
+			(Value type($inMail)=Is BLOB)))
+			$status:=This._postMailMIMEMessage($inURL; $inMail)
 			
-		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
+			$status:=This._postMailMIMEMessage($inURL; $inMail)
 			
-		: ((This:C1470.mailType="Microsoft") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
+		: ((This.mailType="Microsoft") && (Value type($inMail)=Is object))
+			$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
 			
 		Else 
-			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
-			$status:=This:C1470._returnStatus()
+			Super._throwError(10; {which: 1; function: $inFunction})
+			$status:=This._returnStatus()
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
 	return $status
 	
@@ -128,27 +127,25 @@ $inHeader : Object) : Object
 	
 Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
-	var $errorStack : Collection
-	$errorStack:=Super:C1706._getErrorStack()
-	$status:=New object:C1471
+	var $errorStack : Collection:=Super._getErrorStack()
+	$status:={}
 	
-	If (Not:C34(OB Is empty:C1297($inAdditionalInfo)))
-		var $keys : Collection
-		var $key : Text
+	If (Not(OB Is empty($inAdditionalInfo)))
 		
-		$keys:=OB Keys:C1719($inAdditionalInfo)
+		var $key : Text
+		var $keys : Collection:=OB Keys($inAdditionalInfo)
 		For each ($key; $keys)
 			$status[$key]:=$inAdditionalInfo[$key]
 		End for each 
 	End if 
 	
 	If ($errorStack.length>0)
-		$status.success:=False:C215
+		$status.success:=False
 		$status.errors:=$errorStack
 		$status.statusText:=$errorStack[0].message
 	Else 
-		$status.success:=True:C214
-		$status.statusText:=Super:C1706._getStatusLine()
+		$status.success:=True
+		$status.statusText:=Super._getStatusLine()
 	End if 
 	
 	
@@ -159,20 +156,18 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 	
 Function append($inMail : Variant; $inFolderId : Text) : Object
 	
-	var $URL : Text
-	
-	$URL:=Super:C1706._getURL()
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$URL+="users/"+This:C1470.userId
+	var $URL : Text:=Super._getURL()
+	If (Length(String(This.userId))>0)
+		$URL+="users/"+This.userId
 	Else 
 		$URL+="me"
 	End if 
-	If (Length:C16($inFolderId)>0)
+	If (Length($inFolderId)>0)
 		$URL+="/mailFolders/"+$inFolderId
 	End if 
 	$URL+="/messages"
 	
-	return This:C1470._postMessage("append"; $URL; $inMail; True:C214)
+	return This._postMessage("append"; $URL; $inMail; True)
 	
 	
 	// ----------------------------------------------------
@@ -182,42 +177,41 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 	var $response : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "copy"})
 			
-		: (Length:C16(String:C10($inMailId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "copy"})
 			
-		: (Type:C295($inFolderId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
+		: (Type($inFolderId)#Is text)
+			Super._throwError(10; {which: "\"folderId\""; function: "copy"})
 			
-		: (Length:C16(String:C10($inFolderId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
+		: (Length(String($inFolderId))=0)
+			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/messages/"+$inMailId+"/copy"
 			
-			$headers:=New object:C1471("Content-Type"; "application/json")
-			$body:=New object:C1471("destinationId"; $inFolderId)
+			var $headers : Object:={}
+			var $body : Object:={destinationId: $inFolderId}
 			
-			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -225,30 +219,28 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 Function delete($inMailId : Text) : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
-	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+	If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL : Text
-		
-		$URL:=Super:C1706._getURL()
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$URL+="users/"+This:C1470.userId
+		var $URL : Text:=Super._getURL()
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
 		Else 
 			$URL+="me"
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
+		Super._sendRequestAndWaitResponse("DELETE"; $URL)
 		
 	Else 
 		
-		Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "delete"))
+		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "delete"})
 	End if 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
@@ -256,45 +248,42 @@ Function delete($inMailId : Text) : Object
 	
 Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
-	Super:C1706._clearErrorStack()
+	Super._clearErrorStack()
 	
-	If ((Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+	If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL; $mailType; $contentType : Text
-		var $result : Variant
-		var $headers : Object
-		
-		$URL:=Super:C1706._getURL()
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$URL+="users/"+This:C1470.userId
+		var $URL : Text:=Super._getURL()
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
 		Else 
 			$URL+="me"
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		$mailType:=(($inOptions#Null:C1517) && \
-			(Length:C16(String:C10($inOptions.mailType))>0)) ? $inOptions.mailType : This:C1470.mailType
+		var $mailType : Text:=(($inOptions#Null) && \
+			(Length(String($inOptions.mailType))>0)) ? $inOptions.mailType : This.mailType
 		If (($mailType="JMAP") || ($mailType="MIME"))
 			$URL+="/$value"
 		End if 
 		
-		$contentType:=(($inOptions#Null:C1517) && \
-			(Length:C16(String:C10($inOptions.contentType))>0)) ? $inOptions.contentType : ""
+		var $headers : Object
+		var $contentType : Text:=(($inOptions#Null) && \
+			(Length(String($inOptions.contentType))>0)) ? $inOptions.contentType : ""
 		If (($contentType="text") || ($contentType="html"))
-			$headers:=New object:C1471("Prefer"; "outlook.body-content-type=\""+$contentType+"\"")
+			$headers:={Prefer: String("outlook.body-content-type=\""+$contentType+"\"")}
 		End if 
 		
-		$result:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; $headers)
-		If ($result#Null:C1517)
+		var $result : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+		If ($result#Null)
 			If ($mailType="Microsoft")
-				$response:=cs:C1710.GraphMessage.new(This:C1470._internals._oAuth2Provider; \
-					New object:C1471("userId"; String:C10(This:C1470.userId)); \
+				$response:=cs.GraphMessage.new(This._internals._oAuth2Provider; \
+					{userId: String(This.userId)}; \
 					$result)
 				
 			Else 
-				If (Value type:C1509($result)=Is text:K8:3)
+				If (Value type($result)=Is text)
 					If ($mailType="JMAP")
-						$response:=MAIL Convert from MIME:C1681($result)
+						$response:=MAIL Convert from MIME($result)
 					Else 
 						$response:=$result
 					End if 
@@ -305,10 +294,10 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		
 	Else 
 		
-		Super:C1706._throwError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "getMail"))
+		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "getMail"})
 	End if 
 	
-	return Null:C1517
+	return Null
 	
 	
 	// ----------------------------------------------------
@@ -316,29 +305,28 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 	
 Function getMails($inParameters : Object) : Object
 	
-	var $urlParams; $URL : Text
-	var $headers : Object
+	Super._clearErrorStack()
 	
-	Super:C1706._clearErrorStack()
-	$URL:=Super:C1706._getURL()
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$URL+="users/"+This:C1470.userId
+	var $URL : Text:=Super._getURL()
+	If (Length(String(This.userId))>0)
+		$URL+="users/"+This.userId
 	Else 
 		$URL+="me"
 	End if 
-	If (Length:C16(String:C10($inParameters.folderId))>0)
+	If (Length(String($inParameters.folderId))>0)
 		$URL+="/mailFolders/"+$inParameters.folderId
 	End if 
 	$URL+="/messages"
 	
-	If (Length:C16(String:C10($inParameters.search))>0)
-		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+	var $headers : Object
+	If (Length(String($inParameters.search))>0)
+		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	
-	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
+	var $urlParams : Text:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
-	return cs:C1710.GraphMessageList.new(This:C1470; This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs.GraphMessageList.new(This; This._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------
@@ -348,42 +336,41 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	var $response : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inMailId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "copy"})
 			
-		: (Length:C16(String:C10($inMailId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"mailId\""; "function"; "copy"))
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "copy"})
 			
-		: (Type:C295($inFolderId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "move"))
+		: (Type($inFolderId)#Is text)
+			Super._throwError(10; {which: "\"folderId\""; function: "copy"})
 			
-		: (Length:C16(String:C10($inFolderId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "copy"))
+		: (Length(String($inFolderId))=0)
+			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body; $response : Object
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/messages/"+$inMailId+"/move"
 			
-			$headers:=New object:C1471("Content-Type"; "application/json")
-			$body:=New object:C1471("destinationId"; $inFolderId)
+			var $headers : Object:={}
+			var $body : Object:={destinationId: $inFolderId}
 			
-			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -391,41 +378,41 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
-	Super:C1706._clearErrorStack()
+	Super._clearErrorStack()
 	
-	If ((Type:C295($inMail)=Is object:K8:27) && (Type:C295($inMailId)=Is text:K8:3) && (Length:C16(String:C10($inMailId))>0))
+	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 		
-		var $URL : Text
-		var $body : Variant
-		var $bUseCreateReply : Boolean
-		
-		$URL:=Super:C1706._getURL()
-		If (Length:C16(String:C10(This:C1470.userId))>0)
-			$URL+="users/"+This:C1470.userId
+		var $URL : Text:=Super._getURL()
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
 		Else 
 			$URL+="me"
 		End if 
 		
-		$URL+="/messages/"+$inMailId+(Bool:C1537($bReplyAll) ? "/replyAll" : "/reply")
+		$URL+="/messages/"+$inMailId+(Bool($bReplyAll) ? "/replyAll" : "/reply")
 		
-		If ((This:C1470.mailType="MIME") || (This:C1470.mailType="JMAP"))
-			If (OB Is defined:C1231($inMail; "message"))
+		var $body : Variant
+		If ((This.mailType="MIME") || (This.mailType="JMAP"))
+			If (OB Is defined($inMail; "message"))
 				$body:=$inMail.message
 			End if 
 		Else 
 			$body:=$inMail
 		End if 
 		
-		return This:C1470._postMessage("reply"; $URL; $body; True:C214)
+		return This._postMessage("reply"; $URL; $body; True)
 		
 	Else 
 		
-		If (Type:C295($inMail)#Is object:K8:27)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"reply\""; "function"; "reply"))
+		Super._throwErrors(False)
+		If (Type($inMail)#Is object)
+			Super._throwError(10; {which: "\"reply\""; function: "reply"})
 		Else 
-			Super:C1706._pushError((Length:C16(String:C10($inMailId))=0) ? 9 : 10; New object:C1471("which"; "\"mailId\""; "function"; "reply"))
+			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "reply"})
 		End if 
-		return This:C1470._returnStatus()
+		Super._throwErrors(True)
+		
+		return This._returnStatus()
 	End if 
 	
 	
@@ -434,16 +421,60 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	
 Function send($inMail : Variant) : Object
 	
-	var $URL : Text
-	
-	$URL:=Super:C1706._getURL()
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$URL+="users/"+This:C1470.userId+"/sendMail"
+	var $URL : Text:=Super._getURL()
+	If (Length(String(This.userId))>0)
+		$URL+="users/"+This.userId+"/sendMail"
 	Else 
 		$URL+="me/sendMail"
 	End if 
 	
-	return This:C1470._postMessage("send"; $URL; $inMail)
+	return This._postMessage("send"; $URL; $inMail)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function update($inMailId : Text; $inMail : Object) : Object
+	
+	Super._throwErrors(False)
+	
+	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
+		
+		var $response : Object
+		var $URL : Text:=Super._getURL()
+		
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
+		Else 
+			$URL+="me"
+		End if 
+		$URL+="/messages/"+$inMailId
+		
+		If (This.mailType="Microsoft")
+			
+			var $headers : Object:={}
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
+			
+		Else 
+			
+			Super._throwError(3; {attribute: "\"mail\""})
+		End if 
+		
+	Else 
+		
+		If (Type($inMail)#Is object)
+			
+			Super._throwError(10; {which: "\"mail\""; function: "update"})
+		Else 
+			
+			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "update"})
+		End if 
+	End if 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
 	
 	
 	// Mark: - Folders
@@ -454,38 +485,39 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 	var $response : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inFolderName)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderName\""; "function"; "createFolder"))
+		: (Type($inFolderName)#Is text)
+			Super._throwError(10; {which: "\"folderName\""; function: "createFolder"})
 			
-		: (Length:C16(String:C10($inFolderName))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderName\""; "function"; "createFolder"))
+		: (Length(String($inFolderName))=0)
+			Super._throwError(9; {which: "\"folderName\""; function: "createFolder"})
 			
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/mailFolders"
-			If (Length:C16(String:C10($inParentFolderId))>0)
+			If (Length(String($inParentFolderId))>0)
 				$URL+="/"+$inParentFolderId+"/childFolders"
 			End if 
 			
-			$headers:=New object:C1471("Content-Type"; "application/json")
-			$body:=New object:C1471("displayName"; $inFolderName; "isHidden"; ($bIsHidden ? "true" : "false"))
-			$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify:C1217($body))
+			var $headers : Object:={}
+			var $body : Object:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
+			
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
@@ -493,35 +525,33 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 Function deleteFolder($inFolderId : Text) : Object
 	
-	var $response : Object
-	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inFolderId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "deleteFolder"))
+		: (Type($inFolderId)#Is text)
+			Super._throwError(10; {which: "\"folderId\""; function: "deleteFolder"})
 			
-		: (Length:C16(String:C10($inFolderId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "deleteFolder"))
+		: (Length(String($inFolderId))=0)
+			Super._throwError(9; {which: "\"folderId\""; function: "deleteFolder"})
 			
 		Else 
-			var $URL : Text
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/mailFolders/"+$inFolderId
 			
-			Super:C1706._sendRequestAndWaitResponse("DELETE"; $URL)
+			Super._sendRequestAndWaitResponse("DELETE"; $URL)
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus()
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
@@ -531,31 +561,31 @@ Function getFolder($inFolderId : Text) : Object
 	
 	var $response : Object
 	
-	Super:C1706._clearErrorStack()
+	Super._clearErrorStack()
 	
 	Case of 
-		: (Type:C295($inFolderId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "getFolder"))
+		: (Type($inFolderId)#Is text)
+			Super._throwError(10; {which: "\"folderId\""; function: "getFolder"})
 			
-		: (Length:C16(String:C10($inFolderId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "getFolder"))
+		: (Length(String($inFolderId))=0)
+			Super._throwError(9; {which: "\"folderId\""; function: "getFolder"})
 			
 		Else 
-			var $URL : Text
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/mailFolders/"+$inFolderId
 			
-			$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
 			
 	End case 
 	
-	return Super:C1706._cleanGraphObject($response)
+	return Super._cleanGraphObject($response)
 	
 	
 	// ----------------------------------------------------
@@ -563,30 +593,28 @@ Function getFolder($inFolderId : Text) : Object
 	
 Function getFolderList($inParameters : Object) : Object
 	
-	var $response : Object
-	var $urlParams; $URL : Text
-	var $headers : Object
+	Super._clearErrorStack()
 	
-	Super:C1706._clearErrorStack()
-	$URL:=Super:C1706._getURL()
-	If (Length:C16(String:C10(This:C1470.userId))>0)
-		$URL+="users/"+This:C1470.userId
+	var $URL : Text:=Super._getURL()
+	If (Length(String(This.userId))>0)
+		$URL+="users/"+This.userId
 	Else 
 		$URL+="me"
 	End if 
 	$URL+="/mailFolders"
-	If (Length:C16(String:C10($inParameters.folderId))>0)
+	If (Length(String($inParameters.folderId))>0)
 		$URL+="/"+$inParameters.folderId+"/childFolders"
 	End if 
 	
-	If (Length:C16(String:C10($inParameters.search))>0)
-		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+	If (Length(String($inParameters.search))>0)
+		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	
-	$urlParams:=Super:C1706._getURLParamsFromObject($inParameters)
+	var $headers : Object
+	var $urlParams : Text:=Super._getURLParamsFromObject($inParameters; True)
 	$URL+=$urlParams
 	
-	return cs:C1710.GraphFolderList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs.GraphFolderList.new(This._getOAuth2Provider(); $URL; $headers)
 	
 	
 	// ----------------------------------------------------
@@ -596,39 +624,39 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
 	var $response : Object
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
 	
 	Case of 
-		: (Type:C295($inFolderId)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderId\""; "function"; "renameFolder"))
+		: (Type($inFolderId)#Is text)
+			Super._throwError(10; {which: "\"folderId\""; function: "renameFolder"})
 			
-		: (Length:C16(String:C10($inFolderId))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderId\""; "function"; "renameFolder"))
+		: (Length(String($inFolderId))=0)
+			Super._throwError(9; {which: "\"folderId\""; function: "renameFolder"})
 			
-		: (Type:C295($inNewFolderName)#Is text:K8:3)
-			Super:C1706._pushError(10; New object:C1471("which"; "\"folderName\""; "function"; "renameFolder"))
+		: (Type($inNewFolderName)#Is text)
+			Super._throwError(10; {which: "\"folderName\""; function: "renameFolder"})
 			
-		: (Length:C16(String:C10($inNewFolderName))=0)
-			Super:C1706._pushError(9; New object:C1471("which"; "\"folderName\""; "function"; "renameFolder"))
+		: (Length(String($inNewFolderName))=0)
+			Super._throwError(9; {which: "\"folderName\""; function: "renameFolder"})
 		Else 
-			var $URL : Text
-			var $headers; $body : Object
 			
-			$URL:=Super:C1706._getURL()
-			If (Length:C16(String:C10(This:C1470.userId))>0)
-				$URL+="users/"+This:C1470.userId
+			var $URL : Text:=Super._getURL()
+			
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
 			Else 
 				$URL+="me"
 			End if 
 			$URL+="/mailFolders/"+$inFolderId
 			
-			$headers:=New object:C1471("Content-Type"; "application/json")
-			$body:=New object:C1471("displayName"; $inNewFolderName)
-			$response:=Super:C1706._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify:C1217($body))
+			var $headers : Object:={}
+			var $body : Object:={displayName: $inNewFolderName}
+			
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($body))
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
-	
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)

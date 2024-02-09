@@ -1,21 +1,19 @@
 //%attributes = {"invisible":true}
-#DECLARE($inParameter : Variant) : 4D:C1709.File
+#DECLARE($inParameter : Variant) : 4D.File
 
-If (Value type:C1509($inParameter)#Is undefined:K8:13)
+If (Value type($inParameter)#Is undefined)
 	
 	var $platformPath : Text
-	var $file : 4D:C1709.File
-	
-	If ((Value type:C1509($inParameter)=Is object:K8:27) && \
-		(OB Instance of:C1731($inParameter; 4D:C1709.File)))
+	If ((Value type($inParameter)=Is object) && \
+		(OB Instance of($inParameter; 4D.File)))
 		$platformPath:=$inParameter.platformPath
 	Else 
-		$platformPath:=String:C10($inParameter)
+		$platformPath:=String($inParameter)
 	End if 
-	$file:=File:C1566($platformPath; fk platform path:K87:2)
+	var $file : 4D.File:=File($platformPath; fk platform path)
 	If ($file.exists)
 		return $file
 	End if 
 End if 
 
-return Null:C1517
+return Null

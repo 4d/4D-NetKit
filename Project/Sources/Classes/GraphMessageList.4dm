@@ -1,10 +1,11 @@
 Class extends _GraphBaseList
 
-Class constructor($inMail : cs:C1710.Office365Mail; $inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
+Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
-	Super:C1705($inProvider; $inURL; $inHeaders)
-	This:C1470._internals._mail:=$inMail
-	This:C1470._internals._mails:=Null:C1517
+	Super($inProvider; $inURL; $inHeaders)
+	This._internals._mail:=$inMail
+	This._internals._mails:=Null
+	This._internals._update:=True
 	
 	
 	// Mark: - [Public]
@@ -13,21 +14,37 @@ Class constructor($inMail : cs:C1710.Office365Mail; $inProvider : cs:C1710.OAuth
 	
 Function get mails() : Collection
 	
-	If (This:C1470._internals._mails=Null:C1517)
+	If (This._internals._update)
+
 		var $iter : Object
-		var $mail : cs:C1710.GraphMessage
-		var $provider : cs:C1710.OAuth2Provider
+		var $provider : cs.OAuth2Provider:=This._internals._oAuth2Provider
 		
-		$provider:=This:C1470._internals._oAuth2Provider
-		
-		This:C1470._internals._mails:=New collection:C1472
-		For each ($iter; This:C1470._internals._list)
-			$mail:=cs:C1710.GraphMessage.new($provider; \
-				New object:C1471("userId"; String:C10(This:C1470._internals._mail.userId)); \
-				$iter)
-			This:C1470._internals._mails.push($mail)
+		This._internals._mails:=[]
+		For each ($iter; This._internals._list)
+			var $mail : cs.GraphMessage:=cs.GraphMessage.new($provider; {userId: String(This._internals._mail.userId)}; $iter)
+			This._internals._mails.push($mail)
 		End for each 
+		
+		This._internals._update:=False
 	End if 
 	
-	return This:C1470._internals._mails
+	return This._internals._mails
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function next() : Boolean
+	
+	This._internals._update:=Super.next()
+	return This._internals._update
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function previous() : Boolean
+	
+	This._internals._update:=Super.previous()
+	return This._internals._update
+

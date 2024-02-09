@@ -14,7 +14,11 @@
 	},
 	"Private": {
 		"classes": [
+			"_BaseAPI",
 			"_BaseClass",
+			"_GoogleAPI",
+			"_GoogleBaseList",
+			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
@@ -22,25 +26,35 @@
 	},
 	"Private Methods": {
 		"methods": [
-			"_buildComponent",
+			"__buildComponent",
+			"_base64UrlSafeDecode",
 			"_camelCase",
 			"_catch",
 			"_convertToGraphAttachment",
-			"_ErrorHandler",
+			"_errorHandler",
 			"_getErrorStack",
 			"_getHeaderValueParameter",
+			"_getJMAPAttribute",
+			"_getParameterValue",
 			"_getPathFromURL",
 			"_getPortFromURL",
-			"_OnWebConnection",
+			"_getURLParameterValue",
+			"_IsEmailAddressHeader",
+			"_onWebConnection",
 			"_retainFileObject",
-			"_StartWebServer",
-			"_StopWebServer",
+			"_startWebServer",
+			"_stopWebServer",
 			"_throwError",
-			"_urlEscape"
+			"_urlDecode",
+			"_urlEncode"
 		]
 	},
 	"Public": {
 		"classes": [
+			"EmailAddress",
+			"Google",
+			"GoogleMail",
+			"GoogleMailIdList",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",

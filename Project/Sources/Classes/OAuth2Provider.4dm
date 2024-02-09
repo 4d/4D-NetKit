@@ -1,179 +1,276 @@
 Class extends _BaseClass
 
+property name : Text  // Name of OAuth2 provider.
+property permission : Text  // "signedIn" or "service" mode
+property clientId : Text  // The Application ID that the registration portal assigned the app
+property redirectURI : Text  // The redirect_uri of your app, where authentication responses can be sent and received by your app.
+property tenant : Text
+property clientSecret : Text  // The application secret that you created in the app registration portal for your app. Required for web apps.
+property token : Object  // Any valid existing token
+property tokenExpiration : Text
+property timeout : Integer
+property authenticationPage : 4D.File
+property authenticationErrorPage : 4D.File
+property accessType : Text
+property loginHint : Text
+property prompt : Text
+property clientEmail : Text  // clientMail used by Google services account used
+property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
+property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
+
+property _scope : Text
+property _authenticateURI : Text
+property _tokenURI : Text
+property _grantType : Text
+property _codeVerifier : Text
+
 Class constructor($inParams : Object)
 	
-	Super:C1705()
+	Super()
 	
-	This:C1470._try()
+	This._try()
 	
 	// Sanity check
-	If (This:C1470._checkPrerequisites($inParams))
+	If (This._checkPrerequisites($inParams))
 		
 /*
-Name of OAuth2 provider. 
+	Name of OAuth2 provider.
 */
-		This:C1470.name:=String:C10($inParams.name)
+		This.name:=String($inParams.name)
 		
 /*
-"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
-"service": Call Provider with their own identity.
+	"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
+	"service": Call Provider with their own identity.
 */
-		If ((String:C10($inParams.permission)="signedIn") || \
-			(String:C10($inParams.permission)="service"))
-			This:C1470.permission:=String:C10($inParams.permission)
+		If ((String($inParams.permission)="signedIn") || \
+			(String($inParams.permission)="service"))
+			This.permission:=String($inParams.permission)
 		End if 
 		
 /*
-The Application ID that the registration portal assigned the app
+	The Application ID that the registration portal assigned the app
 */
-		This:C1470.clientId:=String:C10($inParams.clientId)
+		This.clientId:=String($inParams.clientId)
 		
 /*
-The redirect_uri of your app, where authentication responses can be sent and received by your app.
+	The redirect_uri of your app, where authentication responses can be sent and received by your app.
 */
-		This:C1470.redirectURI:=String:C10($inParams.redirectURI)
+		This.redirectURI:=String($inParams.redirectURI)
 		
 /*
-A space-separated list of the permissions that you want the user to consent to.
+	A space-separated list of the permissions that you want the user to consent to.
 */
-		If (Value type:C1509($inParams.scope)=Is collection:K8:32)
-			This:C1470._scope:=$inParams.scope.join(" ")
+		If (Value type($inParams.scope)=Is collection)
+			This._scope:=$inParams.scope.join(" ")
 			
 		Else 
-			This:C1470._scope:=String:C10($inParams.scope)
+			This._scope:=String($inParams.scope)
 			
 		End if 
 		
 /*
-The {tenant} value in the path of the request can be used to control who can sign into the application. 
-The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations" 
-for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as 
-the tenant ID or domain name. By default "common"
+	The {tenant} value in the path of the request can be used to control who can sign into the application.
+	The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
+	for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
+	the tenant ID or domain name. By default "common"
 */
-		This:C1470.tenant:=Choose:C955(Value type:C1509($inParams.tenant)=Is undefined:K8:13; "common"; String:C10($inParams.tenant))
+		This.tenant:=Choose(Value type($inParams.tenant)=Is undefined; "common"; String($inParams.tenant))
 		
 /*
-Uri used to do the Authorization request.
+	Uri used to do the Authorization request.
 */
-		This:C1470._authenticateURI:=String:C10($inParams.authenticateURI)
+		This._authenticateURI:=String($inParams.authenticateURI)
 		
 /*
-Uri used to request an access token.
+	Uri used to request an access token.
 */
-		This:C1470._tokenURI:=String:C10($inParams.tokenURI)
+		This._tokenURI:=String($inParams.tokenURI)
 		
 /*
-The application secret that you created in the app registration portal for your app. Required for web apps.
+	The application secret that you created in the app registration portal for your app. Required for web apps.
 */
-		This:C1470.clientSecret:=String:C10($inParams.clientSecret)
+		This.clientSecret:=String($inParams.clientSecret)
 		
 /*
-Any valid existing token
+	Any valid existing token
 */
-		This:C1470.token:=Choose:C955(Value type:C1509($inParams.token)=Is object:K8:27; $inParams.token; Null:C1517)
-		
-/*
-*/
-		This:C1470.tokenExpiration:=Choose:C955(Value type:C1509($inParams.tokenExpiration)=Is text:K8:3; $inParams.tokenExpiration; Null:C1517)
+		This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
 		
 /*
 */
-		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
+		This.tokenExpiration:=Choose(Value type($inParams.tokenExpiration)=Is text; $inParams.tokenExpiration; Null)
 		
 /*
-Path of the web page to display in the webbrowser when the authentication code 
-is received correctly in signed in mode
-If not present the default page is used
 */
-		This:C1470.authenticationPage:=_retainFileObject($inParams.authenticationPage)
+		This.timeout:=Choose(Value type($inParams.timeout)=Is undefined; 120; Num($inParams.timeout))
 		
 /*
-Path of the web page to display in the webbrowser when the authentication server 
-returns an error in signed in mode
-If not present the default page is used
+	Path of the web page to display in the webbrowser when the authentication code
+	is received correctly in signed in mode
+	If not present the default page is used
 */
-		This:C1470.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		This.authenticationPage:=_retainFileObject($inParams.authenticationPage)
 		
 /*
-Indicates whether your application can refresh access tokens when the user is not 
-present at the browser. Valid parameter values are online, which is the default 
-value, and offline.
-Set the value to offline if your application needs to refresh access tokens when 
-the user is not present at the browser. This is the method of refreshing access 
-tokens described later in this document. 
-This value instructs the Google authorization server to return a refresh token and 
-an access token the first time that your application exchanges an authorization code 
-for tokens.
+	Path of the web page to display in the webbrowser when the authentication server
+	returns an error in signed in mode
+	If not present the default page is used
 */
-		If ((String:C10($inParams.accessType)="online") || \
-			(String:C10($inParams.accessType)="offline"))
-			This:C1470.accessType:=String:C10($inParams.accessType)
+		This.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		
+/*
+	Indicates whether your application can refresh access tokens when the user is not
+	present at the browser. Valid parameter values are online, which is the default
+	value, and offline.
+	Set the value to offline if your application needs to refresh access tokens when
+	the user is not present at the browser. This is the method of refreshing access
+	tokens described later in this document.
+	This value instructs the Google authorization server to return a refresh token and
+	an access token the first time that your application exchanges an authorization code
+	for tokens.
+*/
+		If ((String($inParams.accessType)="online") || \
+			(String($inParams.accessType)="offline"))
+			This.accessType:=String($inParams.accessType)
 		Else 
-			This:C1470.accessType:="online"  // Default Access Type
+			This.accessType:="online"  // Default Access Type
 		End if 
 		
 /*
-If your application knows which user is trying to authenticate, 
-it can use this parameter to provide a hint to the Google Authentication Server. 
-The server uses the hint to simplify the login flow either by prefilling the email 
-field in the sign-in form or by selecting the appropriate multi-login session.
+	If your application knows which user is trying to authenticate,
+	it can use this parameter to provide a hint to the Google Authentication Server.
+	The server uses the hint to simplify the login flow either by prefilling the email
+	field in the sign-in form or by selecting the appropriate multi-login session.
 		
-Set the parameter value to an email address or sub identifier, which is equivalent 
-to the user's Google ID.
+	Set the parameter value to an email address or sub identifier, which is equivalent
+	to the user's Google ID.
 */
-		This:C1470.loginHint:=String:C10($inParams.loginHint)
+		This.loginHint:=String($inParams.loginHint)
 		
 /*
-A space-delimited, case-sensitive list of prompts to present the user.
-If you don't specify this parameter, the user will be prompted only the 
-first time your project requests access. See Prompting re-consent for more information.
-Possible values are:
-   none: Do not display any authentication or consent screens.
-         Must not be specified with other values.
-   consent: Prompt the user for consent.
-   select_account: Prompt the user to select an account.
+	A space-delimited, case-sensitive list of prompts to present the user.
+	If you don't specify this parameter, the user will be prompted only the
+	first time your project requests access. See Prompting re-consent for more information.
+	Possible values are:
+	none: Do not display any authentication or consent screens.
+	Must not be specified with other values.
+	consent: Prompt the user for consent.
+	select_account: Prompt the user to select an account.
 */
-		If ((String:C10($inParams.prompt)="none") || \
-			(String:C10($inParams.prompt)="consent") || \
-			(String:C10($inParams.prompt)="select_account"))
-			This:C1470.prompt:=String:C10($inParams.prompt)
+		If ((String($inParams.prompt)="none") || \
+			(String($inParams.prompt)="consent") || \
+			(String($inParams.prompt)="select_account"))
+			This.prompt:=String($inParams.prompt)
 		End if 
 		
 /*
-clientMail used by Google services account used
+	clientMail used by Google services account used
 */
-		This:C1470.clientEmail:=String:C10($inParams.clientEmail)
+		This.clientEmail:=String($inParams.clientEmail)
 		
 /*
-privateKey may be used used by Google services account to sign JWT token
+	privateKey may be used used by Google services account to sign JWT token
 */
-		This:C1470.privateKey:=String:C10($inParams.privateKey)
+		This.privateKey:=String($inParams.privateKey)
 		
 /*
-_grantType used in Service mode to determine if we use a JWT or client_credentials
-If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
-or "client_credentials" for other provider.
+	_grantType used in Service mode to determine if we use a JWT or client_credentials
+	If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
+	or "client_credentials" for other provider.
 */
-		This:C1470._grantType:=String:C10($inParams.grantType)
+		This._grantType:=String($inParams.grantType)
 		
 /*
-Enable HTTP Server debug log for Debug purposes only
+	Enable HTTP Server debug log for Debug purposes only
 */
-		If (Bool:C1537($inParams.enableDebugLog))
-			This:C1470.enableDebugLog:=True:C214
+		If (Bool($inParams.enableDebugLog))
+			This.enableDebugLog:=True
+		End if 
+		
+/*
+	PKCEEnabled : Boolean: if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
+	PKCEMethod : Text: PKCE Encoding method. The only supported values for are "S256" or "plain" ("S256" by default)
+		
+	See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-authorization-code-flow-with-pkce
+*/
+		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
+		If (This.PKCEEnabled)
+			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
 		End if 
 	End if 
 	
-	This:C1470._finally()
+	This._finally()
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
+Function _generateCodeChallenge($codeVerifier : Text) : Text
+	
+	If (This.PKCEMethod="plain")
+		return $codeVerifier	// code_challenge = code_verifier
+	Else 
+		return Generate digest($codeVerifier; SHA256 digest; *)		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	End if
+		
+		
+		// ----------------------------------------------------
+		
+		
+Function _rangeRandom($min : Integer; $max : Integer) : Integer
+	
+	return (Random%($max-$min+1))+$min
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _randomString($size : Integer) : Text
+	
+	var $tab : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $string : Text:=""
+	
+	While (Length($string)<$size)
+		var $rnd : Integer:=This._rangeRandom(1; Length($tab))
+		$string+=$tab[[$rnd]]
+	End while 
+	
+	return $string
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _generateCodeVerifier : Text
+	
+	return This._randomString(This._rangeRandom(43; 128))
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getErrorDescription($inObject : Object) : Text
+	
+	var $result : Object:={}
+	var $keys : Collection:=OB Keys($inObject)
+	var $key : Text
+	For each ($key; $keys)
+		If (Position("error"; $key)=1)
+			$result[$key]:=$inObject[$key]
+		End if 
+	End for each 
+	
+	return JSON Stringify($result)
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _isMicrosoft() : Boolean
 	
-	return (This:C1470.name="Microsoft")
+	return (This.name="Microsoft")
 	
 	
 	// ----------------------------------------------------
@@ -181,7 +278,7 @@ Function _isMicrosoft() : Boolean
 	
 Function _isGoogle() : Boolean
 	
-	return (This:C1470.name="Google")
+	return (This.name="Google")
 	
 	
 	// ----------------------------------------------------
@@ -189,7 +286,7 @@ Function _isGoogle() : Boolean
 	
 Function _isSignedIn() : Boolean
 	
-	return (This:C1470.permission="signedIn")
+	return (This.permission="signedIn")
 	
 	
 	// ----------------------------------------------------
@@ -197,83 +294,91 @@ Function _isSignedIn() : Boolean
 	
 Function _isService() : Boolean
 	
-	return (This:C1470.permission="service")
+	return (This.permission="service")
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
+Function _getAuthorizationCode()->$authorizationCode : Text
 	
-	var $url; $redirectURI; $state; $scope : Text
-	
-	$state:=Generate UUID:C1066
-	$redirectURI:=This:C1470.redirectURI
-	$url:=This:C1470.authenticateURI
-	$scope:=This:C1470.scope
+	var $state : Text:=Generate UUID
+	var $redirectURI : Text:=This.redirectURI
+	var $url : Text:=This.authenticateURI
+	var $scope : Text:=This.scope
 	
 	// Sanity check
 	Case of 
 			
-		: (Length:C16(String:C10(This:C1470.clientId))=0)
-			This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+		: (Length(String(This.clientId))=0)
+			This._throwError(2; {attribute: "clientId"})
 			
-		: (Length:C16(String:C10($url))=0)
-			This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
+		: (Length(String($url))=0)
+			This._throwError(2; {attribute: "authenticateURI"})
 			
-		: ((This:C1470._isGoogle() || This:C1470._isMicrosoft()) && (Length:C16(String:C10($scope))=0))
-			This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+		: ((This._isGoogle() || This._isMicrosoft()) && (Length(String($scope))=0))
+			This._throwError(2; {attribute: "scope"})
 			
-		: (This:C1470._isMicrosoft() && (Length:C16(String:C10(This:C1470.tenant))=0))
-			This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
+		: (This._isMicrosoft() && (Length(String(This.tenant))=0))
+			This._throwError(2; {attribute: "tenant"})
 			
-		: (This:C1470._isSignedIn() & (Length:C16(String:C10($redirectURI))=0))
-			This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
+		: (This._isSignedIn() && (Length(String($redirectURI))=0))
+			This._throwError(2; {attribute: "redirectURI"})
 			
 		Else 
 			
-			$url+="?client_id="+This:C1470.clientId
+			$url+="?client_id="+This.clientId
 			$url+="&response_type=code"
-			$url+="&redirect_uri="+_urlEscape($redirectURI)
+			If (Length(String($scope))>0)
+				$url+="&scope="+_urlEncode($scope)
+			End if 
+			$url+="&state="+String($state)
 			$url+="&response_mode=query"
-			If (Length:C16(String:C10($scope))>0)
-				$url+="&scope="+_urlEscape($scope)
-			End if 
-			$url+="&state="+String:C10($state)
-			If (Length:C16(String:C10(This:C1470.accessType))>0)
-				$url+="&access_type="+This:C1470.accessType
-			End if 
-			If (Length:C16(String:C10(This:C1470.loginHint))>0)
-				$url+="&login_hint="+This:C1470.loginHint
-			End if 
-			If (Length:C16(String:C10(This:C1470.prompt))>0)
-				$url+="&prompt="+This:C1470.prompt
+			$url+="&redirect_uri="+_urlEncode($redirectURI)
+			If (This.PKCEEnabled)
+				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
+				$url+="&code_challenge_method="+String(This.PKCEMethod)
+			Else 
+				If (Length(String(This.accessType))>0)
+					$url+="&access_type="+This.accessType
+				End if 
+				If (Length(String(This.loginHint))>0)
+					$url+="&login_hint="+This.loginHint
+				End if 
+				If (Length(String(This.prompt))>0)
+					$url+="&prompt="+This.prompt
+				End if 
 			End if 
 			
-			Use (Storage:C1525)
-				OB REMOVE:C1226(Storage:C1525; "token")
-				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI; \
-					"authenticationPage"; (Value type:C1509(This:C1470.authenticationPage)#Is undefined:K8:13) ? This:C1470.authenticationPage : Null:C1517; \
-					"authenticationErrorPage"; (Value type:C1509(This:C1470.authenticationErrorPage)#Is undefined:K8:13) ? This:C1470.authenticationErrorPage : Null:C1517)
+			Use (Storage)
+				If (Storage.requests=Null)
+					Storage.requests:=New shared object()
+				End if 
+				Use (Storage.requests)
+					Storage.requests[$state]:=New shared object("redirectURI"; $redirectURI; \
+						"state"; $state; \
+						"authenticationPage"; (Value type(This.authenticationPage)#Is undefined) ? This.authenticationPage : Null; \
+						"authenticationErrorPage"; (Value type(This.authenticationErrorPage)#Is undefined) ? This.authenticationErrorPage : Null)
+				End use 
 			End use 
 			
-			OPEN URL:C673($url; *)
+			OPEN URL($url; *)
 			
-			//TRACE
-			var $endTime : Integer
-			$endTime:=Milliseconds:C459+(This:C1470.timeout*1000)
-			While ((Milliseconds:C459<=$endTime) & (Not:C34(OB Is defined:C1231(Storage:C1525; "token")) | (Storage:C1525.token=Null:C1517)))
-				DELAY PROCESS:C323(Current process:C322; 10)
+			var $endTime : Integer:=Milliseconds+(This.timeout*1000)
+			While ((Milliseconds<=$endTime) && (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
+				DELAY PROCESS(Current process; 10)
 			End while 
 			
-			Use (Storage:C1525)
-				If (OB Is defined:C1231(Storage:C1525; "token"))
-					$authorizationCode:=Storage:C1525.token.code
-					//If (OB Is defined(Storage.token; "state") & (Length(OB Get(Storage.token; "state"; Is text))>0))
-					//ASSERT(Storage.token.state=$state; "state changed !!! CSRF Attack ?")
-					//End if 
-					OB REMOVE:C1226(Storage:C1525; "token")
-					OB REMOVE:C1226(Storage:C1525; "params")
+			Use (Storage.requests)
+				If (OB Is defined(Storage.requests; $state))
+					Use (Storage.requests[$state])
+						$authorizationCode:=String(Storage.requests[$state].token.code)
+						
+						If (OB Is defined(Storage.requests[$state]; "token") && OB Is defined(Storage.requests[$state].token; "error"))
+							This._throwError(12; {function: Current method name; message: This._getErrorDescription(Storage.requests[$state].token)})
+						End if 
+					End use 
+					OB REMOVE(Storage.requests; $state)
 				End if 
 			End use 
 			
@@ -286,64 +391,62 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	var $params : Text
-	var $bSendRequest : Boolean
-	
-	$bSendRequest:=True:C214
+	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
 		
-		$params:="client_id="+This:C1470.clientId
-		If (Length:C16(This:C1470.scope)>0)
-			$params+="&scope="+_urlEscape(This:C1470.scope)
+		$params:="client_id="+This.clientId
+		If (Length(This.scope)>0)
+			$params+="&scope="+_urlEncode(This.scope)
 		End if 
-		$params+="&refresh_token="+This:C1470.token.refresh_token
+		$params+="&refresh_token="+This.token.refresh_token
 		$params+="&grant_type=refresh_token"
-		If (Length:C16(This:C1470.clientSecret)>0)
-			$params+="&client_secret="+This:C1470.clientSecret
+		If (Length(This.clientSecret)>0)
+			$params+="&client_secret="+This.clientSecret
 		End if 
 		
 	Else 
 		
-		If ((Position:C15("localhost"; This:C1470.redirectURI)>0) | (Position:C15("127.0.0.1"; This:C1470.redirectURI)>0))
+		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
 			
-			var $options : Object
-			$options:=New object:C1471
-			$options.port:=_getPortFromURL(This:C1470.redirectURI)
-			$options.enableDebugLog:=This:C1470.enableDebugLog
-			If ((This:C1470.authenticationPage#Null:C1517) || (This:C1470.authenticationErrorPage#Null:C1517))
-				var $file : Object
-				$file:=(This:C1470.authenticationPage#Null:C1517) ? This:C1470.authenticationPage : This:C1470.authenticationErrorPage
-				If (OB Instance of:C1731($file; 4D:C1709.File))
+			var $options : Object:={}
+			$options.port:=_getPortFromURL(This.redirectURI)
+			$options.enableDebugLog:=This.enableDebugLog
+			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
+				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
+				If (OB Instance of($file; 4D.File))
 					$options.webFolder:=$file.parent
 				End if 
 			End if 
 			
-			If (_StartWebServer($options))
+			If (_startWebServer($options))
 				
-				var $authorizationCode : Text
-				$authorizationCode:=This:C1470._OpenBrowserForAuthorisation()
+				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
-				If (Length:C16($authorizationCode)>0)
+				If (Length($authorizationCode)>0)
 					
-					$params:="client_id="+This:C1470.clientId
-					$params+="&scope="+_urlEscape(This:C1470.scope)
-					$params+="&code="+$authorizationCode
-					$params+="&redirect_uri="+_urlEscape(This:C1470.redirectURI)
+					$params:="client_id="+This.clientId
 					$params+="&grant_type=authorization_code"
-					If (Length:C16(This:C1470.clientSecret)>0)
-						$params+="&client_secret="+This:C1470.clientSecret
+					$params+="&code="+$authorizationCode
+					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
+					If (This.PKCEEnabled)
+						$params+="&code_verifier="+This.codeVerifier
 					End if 
+					If (Length(This.clientSecret)>0)
+						$params+="&client_secret="+This.clientSecret
+					End if 
+					$params+="&scope="+_urlEncode(This.scope)
 					
 				Else 
 					
-					$bSendRequest:=False:C215
-					This:C1470._throwError(6)
+					$bSendRequest:=False
+					This._throwError(6)
 					
 				End if 
 				
 			Else 
 				
-				$bSendRequest:=False:C215
-				This:C1470._throwError(7; New object:C1471("port"; $options.port))
+				$bSendRequest:=False
+				This._throwError(7; {port: $options.port})
 				
 			End if 
 		End if 
@@ -352,7 +455,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 	
 	If ($bSendRequest)
 		
-		$result:=This:C1470._sendTokenRequest($params)
+		$result:=This._sendTokenRequest($params)
 		
 	End if 
 	
@@ -365,41 +468,40 @@ Function _getToken_Service()->$result : Object
 	var $params : Text
 	
 	Case of 
-		: (This:C1470._useJWTBearer())
+		: (This._useJWTBearer())
 			
-			var $jwt : cs:C1710._JWT
-			var $options : Object
-			var $bearer : Text
+			var $options : Object:={header: {alg: "RS256"; typ: "JWT"}}
 			
-			$options:=New object:C1471("header"; New object:C1471("alg"; "RS256"; "typ"; "JWT"))
-			
-			$options.payload:=New object:C1471
-			$options.payload.iss:=This:C1470.clientEmail
-			$options.payload.scope:=This:C1470.scope
-			$options.payload.aud:=This:C1470.tokenURI
-			$options.payload.iat:=This:C1470._unixTime()
+			$options.payload:={}
+			$options.payload.iss:=This.clientEmail
+			$options.payload.scope:=This.scope
+			$options.payload.aud:=This.tokenURI
+			$options.payload.iat:=This._unixTime()
 			$options.payload.exp:=$options.payload.iat+3600
+			If ((Length(String(This.tenant))>0) && (Position("@"; This.tenant)>0))
+				$options.payload.sub:=This.tenant
+			End if 
 			
-			$options.privateKey:=This:C1470.privateKey
+			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs:C1710._JWT.new($options)
-			$bearer:=$jwt.generate()
+			var $jwt : cs._JWT:=cs._JWT.new($options)
+			var $bearer : Text:=$jwt.generate()
 			
-			$params:="grant_type="+_urlEscape(This:C1470.grantType)
+			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
 			
 		Else 
 			
-			$params:="client_id="+This:C1470.clientId
-			If (Length:C16(This:C1470.scope)>0)
-				$params+="&scope="+_urlEscape(This:C1470.scope)
+			$params:="client_id="+This.clientId
+			If (Length(This.scope)>0)
+				$params+="&scope="+_urlEncode(This.scope)
 			End if 
-			$params+="&client_secret="+This:C1470.clientSecret
-			$params+="&grant_type="+This:C1470.grantType
+			$params+="&client_secret="+This.clientSecret
+			$params+="&grant_type="+This.grantType
 			
 	End case 
 	
-	$result:=This:C1470._sendTokenRequest($params)
+	$result:=This._sendTokenRequest($params)
 	
 	
 	// ----------------------------------------------------
@@ -407,35 +509,35 @@ Function _getToken_Service()->$result : Object
 	
 Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
-	$OK:=False:C215
+	$OK:=False
 	
-	If (($obj#Null:C1517) & (Value type:C1509($obj)=Is object:K8:27))
+	If (($obj#Null) && (Value type($obj)=Is object))
 		
 		Case of 
 				
-			: (Length:C16(String:C10($obj.clientId))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+			: (Length(String($obj.clientId))=0)
+				This._throwError(2; {attribute: "clientId"})
 				
-			: ((Length:C16(String:C10($obj.name))>0) && (Length:C16(String:C10($obj.scope))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+			: ((Length(String($obj.name))>0) && (Length(String($obj.scope))=0))
+				This._throwError(2; {attribute: "scope"})
 				
-			: (Length:C16(String:C10($obj.permission))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+			: (Length(String($obj.permission))=0)
+				This._throwError(2; {attribute: "permission"})
 				
-			: (Not:C34(String:C10($obj.permission)="signedIn") & Not:C34(String:C10($obj.permission)="service"))
-				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+			: (Not(String($obj.permission)="signedIn") && Not(String($obj.permission)="service"))
+				This._throwError(3; {attribute: "permission"})
 				
-			: ((String:C10($obj.permission)="signedIn") & (Length:C16(String:C10($obj.redirectURI))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "redirectURI"))
+			: ((String($obj.permission)="signedIn") && (Length(String($obj.redirectURI))=0))
+				This._throwError(2; {attribute: "redirectURI"})
 				
 			Else 
-				$OK:=True:C214
+				$OK:=True
 				
 		End case 
 		
 	Else 
 		
-		This:C1470._throwError(1)
+		This._throwError(1)
 		
 	End if 
 	
@@ -445,97 +547,85 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 	
 Function _sendTokenRequest($params : Text)->$result : Object
 	
-	var $response; $savedMethod : Text
-	var $status : Integer
-	
-	var $options : Object
-	var $request : 4D:C1709.HTTPRequest
-	
-	$options:=New object:C1471
-	$options.headers:=New object:C1471("Content-Type"; "application/x-www-form-urlencoded"; \
-		"Accept"; "application/json")
-	$options.method:=HTTP POST method:K71:2
+	var $options : Object:={headers: {}}
+	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
+	$options.headers["Accept"]:="application/json"
+	$options.method:=HTTP POST method
 	$options.body:=$params
 	$options.dataType:="text"
 	
-	If (Value type:C1509(This:C1470._internals._rawBody)#Is undefined:K8:13)
-		OB REMOVE:C1226(This:C1470._internals; "_rawBody")
+	If (Value type(This._internals._rawBody)#Is undefined)
+		OB REMOVE(This._internals; "_rawBody")
 	End if 
 	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	$request:=4D:C1709.HTTPRequest.new(This:C1470.tokenURI; $options)
-	$request.wait(30)
-	ON ERR CALL:C155($savedMethod)
-	$status:=$request["response"]["status"]
-	$response:=$request["response"]["body"]
+	var $savedMethod : Text:=Method called on error
+	This._installErrorHandler()
+	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
+	This._resetErrorHandler()
+	var $status : Integer:=$request["response"]["status"]
+	var $response : Text:=$request["response"]["body"]
 	
 	If ($status=200)
 		
-		If (Length:C16($response)>0)
+		If (Length($response)>0)
 			
-			var $contentType : Text
-			$contentType:=String:C10($request["response"]["headers"]["content-type"])
+			var $contentType : Text:=String($request["response"]["headers"]["content-type"])
 			
 			Case of 
 				: (($contentType="application/json@") || ($contentType="text/plain@"))
-					$result:=cs:C1710.OAuth2Token.new()
+					$result:=cs.OAuth2Token.new()
 					$result._loadFromResponse($response)
 					
 				: ($contentType="application/x-www-form-urlencoded@")
-					$result:=cs:C1710.OAuth2Token.new()
+					$result:=cs.OAuth2Token.new()
 					$result._loadFromURLEncodedResponse($response)
 					
 				Else 
 /*
-We have a status 200 (no error) and a response that we don't know/want to interpret.
-Simply return a null result (to be consistent with the specifications) and 
-copy the raw response body in a private member of the class
-*/
+ *					We have a status 200 (no error) and a response that we don't know/want to interpret.
+ *					Simply return a null result (to be consistent with the specifications) and
+ *					copy the raw response body in a private member of the class
+ */
 					var $blob : Blob
-					CONVERT FROM TEXT:C1011($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
-					This:C1470._internals._rawBody:=4D:C1709.Blob.new($blob)
-					$result:=Null:C1517
+					CONVERT FROM TEXT($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
+					This._internals._rawBody:=4D.Blob.new($blob)
+					$result:=Null
 					
 			End case 
 			
 		Else 
 			
 			var $licenseAvailable : Boolean
-			If (Application type:C494=4D Remote mode:K5:5)
-				$licenseAvailable:=Is license available:C714(4D Client Web license:K44:6)
+			If (Application type=4D Remote mode)
+				$licenseAvailable:=Is license available(4D Client Web license)
 			Else 
-				$licenseAvailable:=(Is license available:C714(4D Web license:K44:3) | Is license available:C714(4D Web local license:K44:14) | Is license available:C714(4D Web one connection license:K44:15))
+				$licenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
 			End if 
 			If ($licenseAvailable)
-				This:C1470._throwError(4)  // Timeout error
+				This._throwError(4)  // Timeout error
 			Else 
-				This:C1470._throwError(11)  // License error
+				This._throwError(11)  // License error
 			End if 
 			
 		End if 
 		
 	Else 
 		
-		var $explanation : Text
-		$explanation:=$request["response"]["statusText"]
-		
-		var $error : Object
-		
-		$error:=JSON Parse:C1218($response)
-		If ($error#Null:C1517)
+		var $explanation : Text:=$request["response"]["statusText"]
+		var $error : Object:=JSON Parse($response)
+		If ($error#Null)
+			
 			var $errorCode : Integer
-			var $message : Text
 			
-			If (Num:C11($error.error_codes.length)>0)
-				$errorCode:=Num:C11($error.error_codes[0])
+			If (Num($error.error_codes.length)>0)
+				$errorCode:=Num($error.error_codes[0])
 			End if 
-			$message:=String:C10($error.error_description)
+			var $message : Text:=String($error.error_description)
 			
-			This:C1470._throwError(8; New object:C1471("status"; $status; "explanation"; $explanation; "message"; $message))
+			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
 		Else 
 			
-			This:C1470._throwError(5; New object:C1471("received"; $status; "expected"; 200))
+			This._throwError(5; {received: $status; expected: 200})
 		End if 
 		
 	End if 
@@ -544,28 +634,28 @@ copy the raw response body in a private member of the class
 	// ----------------------------------------------------
 	
 	
-Function _unixTime($today : Date; $time : Time)->$result : Real
+Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 /*
-Unix_Time stolen from ThomasMaul/JWT_Token_Example
-https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
-*/
+ *	Unix_Time stolen from ThomasMaul/JWT_Token_Example
+ *	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
+ */
 	
-	var $start; $today : Date
-	var $now : Text
+	var $start : Date:=!1970-01-01!
+	var $date : Date
 	var $time : Time
-	var $days : Integer
 	
-	$start:=!1970-01-01!
-	
-	If (Count parameters:C259=0)
-		$now:=Timestamp:C1445
-		$now:=Substring:C12($now; 1; Length:C16($now)-5)  // remove milliseconds and Z 
-		$today:=Date:C102($now)  // date in UTC
-		$time:=Time:C179($now)  // returns now time in UTC
+	If (Count parameters=0)
+		var $now : Text:=Timestamp
+		$now:=Substring($now; 1; Length($now)-5)  // remove milliseconds and Z
+		$date:=Date($now)  // date in UTC
+		$time:=Time($now)  // returns now time in UTC
+	Else 
+		$date:=$inDate
+		$time:=$inTime
 	End if 
 	
-	$days:=$today-$start
-	$result:=($days*86400)+($time+0)  // convert in seconds
+	var $days : Integer:=$date-$start
+	$result:=Num(($days*86400)+($time+0))  // convert in seconds
 	
 	
 	// ----------------------------------------------------
@@ -573,7 +663,7 @@ https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Method
 	
 Function _useJWTBearer() : Boolean
 	
-	return (This:C1470.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
+	return (This.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
 	
 	
 	// Mark: - [Public]
@@ -582,82 +672,80 @@ Function _useJWTBearer() : Boolean
 	
 Function getToken()->$result : Object
 	
-	This:C1470._try()
+	This._try()
 	
-	var $bUseRefreshToken : Boolean
-	
-	$bUseRefreshToken:=False:C215
-	If (This:C1470.token#Null:C1517)
-		var $token : cs:C1710.OAuth2Token
-		$token:=cs:C1710.OAuth2Token.new(This:C1470)
-		If (Not:C34($token._Expired()))
+	var $bUseRefreshToken : Boolean:=False
+	If (This.token#Null)
+		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
+		If (Not($token._Expired()))
 			// Token is still valid.. Simply return it
 			$result:=$token
 		Else 
-			$bUseRefreshToken:=(Length:C16(String:C10(This:C1470.token.refresh_token))>0)
+			$bUseRefreshToken:=(Length(String(This.token.refresh_token))>0)
 		End if 
 	End if 
 	
-	If ($result=Null:C1517)
+	If ($result=Null)
 		
-		var $redirectURI; $authenticateURI; $tokenURI : Text
-		
-		$redirectURI:=This:C1470.redirectURI
-		$authenticateURI:=This:C1470.authenticateURI
-		$tokenURI:=This:C1470.tokenURI
+		var $redirectURI : Text:=This.redirectURI
+		var $authenticateURI : Text:=This.authenticateURI
+		var $tokenURI : Text:=This.tokenURI
 		
 		// Sanity check
 		Case of 
 				
-			: (Length:C16(String:C10(This:C1470.clientId))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "clientId"))
+			: (Length(String(This.clientId))=0)
+				This._throwError(2; {attribute: "clientId"})
 				
-			: (Length:C16(String:C10($authenticateURI))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "authenticateURI"))
+			: (Length(String($authenticateURI))=0)
+				This._throwError(2; {attribute: "authenticateURI"})
 				
-			: ((This:C1470._isGoogle() || This:C1470._isMicrosoft()) && (Length:C16(String:C10(This:C1470.scope))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "scope"))
+			: ((This._isGoogle() || This._isMicrosoft()) && (Length(String(This.scope))=0))
+				This._throwError(2; {attribute: "scope"})
 				
-			: (Length:C16(String:C10($tokenURI))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "tokenURI"))
+			: (Length(String($tokenURI))=0)
+				This._throwError(2; {attribute: "tokenURI"})
 				
-			: (This:C1470._isMicrosoft() && (Length:C16(String:C10(This:C1470.tenant))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "tenant"))
+			: (This._isMicrosoft() && (Length(String(This.tenant))=0))
+				This._throwError(2; {attribute: "tenant"})
 				
-			: (Length:C16(String:C10(This:C1470.permission))=0)
-				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+			: (Length(String(This.permission))=0)
+				This._throwError(2; {attribute: "permission"})
 				
-			: (This:C1470._isSignedIn() & (Length:C16(String:C10($redirectURI))=0))
-				This:C1470._throwError(2; New object:C1471("attribute"; "permission"))
+			: (This._isSignedIn() && (Length(String($redirectURI))=0))
+				This._throwError(2; {attribute: "permission"})
 				
-			: (Not:C34(This:C1470._isSignedIn()) & Not:C34(This:C1470._isService()))
-				This:C1470._throwError(3; New object:C1471("attribute"; "permission"))
+			: (Not(This._isSignedIn()) && Not(This._isService()))
+				This._throwError(3; {attribute: "permission"})
 				
 			Else 
 				
-				If (This:C1470._isSignedIn())
-					
-					$result:=This:C1470._getToken_SignedIn($bUseRefreshToken)
-					
-				Else 
-					
-					$result:=This:C1470._getToken_Service()
-					
-				End if 
+				Case of 
+						
+					: (This._isSignedIn())
+						$result:=This._getToken_SignedIn($bUseRefreshToken)
+						
+					: (This._isService())
+						$result:=This._getToken_Service()
+						
+					Else 
+						This._throwError(3; {attribute: "permission"})
+						
+				End case 
 				
-				If ($result#Null:C1517)
+				If ($result#Null)
 					// Save token internally
-					If (OB Is defined:C1231($result; "tokenExpiration"))
-						This:C1470.tokenExpiration:=$result.tokenExpiration
+					If (OB Is defined($result; "tokenExpiration"))
+						This.tokenExpiration:=$result.tokenExpiration
 					End if 
-					This:C1470.token:=$result.token
+					This.token:=$result.token
 				End if 
 				
 		End case 
 		
 	End if 
 	
-	This:C1470._finally()
+	This._finally()
 	
 	
 	// ----------------------------------------------------
@@ -667,15 +755,15 @@ Function get authenticateURI() : Text
 	
 	var $authenticateURI : Text
 	Case of 
-		: (This:C1470._isMicrosoft())
-			$authenticateURI:=Choose:C955((Length:C16(String:C10(This:C1470._authenticateURI))>0); This:C1470._authenticateURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize")
-			$authenticateURI:=Replace string:C233($authenticateURI; "{tenant}"; Choose:C955((Length:C16(String:C10(This:C1470.tenant))>0); This:C1470.tenant; "common"))
+		: (This._isMicrosoft())
+			$authenticateURI:=Choose((Length(String(This._authenticateURI))>0); This._authenticateURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize")
+			$authenticateURI:=Replace string($authenticateURI; "{tenant}"; Choose((Length(String(This.tenant))>0); This.tenant; "common"))
 			
-		: (This:C1470._isGoogle())
-			$authenticateURI:=Choose:C955((Length:C16(String:C10(This:C1470._authenticateURI))>0); This:C1470._authenticateURI; "https://accounts.google.com/o/oauth2/auth")
+		: (This._isGoogle())
+			$authenticateURI:=Choose((Length(String(This._authenticateURI))>0); This._authenticateURI; "https://accounts.google.com/o/oauth2/auth")
 			
 		Else 
-			$authenticateURI:=This:C1470._authenticateURI
+			$authenticateURI:=This._authenticateURI
 			
 	End case 
 	
@@ -685,17 +773,29 @@ Function get authenticateURI() : Text
 	// ----------------------------------------------------
 	
 	
+Function get codeVerifier() : Text
+	
+	If (Length(String(This._codeVerifier))=0)
+		This._codeVerifier:=This._generateCodeVerifier()
+	End if 
+	
+	return This._codeVerifier
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function get grantType() : Text
 	
-	If (Length:C16(This:C1470._grantType)=0)
-		If (This:C1470._isService() && This:C1470._isGoogle())
+	If (Length(String(This._grantType))=0)
+		If (This._isService() && This._isGoogle())
 			return "urn:ietf:params:oauth:grant-type:jwt-bearer"
 		Else 
 			return "client_credentials"
 		End if 
 	End if 
 	
-	return This:C1470._grantType
+	return This._grantType
 	
 	
 	// ----------------------------------------------------
@@ -704,14 +804,14 @@ Function get grantType() : Text
 Function get scope()->$scope : Text
 	
 	Case of 
-		: (This:C1470._isMicrosoft())
-			$scope:=This:C1470._scope
-			If ((This:C1470.accessType="offline") && (Position:C15("offline_access"; $scope)=0))
+		: (This._isMicrosoft())
+			$scope:=This._scope
+			If ((This.accessType="offline") && (Position("offline_access"; $scope)=0))
 				$scope:="offline_access "+$scope
 			End if 
 			
 		Else 
-			$scope:=This:C1470._scope
+			$scope:=This._scope
 			
 	End case 
 	
@@ -725,17 +825,16 @@ Function get tokenURI() : Text
 	
 	var $tokenURI : Text
 	Case of 
-		: (This:C1470._isMicrosoft())
-			$tokenURI:=Choose:C955((Length:C16(String:C10(This:C1470._tokenURI))>0); This:C1470._tokenURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token")
-			$tokenURI:=Replace string:C233($tokenURI; "{tenant}"; Choose:C955((Length:C16(String:C10(This:C1470.tenant))>0); This:C1470.tenant; "common"))
+		: (This._isMicrosoft())
+			$tokenURI:=Choose((Length(String(This._tokenURI))>0); This._tokenURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token")
+			$tokenURI:=Replace string($tokenURI; "{tenant}"; Choose((Length(String(This.tenant))>0); This.tenant; "common"))
 			
-		: (This:C1470._isGoogle())
-			$tokenURI:=Choose:C955((Length:C16(String:C10(This:C1470._tokenURI))>0); This:C1470._tokenURI; "https://accounts.google.com/o/oauth2/token")
+		: (This._isGoogle())
+			$tokenURI:=Choose((Length(String(This._tokenURI))>0); This._tokenURI; "https://accounts.google.com/o/oauth2/token")
 			
 		Else 
-			$tokenURI:=This:C1470._tokenURI
+			$tokenURI:=This._tokenURI
 			
 	End case 
 	
 	return $tokenURI
-	

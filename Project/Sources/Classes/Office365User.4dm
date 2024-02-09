@@ -1,8 +1,8 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider)
+Class constructor($inProvider : cs.OAuth2Provider)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
 	
 	// Mark: - [Private]
@@ -11,8 +11,8 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
 Function _getUserInfo($inURL : Text)->$userInfo : Object
 	
-	$userInfo:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL)
-	$userInfo:=Super:C1706._cleanGraphObject($userInfo)
+	$userInfo:=Super._sendRequestAndWaitResponse("GET"; $inURL)
+	$userInfo:=Super._cleanGraphObject($userInfo)
 	
 	
 	// Mark: - [Public]
@@ -21,15 +21,15 @@ Function _getUserInfo($inURL : Text)->$userInfo : Object
 	
 Function getCurrent($inSelect : Text)->$userInfo : Object
 	
-	var $urlParams; $URL : Text
+	var $urlParams : Text
 	
-	If (Length:C16(String:C10($inSelect))>0)
+	If (Length(String($inSelect))>0)
 		$urlParams:="?$select="+$inSelect
 	End if 
 	
-	$URL:=This:C1470._getURL()+"me"+$urlParams
+	var $URL : Text:=This._getURL()+"me"+$urlParams
 	
-	$userInfo:=This:C1470._getUserInfo($URL)
+	$userInfo:=This._getUserInfo($URL)
 	
 	
 	// ----------------------------------------------------
@@ -37,22 +37,22 @@ Function getCurrent($inSelect : Text)->$userInfo : Object
 	
 Function get($inID : Text; $inSelect : Text) : Object
 	
-	If (Length:C16($inID)>0)
-		var $urlParams; $URL : Text
+	If (Length($inID)>0)
 		
-		$urlParams:=String:C10($inID)
-		If (Length:C16(String:C10($inSelect))>0)
+		var $urlParams : Text:=String($inID)
+		
+		If (Length(String($inSelect))>0)
 			$urlParams:=$urlParams+"?$select="+$inSelect
 		End if 
 		
-		$URL:=This:C1470._getURL()+"users/"+$urlParams
+		var $URL : Text:=This._getURL()+"users/"+$urlParams
 		
-		return This:C1470._getUserInfo($URL)
+		return This._getUserInfo($URL)
 	Else 
-		This:C1470._try()
-		This:C1470._throwError(9; New object:C1471("which"; 1; "function"; "get"))
-		This:C1470._finally()
-		return Null:C1517
+		This._try()
+		This._throwError(9; {which: 1; function: "get"})
+		This._finally()
+		return Null
 	End if 
 	
 	
@@ -61,37 +61,73 @@ Function get($inID : Text; $inSelect : Text) : Object
 	
 Function list($inParameters : Object) : Object
 	
-	var $urlParams; $URL; $delimiter : Text
 	var $headers : Object
+	var $urlParams : Text:="users"
+	var $delimiter : Text:="?"
 	
-	$urlParams:="users"
-	$delimiter:="?"
-	
-	If (Length:C16(String:C10($inParameters.search))>0)
+	If (Length(String($inParameters.search))>0)
 		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
 		$delimiter:="&"
-		$headers:=New object:C1471("ConsistencyLevel"; "eventual")
+		$headers:={ConsistencyLevel: "eventual"}
 	End if 
-	If (Length:C16(String:C10($inParameters.filter))>0)
+	If (Length(String($inParameters.filter))>0)
 		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.select))>0)
+	If (Length(String($inParameters.select))>0)
 		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
 		$delimiter:="&"
 	End if 
-	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
-		$urlParams:=$urlParams+$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
-			$inParameters.top; String:C10($inParameters.top))
+	If (Not(Value type($inParameters.top)=Is undefined))
+		$urlParams:=$urlParams+$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
+			$inParameters.top; String($inParameters.top))
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.orderBy))>0)
+	If (Length(String($inParameters.orderBy))>0)
 		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
 		$delimiter:="&"
 	End if 
 	
-	$URL:=This:C1470._getURL()+$urlParams
+	var $URL : Text:=This._getURL()+$urlParams
 	
-	return cs:C1710.GraphUserList.new(This:C1470._getOAuth2Provider(); $URL; $headers)
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function count($inParameters : Object) : Object
+	
+	var $headers : Object
+	var $urlParams : Text:="users"
+	var $delimiter : Text:="?"
+	
+	If (Length(String($inParameters.search))>0)
+		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
+		$delimiter:="&"
+		$headers:={ConsistencyLevel: "eventual"}
+	End if 
+	If (Length(String($inParameters.filter))>0)
+		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
+		$delimiter:="&"
+	End if 
+	If (Length(String($inParameters.select))>0)
+		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
+		$delimiter:="&"
+	End if 
+	If (Not(Value type($inParameters.top)=Is undefined))
+		$urlParams:=$urlParams+$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
+			$inParameters.top; String($inParameters.top))
+		$delimiter:="&"
+	End if 
+	If (Length(String($inParameters.orderBy))>0)
+		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
+	End if 
+	$urlParams:=$urlParams+$delimiter+"$count"
+	$headers:={ConsistencyLevel: "eventual"}
+	
+	var $URL : Text:=This._getURL()+$urlParams
+	
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
 	

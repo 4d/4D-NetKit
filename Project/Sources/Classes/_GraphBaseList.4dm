@@ -1,17 +1,22 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeaders : Object)
+property page : Integer
+property isLastPage : Boolean
+property statusText : Text
+property success : Boolean
+property errors : Collection
+
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470._internals._headers:=$inHeaders
-	This:C1470._internals._history:=New collection:C1472
-	This:C1470._internals._history.push($inURL)
-	This:C1470._internals._list:=Null:C1517
-	This:C1470.page:=1
-	This:C1470.isLastPage:=False:C215
+	This._internals._headers:=$inHeaders
+	This._internals._history:=[$inURL]
+	This._internals._list:=Null
+	This.page:=1
+	This.isLastPage:=False
 	
-	This:C1470._getList($inURL)
+	This._getList($inURL)
 	
 	
 	// Mark: - [Private]
@@ -20,34 +25,37 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inHeade
 	
 Function _getList($inURL : Text) : Boolean
 	
-	var $response : Object
-	$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $inURL; This:C1470._internals._headers)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
 	
-	This:C1470.isLastPage:=False:C215
-	This:C1470.statusText:=Super:C1706._getStatusLine()
-	This:C1470.success:=False:C215
-	This:C1470._internals._nextLink:=""
+	This.isLastPage:=False
+	This.statusText:=Super._getStatusLine()
+	This.success:=False
+	This._internals._nextLink:=""
+	This._internals._list:=[]
 	
-	If ($response#Null:C1517)
-		var $result : Collection
+	If ($response#Null)
+		
+		var $result : Collection:=$response["value"]
 		var $object : Object
-		$result:=$response["value"]
-		This:C1470._internals._list:=New collection:C1472
 		For each ($object; $result)
-			This:C1470._internals._list.push(Super:C1706._cleanGraphObject($object))
+			This._internals._list.push(Super._cleanGraphObject($object))
 		End for each 
-		This:C1470.success:=True:C214
-		This:C1470._internals._nextLink:=String:C10($response["@odata.nextLink"])
-		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextLink)=0)
-		return True:C214
-	Else 
-		var $errorStack : Collection
-		$errorStack:=Super:C1706._getErrorStack()
-		If ($errorStack.length>0)
-			This:C1470.errors:=$errorStack
-			This:C1470.statusText:=$errorStack[0].message
+		This.success:=True
+		var $nextLink : Text:=_urlDecode(String($response["@odata.nextLink"]))
+		var $count : Integer:=Num($response["@odata.count"])
+		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
+			$nextLink:=""
 		End if 
-		return False:C215
+		This._internals._nextLink:=$nextLink
+		This.isLastPage:=(Length(This._internals._nextLink)=0)
+		return True
+	Else 
+		var $errorStack : Collection:=Super._getErrorStack()
+		If ($errorStack.length>0)
+			This.errors:=$errorStack
+			This.statusText:=$errorStack.first().message
+		End if 
+		return False
 	End if 
 	
 	
@@ -57,19 +65,17 @@ Function _getList($inURL : Text) : Boolean
 	
 Function next() : Boolean
 	
-	var $URL : Text
-	$URL:=String:C10(This:C1470._internals._nextLink)
-	If (Length:C16($URL)>0)
-		var $bIsOK : Boolean
-		$bIsOK:=This:C1470._getList($URL)
+	var $URL : Text:=String(This._internals._nextLink)
+	If (Length($URL)>0)
+		var $bIsOK : Boolean:=This._getList($URL)
 		If ($bIsOK)
-			This:C1470._internals._history.push($URL)
-			This:C1470.page+=1
+			This._internals._history.push($URL)
+			This.page+=1
 		End if 
 		return $bIsOK
 	Else 
-		This:C1470.statusText:=Get localized string:C991("List_No_Next_Page")
-		return False:C215
+		This.statusText:=Get localized string("List_No_Next_Page")
+		return False
 	End if 
 	
 	
@@ -78,22 +84,18 @@ Function next() : Boolean
 	
 Function previous() : Boolean
 	
-	If ((Num:C11(This:C1470._internals._history.length)>0) && (This:C1470.page>1))
-		var $URL : Text
-		var $index : Integer
-		$index:=This:C1470.page-1
-		$URL:=String:C10(This:C1470._internals._history[$index-1])
-		If (Length:C16($URL)>0)
-			var $bIsOK : Boolean
-			$bIsOK:=This:C1470._getList($URL)
+	If ((Num(This._internals._history.length)>0) && (This.page>1))
+		var $index : Integer:=This.page-1
+		var $URL : Text:=String(This._internals._history[$index-1])
+		If (Length($URL)>0)
+			var $bIsOK : Boolean:=This._getList($URL)
 			If ($bIsOK)
-				This:C1470.page-=1
-				This:C1470._internals._history.resize(This:C1470.page)
+				This.page-=1
+				This._internals._history.resize(This.page)
 			End if 
 			return $bIsOK
 		End if 
 	Else 
-		This:C1470.statusText:=Get localized string:C991("List_No_Previous_Page")
-		return False:C215
+		This.statusText:=Get localized string("List_No_Previous_Page")
+		return False
 	End if 
-	

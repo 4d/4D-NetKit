@@ -1,31 +1,26 @@
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	This:C1470._internals:=New object:C1471
-	This:C1470._internals._oAuth2Provider:=$inProvider
-	This:C1470._internals._user:=Null:C1517
-	This:C1470._internals._mail:=Null:C1517
-	This:C1470._internals._parameters:=$inParameters
+	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _parameters: $inParameters}
 	
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
-Function get user : cs:C1710.Office365User
+Function get user : cs.Office365User
 	
-	If (This:C1470._internals._user=Null:C1517)
-		This:C1470._internals._user:=cs:C1710.Office365User.new(This:C1470._internals._oAuth2Provider)
+	If (This._internals._user=Null)
+		This._internals._user:=cs.Office365User.new(This._internals._oAuth2Provider)
 	End if 
-	return This:C1470._internals._user
+	return This._internals._user
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function get mail : cs:C1710.Office365Mail
+Function get mail : cs.Office365Mail
 	
-	If (This:C1470._internals._mail=Null:C1517)
-		This:C1470._internals._mail:=cs:C1710.Office365Mail.new(This:C1470._internals._oAuth2Provider; This:C1470._internals._parameters)
+	If (This._internals._mail=Null)
+		This._internals._mail:=cs.Office365Mail.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
-	return This:C1470._internals._mail
-	
+	return This._internals._mail

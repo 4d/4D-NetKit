@@ -1,29 +1,27 @@
 //%attributes = {"invisible":true}
 #DECLARE($inString : Text)->$result : Text
 
-var $string; $wordSep; $char : Text
-var $uppercase : Boolean
-var $i; $length : Integer
-
-$string:=Lowercase:C14($inString; *)
-$wordSep:=" ,;:=?./\\±_@#&(!)*+=%\t\r\n"
-$uppercase:=False:C215
-$length:=Length:C16($string)
+var $string : Text:=Lowercase($inString; *)
+var $wordSep : Text:=" ,;:=?./\\±_@#&(!)*+=%\t\r\n"
+var $uppercase : Boolean:=False
+var $length : Integer:=Length($string)
+var $i : Integer
 $result:=""
 
 For ($i; 1; $length)
-	$char:=Substring:C12($string; $i; 1)
+	
+	var $char : Text:=Substring($string; $i; 1)
 	
 	Case of 
-		: (Position:C15($char; $wordSep; *)>0)
-			$uppercase:=True:C214
+		: (Position($char; $wordSep; *)>0)
+			$uppercase:=True
 			
 		Else 
 			If ($uppercase)
-				$result:=$result+Uppercase:C13($char)
+				$result:=$result+Uppercase($char)
 			Else 
 				$result:=$result+$char
 			End if 
-			$uppercase:=False:C215
+			$uppercase:=False
 	End case 
 End for 

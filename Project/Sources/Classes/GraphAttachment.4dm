@@ -1,14 +1,22 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParams : Object; $inObject : Object)
+property id : Text
+property contentBytes : Text
+property size : Integer
+property contentId : Text
+property isInline : Boolean
+property name : Text
+property contentType : Text
+
+Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470._internals._userId:=String:C10($inParams.userId)
-	This:C1470._internals._messageId:=String:C10($inParams.messageId)
-	Super:C1706._loadFromObject($inObject)
-	If (Length:C16(String:C10(This:C1470["@odata.type"]))=0)
-		This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
+	This._internals._userId:=String($inParams.userId)
+	This._internals._messageId:=String($inParams.messageId)
+	Super._loadFromObject($inObject)
+	If (Length(String(This["@odata.type"]))=0)
+		This["@odata.type"]:="#microsoft.graph.fileAttachment"
 	End if 
 	
 	
@@ -16,39 +24,36 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParams : Object; $in
 	// ----------------------------------------------------
 	
 	
-Function getContent() : 4D:C1709.Blob
+Function getContent() : 4D.Blob
 	
-	var $contentBytes : Blob
-	
-	If (Not:C34(OB Is defined:C1231(This:C1470; "contentBytes")))
+	If (Not(OB Is defined(This; "contentBytes")))
 		
-		If (Length:C16(String:C10(This:C1470._internals._messageId))>0)
+		If (Length(String(This._internals._messageId))>0)
 			
-			var $response : Object
-			var $urlParams; $URL : Text
+			var $urlParams : Text
 			
-			If (Length:C16(String:C10(This:C1470._internals._userId))>0)
-				$urlParams:="users/"+This:C1470._internals._userId
+			If (Length(String(This._internals._userId))>0)
+				$urlParams:="users/"+This._internals._userId
 			Else 
 				$urlParams:="me"
 			End if 
-			$urlParams+="/messages/"+This:C1470._internals._messageId
-			$urlParams+="/attachments/"+This:C1470.id
+			$urlParams+="/messages/"+This._internals._messageId
+			$urlParams+="/attachments/"+This.id
 			
-			$URL:=Super:C1706._getURL()+$urlParams
-			If (This:C1470["@odata.type"]="#microsoft.graph.itemAttachment")
+			var $URL : Text:=Super._getURL()+$urlParams
+			If (This["@odata.type"]="#microsoft.graph.itemAttachment")
 				$URL+="/?$expand=microsoft.graph.itemattachment/item"
 			End if 
-			$response:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 			
-			If ($response#Null:C1517)
-				If (OB Is defined:C1231($response; "contentBytes"))
-					This:C1470.contentBytes:=$response.contentBytes
+			var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+			If ($response#Null)
+				If (OB Is defined($response; "contentBytes"))
+					This.contentBytes:=$response.contentBytes
 				Else 
-					If (OB Is defined:C1231($response; "item"))
+					If (OB Is defined($response; "item"))
 						var $stringContent : Text
-						BASE64 ENCODE:C895(JSON Stringify:C1217($response.item); $stringContent)
-						This:C1470.contentBytes:=$stringContent
+						BASE64 ENCODE(JSON Stringify($response.item); $stringContent)
+						This.contentBytes:=$stringContent
 					End if 
 				End if 
 				
@@ -56,48 +61,48 @@ Function getContent() : 4D:C1709.Blob
 		End if 
 	End if 
 	
-	If (OB Is defined:C1231(This:C1470; "contentBytes"))
-		BASE64 DECODE:C896(This:C1470.contentBytes; $contentBytes)
+	var $contentBytes : Blob
+	If (OB Is defined(This; "contentBytes"))
+		BASE64 DECODE(This.contentBytes; $contentBytes)
 	End if 
 	
-	return 4D:C1709.Blob.new($contentBytes)
+	return 4D.Blob.new($contentBytes)
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function setContent($inContent : 4D:C1709.Blob)
+Function setContent($inContent : 4D.Blob)
 	
 	If ($inContent.size>0)
 		var $encodedContent : Text
-		BASE64 ENCODE:C895($inContent.slice(); $encodedContent)
-		This:C1470.contentBytes:=$encodedContent
-		This:C1470.size:=Length:C16($encodedContent)
+		BASE64 ENCODE($inContent.slice(); $encodedContent)
+		This.contentBytes:=$encodedContent
+		This.size:=Length($encodedContent)
 	End if 
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function fromMailAttachment($inObject : 4D:C1709.MailAttachment)
+Function fromMailAttachment($inObject : 4D.MailAttachment)
 	
-	If (OB Instance of:C1731($inObject; 4D:C1709.MailAttachment))
+	If (OB Instance of($inObject; 4D.MailAttachment))
 		
-		This:C1470["@odata.type"]:="#microsoft.graph.fileAttachment"
-		If (Length:C16(String:C10($inObject.cid))>0)
-			This:C1470.contentId:=String:C10($inObject.cid)
+		This["@odata.type"]:="#microsoft.graph.fileAttachment"
+		If (Length(String($inObject.cid))>0)
+			This.contentId:=String($inObject.cid)
 		End if 
-		If (String:C10($inObject.disposition)="inline")
-			This:C1470.isInline:=True:C214
+		If (String($inObject.disposition)="inline")
+			This.isInline:=True
 		End if 
-		If (Length:C16(String:C10($inObject.name))>0)
-			This:C1470.name:=String:C10($inObject.name)
+		If (Length(String($inObject.name))>0)
+			This.name:=String($inObject.name)
 		End if 
-		If (Length:C16(String:C10($inObject.type))>0)
-			This:C1470.contentType:=String:C10($inObject.type)
+		If (Length(String($inObject.type))>0)
+			This.contentType:=String($inObject.type)
 		End if 
 		
-		This:C1470.setContent($inObject.getContent())
+		This.setContent($inObject.getContent())
 		
 	End if 
-	

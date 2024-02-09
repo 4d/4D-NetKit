@@ -1,0 +1,215 @@
+Class extends _BaseClass
+
+Class constructor($inProvider : cs.OAuth2Provider)
+	
+	Super()
+	
+	This._internals._URL:=""
+	This._internals._oAuth2Provider:=$inProvider
+	This._internals._statusLine:=""
+	
+	
+	// Mark: - [Private]
+	// ----------------------------------------------------
+	
+	
+Function _getToken() : Object
+	
+	If (This._internals._oAuth2Provider.token=Null)
+		This._internals._oAuth2Provider.getToken()
+	End if 
+	
+	return This._internals._oAuth2Provider.token
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getAcessToken() : Text
+	
+	return String(This._getToken().access_token)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getAcessTokenType() : Text
+	
+	var $tokenType : Text
+	var $token : Object:=This._getToken()
+	
+	Case of 
+		: (Value type($token.token_type)=Is text)
+			$tokenType:=String($token.token_type)
+			
+		: (Value type($token.type)=Is text)
+			$tokenType:=String($token.type)
+			
+		Else 
+			$tokenType:="Bearer"
+			
+	End case 
+	
+	return $tokenType
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant)->$response : Variant
+	
+	This._try()
+	
+	var $options : Object:={headers: {}}
+	var $token : Text:=This._getAcessToken()
+	
+	If (Length(String($token))>0)
+		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
+	End if 
+	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
+		var $keys : Collection:=OB Keys($inHeaders)
+		var $key : Text
+		For each ($key; $keys)
+			$options.headers[$key]:=$inHeaders[$key]
+		End for each 
+	End if 
+	If (Length(String($inMethod))>0)
+		$options.method:=Uppercase($inMethod)
+	End if 
+	Case of 
+		: ((Value type($inBody)=Is text) || (Value type($inBody)=Is object))
+			$options.body:=$inBody
+			$options.dataType:=(Value type($inBody)=Is text) ? "text" : "object"
+		Else 
+			$options.body:=$inBody
+			$options.dataType:="auto"
+	End case 
+	
+	This._installErrorHandler()
+	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new($inURL; $options).wait()
+	This._resetErrorHandler()
+	
+	var $status : Integer:=$request["response"]["status"]
+	var $statusText : Text:=$request["response"]["statusText"]
+	This._internals._statusLine:=String($status)+" "+$statusText
+	
+	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
+		
+		var $contentType : Text:=String($request["response"]["headers"]["content-type"])
+		var $charset : Text:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
+		
+		If (OB Is defined($request.response; "body"))
+			var $text : Text
+			Case of 
+				: (Value type($request["response"]["body"])=Is object)
+					$response:=$request["response"]["body"]
+					
+				: (($contentType="application/json@") || ($contentType="text/plain@"))
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Convert to text($request["response"]["body"]; $charset)
+					End if 
+					If ($contentType="application/json@")
+						$response:=JSON Parse($text)
+					Else 
+						$response:=$text
+					End if 
+					
+				: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
+					$response:=4D.Blob.new($request["response"]["body"])
+					
+				: ($contentType="multipart/@")
+					var $headers : Text:="HTTP/1.1 "+This._internals._statusLine+"\r\n"
+					$keys:=OB Keys($request.response.headers)
+					For each ($key; $keys)
+						$headers+=$key+": "+$request.response.headers[$key]+"\r\n"
+					End for each 
+					$headers+="\r\n"
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Convert to text($request["response"]["body"]; $charset)
+					End if 
+					$response:=$headers+$text
+					
+			End case 
+			
+		Else 
+			
+			$response:=Null
+		End if 
+		
+	Else 
+		
+		var $message : Text
+		var $explanation : Text:=$request["response"]["statusText"]
+		
+		Case of 
+			: (Value type($request["response"]["body"])=Is text)
+				$message:=$request["response"]["body"]
+				
+			: (Value type($request["response"]["body"])=Is object)
+				$message:=JSON Stringify($request["response"]["body"])
+				
+			Else 
+				$message:=Convert to text($request["response"]["body"]; "UTF-8")
+				
+		End case 
+		
+		This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+		$response:=Null
+		
+	End if 
+	
+	This._finally()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getStatusLine() : Text
+	
+	return This._internals._statusLine
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getURL() : Text
+	
+	return This._internals._URL
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _getOAuth2Provider() : cs.OAuth2Provider
+	
+	return This._internals._oAuth2Provider
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _returnStatus($inAdditionalInfo : Object)->$status : Object
+	
+	var $errorStack : Collection:=Super._getErrorStack()
+	$status:={}
+	
+	If (Not(OB Is empty($inAdditionalInfo)))
+		var $key : Text
+		var $keys : Collection:=OB Keys($inAdditionalInfo)
+		For each ($key; $keys)
+			$status[$key]:=$inAdditionalInfo[$key]
+		End for each 
+	End if 
+	
+	If ($errorStack.length>0)
+		$status.success:=False
+		$status.errors:=$errorStack
+		$status.statusText:=$errorStack.first().message
+	Else 
+		$status.success:=True
+		$status.statusText:=This._getStatusLine()
+	End if 
