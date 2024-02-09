@@ -109,14 +109,20 @@ The available properties of `paramObj` are:
 | privateKey  | text | (Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google"                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
 | authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
 | authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
+| PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests |Yes
+| PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain" |Yes
 
-**Note:** The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
+
+
+**Notes:**  
+- The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
+- PKCE is only available for permission=”SignIn”.
 
 #### Returned object
 
 The returned object's properties correspond to those of the `paramObj` object passed as a parameter.
 
-#### Example 
+#### Example 1
 
 ```4d
 
@@ -142,6 +148,26 @@ $param.authenticationErrorPage:=$File2
 $oAuth2:=cs.NetKit.OAuth2Provider.new($param)
 // Ask for a token
 $token:=$oAuth2.getToken()
+
+```
+#### Example 2
+
+```4d
+
+//Google account authentication using PKCE
+
+var $credential:={}
+// google
+$credential.name:="Google" 
+$credential.permission:="signedIn"
+$credential.clientId:="499730xxx"
+$credential.redirectURI:="http://127.0.0.1:50993/authorize/"
+$credential.scope:="https://mail.google.com/"
+// PKCE activation
+$credential.PKCEEnabled:=True
+
+var $oauth2:=cs.NetKit.OAuth2Provider.new($credential)
+var $token:=$oauth2.getToken()
 
 ```
 
