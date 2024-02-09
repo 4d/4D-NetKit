@@ -17,22 +17,22 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
+	var $response : Object:=Null
+	
 	If ($inMail#Null)
-		var $headers; $message; $messageCopy; $response : Object
 		
-		$headers:={}
+		var $headers : Object:={}
 		$headers["Content-Type"]:="message/rfc822"
 		If (($inHeader#Null) && (Value type($inHeader)=Is object))
-			var $keys : Collection
+			var $keys : Collection:=OB Keys($inHeader)
 			var $key : Text
-			$keys:=OB Keys($inHeader)
 			For each ($key; $keys)
 				$headers[$key]:=$inHeader[$key]
 			End for each 
 		End if 
 		
 		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
-		This._internals._response:=OB Copy($response)
+		This._internals._response:=$response
 	Else 
 		Super._throwError(1)
 	End if 
@@ -45,10 +45,8 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
 	
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
-	var $headers; $response : Object
 	var $requestBody : Text
-	
-	$headers:={}
+	var $headers : Object:={}
 	$headers["Content-Type"]:="application/json"
 	
 	Case of 
@@ -63,8 +61,8 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE($requestBody)
 	
-	$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
-	This._internals._response:=OB Copy($response)
+	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
+	This._internals._response:=$response
 	
 	return This._returnStatus()
 	
@@ -105,10 +103,8 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inH
 	
 Function send($inMail : Variant) : Object
 	
-	var $URL; $userId : Text
-	
-	$URL:=Super._getURL()
-	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/send"
 	
 	return This._postMessage("send"; $URL; $inMail)
@@ -130,19 +126,15 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 			
 		Else 
 			
-			var $URL; $verb; $userId : Text
-			var $response : Object
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId
 			If (Not(Bool($permanently)))
 				$URL+="/trash"
 			End if 
-			$verb:=Bool($permanently) ? "DELETE" : "POST"
+			var $verb : Text:=Bool($permanently) ? "DELETE" : "POST"
 			
-			$response:=Super._sendRequestAndWaitResponse($verb; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=Super._sendRequestAndWaitResponse($verb; $URL)
 	End case 
 	
 	Super._throwErrors(True)
@@ -166,15 +158,11 @@ Function untrash($inMailId : Text) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
-			var $response : Object
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
 			
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $URL)
 	End case 
 	
 	Super._throwErrors(True)
@@ -187,12 +175,10 @@ Function untrash($inMailId : Text) : Object
 	
 Function getMailIds($inParameters : Object) : Object
 	
-	var $URL; $userId; $urlParams : Text
-	
 	Super._clearErrorStack()
-	$URL:=Super._getURL()
-	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-	$urlParams+="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	var $urlParams : Text:="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
 	
 	return cs.GoogleMailIdList.new(This._getOAuth2Provider(); $URL+$urlParams)
 	
@@ -213,21 +199,18 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 			
 		Else 
 			
-			var $URL; $userId; $urlParams; $mailType; $format : Text
-			var $result; $parameters : Object
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-			$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
-			$format:=String($inParameters.format)
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $mailType : Text:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+			var $format : Text:=String($inParameters.format)
 			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
-			$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+			var $parameters : Object:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
 			If ($parameters.format#$format)
 				$parameters.format:=$format
 			End if 
-			$urlParams+="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
+			var $urlParams : Text:="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
 			
-			$result:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
+			var $result : Object:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
 			$response:=This._extractRawMessage($result; $format; $mailType)
 			
 	End case 
@@ -243,7 +226,7 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
 	Super._clearErrorStack()
-
+	
 	Case of 
 		: (Type($inMailIds)#Is collection)
 			Super._throwError(10; {which: "\"mailIds\""; function: "getMails"})
@@ -269,26 +252,24 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 				
 			Else 
 				
-				var $URL; $urlParams; $userId; $mailType; $mailId; $format : Text
-				var $parameters : Object
-				
-				$URL:=Super._getURL()
-				$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
-				$mailType:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
-				$format:=String($inParameters.format)
+				var $URL : Text:=Super._getURL()
+				var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+				var $mailType : Text:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+				var $format : Text:=String($inParameters.format)
 				$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
-				$parameters:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+				var $parameters : Object:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
 				If ($parameters.format#$format)
 					$parameters.format:=$format
 				End if 
 				
 				var $i : Integer:=1
 				var $batchRequestes : Collection:=[]
+				var $mailId : Text
 				
 				For each ($mailId; $mailIds)
 					var $item : Text:="<item"+String($i)+">"
 					$i+=1
-					$urlParams:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
+					var $urlParams : Text:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
 					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
 				End for each 
 				
@@ -335,26 +316,23 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
-			var $response : Object
-			var $headers : Object:={}
-			var $body : Object:={}
 			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
 			
 			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
 				$mailIds:=$mailIds.extract("id")
 			End if 
 			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/messages/batchModify"
 			
+			var $headers : Object:={}
+			var $body : Object:={}
 			$body.ids:=$mailIds
 			$body.addLabelIds:=(Value type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
 			$body.removeLabelIds:=(Value type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
 			
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
 			
 	End case 
 	
@@ -369,17 +347,14 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	
 Function getLabelList() : Object
 	
-	var $URL; $userId : Text
-	var $response : Object
-	
 	Super._clearErrorStack()
-	$URL:=Super._getURL()
-	$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/labels"
 	
-	$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
 	
-	return This._returnStatus(OB Copy($response))
+	return This._returnStatus($response)
 	
 	
 	// ----------------------------------------------------
@@ -396,17 +371,11 @@ Function getLabel($inLabelId : Text) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
-			var $response : Object
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
-			$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
-			This._internals._response:=OB Copy($response)
-			
-			return OB Copy($response)
+			return Super._sendRequestAndWaitResponse("GET"; $URL)
 			
 	End case 
 	
@@ -431,11 +400,9 @@ Function createLabel($inLabelInfo : Object) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
 			var $headers : Object:={}
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/labels"
 			
 			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inLabelInfo)
@@ -444,7 +411,7 @@ Function createLabel($inLabelInfo : Object) : Object
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)
 	
 	
 	
@@ -464,15 +431,11 @@ Function deleteLabel($inLabelId : Text) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
-			var $response : Object
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
-			$response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
-			This._internals._response:=OB Copy($response)
+			This._internals._response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
 			
 	End case 
 	
@@ -505,11 +468,9 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 			
 		Else 
 			
-			var $URL; $userId : Text
 			var $headers : Object:={}
-			
-			$URL:=Super._getURL()
-			$userId:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			$URL+="users/"+$userId+"/labels/"+$inLabelId
 			
 			$response:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inLabelInfo)
@@ -518,4 +479,4 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	
 	Super._throwErrors(True)
 	
-	return This._returnStatus(($response#Null) ? {label: OB Copy($response)} : Null)
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)

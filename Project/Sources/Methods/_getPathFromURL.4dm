@@ -1,12 +1,10 @@
 //%attributes = {"invisible":true}
 #DECLARE($URL : Text)->$path : Text
 
-var $pattern : Text
-
 ARRAY LONGINT($pos; 0)
 ARRAY LONGINT($len; 0)
 
-$pattern:="(?mi-s)^(https?|wss?)://.*(:\\d*)(/?.*)"  //was "(?mi-s)^(?:https?:\\/\\/)?(?:[^?\\/\\s]+[?\\/])(.*)"
+var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)(/?.*)"  //was "(?mi-s)^(?:https?:\\/\\/)?(?:[^?\\/\\s]+[?\\/])(.*)"
 
 If (Match regex($pattern; $URL; 1; $pos; $len))
 	

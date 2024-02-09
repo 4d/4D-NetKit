@@ -20,10 +20,8 @@ Class constructor($inName; $inAddress : Text)
 	
 Function fromString($inValue : Text)
 	
-	var $startMailPos; $endMailPos : Integer
-	
-	$startMailPos:=Position("<"; $inValue)
-	$endMailPos:=($startMailPos>0) ? Position(">"; $inValue) : 0
+	var $startMailPos : Integer:=Position("<"; $inValue)
+	var $endMailPos : Integer:=($startMailPos>0) ? Position(">"; $inValue) : 0
 	
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
@@ -65,8 +63,6 @@ Function isValid() : Boolean
 	
 Function _isValidEmail($inEmail : Text) : Boolean
 	
-	var $pattern : Text
-	
-	$pattern:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 	return Match regex($pattern; $inEmail; 1)
 	

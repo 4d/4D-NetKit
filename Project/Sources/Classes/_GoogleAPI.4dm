@@ -12,10 +12,8 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams; $delimiter : Text
-	
-	$urlParams:=""
-	$delimiter:="?"
+	var $urlParams : Text:=""
+	var $delimiter : Text:="?"
 	
 	If (Length(String($inParameters.search))>0)
 		$urlParams+=($delimiter+"q="+_urlEncode($inParameters.search))
@@ -51,13 +49,11 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 Function _convertMailObjectToJMAP($inMail : Object) : Object
 	
-	var $result : Object
-	var $keys : Collection
+	var $result : Object:={}
+	var $keys : Collection:=OB Keys($inMail)
 	var $key; $name; $string : Text
 	var $email : cs.EmailAddress
 	
-	$result:={}
-	$keys:=OB Keys($inMail)
 	For each ($key; $keys)
 		$name:=_getJMAPAttribute($key)
 		If (Length($name)>0)
@@ -89,7 +85,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 							: (_IsEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
 									$email:=cs.EmailAddress.new($header.value)
-									$result[$name]:=OB Copy($email)
+									$result[$name]:=$email
 								End if 
 							Else 
 								$result[$name]:=$header.value
@@ -117,9 +113,7 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)-
 					var $rawMessage : Text:=_base64UrlSafeDecode($result.raw)
 					If ($mailType="JMAP")
 						
-						var $copy : Object
-						
-						$copy:=OB Copy($result)
+						var $copy : Object:=$result
 						$response:=MAIL Convert from MIME($rawMessage)
 						$response.id:=String($copy.id)
 						$response.threadId:=String($copy.threadId)

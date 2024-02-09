@@ -15,15 +15,13 @@ Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $
 Function get mails() : Collection
 	
 	If (This._internals._update)
+
 		var $iter : Object
-		var $mail : cs.GraphMessage
-		var $provider : cs.OAuth2Provider
-		
-		$provider:=This._internals._oAuth2Provider
+		var $provider : cs.OAuth2Provider:=This._internals._oAuth2Provider
 		
 		This._internals._mails:=[]
 		For each ($iter; This._internals._list)
-			$mail:=cs.GraphMessage.new($provider; {userId: String(This._internals._mail.userId)}; $iter)
+			var $mail : cs.GraphMessage:=cs.GraphMessage.new($provider; {userId: String(This._internals._mail.userId)}; $iter)
 			This._internals._mails.push($mail)
 		End for each 
 		

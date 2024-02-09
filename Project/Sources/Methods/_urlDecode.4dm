@@ -3,21 +3,18 @@
     Largely inspired from url_decode.4dm by Vincent de Lachaux
     See: https://github.com/4d/4D-SVG project
 */
-#DECLARE($inURL : Text) : Text
+#DECLARE($inURL : Text)->$result : Text
 
-var $charCode; $i; $urlLength: Integer
-var $result; $hexValues: Text
+var $i : Integer
+var $hexValues : Text:="123456789ABCDEF"
+var $urlLength : Integer:=Length($inURL)
 
-$hexValues:="123456789ABCDEF"
-$urlLength:=Length($inURL)
 For ($i; 1; $urlLength; 1)
 	
 	If ($inURL[[$i]]="%")
 		
-		$charCode:=(Position(Substring($inURL; $i+1; 1); $hexValues)*16)+\
-			(Position(Substring($inURL; $i+2; 1); $hexValues))
-		
-		$result+=Char($charCode)
+		var $c : Integer:=(Position(Substring($inURL; $i+1; 1); $hexValues)*16)+(Position(Substring($inURL; $i+2; 1); $hexValues))
+		$result+=Char($c)
 		$i+=2
 		
 	Else 
