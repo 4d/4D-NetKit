@@ -159,13 +159,17 @@ var $credential:={}
 $credential.name:="Google" 
 $credential.permission:="signedIn"
 $credential.clientId:="499730xxx"
+$credential.clientSecret:="fc1kwxxx"
 $credential.redirectURI:="http://127.0.0.1:50993/authorize/"
 $credential.scope:="https://mail.google.com/"
 // PKCE activation
 $credential.PKCEEnabled:=True
 
 var $oauth2:=cs.NetKit.OAuth2Provider.new($credential)
-var $token:=$oauth2.getToken()
+var $token:=Try($oauth2.getToken())
+if ($token=null)
+  ALERT("Error: "+Last errors[0].message)
+end if 
 
 ```
 
