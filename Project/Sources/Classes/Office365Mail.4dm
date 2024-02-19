@@ -450,16 +450,9 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		If (This.mailType="Microsoft")
-			
-			var $headers : Object:={}
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
-			
-		Else 
-			
-			Super._throwError(3; {attribute: "\"mail\""})
-		End if 
+		var $headers : Object:={}
+		$headers["Content-Type"]:="application/json"
+		$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
 		
 	Else 
 		
