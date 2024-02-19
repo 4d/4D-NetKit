@@ -558,12 +558,9 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		OB REMOVE(This._internals; "_rawBody")
 	End if 
 	
-	var $savedMethod : Text:=Method called on error
-	This._installErrorHandler()
-	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new(This.tokenURI; $options).wait()
-	This._resetErrorHandler()
-	var $status : Integer:=$request["response"]["status"]
-	var $response : Text:=$request["response"]["body"]
+	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.tokenURI; $options).wait())
+	var $status : Integer:=Num($request["response"]["status"])
+	var $response : Text:=String($request["response"]["body"])
 	
 	If ($status=200)
 		

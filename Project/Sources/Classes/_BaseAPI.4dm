@@ -85,12 +85,10 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 			$options.dataType:="auto"
 	End case 
 	
-	This._installErrorHandler()
-	var $request : 4D.HTTPRequest:=4D.HTTPRequest.new($inURL; $options).wait()
-	This._resetErrorHandler()
+	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($inURL; $options).wait())
 	
-	var $status : Integer:=$request["response"]["status"]
-	var $statusText : Text:=$request["response"]["statusText"]
+	var $status : Integer:=Num($request["response"]["status"])
+	var $statusText : Text:=String($request["response"]["statusText"])
 	This._internals._statusLine:=String($status)+" "+$statusText
 	
 	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
