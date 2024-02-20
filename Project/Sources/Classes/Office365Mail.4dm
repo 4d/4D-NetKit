@@ -66,21 +66,17 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	var $headers : Object:={}
 	$headers["Content-Type"]:="text/plain"
 	
-	This._installErrorHandler()
-	
 	Case of 
 		: (Value type($inMail)=Is BLOB)
-			$requestBody:=Convert to text($inMail; "UTF-8")
+			$requestBody:=Try(Convert to text($inMail; "UTF-8"))
 			
 		: (Value type($inMail)=Is object)
-			$requestBody:=MAIL Convert to MIME($inMail)
+			$requestBody:=Try(MAIL Convert to MIME($inMail))
 			
 		Else 
 			$requestBody:=$inMail
 	End case 
 	BASE64 ENCODE($requestBody)
-	
-	This._resetErrorHandler()
 	
 	Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $requestBody)
 	return This._returnStatus()
@@ -450,16 +446,9 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		End if 
 		$URL+="/messages/"+$inMailId
 		
-		If (This.mailType="Microsoft")
-			
-			var $headers : Object:={}
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
-			
-		Else 
-			
-			Super._throwError(3; {attribute: "\"mail\""})
-		End if 
+		var $headers : Object:={}
+		$headers["Content-Type"]:="application/json"
+		$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
 		
 	Else 
 		
