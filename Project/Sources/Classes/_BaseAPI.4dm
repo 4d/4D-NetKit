@@ -106,10 +106,10 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
-						$text:=Convert to text($request["response"]["body"]; $charset)
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
 					End if 
 					If ($contentType="application/json@")
-						$response:=JSON Parse($text)
+						$response:=Try(JSON Parse($text))
 					Else 
 						$response:=$text
 					End if 
@@ -127,7 +127,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
-						$text:=Convert to text($request["response"]["body"]; $charset)
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
 					End if 
 					$response:=$headers+$text
 					
@@ -141,21 +141,20 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	Else 
 		
 		var $message : Text
-		var $explanation : Text:=$request["response"]["statusText"]
 		
 		Case of 
 			: (Value type($request["response"]["body"])=Is text)
 				$message:=$request["response"]["body"]
 				
 			: (Value type($request["response"]["body"])=Is object)
-				$message:=JSON Stringify($request["response"]["body"])
+				$message:=Try(JSON Stringify($request["response"]["body"]))
 				
 			Else 
-				$message:=Convert to text($request["response"]["body"]; "UTF-8")
+				$message:=Try(Convert to text($request["response"]["body"]; "UTF-8"))
 				
 		End case 
 		
-		This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+		This._throwError(8; {status: $status; explanation: $statusText; message: $message})
 		$response:=Null
 		
 	End if 

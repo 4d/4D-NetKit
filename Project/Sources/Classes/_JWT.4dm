@@ -63,7 +63,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 		// Decode Header and Payload into Objects
 		BASE64 DECODE($parts[0]; $header; *)
 		BASE64 DECODE($parts[1]; $payload; *)
-		var $jwt : Object:={header: JSON Parse($header); payload: JSON Parse($payload); privateKey: String($inPrivateKey)}
+		var $jwt : Object:={header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); privateKey: String($inPrivateKey)}
 		
 		// Parse Header for Algorithm Family
 		var $algorithm : Text:=Substring($jwt.header.alg; 1; 2)

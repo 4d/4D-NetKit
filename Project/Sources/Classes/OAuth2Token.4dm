@@ -53,7 +53,7 @@ Function _loadFromObject($inObject : Object)
 	
 Function _loadFromResponse($inResponseString : Text)
 	
-	var $token : Object:=JSON Parse($inResponseString)
+	var $token : Object:=Try(JSON Parse($inResponseString))
 
 	If (($token#Null) && (Not(OB Is empty($token))))
 		

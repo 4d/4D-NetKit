@@ -608,10 +608,10 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	Else 
 		
-		var $explanation : Text:=$request["response"]["statusText"]
-		var $error : Object:=JSON Parse($response)
+		var $error : Object:=Try(JSON Parse($response))
 		If ($error#Null)
 			
+			var $statusText : Text:=String($request["response"]["statusText"])
 			var $errorCode : Integer
 			
 			If (Num($error.error_codes.length)>0)
@@ -619,7 +619,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 			End if 
 			var $message : Text:=String($error.error_description)
 			
-			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+			This._throwError(8; {status: $status; explanation: $statusText; message: $message})
 		Else 
 			
 			This._throwError(5; {received: $status; expected: 200})

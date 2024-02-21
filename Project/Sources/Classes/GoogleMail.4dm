@@ -51,10 +51,10 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 	Case of 
 		: (Value type($inMail)=Is BLOB)
-			$requestBody:=Convert to text($inMail; "UTF-8")
+			$requestBody:=Try(Convert to text($inMail; "UTF-8"))
 			
 		: (Value type($inMail)=Is object)
-			$requestBody:=MAIL Convert to MIME($inMail)
+			$requestBody:=Try(MAIL Convert to MIME($inMail))
 			
 		Else 
 			$requestBody:=$inMail
