@@ -262,7 +262,7 @@ Function _generateCodeVerifier : Text
 	// ----------------------------------------------------
 	
 	
-Function _hexToBase64Url() : Text
+Function get _x5t() : Text
 	
 	var $xtoencode; $xencoded : Blob
 	var $i; $l_counter : Integer
@@ -291,6 +291,9 @@ Function _hexToBase64Url() : Text
 		End case 
 		
 		$i:=$i+1
+		If ($i>$textSize)
+			break
+		End if 
 		
 		Case of 
 			: ($text[[$i]]="A")
@@ -563,7 +566,7 @@ Function _getToken_Service()->$result : Object
 			
 		: (This._useJWTBearerAssertionType())
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
-			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._hexToBase64Url}}
+			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._x5t}}
 			
 			$options.payload:={}
 			$options.payload.iss:=This.clientId  // Must be client id of app registration
