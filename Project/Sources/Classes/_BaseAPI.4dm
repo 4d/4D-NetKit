@@ -25,7 +25,7 @@ Function _getToken() : Object
 	// ----------------------------------------------------
 	
 	
-Function _getAcessToken() : Text
+Function _getAccessToken() : Text
 	
 	return String(This._getToken().access_token)
 	
@@ -33,7 +33,7 @@ Function _getAcessToken() : Text
 	// ----------------------------------------------------
 	
 	
-Function _getAcessTokenType() : Text
+Function _getAccessTokenType() : Text
 	
 	var $tokenType : Text
 	var $token : Object:=This._getToken()
@@ -61,10 +61,10 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	This._try()
 	
 	var $options : Object:={headers: {}}
-	var $token : Text:=This._getAcessToken()
+	var $token : Text:=This._getAccessToken()
 	
 	If (Length(String($token))>0)
-		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
+		$options.headers["Authorization"]:=This._getAccessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
 		var $keys : Collection:=OB Keys($inHeaders)
