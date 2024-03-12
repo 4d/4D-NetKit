@@ -18,14 +18,8 @@ Class constructor($inParam : Object)
 		This.header.x5t:=$x5t
 	End if 
 	
-	
-	If (OB Get type($inParam; "payload")=Is object)
-		This.payload:=$inParam.payload
-	Else 
-		This.payload:={}
-	End if 
-	
-	This.privateKey:=String($inParam.privateKey)
+	This.payload:=(Value type($inParam.payload)=Is object) ? $inParam.payload : {}
+	This.privateKey:=(Value type($inParam.privateKey)=Is text) ? $inParam.privateKey : ""
 	
 	
 	// Mark: - [Public]
