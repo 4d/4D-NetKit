@@ -9,12 +9,12 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
-	var $typ : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
-	var $x5t : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "x5t")) ? $inParam.header.x5t : ""
+	var $alg : Text:=(Value type($inParam.header.alg)=Is text) ? $inParam.header.alg : "RS256"
+	var $typ : Text:=(Value type($inParam.header.typ)=Is text) ? $inParam.header.typ : "JWT"
+	var $x5t : Text:=(Value type($inParam.header.x5t)=Is text) ? $inParam.header.x5t : ""
 	
 	This.header:={alg: $alg; typ: $typ}
-	If ($x5t#"")
+	If (Length($x5t)>0)
 		This.header.x5t:=$x5t
 	End if 
 	
