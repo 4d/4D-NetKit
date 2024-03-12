@@ -260,65 +260,65 @@ Function _generateCodeVerifier : Text
 	
 	
 	// ----------------------------------------------------
-	
-	
+
+
 Function get _x5t() : Text
 	
-	var $xtoencode; $xencoded : Blob
+	// x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint))
+	var $byteArray : Blob
 	var $i; $l_counter : Integer
 	var $text : Text:=This._thumbprint
 	var $textSize : Integer:=Length($text)
 	
-	SET BLOB SIZE($xtoencode; ($textSize/2)+1; 0)
+	SET BLOB SIZE($byteArray; ($textSize/2); 0)
 	
 	For ($i; 1; $textSize)
 		
 		Case of 
 			: ($text[[$i]]="A")
-				$xtoencode{$l_counter}:=10*16
+				$byteArray{$l_counter}:=10*16
 			: ($text[[$i]]="B")
-				$xtoencode{$l_counter}:=11*16
+				$byteArray{$l_counter}:=11*16
 			: ($text[[$i]]="C")
-				$xtoencode{$l_counter}:=12*16
+				$byteArray{$l_counter}:=12*16
 			: ($text[[$i]]="D")
-				$xtoencode{$l_counter}:=13*16
+				$byteArray{$l_counter}:=13*16
 			: ($text[[$i]]="E")
-				$xtoencode{$l_counter}:=14*16
+				$byteArray{$l_counter}:=14*16
 			: ($text[[$i]]="F")
-				$xtoencode{$l_counter}:=15*16
+				$byteArray{$l_counter}:=15*16
 			Else 
-				$xtoencode{$l_counter}:=Num($text[[$i]])*16
+				$byteArray{$l_counter}:=Num($text[[$i]])*16
 		End case 
 		
 		$i:=$i+1
-		If ($i>$textSize)
+		If ($i>$textSize) // Sanity check
 			break
 		End if 
 		
 		Case of 
 			: ($text[[$i]]="A")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+10
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+10
 			: ($text[[$i]]="B")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+11
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+11
 			: ($text[[$i]]="C")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+12
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+12
 			: ($text[[$i]]="D")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+13
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+13
 			: ($text[[$i]]="E")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+14
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+14
 			: ($text[[$i]]="F")
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+15
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+15
 			Else 
-				$xtoencode{$l_counter}:=$xtoencode{$l_counter}+Num($text[[$i]])
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+Num($text[[$i]])
 		End case 
 		
 		$l_counter+=1
 	End for 
 	
-	BASE64 ENCODE($xtoencode; $xencoded; *)
-	
-	return BLOB to text($xencoded; UTF8 text without length)
-	
+	BASE64 ENCODE($byteArray; *)
+	return BLOB to text($byteArray; UTF8 text without length)
+
 	
 	// ----------------------------------------------------
 	
