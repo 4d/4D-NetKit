@@ -206,10 +206,12 @@ Class constructor($inParams : Object)
 	_thumbprint of the public key / certificate  is used for the property x5t in jwt header
 	When _thumprint is empty it's not possible to create a proper jwt token for request.
 */
-		If ((OB Is defined($inParams; "clientAssertionType")) & (OB Is defined($inParams; "thumbprint")))
-			This.clientAssertionType:=String($inParams.clientAssertionType)
-			This._thumbprint:=String($inParams.thumbprint)
+		This._thumbprint:=String($inParams.thumbprint)
+		This.clientAssertionType:=String($inParams.clientAssertionType)
+		If ((Length(This.privateKey)>0) && (Length(This._thumbprint)>0) && (Length(This.clientAssertionType)=0))
+			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
+		
 	End if 
 	
 	This._finally()
@@ -260,8 +262,8 @@ Function _generateCodeVerifier : Text
 	
 	
 	// ----------------------------------------------------
-
-
+	
+	
 Function get _x5t() : Text
 	
 	// x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint))
@@ -292,7 +294,7 @@ Function get _x5t() : Text
 		End case 
 		
 		$i:=$i+1
-		If ($i>$textSize) // Sanity check
+		If ($i>$textSize)  // Sanity check
 			break
 		End if 
 		
@@ -318,7 +320,7 @@ Function get _x5t() : Text
 	
 	BASE64 ENCODE($byteArray; *)
 	return BLOB to text($byteArray; UTF8 text without length)
-
+	
 	
 	// ----------------------------------------------------
 	
