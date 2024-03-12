@@ -15,12 +15,12 @@ property accessType : Text
 property loginHint : Text
 property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
-property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
+property privateKey : Text  // privateKey may be used used to sign JWT token
 property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
 property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
 property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
-property _thumbprint : Text
+property _thumbprint : Text	// used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
 
 property _scope : Text
 property _authenticateURI : Text
@@ -206,9 +206,13 @@ Class constructor($inParams : Object)
 	_thumbprint of the public key / certificate  is used for the property x5t in jwt header
 	When _thumprint is empty it's not possible to create a proper jwt token for request.
 */
-		This._thumbprint:=String($inParams.thumbprint)
-		This.clientAssertionType:=String($inParams.clientAssertionType)
-		If ((Length(This.privateKey)>0) && (Length(This._thumbprint)>0) && (Length(This.clientAssertionType)=0))
+		If (Value type($inParams.thumbprint)#Is undefined)
+			This._thumbprint:=String($inParams.thumbprint)
+		End if 
+		If (Value type($inParams.clientAssertionType)#Is undefined)
+			This.clientAssertionType:=String($inParams.clientAssertionType)
+		End if 
+		If ((Length(String(This.privateKey))>0) && (Length(String(This._thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
@@ -762,9 +766,13 @@ Function _useJWTBearer() : Boolean
 	
 	return (This.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
 	
+	
+	// ----------------------------------------------------
+	
+	
 Function _useJWTBearerAssertionType() : Boolean
 	
-	return Length(String(This._thumbprint))>0
+	return (Length(String(This._thumbprint))>0)
 	
 	
 	// Mark: - [Public]
