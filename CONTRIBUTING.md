@@ -24,7 +24,7 @@ Of course you could propose a fix using pull request
 * Prefer to develop in a topic branch, not in `main` (feature/name, fix/name)
 * Update documentation where applicable.
 * If any bug related, add `#<id>` in commit message or pull request
-* Test your code
+* Test and compile your code
 
 ### Method properties
 
