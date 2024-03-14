@@ -188,3 +188,17 @@ Function _hashSign($inJWT : Object)->$hash : Text
 		// Sign Message with CryptoKey to generate hashed verify signature
 		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+function decode($inToken : Text) : Object
+
+	var $parts : Collection:=Split string($inToken; ".")
+	var $header; $payload : Text
+
+	BASE64 DECODE($parts[0]; $header; *)
+	BASE64 DECODE($parts[1]; $payload; *)
+
+	return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}
