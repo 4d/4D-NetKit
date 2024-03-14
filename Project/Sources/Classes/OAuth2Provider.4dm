@@ -20,7 +20,7 @@ property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentic
 property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
 property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
-property _thumbprint : Text	// used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
+property thumbprint : Text	// used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
 
 property _scope : Text
 property _authenticateURI : Text
@@ -203,16 +203,16 @@ Class constructor($inParams : Object)
 		End if 
 		
 /*
-	_thumbprint of the public key / certificate  is used for the property x5t in jwt header
+	thumbprint of the public key / certificate  is used for the property x5t in jwt header
 	When _thumprint is empty it's not possible to create a proper jwt token for request.
 */
 		If (Value type($inParams.thumbprint)#Is undefined)
-			This._thumbprint:=String($inParams.thumbprint)
+			This.thumbprint:=String($inParams.thumbprint)
 		End if 
 		If (Value type($inParams.clientAssertionType)#Is undefined)
 			This.clientAssertionType:=String($inParams.clientAssertionType)
 		End if 
-		If ((Length(String(This.privateKey))>0) && (Length(String(This._thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
+		If ((Length(String(This.privateKey))>0) && (Length(String(This.thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
@@ -273,7 +273,7 @@ Function get _x5t() : Text
 	// x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint))
 	var $byteArray : Blob
 	var $i; $l_counter : Integer
-	var $text : Text:=This._thumbprint
+	var $text : Text:=This.thumbprint
 	var $textSize : Integer:=Length($text)
 	
 	SET BLOB SIZE($byteArray; ($textSize/2); 0)
@@ -772,7 +772,7 @@ Function _useJWTBearer() : Boolean
 	
 Function _useJWTBearerAssertionType() : Boolean
 	
-	return (Length(String(This._thumbprint))>0)
+	return (Length(String(This.thumbprint))>0)
 	
 	
 	// Mark: - [Public]
