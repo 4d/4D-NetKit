@@ -1,7 +1,10 @@
 property name : Text
 property email : Text
 
-Class constructor($inName; $inAddress : Text)
+Class constructor($inName : Text; $inAddress : Text)
+	
+	This.name:=""
+	This.email:=""
 	
 	Case of 
 		: (Count parameters=1)
@@ -9,8 +12,8 @@ Class constructor($inName; $inAddress : Text)
 			This.fromString($inName)
 		Else 
 			
-			This.name:=String($inName)
-			This.email:=String($inAddress)
+			This.name:=_trimSpaces($inName)
+			This.email:=_trimSpaces($inAddress)
 	End case 
 	
 	
@@ -25,14 +28,13 @@ Function fromString($inValue : Text)
 	
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
-		This.name:=Substring($inValue; 1; $startMailPos-1)
-		This.email:=Substring($inValue; $startMailPos+1; $endMailPos-$startMailPos-1)
+		This.name:=_trimSpaces(Substring($inValue; 1; $startMailPos-1))
+		This.email:=_trimSpaces(Substring($inValue; $startMailPos+1; $endMailPos-$startMailPos-1))
 	Else 
 		
-		If (This._isValidEmail($inValue))
-			This.email:=$inValue
-		Else 
-			This.name:=$inValue
+		var $email:Text:=_trimSpaces($inValue)
+		If (This._isValidEmail($email))
+			This.email:=$email
 		End if 
 	End if 
 	
@@ -65,4 +67,3 @@ Function _isValidEmail($inEmail : Text) : Boolean
 	
 	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 	return Match regex($pattern; $inEmail; 1)
-	

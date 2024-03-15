@@ -111,7 +111,7 @@ Function sendRequestAndWaitResponse() : Collection
 				
 				var $result : Variant:=Null
 				If ($subPart.contentType="application/json")
-					$result:=This._extractRawMessage(JSON Parse($subPart.content); This._format; This._mailType)
+					$result:=This._extractRawMessage(Try(JSON Parse($subPart.content)); This._format; This._mailType)
 				Else 
 					$result:=4D.Blob.new($subPart.content)
 				End if 

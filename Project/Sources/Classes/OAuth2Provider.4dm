@@ -15,9 +15,12 @@ property accessType : Text
 property loginHint : Text
 property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
-property privateKey : Text  // privateKey may be used used by Google services account to sign JWT token
+property privateKey : Text  // privateKey may be used used to sign JWT token
 property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
 property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
+
+property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
+property thumbprint : Text	// used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
 
 property _scope : Text
 property _authenticateURI : Text
@@ -198,10 +201,24 @@ Class constructor($inParams : Object)
 		If (This.PKCEEnabled)
 			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
 		End if 
+		
+/*
+	thumbprint of the public key / certificate  is used for the property x5t in jwt header
+	When _thumprint is empty it's not possible to create a proper jwt token for request.
+*/
+		If (Value type($inParams.thumbprint)#Is undefined)
+			This.thumbprint:=String($inParams.thumbprint)
+		End if 
+		If (Value type($inParams.clientAssertionType)#Is undefined)
+			This.clientAssertionType:=String($inParams.clientAssertionType)
+		End if 
+		If ((Length(String(This.privateKey))>0) && (Length(String(This.thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
+			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+		End if 
+		
 	End if 
 	
 	This._finally()
-	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
@@ -210,15 +227,15 @@ Class constructor($inParams : Object)
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 	If (This.PKCEMethod="plain")
-		return $codeVerifier	// code_challenge = code_verifier
+		return $codeVerifier  // code_challenge = code_verifier
 	Else 
-		return Generate digest($codeVerifier; SHA256 digest; *)		// code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
-	End if
-		
-		
-		// ----------------------------------------------------
-		
-		
+		return Generate digest($codeVerifier; SHA256 digest; *)  // code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier)))
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _rangeRandom($min : Integer; $max : Integer) : Integer
 	
 	return (Random%($max-$min+1))+$min
@@ -246,6 +263,67 @@ Function _randomString($size : Integer) : Text
 Function _generateCodeVerifier : Text
 	
 	return This._randomString(This._rangeRandom(43; 128))
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get _x5t() : Text
+	
+	// x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint))
+	var $byteArray : Blob
+	var $i; $l_counter : Integer
+	var $text : Text:=This.thumbprint
+	var $textSize : Integer:=Length($text)
+	
+	SET BLOB SIZE($byteArray; ($textSize/2); 0)
+	
+	For ($i; 1; $textSize)
+		
+		Case of 
+			: ($text[[$i]]="A")
+				$byteArray{$l_counter}:=10*16
+			: ($text[[$i]]="B")
+				$byteArray{$l_counter}:=11*16
+			: ($text[[$i]]="C")
+				$byteArray{$l_counter}:=12*16
+			: ($text[[$i]]="D")
+				$byteArray{$l_counter}:=13*16
+			: ($text[[$i]]="E")
+				$byteArray{$l_counter}:=14*16
+			: ($text[[$i]]="F")
+				$byteArray{$l_counter}:=15*16
+			Else 
+				$byteArray{$l_counter}:=Num($text[[$i]])*16
+		End case 
+		
+		$i:=$i+1
+		If ($i>$textSize)  // Sanity check
+			break
+		End if 
+		
+		Case of 
+			: ($text[[$i]]="A")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+10
+			: ($text[[$i]]="B")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+11
+			: ($text[[$i]]="C")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+12
+			: ($text[[$i]]="D")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+13
+			: ($text[[$i]]="E")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+14
+			: ($text[[$i]]="F")
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+15
+			Else 
+				$byteArray{$l_counter}:=$byteArray{$l_counter}+Num($text[[$i]])
+		End case 
+		
+		$l_counter+=1
+	End for 
+	
+	BASE64 ENCODE($byteArray; *)
+	return BLOB to text($byteArray; UTF8 text without length)
 	
 	
 	// ----------------------------------------------------
@@ -466,12 +544,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 Function _getToken_Service()->$result : Object
 	
 	var $params : Text
+	var $jwt : cs._JWT
+	var $options : Object
+	var $bearer : Text
 	
 	Case of 
 		: (This._useJWTBearer())
 			
-			var $options : Object:={header: {alg: "RS256"; typ: "JWT"}}
-			
+			$options:={header: {alg: "RS256"; typ: "JWT"}}
 			$options.payload:={}
 			$options.payload.iss:=This.clientEmail
 			$options.payload.scope:=This.scope
@@ -484,11 +564,35 @@ Function _getToken_Service()->$result : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			var $jwt : cs._JWT:=cs._JWT.new($options)
-			var $bearer : Text:=$jwt.generate()
+			$jwt:=cs._JWT.new($options)
+			$bearer:=$jwt.generate()
 			
 			$params:="grant_type="+_urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
+			
+		: (This._useJWTBearerAssertionType())
+			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
+			$options:={header: {alg: "RS256"; typ: "JWT"; x5t: This._x5t}}
+			
+			$options.payload:={}
+			$options.payload.iss:=This.clientId  // Must be client id of app registration
+			$options.payload.scope:=This.scope
+			$options.payload.aud:=This.tokenURI
+			$options.payload.iat:=This._unixTime()
+			$options.payload.exp:=$options.payload.iat+3600
+			$options.payload.sub:=This.clientId  // Same as iss
+			
+			$options.privateKey:=This.privateKey
+			
+			$jwt:=cs._JWT.new($options)
+			$bearer:=$jwt.generate()
+			
+			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
+			$params:="grant_type="+This.grantType
+			$params+="&client_id="+This.clientId
+			$params+="&scope="+_urlEncode(This.scope)
+			$params+="&client_assertion_type="+_urlEncode(This.clientAssertionType)
+			$params+="&client_assertion="+$bearer
 			
 		Else 
 			
@@ -608,10 +712,10 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	Else 
 		
-		var $explanation : Text:=$request["response"]["statusText"]
-		var $error : Object:=JSON Parse($response)
+		var $error : Object:=Try(JSON Parse($response))
 		If ($error#Null)
 			
+			var $statusText : Text:=String($request["response"]["statusText"])
 			var $errorCode : Integer
 			
 			If (Num($error.error_codes.length)>0)
@@ -619,7 +723,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 			End if 
 			var $message : Text:=String($error.error_description)
 			
-			This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+			This._throwError(8; {status: $status; explanation: $statusText; message: $message})
 		Else 
 			
 			This._throwError(5; {received: $status; expected: 200})
@@ -661,6 +765,14 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 Function _useJWTBearer() : Boolean
 	
 	return (This.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _useJWTBearerAssertionType() : Boolean
+	
+	return (Length(String(This.thumbprint))>0)
 	
 	
 	// Mark: - [Public]

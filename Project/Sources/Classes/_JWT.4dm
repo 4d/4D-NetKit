@@ -1,6 +1,6 @@
 /*
-	Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
-	See: https://kb.4d.com/assetid=79100
+Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
+See: https://kb.4d.com/assetid=79100
 */
 
 property header : Object
@@ -9,17 +9,17 @@ property privateKey : Text
 
 Class constructor($inParam : Object)
 	
-	var $alg : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "alg")) ? $inParam.header.alg : "RS256"
-	var $typ : Text:=(OB Is defined($inParam; "header") && OB Is defined($inParam.header; "typ")) ? $inParam.header.typ : "JWT"
-	This.header:={alg: $alg; typ: $typ}
+	var $alg : Text:=(Value type($inParam.header.alg)=Is text) ? $inParam.header.alg : "RS256"
+	var $typ : Text:=(Value type($inParam.header.typ)=Is text) ? $inParam.header.typ : "JWT"
+	var $x5t : Text:=(Value type($inParam.header.x5t)=Is text) ? $inParam.header.x5t : ""
 	
-	If (OB Get type($inParam; "payload")=Is object)
-		This.payload:=$inParam.payload
-	Else 
-		This.payload:={}
+	This.header:={alg: $alg; typ: $typ}
+	If (Length($x5t)>0)
+		This.header.x5t:=$x5t
 	End if 
 	
-	This.privateKey:=String($inParam.privateKey)
+	This.payload:=(Value type($inParam.payload)=Is object) ? $inParam.payload : {}
+	This.privateKey:=(Value type($inParam.privateKey)=Is text) ? $inParam.privateKey : ""
 	
 	
 	// Mark: - [Public]
@@ -63,7 +63,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 		// Decode Header and Payload into Objects
 		BASE64 DECODE($parts[0]; $header; *)
 		BASE64 DECODE($parts[1]; $payload; *)
-		var $jwt : Object:={header: JSON Parse($header); payload: JSON Parse($payload); privateKey: String($inPrivateKey)}
+		var $jwt : Object:={header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); privateKey: String($inPrivateKey)}
 		
 		// Parse Header for Algorithm Family
 		var $algorithm : Text:=Substring($jwt.header.alg; 1; 2)
@@ -188,3 +188,17 @@ Function _hashSign($inJWT : Object)->$hash : Text
 		// Sign Message with CryptoKey to generate hashed verify signature
 		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+function decode($inToken : Text) : Object
+
+	var $parts : Collection:=Split string($inToken; ".")
+	var $header; $payload : Text
+
+	BASE64 DECODE($parts[0]; $header; *)
+	BASE64 DECODE($parts[1]; $payload; *)
+
+	return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}

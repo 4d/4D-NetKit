@@ -25,7 +25,7 @@ Function _getToken() : Object
 	// ----------------------------------------------------
 	
 	
-Function _getAcessToken() : Text
+Function _getAccessToken() : Text
 	
 	return String(This._getToken().access_token)
 	
@@ -33,7 +33,7 @@ Function _getAcessToken() : Text
 	// ----------------------------------------------------
 	
 	
-Function _getAcessTokenType() : Text
+Function _getAccessTokenType() : Text
 	
 	var $tokenType : Text
 	var $token : Object:=This._getToken()
@@ -61,10 +61,10 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	This._try()
 	
 	var $options : Object:={headers: {}}
-	var $token : Text:=This._getAcessToken()
+	var $token : Text:=This._getAccessToken()
 	
 	If (Length(String($token))>0)
-		$options.headers["Authorization"]:=This._getAcessTokenType()+" "+$token
+		$options.headers["Authorization"]:=This._getAccessTokenType()+" "+$token
 	End if 
 	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
 		var $keys : Collection:=OB Keys($inHeaders)
@@ -106,10 +106,10 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
-						$text:=Convert to text($request["response"]["body"]; $charset)
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
 					End if 
 					If ($contentType="application/json@")
-						$response:=JSON Parse($text)
+						$response:=Try(JSON Parse($text))
 					Else 
 						$response:=$text
 					End if 
@@ -127,7 +127,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					If (Value type($request["response"]["body"])=Is text)
 						$text:=$request["response"]["body"]
 					Else 
-						$text:=Convert to text($request["response"]["body"]; $charset)
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
 					End if 
 					$response:=$headers+$text
 					
@@ -141,21 +141,20 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	Else 
 		
 		var $message : Text
-		var $explanation : Text:=$request["response"]["statusText"]
 		
 		Case of 
 			: (Value type($request["response"]["body"])=Is text)
 				$message:=$request["response"]["body"]
 				
 			: (Value type($request["response"]["body"])=Is object)
-				$message:=JSON Stringify($request["response"]["body"])
+				$message:=Try(JSON Stringify($request["response"]["body"]))
 				
 			Else 
-				$message:=Convert to text($request["response"]["body"]; "UTF-8")
+				$message:=Try(Convert to text($request["response"]["body"]; "UTF-8"))
 				
 		End case 
 		
-		This._throwError(8; {status: $status; explanation: $explanation; message: $message})
+		This._throwError(8; {status: $status; explanation: $statusText; message: $message})
 		$response:=Null
 		
 	End if 
