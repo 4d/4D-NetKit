@@ -115,7 +115,6 @@ Function append($inMail : Variant) : Object
 	return $status
 	
 	
-	
 	// ----------------------------------------------------
 	
 	
