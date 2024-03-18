@@ -111,8 +111,11 @@ The available properties of `paramObj` are:
 | authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
 | PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only available for permission=”SignIn”. |Yes
 | PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes
+| thumbprint |text | Certificate thumbprint. Only available for permission="Service" | Yes (No for certificate based authentication)
+| privateKey | text | Certificate private key. Only available for permission="Service"	| Yes (No for certificate based authentication)
+| clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only available for permission="Service"	|Yes
 
-
+If you want the .getToken() function to use the Assertion Framework described in the RFC 7521 to connect to the server, make sure to pass the `thumbprint` and `privateKey` properties. If `clientSecret`,  `thumbprint` and `privateKey` are present, the `thumbprint` is used by default and the RFC 7521 is used to connect. For more information, please refer to the [OAuth2.0 authentication using a certificate](#https://blog.4d.com/) blog post.
 
 **Note:**  The authenticationPage and authenticationErrorPage and all the resources associated must be in the same folder.
 
