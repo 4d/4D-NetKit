@@ -102,14 +102,20 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inH
 	
 	
 Function append($inMail : Variant) : Object
-
+	
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/"
 	
-	return This._postMessage("append"; $URL; $inMail)
-
-
+	var $status : Object:=This._postMessage("append"; $URL; $inMail)
+	If (Length(String(This._internals._response.id))>0)
+		$status.id:=String(This._internals._response.id)
+	End if 
+	
+	return $status
+	
+	
+	
 	// ----------------------------------------------------
 	
 	
