@@ -30,8 +30,8 @@
           <target>"{attribute}"属性にサポートされていない値があります</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_4">
-          <source>'GetToken' request returned an empty response.</source>
-          <target>'GetToken'リクエストに空のレスポンスが返ってきました。</target>
+          <source>The authorization code was not received within the time limit (timeout error).</source>
+          <target>認証コードが制限時間内に受信されませんでした(タイムアウトエラー)</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_5">
           <source>'GetToken' request returned an unexpected status code (received: {received} expected: {expected}).</source>
@@ -52,6 +52,22 @@
         <trans-unit resname="ERR_4DNK_9">
           <source>Undefined or empty parameter {which} in function {function}.</source>
           <target>{function}関数に未定義または空の引数{which}があります。</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_10">
+          <source>Unsupported parameter type {which} in function {function}.</source>
+          <target>{function}関数にサポートされていない引数の型{which}があります。</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_11">
+          <source>You have reached the limit of the number of requests per minute that 4D can serve without a license.</source>
+          <target>4D がライセンスなしで受け付けることができる1分あたりのリクエスト数の上限に達しました。</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_12">
+          <source>The '{function}' function returned an unexpected error : {message}.</source>
+          <target>'{function}' 関数から想定外のエラーが返されました : {message}</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_13">
+          <source>The '{which}' parameter value in function {function} is too large and must not exceed {max}.</source>
+          <target>{function}関数内の'{which}'引数の値が大きすぎます。最大値は{max}です。</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <source>4D NetKit Component</source>
