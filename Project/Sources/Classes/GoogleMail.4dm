@@ -43,7 +43,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
 	// ----------------------------------------------------
 	
 	
-Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $requestBody : Text
 	var $headers : Object:={}
@@ -61,7 +61,11 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE($requestBody)
 	
-	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
+	var $message : Object:={raw: $requestBody}
+	If ((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0))
+		$message.labelIds:=$inLabelIds
+	End if 
+	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $message)
 	This._internals._response:=$response
 	
 	return This._returnStatus()
@@ -70,20 +74,25 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $status : Object
+	var $labelIds : Collection:=Null
 	
 	Super._throwErrors(False)
+	
+	If ($inFunction="append")
+		$labelIds:=((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0)) ? $inLabelIds : ["DRAFT"]
+	End if 
 	
 	Case of 
 		: ((This.mailType="MIME") && (\
 			(Value type($inMail)=Is text) || \
 			(Value type($inMail)=Is BLOB)))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
 		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
 		Else 
 			Super._throwError(10; {which: 1; function: $inFunction})
@@ -101,14 +110,14 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inH
 	// ----------------------------------------------------
 	
 	
-Function append($inMail : Variant) : Object
+Function append($inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/"
 	
-	var $status : Object:=This._postMessage("append"; $URL; $inMail)
-	If (Length(String(This._internals._response.id))>0)
+	var $status : Object:=This._postMessage("append"; $URL; $inMail; $inLabelIds)
+	If ((Value type(This._internals._response)=Is object) && (Length(String(This._internals._response.id))>0))
 		$status.id:=String(This._internals._response.id)
 	End if 
 	
