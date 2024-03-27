@@ -163,7 +163,7 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	End if 
 	$URL+="/messages"
 	
-	return This._postMessage("append"; $URL; $inMail; True)
+	return This._postMessage("office365.mail.append"; $URL; $inMail; True)
 	
 	
 	// ----------------------------------------------------
@@ -177,16 +177,16 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "copy"})
+			Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.copy"})
 			
 		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "copy"})
+			Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.copy"})
 			
 		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "copy"})
+			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.copy"})
 			
 		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
+			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.copy"})
 			
 		Else 
 			
@@ -231,7 +231,7 @@ Function delete($inMailId : Text) : Object
 		
 	Else 
 		
-		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "delete"})
+		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.delete"})
 	End if 
 	
 	Super._throwErrors(True)
@@ -290,7 +290,7 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 		
 	Else 
 		
-		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "getMail"})
+		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.getMail"})
 	End if 
 	
 	return Null
@@ -336,16 +336,16 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "copy"})
+			Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.move"})
 			
 		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "copy"})
+			Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.move"})
 			
 		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "copy"})
+			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.move"})
 			
 		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "copy"})
+			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.move"})
 			
 		Else 
 			
@@ -396,15 +396,15 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 			$body:=$inMail
 		End if 
 		
-		return This._postMessage("reply"; $URL; $body; True)
+		return This._postMessage("office365.mail.reply"; $URL; $body; True)
 		
 	Else 
 		
 		Super._throwErrors(False)
 		If (Type($inMail)#Is object)
-			Super._throwError(10; {which: "\"reply\""; function: "reply"})
+			Super._throwError(10; {which: "\"reply\""; function: "office365.mail.reply"})
 		Else 
-			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "reply"})
+			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.reply"})
 		End if 
 		Super._throwErrors(True)
 		
@@ -424,7 +424,7 @@ Function send($inMail : Variant) : Object
 		$URL+="me/sendMail"
 	End if 
 	
-	return This._postMessage("send"; $URL; $inMail)
+	return This._postMessage("office365.mail.send"; $URL; $inMail)
 	
 	
 	// ----------------------------------------------------
@@ -454,10 +454,10 @@ Function update($inMailId : Text; $inMail : Object) : Object
 		
 		If (Type($inMail)#Is object)
 			
-			Super._throwError(10; {which: "\"mail\""; function: "update"})
+			Super._throwError(10; {which: "\"mail\""; function: "office365.mail.update"})
 		Else 
 			
-			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "update"})
+			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.update"})
 		End if 
 	End if 
 	
@@ -478,10 +478,10 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 	Case of 
 		: (Type($inFolderName)#Is text)
-			Super._throwError(10; {which: "\"folderName\""; function: "createFolder"})
+			Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.createFolder"})
 			
 		: (Length(String($inFolderName))=0)
-			Super._throwError(9; {which: "\"folderName\""; function: "createFolder"})
+			Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.createFolder"})
 			
 		Else 
 			
@@ -518,10 +518,10 @@ Function deleteFolder($inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "deleteFolder"})
+			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
 			
 		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "deleteFolder"})
+			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
 			
 		Else 
 			
@@ -554,10 +554,10 @@ Function getFolder($inFolderId : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "getFolder"})
+			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.getFolder"})
 			
 		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "getFolder"})
+			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.getFolder"})
 			
 		Else 
 			
@@ -617,16 +617,16 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
 	Case of 
 		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "renameFolder"})
+			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
 			
 		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "renameFolder"})
+			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
 			
 		: (Type($inNewFolderName)#Is text)
-			Super._throwError(10; {which: "\"folderName\""; function: "renameFolder"})
+			Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
 			
 		: (Length(String($inNewFolderName))=0)
-			Super._throwError(9; {which: "\"folderName\""; function: "renameFolder"})
+			Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
 		Else 
 			
 			var $URL : Text:=Super._getURL()

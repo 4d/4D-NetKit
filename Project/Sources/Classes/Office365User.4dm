@@ -50,7 +50,7 @@ Function get($inID : Text; $inSelect : Text) : Object
 		return This._getUserInfo($URL)
 	Else 
 		This._try()
-		This._throwError(9; {which: 1; function: "get"})
+		This._throwError(9; {which: 1; function: "office365.user.get"})
 		This._finally()
 		return Null
 	End if 
