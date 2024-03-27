@@ -59,7 +59,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inL
 	
 	Super._throwErrors(False)
 	
-	If ($inFunction="append")
+	If ($inFunction="google.mail.append")
 		$labelIds:=((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0)) ? $inLabelIds : ["DRAFT"]
 	End if 
 	
