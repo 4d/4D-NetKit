@@ -517,8 +517,8 @@ Function _postDraft($inFunction : Text; $inURL : Text; $inDraft : Variant) : Obj
 	Super._throwErrors(True)
 	
 	return $response
-
-
+	
+	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
@@ -529,11 +529,11 @@ Function createDraft($inDraft : Variant) : Object
 	var $URL : Text:=Super._getURL()+"users/"+$userId+"/drafts"
 	
 	return This._postDraft("mail.createDraft"; $URL; $inDraft)
-
+	
 	
 	// ----------------------------------------------------
-
-
+	
+	
 Function getDraft($inDraftId : Text) : Object
 	
 	var $response : Object:=Null
@@ -565,9 +565,9 @@ Function getDraft($inDraftId : Text) : Object
 	
 	
 	// ----------------------------------------------------
-
-
-function deleteDraft($inDraftId : Text) : Object
+	
+	
+Function deleteDraft($inDraftId : Text) : Object
 	
 	Super._throwErrors(False)
 	
@@ -593,9 +593,9 @@ function deleteDraft($inDraftId : Text) : Object
 	
 	
 	// ----------------------------------------------------
-
-
-function updateDraft($inDraftId : Text; $inDraft : Variant) : Object
+	
+	
+Function updateDraft($inDraftId : Text; $inDraft : Variant) : Object
 	
 	var $response : Object:=Null
 	
@@ -608,8 +608,8 @@ function updateDraft($inDraftId : Text; $inDraft : Variant) : Object
 		: (Length(String($inDraftId))=0)
 			Super._throwError(9; {which: "\"draftId\""; function: "google.mail.updateDraft"})
 			
-		else
-
+		Else 
+			
 			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 			var $URL : Text:=Super._getURL()+"users/"+$userId+"/drafts/"+$inDraftId
 			$response:=This._postMailMIMEMessage($URL; $inDraft; Null; True)
@@ -620,12 +620,12 @@ function updateDraft($inDraftId : Text; $inDraft : Variant) : Object
 	
 	return This._returnStatus(($response#Null) ? {draft: $response} : Null)
 	
-
+	
 	// ----------------------------------------------------
-
-
-function sendDraft($inDraft : Variant) : Object
-
+	
+	
+Function sendDraft($inDraft : Variant) : Object
+	
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	var $URL : Text:=Super._getURL()+"users/"+$userId+"/drafts/send"
 	
@@ -633,16 +633,17 @@ function sendDraft($inDraft : Variant) : Object
 	
 	
 	// ----------------------------------------------------
-
-
-function listDrafts($inParameters : Object) : Object
+	
+	
+Function getDraftList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
-
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	var $URL : Text:=Super._getURL()+"users/"+$userId+"/drafts"+This._getURLParamsFromObject($inParameters)
 	
-	return null //cs.GoogleDraftList.new(This._getOAuth2Provider(); $URL)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	
+	return This._returnStatus($response)
 	
 	
 	// ----------------------------------------------------	
