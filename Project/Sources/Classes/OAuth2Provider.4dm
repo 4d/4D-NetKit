@@ -866,7 +866,7 @@ Function get authenticateURI() : Text
 	
 	If (This._isSignedIn())
 		
-		var scope : Text:=This.scope
+		var $scope : Text:=This.scope
 		var $state : Text:=This._state
 		var $redirectURI : Text:=This.redirectURI
 		var $urlParams : Text
