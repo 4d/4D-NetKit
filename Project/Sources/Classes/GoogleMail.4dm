@@ -554,7 +554,7 @@ Function getDraft($inDraftId : Text) : Object
 			var $mailType : Text:=This.mailType
 			var $format : Text:="raw"
 			var $result : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
-			var $message:=This._extractRawMessage($result.raw; $format; $mailType)
+			var $message:=This._extractRawMessage($result.message; $format; $mailType)
 			$response:={id: $result.id; message: $message}
 			
 	End case 
