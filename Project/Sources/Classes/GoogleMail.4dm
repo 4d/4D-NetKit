@@ -43,7 +43,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
 	// ----------------------------------------------------
 	
 	
-Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $requestBody : Text
 	var $headers : Object:={}
@@ -61,7 +61,11 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	End case 
 	BASE64 ENCODE($requestBody)
 	
-	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; {raw: $requestBody})
+	var $message : Object:={raw: $requestBody}
+	If ((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0))
+		$message.labelIds:=$inLabelIds
+	End if 
+	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $message)
 	This._internals._response:=$response
 	
 	return This._returnStatus()
@@ -70,20 +74,25 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $status : Object
+	var $labelIds : Collection:=Null
 	
 	Super._throwErrors(False)
+	
+	If ($inFunction="google.mail.append")
+		$labelIds:=((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0)) ? $inLabelIds : ["DRAFT"]
+	End if 
 	
 	Case of 
 		: ((This.mailType="MIME") && (\
 			(Value type($inMail)=Is text) || \
 			(Value type($inMail)=Is BLOB)))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
 		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
 		Else 
 			Super._throwError(10; {which: 1; function: $inFunction})
@@ -101,13 +110,30 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inH
 	// ----------------------------------------------------
 	
 	
+Function append($inMail : Variant; $inLabelIds : Collection) : Object
+	
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$URL+="users/"+$userId+"/messages/"
+	
+	var $status : Object:=This._postMessage("google.mail.append"; $URL; $inMail; $inLabelIds)
+	If ((Value type(This._internals._response)=Is object) && (Length(String(This._internals._response.id))>0))
+		$status.id:=String(This._internals._response.id)
+	End if 
+	
+	return $status
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function send($inMail : Variant) : Object
 	
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/send"
 	
-	return This._postMessage("send"; $URL; $inMail)
+	return This._postMessage("google.mail.send"; $URL; $inMail)
 	
 	
 	// ----------------------------------------------------
@@ -119,10 +145,10 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "delete"})
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.delete"})
 			
 		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "delete"})
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.delete"})
 			
 		Else 
 			
@@ -151,10 +177,10 @@ Function untrash($inMailId : Text) : Object
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "untrash"})
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.untrash"})
 			
 		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "untrash"})
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.untrash"})
 			
 		Else 
 			
@@ -192,10 +218,10 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 	Case of 
 		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "getMail"})
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.getMail"})
 			
 		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "getMail"})
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.getMail"})
 			
 		Else 
 			
@@ -229,10 +255,10 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
 	Case of 
 		: (Type($inMailIds)#Is collection)
-			Super._throwError(10; {which: "\"mailIds\""; function: "getMails"})
+			Super._throwError(10; {which: "\"mailIds\""; function: "google.mail.getMails"})
 			
 		: (Num($inMailIds.length)=0)
-			Super._throwError(9; {which: "\"mailIds\""; function: "getMails"})
+			Super._throwError(9; {which: "\"mailIds\""; function: "google.mail.getMails"})
 			
 		Else 
 			
@@ -303,16 +329,16 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	
 	Case of 
 		: (Type($inMailIds)#Is collection)
-			Super._throwError(10; {which: "\"mailIds\""; function: "update"})
+			Super._throwError(10; {which: "\"mailIds\""; function: "google.mail.update"})
 			
 		: (Num($inMailIds.length)=0)
-			Super._throwError(9; {which: "\"mailIds\""; function: "update"})
+			Super._throwError(9; {which: "\"mailIds\""; function: "google.mail.update"})
 			
 		: (Num($inMailIds.length)>1000)
-			Super._throwError(13; {which: "\"mailIds\""; function: "update"; max: 1000})
+			Super._throwError(13; {which: "\"mailIds\""; function: "google.mail.update"; max: 1000})
 			
 		: (Type($inParameters)#Is object)
-			Super._throwError(10; {which: "\"parameters\""; function: "update"})
+			Super._throwError(10; {which: "\"parameters\""; function: "google.mail.update"})
 			
 		Else 
 			
@@ -364,10 +390,10 @@ Function getLabel($inLabelId : Text) : Object
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
-			Super._throwError(10; {which: "\"labelId\""; function: "getLabel"})
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.getLabel"})
 			
 		: (Length($inLabelId)=0)
-			Super._throwError(9; {which: "\"labelId\""; function: "getLabel"})
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.getLabel"})
 			
 		Else 
 			
@@ -393,10 +419,10 @@ Function createLabel($inLabelInfo : Object) : Object
 	
 	Case of 
 		: (Type($inLabelInfo)#Is object)
-			Super._throwError(10; {which: "\"labelInfo\""; function: "createLabel"})
+			Super._throwError(10; {which: "\"labelInfo\""; function: "google.mail.createLabel"})
 			
 		: (OB Is empty($inLabelInfo))
-			Super._throwError(9; {which: "\"labelInfo\""; function: "createLabel"})
+			Super._throwError(9; {which: "\"labelInfo\""; function: "google.mail.createLabel"})
 			
 		Else 
 			
@@ -424,10 +450,10 @@ Function deleteLabel($inLabelId : Text) : Object
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
-			Super._throwError(10; {which: "\"labelId\""; function: "deleteLabel"})
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.deleteLabel"})
 			
 		: (Length($inLabelId)=0)
-			Super._throwError(9; {which: "\"labelId\""; function: "deleteLabel"})
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.deleteLabel"})
 			
 		Else 
 			
@@ -455,16 +481,16 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
-			Super._throwError(10; {which: "\"labelId\""; function: "updateLabel"})
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.updateLabel"})
 			
 		: (Length($inLabelId)=0)
-			Super._throwError(9; {which: "\"labelId\""; function: "updateLabel"})
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.updateLabel"})
 			
 		: (Type($inLabelInfo)#Is object)
-			Super._throwError(10; {which: "\"labelInfo\""; function: "updateLabel"})
+			Super._throwError(10; {which: "\"labelInfo\""; function: "google.mail.updateLabel"})
 			
 		: (OB Is empty($inLabelInfo))
-			Super._throwError(9; {which: "\"labelInfo\""; function: "updateLabel"})
+			Super._throwError(9; {which: "\"labelInfo\""; function: "google.mail.updateLabel"})
 			
 		Else 
 			
