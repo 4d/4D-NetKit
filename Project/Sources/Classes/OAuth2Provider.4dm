@@ -968,3 +968,26 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function isTokenValid() : Boolean
+	
+	If (This.token#Null)
+		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
+		If (Not($token._Expired()))
+			return True
+		Else 
+			If (Length(String(This.token.refresh_token))>0)
+				var $newToken : Object:=This.getToken()
+				return ($newToken#Null)
+			End if 
+		End if 
+	End if 
+	
+	return False
+	
+	
+	// ----------------------------------------------------
