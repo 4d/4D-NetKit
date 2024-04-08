@@ -21,7 +21,7 @@ property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256
 
 property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
 property thumbprint : Text  // used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
-property automaticMode : Boolean  // If true, the class will automatically open the URL in signed mode to handle the authentication process (default is True)
+property browserAutoOpen : Boolean  // If true, the class will automatically open the URL in signed mode to handle the authentication process (default is True)
 
 property _scope : Text
 property _authenticateURI : Text
@@ -219,7 +219,7 @@ Class constructor($inParams : Object)
 		End if 
 		
 		This._state:=Generate UUID
-		This.automaticMode:=Choose(Value type($inParams.automaticMode)=Is undefined; True; Bool($inParams.automaticMode))
+		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
 		
 	End if 
 	
@@ -387,6 +387,7 @@ Function _getAuthorizationCode() : Text
 	
 	var $authorizationCode : Text:=""
 	var $redirectURI : Text:=This.redirectURI
+	var $authenticateURI : Text:=This.authenticateURI
 	var $scope : Text:=This.scope
 	
 	// Sanity check
@@ -395,7 +396,7 @@ Function _getAuthorizationCode() : Text
 		: (Length(String(This.clientId))=0)
 			This._throwError(2; {attribute: "clientId"})
 			
-		: (Length(String(This._authenticateURI))=0)
+		: (Length(String($authenticateURI))=0)
 			This._throwError(2; {attribute: "authenticateURI"})
 			
 		: ((This._isGoogle() || This._isMicrosoft()) && (Length(String($scope))=0))
@@ -410,7 +411,6 @@ Function _getAuthorizationCode() : Text
 		Else 
 			
 			var $state : Text:=This._state
-			var $url : Text:=This.authenticateURI
 			
 			Use (Storage)
 				If (Storage.requests=Null)
@@ -424,8 +424,8 @@ Function _getAuthorizationCode() : Text
 				End use 
 			End use 
 			
-			If (This.automaticMode)
-				OPEN URL($url; *)
+			If (This.browserAutoOpen)
+				OPEN URL($authenticateURI; *)
 			End if 
 			
 			var $endTime : Integer:=Milliseconds+(This.timeout*1000)
