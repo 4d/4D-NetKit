@@ -472,7 +472,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 	Else 
 		
-		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
+		If (Length(String(This.redirectURI))>0)
 			
 			var $options : Object:={}
 			$options.port:=_getPortFromURL(This.redirectURI)
