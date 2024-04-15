@@ -477,6 +477,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 			var $options : Object:={}
 			$options.port:=_getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
+			$options.useTLS:=(Position("https"; This.redirectURI)=1)
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
 				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
 				If (OB Instance of($file; 4D.File))
