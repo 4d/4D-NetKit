@@ -19,6 +19,7 @@ If (Not($webServer.isRunning))
 	$settings.HTTPSEnabled:=$bIsSSL
 	If ($bIsSSL)
 		$settings.HTTPSPort:=$port
+		$settings.certificateFolder:=Folder("/PACKAGE/";*)
 	Else 
 		$settings.HTTPPort:=$port
 	End if 
