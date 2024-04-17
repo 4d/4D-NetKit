@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><preferences stamp="6">
+<?xml version="1.0" encoding="UTF-8"?><preferences stamp="7">
 	<com.4d>
 		<compiler>
 			<options compilation_path="3" syntax_file="true"/>
@@ -6,7 +6,7 @@
 		<general component_classStore_name="NetKit"/>
 		<web>
 			<standalone_server>
-				<configuration>
+				<configuration session_mode="2">
 					<hosts>
 						<host home_page="" id="0" name="default"/>
 					</hosts>
