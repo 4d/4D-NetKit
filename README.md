@@ -15,22 +15,23 @@
 	- [Office365.mail.copy()](#office365mailcopy)
 	- [Office365.mail.createFolder()](#office365mailcreatefolder)
 	- [Office365.mail.delete()](#office365maildelete)
+
  	- [Office365.mail.deleteFolder()](#office365maildeletefolder)
-	- [Office365.mail.getFolder()](#office365mailgetfolder)
-	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
-	- [Office365.mail.getMail()](#office365mailgetmail)
-	- [Office365.mail.getMails()](#office365mailgetmails)
-	- [Office365.mail.move()](#office365mailmove)
-	- [Office365.mail.renameFolder()](#office365mailrenameFolder)
-	- [Office365.mail.reply()](#office365mailreply)
-	- [Office365.mail.send()](#office365mailsend)
-	- [Office365.mail.update()](#office365mailupdate)
-	- [Well-known folder names](well-known-folder-names)
-	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
-	- [Status object (Office365 Class)](#status-object)
-	- [Office365.user.get()](#office365userget)
-	- [Office365.user.getCurrent()](#office365usergetcurrent)
-	- [Office365.user.list()](#office365userlist)
+ 	- [Office365.mail.getFolder()](#office365mailgetfolder)
+ 	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
+ 	- [Office365.mail.getMail()](#office365mailgetmail)
+ 	- [Office365.mail.getMails()](#office365mailgetmails)
+ 	- [Office365.mail.move()](#office365mailmove)
+ 	- [Office365.mail.renameFolder()](#office365mailrenameFolder)
+ 	- [Office365.mail.reply()](#office365mailreply)
+ 	- [Office365.mail.send()](#office365mailsend)
+ 	- [Office365.mail.update()](#office365mailupdate)
+ 	- [Well-known folder names](well-known-folder-names)
+ 	- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+ 	- [Status object (Office365 Class)](#status-object)
+ 	- [Office365.user.get()](#office365userget)
+ 	- [Office365.user.getCurrent()](#office365usergetcurrent)
+ 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
 	- [cs.NetKit.Google.new()](#csnetkitgooglenew)
 	- [Google.mail.append()](#googlemailappend)
@@ -40,13 +41,14 @@
 	- [Google.mail.getLabel()](#googlemailgetlabel)
 	- [Google.mail.getLabelList()](#googlemailgetlabellist)
 	- [Google.mail.getMail()](#googlemailgetmail)
+
  	- [Google.mail.getMailIds()](#googlemailgetmailids)
-	- [Google.mail.getMails()](#googlemailgetmails)
+ 	- [Google.mail.getMails()](#googlemailgetmails)
  	- [Google.mail.send()](#googlemailsend)
  	- [Google.mail.untrash()](#googlemailuntrash)
  	- [Google.mail.update()](#googlemailupdate)
-	- [Google.mail.updateLabel()](#googlemailupdatelabel)
-	- [labelInfo object](#labelinfo-object)
+ 	- [Google.mail.updateLabel()](#googlemailupdatelabel)
+ 	- [labelInfo object](#labelinfo-object)
  	- [Status object (Google Class)](#status-object-google-class)
 
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
@@ -1265,7 +1267,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 
 `cs.NetKit.Google.new()` instantiates an object of the `Google` class.
 
-In `oAuth2`, pass an [OAuth2Provider object](#new-auth2-provider).
+In `oAuth2`, pass an [OAuth2Provider object](#oauth2provider).
 
 In `options`, you can pass an object that specifies the following options:
 
