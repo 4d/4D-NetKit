@@ -15,10 +15,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 Function _getToken() : Object
 	
-	If (This._internals._oAuth2Provider.token=Null)
-		This._internals._oAuth2Provider.getToken()
-	End if 
-	
+	This._internals._oAuth2Provider.getToken()	
 	return This._internals._oAuth2Provider.token
 	
 	
