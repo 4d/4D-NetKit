@@ -19,6 +19,7 @@ If (Not($webServer.isRunning))
 	$settings.HTTPSEnabled:=$bIsSSL
 	If ($bIsSSL)
 		$settings.HTTPSPort:=$port
+		$settings.certificateFolder:=Folder("/PACKAGE/"; *)
 	Else 
 		$settings.HTTPPort:=$port
 	End if 
@@ -32,6 +33,8 @@ If (Not($webServer.isRunning))
 		Else 
 			$settings.rootFolder:=Folder($inParameters.webFolder; fk platform path)
 		End if 
+	Else 
+		$settings.rootFolder:=Folder(fk web root folder; *)
 	End if 
 	
 	var $status : Object:=$webServer.start($settings)

@@ -20,13 +20,15 @@ property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentic
 property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
 property clientAssertionType : Text  // When authenticating with certificate this one is needed in body
-property thumbprint : Text	// used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
+property thumbprint : Text  // used to set x5t in JWT (x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint)))
+property browserAutoOpen : Boolean  // If true, the class will automatically open the URL in signed mode to handle the authentication process (default is True)
 
 property _scope : Text
 property _authenticateURI : Text
 property _tokenURI : Text
 property _grantType : Text
 property _codeVerifier : Text
+property _state : Text
 
 Class constructor($inParams : Object)
 	
@@ -216,6 +218,9 @@ Class constructor($inParams : Object)
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
+		This._state:=Generate UUID
+		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
+		
 	End if 
 	
 	This._finally()
@@ -378,11 +383,11 @@ Function _isService() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _getAuthorizationCode()->$authorizationCode : Text
+Function _getAuthorizationCode() : Text
 	
-	var $state : Text:=Generate UUID
+	var $authorizationCode : Text:=""
 	var $redirectURI : Text:=This.redirectURI
-	var $url : Text:=This.authenticateURI
+	var $authenticateURI : Text:=This.authenticateURI
 	var $scope : Text:=This.scope
 	
 	// Sanity check
@@ -391,7 +396,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 		: (Length(String(This.clientId))=0)
 			This._throwError(2; {attribute: "clientId"})
 			
-		: (Length(String($url))=0)
+		: (Length(String($authenticateURI))=0)
 			This._throwError(2; {attribute: "authenticateURI"})
 			
 		: ((This._isGoogle() || This._isMicrosoft()) && (Length(String($scope))=0))
@@ -405,28 +410,7 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			
 		Else 
 			
-			$url+="?client_id="+This.clientId
-			$url+="&response_type=code"
-			If (Length(String($scope))>0)
-				$url+="&scope="+_urlEncode($scope)
-			End if 
-			$url+="&state="+String($state)
-			$url+="&response_mode=query"
-			$url+="&redirect_uri="+_urlEncode($redirectURI)
-			If (This.PKCEEnabled)
-				$url+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
-				$url+="&code_challenge_method="+String(This.PKCEMethod)
-			Else 
-				If (Length(String(This.accessType))>0)
-					$url+="&access_type="+This.accessType
-				End if 
-				If (Length(String(This.loginHint))>0)
-					$url+="&login_hint="+This.loginHint
-				End if 
-				If (Length(String(This.prompt))>0)
-					$url+="&prompt="+This.prompt
-				End if 
-			End if 
+			var $state : Text:=This._state
 			
 			Use (Storage)
 				If (Storage.requests=Null)
@@ -440,7 +424,9 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 				End use 
 			End use 
 			
-			OPEN URL($url; *)
+			If (This.browserAutoOpen)
+				OPEN URL($authenticateURI; *)
+			End if 
 			
 			var $endTime : Integer:=Milliseconds+(This.timeout*1000)
 			While ((Milliseconds<=$endTime) && (Not(OB Is defined(Storage.requests[$state]; "token")) | (Storage.requests[$state].token=Null)))
@@ -461,6 +447,8 @@ Function _getAuthorizationCode()->$authorizationCode : Text
 			End use 
 			
 	End case 
+	
+	return $authorizationCode
 	
 	
 	// ----------------------------------------------------
@@ -484,11 +472,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 	Else 
 		
-		If ((Position("localhost"; This.redirectURI)>0) | (Position("127.0.0.1"; This.redirectURI)>0))
+		If (Length(String(This.redirectURI))>0)
 			
 			var $options : Object:={}
 			$options.port:=_getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
+			$options.useTLS:=(Position("https"; This.redirectURI)=1)
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
 				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
 				If (OB Instance of($file; 4D.File))
@@ -876,6 +865,39 @@ Function get authenticateURI() : Text
 			
 	End case 
 	
+	If (This._isSignedIn())
+		
+		var $scope : Text:=This.scope
+		var $state : Text:=This._state
+		var $redirectURI : Text:=This.redirectURI
+		var $urlParams : Text
+		
+		$urlParams:="?client_id="+This.clientId
+		$urlParams+="&response_type=code"
+		If (Length(String($scope))>0)
+			$urlParams+="&scope="+_urlEncode($scope)
+		End if 
+		$urlParams+="&state="+String($state)
+		$urlParams+="&response_mode=query"
+		$urlParams+="&redirect_uri="+_urlEncode($redirectURI)
+		If (This.PKCEEnabled)
+			$urlParams+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
+			$urlParams+="&code_challenge_method="+String(This.PKCEMethod)
+		Else 
+			If (Length(String(This.accessType))>0)
+				$urlParams+="&access_type="+This.accessType
+			End if 
+			If (Length(String(This.loginHint))>0)
+				$urlParams+="&login_hint="+This.loginHint
+			End if 
+			If (Length(String(This.prompt))>0)
+				$urlParams+="&prompt="+This.prompt
+			End if 
+		End if 
+		
+		$authenticateURI+=$urlParams
+	End if 
+	
 	return $authenticateURI
 	
 	
@@ -947,3 +969,26 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function isTokenValid() : Boolean
+	
+	If (This.token#Null)
+		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
+		If (Not($token._Expired()))
+			return True
+		Else 
+			If (Length(String(This.token.refresh_token))>0)
+				var $newToken : Object:=This.getToken()
+				return ($newToken#Null)
+			End if 
+		End if 
+	End if 
+	
+	return False
+	
+	
+	// ----------------------------------------------------

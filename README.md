@@ -15,7 +15,7 @@
 	- [Office365.mail.copy()](#office365mailcopy)
 	- [Office365.mail.createFolder()](#office365mailcreatefolder)
 	- [Office365.mail.delete()](#office365maildelete)
- 	- [Office365.mail.deleteFolder()](#office365maildeletefolder)
+	- [Office365.mail.deleteFolder()](#office365maildeletefolder)
 	- [Office365.mail.getFolder()](#office365mailgetfolder)
 	- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
 	- [Office365.mail.getMail()](#office365mailgetmail)
@@ -33,20 +33,21 @@
 	- [Office365.user.list()](#office365userlist)
 * [Google class](#google)
 	- [cs.NetKit.Google.new()](#csnetkitgooglenew)
+	- [Google.mail.append()](#googlemailappend)
 	- [Google.mail.createLabel()](#googlemailcreatelabel)
 	- [Google.mail.delete()](#googlemaildelete)
 	- [Google.mail.deleteLabel()](#googlemaildeletelabel)
 	- [Google.mail.getLabel()](#googlemailgetlabel)
 	- [Google.mail.getLabelList()](#googlemailgetlabellist)
 	- [Google.mail.getMail()](#googlemailgetmail)
- 	- [Google.mail.getMailIds()](#googlemailgetmailids)
+	- [Google.mail.getMailIds()](#googlemailgetmailids)
 	- [Google.mail.getMails()](#googlemailgetmails)
- 	- [Google.mail.send()](#googlemailsend)
- 	- [Google.mail.untrash()](#googlemailuntrash)
- 	- [Google.mail.update()](#googlemailupdate)
+	- [Google.mail.send()](#googlemailsend)
+	- [Google.mail.untrash()](#googlemailuntrash)
+	- [Google.mail.update()](#googlemailupdate)
 	- [Google.mail.updateLabel()](#googlemailupdatelabel)
 	- [labelInfo object](#labelinfo-object)
- 	- [Status object (Google Class)](#status-object-google-class)
+	- [Status object (Google Class)](#status-object-google-class)
 
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](#authenticate-to-the-microsoft-graph-api-in-service-mode)
 * (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
@@ -1264,7 +1265,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 
 `cs.NetKit.Google.new()` instantiates an object of the `Google` class.
 
-In `oAuth2`, pass an [OAuth2Provider object](#new-auth2-provider).
+In `oAuth2`, pass an [OAuth2Provider object](#oauth2provider).
 
 In `options`, you can pass an object that specifies the following options:
 
@@ -1293,6 +1294,50 @@ var $google : cs.NetKit.Google
 
 $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
+```
+### Google.mail.append()
+
+**Google.mail.append**( *mail* : Text { ; *labelIds* : Collection } ) : Object <br/>
+**Google.mail.append**( *mail* : Blob { ; *labelIds* : Collection } ) : Object <br/>
+**Google.mail.append**( *mail* : Object { ; *labelIds* : Collection } ) : Object <br/>
+
+#### Parameters 
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|mail|Text &#124; Blob &#124; Object|->|Email to be append |
+|labelIds|Collection|->|Collection of label IDs to add to messages. By default the DRAFT label is applied|
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+
+#### Description
+
+`Google.mail.append()` appends *mail* to the user's mailbox as a DRAFT or with designated *labelIds*.
+
+>If the *labelIds* parameter is passed and the mail has a "from" or "sender" header, the Gmail server automatically adds the SENT label.
+
+#### Returned object 
+
+The method returns a [**status object**](status-object-google-class) with an additional "id" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|id|Text|id of the email created on the server|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+#### Example
+
+To append an email :
+
+```4d
+$status:=$google.mail.append($mail)
+```
+
+By default, the mail is created with a DRAFT label. To change the designated label, pass a second parameter:
+
+```4d
+$status:=$google.mail.append($mail;["INBOX"])
 ```
 
 ### Google.mail.createLabel()
