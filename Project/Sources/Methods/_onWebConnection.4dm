@@ -3,13 +3,13 @@ C_TEXT($1; $2; $3; $4; $5; $6)
 
 var $redirectURI : Text
 var $customResponseFile; $customErrorFile : 4D.File
-var $state : Text:=cs.Tools.me.getURLParameterValue($1; "state")
+var $state : Text:=_getURLParameterValue($1; "state")
 var $responseFile : 4D.File:=Folder(fk resources folder).file("Response_Template.html")
 
 If (OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
 	If (Length($redirectURI)>0)
-		$redirectURI:=cs.Tools.me.getPathFromURL($redirectURI)+"@"
+		$redirectURI:=_getPathFromURL($redirectURI)+"@"
 	End if 
 	$customResponseFile:=(Value type(Storage.requests[$state].authenticationPage)#Is undefined) ? Storage.requests[$state].authenticationPage : Null
 	$customErrorFile:=(Value type(Storage.requests[$state].authenticationErrorPage)#Is undefined) ? Storage.requests[$state].authenticationErrorPage : Null

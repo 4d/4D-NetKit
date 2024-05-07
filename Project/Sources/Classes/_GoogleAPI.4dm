@@ -16,7 +16,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	var $delimiter : Text:="?"
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode($inParameters.search))
+		$urlParams+=($delimiter+"q="+_urlEncode($inParameters.search))
 		$delimiter:="&"
 	End if 
 	If (Value type($inParameters.top)#Is undefined)
@@ -55,7 +55,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $email : cs.EmailAddress
 	
 	For each ($key; $keys)
-		$name:=cs.Tools.me.getJMAPAttribute($key)
+		$name:=_getJMAPAttribute($key)
 		If (Length($name)>0)
 			If ($key="labelIds")
 				If (Num($inMail.labelIds.length)>0)
@@ -74,7 +74,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 			If ($key="headers")
 				var $header : Object
 				For each ($header; $inMail.payload.headers)
-					$name:=cs.Tools.me.getJMAPAttribute($header.name)
+					$name:=_getJMAPAttribute($header.name)
 					If (Length($name)>0)
 						Case of 
 							: ($header.name="Keywords")
@@ -82,7 +82,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
 									$result[$name]:=Split string($string; ","; sk trim spaces)
 								End if 
-							: (cs.Tools.me.IsEmailAddressHeader($header.name))
+							: (_IsEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
 									$email:=cs.EmailAddress.new($header.value)
 									$result[$name]:=$email
@@ -110,7 +110,7 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)-
 			: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
 				If (Value type($result.raw)=Is text)
 					
-					var $rawMessage : Text:=cs.Tools.me.base64UrlSafeDecode($result.raw)
+					var $rawMessage : Text:=_base64UrlSafeDecode($result.raw)
 					If ($mailType="JMAP")
 						
 						var $copy : Object:=$result

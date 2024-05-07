@@ -48,7 +48,7 @@ Function _copyGraphMessage($inMessage : Object) : Object
 				: ($key="attachments")
 					var $iter : Object
 					For each ($iter; $message.attachments)
-						var $attachment : Object:=cs.Tools.me.convertToGraphAttachment($iter)
+						var $attachment : Object:=_convertToGraphAttachment($iter)
 						$result.attachments.push($attachment)
 					End for each 
 					
