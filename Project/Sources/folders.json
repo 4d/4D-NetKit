@@ -27,26 +27,10 @@
 	"Private Methods": {
 		"methods": [
 			"__buildComponent",
-			"_base64UrlSafeDecode",
-			"_camelCase",
 			"_catch",
-			"_convertToGraphAttachment",
 			"_errorHandler",
-			"_getErrorStack",
-			"_getHeaderValueParameter",
-			"_getJMAPAttribute",
-			"_getParameterValue",
-			"_getPathFromURL",
-			"_getPortFromURL",
-			"_getURLParameterValue",
-			"_IsEmailAddressHeader",
 			"_onWebConnection",
-			"_retainFileObject",
-			"_startWebServer",
-			"_stopWebServer",
-			"_throwError",
-			"_urlDecode",
-			"_urlEncode"
+			"_throwError"
 		]
 	},
 	"Public": {

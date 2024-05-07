@@ -115,14 +115,14 @@ Class constructor($inParams : Object)
 	is received correctly in signed in mode
 	If not present the default page is used
 */
-		This.authenticationPage:=_retainFileObject($inParams.authenticationPage)
+		This.authenticationPage:=cs.Tools.me.retainFileObject($inParams.authenticationPage)
 		
 /*
 	Path of the web page to display in the webbrowser when the authentication server
 	returns an error in signed in mode
 	If not present the default page is used
 */
-		This.authenticationErrorPage:=_retainFileObject($inParams.authenticationErrorPage)
+		This.authenticationErrorPage:=cs.Tools.me.retainFileObject($inParams.authenticationErrorPage)
 		
 /*
 	Indicates whether your application can refresh access tokens when the user is not
@@ -462,7 +462,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 		$params:="client_id="+This.clientId
 		If (Length(This.scope)>0)
-			$params+="&scope="+_urlEncode(This.scope)
+			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
 		End if 
 		$params+="&refresh_token="+This.token.refresh_token
 		$params+="&grant_type=refresh_token"
@@ -475,7 +475,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		If (Length(String(This.redirectURI))>0)
 			
 			var $options : Object:={}
-			$options.port:=_getPortFromURL(This.redirectURI)
+			$options.port:=cs.Tools.me.getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			$options.useTLS:=(Position("https"; This.redirectURI)=1)
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
@@ -485,7 +485,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 				End if 
 			End if 
 			
-			If (_startWebServer($options))
+			If (cs.Tools.me.startWebServer($options))
 				
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
@@ -494,14 +494,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 					$params:="client_id="+This.clientId
 					$params+="&grant_type=authorization_code"
 					$params+="&code="+$authorizationCode
-					$params+="&redirect_uri="+_urlEncode(This.redirectURI)
+					$params+="&redirect_uri="+cs.Tools.me.urlEncode(This.redirectURI)
 					If (This.PKCEEnabled)
 						$params+="&code_verifier="+This.codeVerifier
 					End if 
 					If (Length(This.clientSecret)>0)
 						$params+="&client_secret="+This.clientSecret
 					End if 
-					$params+="&scope="+_urlEncode(This.scope)
+					$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
 					
 				Else 
 					
@@ -556,7 +556,7 @@ Function _getToken_Service()->$result : Object
 			$jwt:=cs._JWT.new($options)
 			$bearer:=$jwt.generate()
 			
-			$params:="grant_type="+_urlEncode(This.grantType)
+			$params:="grant_type="+cs.Tools.me.urlEncode(This.grantType)
 			$params+="&assertion="+$bearer
 			
 		: (This._useJWTBearerAssertionType())
@@ -579,15 +579,15 @@ Function _getToken_Service()->$result : Object
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
 			$params:="grant_type="+This.grantType
 			$params+="&client_id="+This.clientId
-			$params+="&scope="+_urlEncode(This.scope)
-			$params+="&client_assertion_type="+_urlEncode(This.clientAssertionType)
+			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
+			$params+="&client_assertion_type="+cs.Tools.me.urlEncode(This.clientAssertionType)
 			$params+="&client_assertion="+$bearer
 			
 		Else 
 			
 			$params:="client_id="+This.clientId
 			If (Length(This.scope)>0)
-				$params+="&scope="+_urlEncode(This.scope)
+				$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
 			End if 
 			$params+="&client_secret="+This.clientSecret
 			$params+="&grant_type="+This.grantType
@@ -677,7 +677,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
  *					copy the raw response body in a private member of the class
  */
 					var $blob : Blob
-					CONVERT FROM TEXT($response; _getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
+					CONVERT FROM TEXT($response; cs.Tools.me.getHeaderValueParameter($contentType; "charset"; "UTF-8"); $blob)
 					This._internals._rawBody:=4D.Blob.new($blob)
 					$result:=Null
 					
@@ -875,11 +875,11 @@ Function get authenticateURI() : Text
 		$urlParams:="?client_id="+This.clientId
 		$urlParams+="&response_type=code"
 		If (Length(String($scope))>0)
-			$urlParams+="&scope="+_urlEncode($scope)
+			$urlParams+="&scope="+cs.Tools.me.urlEncode($scope)
 		End if 
 		$urlParams+="&state="+String($state)
 		$urlParams+="&response_mode=query"
-		$urlParams+="&redirect_uri="+_urlEncode($redirectURI)
+		$urlParams+="&redirect_uri="+cs.Tools.me.urlEncode($redirectURI)
 		If (This.PKCEEnabled)
 			$urlParams+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
 			$urlParams+="&code_challenge_method="+String(This.PKCEMethod)
