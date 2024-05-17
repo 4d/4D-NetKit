@@ -115,6 +115,7 @@ The available properties of `paramObj` are:
 | thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)
 | privateKey | text | Certificate private key. Only usable with permission="Service"	| Yes (No for certificate based authentication)
 | clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"	|Yes
+| browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes
 
 If you want the .getToken() function to use the Assertion Framework described in the RFC 7521 to connect to the server, make sure to pass the `thumbprint` and `privateKey` properties. If `clientSecret`,  `thumbprint` and `privateKey` are present, the `thumbprint` is used by default and the RFC 7521 is used to connect. For more information, please refer to the [OAuth2.0 authentication using a certificate](#https://blog.4d.com/) blog post.
 
@@ -122,7 +123,14 @@ If you want the .getToken() function to use the Assertion Framework described in
 
 #### Returned object
 
-The returned object's properties correspond to those of the `paramObj` object passed as a parameter.
+The OAuth2 provider returned object includes the following properties:
+
+|Property|Type|Description|
+|----|-----|------|
+|authenticateURI|text|Returns the calculated authenticateURI. Can be used in a webbrowser or in a web area to open the connection page.|
+|isTokenValid	|Function| `OAuth2Provider.isTokenValid() : boolean` <br/> Verifies the token validity. <li> If no token is present, returns false.</li><li> If the current token is not expired, returns true. </li><li> If the token is expired and no refresh token is present, returns false.</li><li> If a refresh token is present, automatically requests a new token and returns true if the token is generated correctly, otherwise false.</li>|
+
+The OAuth2 provider returned object also includes other properties, corresponding to those of the `paramObj` object passed as a parameter.
 
 #### Example 1
 
