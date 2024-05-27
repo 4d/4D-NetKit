@@ -123,14 +123,13 @@ If you want the .getToken() function to use the Assertion Framework described in
 
 #### Returned object
 
-The OAuth2 provider returned object includes the following properties:
+The OAuth2 provider returned object `cs.NetKit.OAuth2Provider` properties correspond to those of the [`paramObj` object passed as a parameter](#description) and some additional properties:
 
 |Property|Type|Description|
 |----|-----|------|
+|*paramObj.properties*||< properties passed in parameter [`paramObj`](#description)>|
 |authenticateURI|text|Returns the calculated authenticateURI. Can be used in a webbrowser or in a web area to open the connection page.|
 |isTokenValid	|Function| `OAuth2Provider.isTokenValid() : boolean` <br/> Verifies the token validity. <li> If no token is present, returns false.</li><li> If the current token is not expired, returns true. </li><li> If the token is expired and no refresh token is present, returns false.</li><li> If a refresh token is present, automatically requests a new token and returns true if the token is generated correctly, otherwise false.</li>|
-
-The OAuth2 provider returned object also includes other properties, corresponding to those of the `paramObj` object passed as a parameter.
 
 #### Example 1
 
