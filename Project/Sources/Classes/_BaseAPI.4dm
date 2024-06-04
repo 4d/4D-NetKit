@@ -5,8 +5,12 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	Super()
 	
 	This._internals._URL:=""
-	This._internals._oAuth2Provider:=$inProvider
 	This._internals._statusLine:=""
+	If (OB Class($inProvider)=cs.OAuth2Provider)
+		This._internals._oAuth2Provider:=$inProvider
+	Else 
+		This._throwError(14; {which: "\"$inProvider\""; function: "\"_BaseClass constructor\""; type: "\"cs.OAuth2Provider\""})
+	End if 
 	
 	
 	// Mark: - [Private]
@@ -15,7 +19,10 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 Function _getToken() : Object
 	
-	This._internals._oAuth2Provider.getToken()	
+	If (OB Class(This._internals._oAuth2Provider)=cs.OAuth2Provider)
+		This._internals._oAuth2Provider.getToken()
+	end if
+
 	return This._internals._oAuth2Provider.token
 	
 	
