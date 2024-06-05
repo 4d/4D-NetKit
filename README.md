@@ -69,7 +69,10 @@ Here's a diagram of the authorization process:
 
 This class can be instantiated in two ways: 
 * by calling the `New OAuth2 provider` method 
-* by calling the `cs.NetKit.OAuth2Provider.new()` function 
+* by calling the `cs.NetKit.OAuth2Provider.new()` function
+
+
+**Warning:** OAuth2 authentication in `signedIn` mode requires a browser. Since some servers have restrictions regarding the supported browsers (for example, check this [Google support](https://support.google.com/accounts/answer/7675428?hl=en) page), the functionality may not work properly. 
 
 ### **New OAuth2 provider**
 
