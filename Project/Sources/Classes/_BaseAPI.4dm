@@ -99,7 +99,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
 		var $contentType : Text:=String($request["response"]["headers"]["content-type"])
-		var $charset : Text:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
+		var $charset : Text:=cs.Tools.me.getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		
 		If (OB Is defined($request.response; "body"))
 			var $text : Text
