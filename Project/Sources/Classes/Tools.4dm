@@ -1,9 +1,13 @@
-property webServer : 4D.WebServer:=WEB Server(Web server database)
-property isDebug : Boolean:=False
-property trace : Boolean:=False
+property webServer : 4D.WebServer
+property isDebug : Boolean
+property trace : Boolean
 
 
 singleton Class constructor()
+	
+	This.webServer:=WEB Server(Web server database)
+	This.isDebug:=False
+	This.trace:=False
 	
 	
 	// Mark: - [Public]
@@ -134,7 +138,7 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment)->$result : Obj
 	
 Function getErrorStack() : Object
 	
-	C_LONGINT(Error; Error line; $i)
+	C_LONGINT(Error; Error line)
 	C_TEXT(Error method; Error formula)
 	
 	return {error: Error; line: Error line; method: Error method; formula: Error formula; errors: Last errors}
