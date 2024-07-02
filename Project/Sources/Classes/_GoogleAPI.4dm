@@ -82,7 +82,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
 									$result[$name]:=Split string($string; ","; sk trim spaces)
 								End if 
-							: (cs.Tools.me.IsEmailAddressHeader($header.name))
+							: (cs.Tools.me.isEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
 									$email:=cs.EmailAddress.new($header.value)
 									$result[$name]:=$email
