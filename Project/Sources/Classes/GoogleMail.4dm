@@ -371,14 +371,54 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function getLabelList() : Object
+Function getLabelList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
-	$URL+="users/"+$userId+"/labels"
 	
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	var $response : Object:=Null
+	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
+	
+	If ($labelIds.length=0)
+		
+		$URL+="users/"+$userId+"/labels"
+		$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
+		
+	Else 
+		
+		If (Value type($labelIds[0])=Is object)
+			$labelIds:=$labelIds.extract("id")
+		End if 
+		
+		var $i : Integer:=1
+		var $batchRequestes : Collection:=[]
+		var $labelId : Text
+		
+		For each ($labelId; $labelIds)
+			var $item : Text:="<item"+String($i)+">"
+			$i+=1
+			var $urlParams : Text:="users/"+$userId+"/labels/"+$labelId
+			$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+		End for each 
+		
+		var $batchParams : Object:={batchRequestes: $batchRequestes; format: "JSON"}
+		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
+		var $result:=$batchRequest.sendRequestAndWaitResponse()
+		
+		If (($result=Null) || ($batchRequest._getLastError()#Null))
+			var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+			var $error : Object
+			
+			For each ($error; $stack)
+				This._getErrorStack().push($error)
+				throw($error)
+			End for each 
+		End if 
+		
+		$response:={labels: $result}
+		
+	End if 
 	
 	return This._returnStatus($response)
 	
