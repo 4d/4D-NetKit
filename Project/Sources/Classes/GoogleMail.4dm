@@ -288,19 +288,14 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$parameters.format:=$format
 				End if 
 				
-				var $i : Integer:=1
-				var $batchRequestes : Collection:=[]
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {mailType: $mailType; format: $format})
 				var $mailId : Text
 				
 				For each ($mailId; $mailIds)
-					var $item : Text:="<item"+String($i)+">"
-					$i+=1
 					var $urlParams : Text:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
-					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+					$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
 				End for each 
 				
-				var $batchParams : Object:={batchRequestes: $batchRequestes; mailType: $mailType; format: $format}
-				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
 				If (($result=Null) || ($batchRequest._getLastError()#Null))
@@ -391,19 +386,14 @@ Function getLabelList($inParameters : Object) : Object
 			$labelIds:=$labelIds.extract("id")
 		End if 
 		
-		var $i : Integer:=1
-		var $batchRequestes : Collection:=[]
+		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"})
 		var $labelId : Text
 		
 		For each ($labelId; $labelIds)
-			var $item : Text:="<item"+String($i)+">"
-			$i+=1
 			var $urlParams : Text:="users/"+$userId+"/labels/"+$labelId
-			$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+			$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
 		End for each 
 		
-		var $batchParams : Object:={batchRequestes: $batchRequestes; format: "JSON"}
-		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 		var $result:=$batchRequest.sendRequestAndWaitResponse()
 		
 		If (($result=Null) || ($batchRequest._getLastError()#Null))

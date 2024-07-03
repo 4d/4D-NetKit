@@ -3,11 +3,12 @@ Class extends _GoogleAPI
 property verb : Text
 property URL : Text
 property headers : Object
-property batchRequestes : Collection
+property _requestes : Collection
 property _boundary : Text
 property _body : Text
 property _mailType : Text
 property _format : Text
+property _itemNumber : Integer:=1
 
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
@@ -18,14 +19,21 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "POST"
 	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
-	This.batchRequestes:=(Value type($inParam.batchRequestes)=Is collection) ? $inParam.batchRequestes : []
+	This._requestes:=[]
 	
 	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch_"+Generate UUID
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
 	
 	This._body:=""
-	This._mailType:=(OB Is defined($inParam; "mailType")) ? String($inParam.mailType) : "MIME"
-	This._format:=(OB Is defined($inParam; "format")) ? String($inParam.format) : "raw"
+	If (OB Is defined($inParam; "mailType"))
+		// for Messages can be: "MIME" or "JMAP"
+		This._mailType:=String($inParam.mailType)
+	End if 
+	If (OB Is defined($inParam; "format"))
+		// for Messages can be: "minimal", "metadata" or "raw"
+		// for Labels (and other incomming data) can be: "JSON"
+		This._format:=String($inParam.format)
+	End if 
 	
 	
 	// Mark: - [Public]
@@ -52,14 +60,30 @@ Function get body() : Text
 	// ----------------------------------------------------
 	
 	
+Function appendRequest($inParam : Object)
+	
+	var $request : Object:={}
+	$request.id:="<item"+String(This._itemNumber)+">"
+	$request.verb:=(Length(String($inParam.verb))>0) ? String($inParam.verb) : "GET"
+	$request.URL:=String($inParam.URL)
+	$request.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
+	$request.body:=(Value type($inParam.body)=Is text) ? $inParam.body : ""
+	
+	This._requestes.push({request: $request})
+	This._itemNumber+=1
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function generateBody() : Text
 	
 	var $body : Text:=""
 	
-	If (This.batchRequestes.length>0)
+	If (This._requestes.length>0)
 		
 		var $batchRequest : Object
-		For each ($batchRequest; This.batchRequestes)
+		For each ($batchRequest; This._requestes)
 			
 			$body+="--"+This._boundary+"\r\n"
 			$body+="Content-Type: application/http\r\n"
