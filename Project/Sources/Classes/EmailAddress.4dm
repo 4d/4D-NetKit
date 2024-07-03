@@ -33,7 +33,7 @@ Function fromString($inValue : Text)
 	Else 
 		
 		var $email:Text:=cs.Tools.me.trimSpaces($inValue)
-		If (This._isValidEmail($email))
+		If (cs.Tools.me.isValidEmail($email))
 			This.email:=$email
 		End if 
 	End if 
@@ -56,14 +56,4 @@ Function toString()->$result : Text
 	
 Function isValid() : Boolean
 	
-	return This._isValidEmail(This.email)
-	
-	
-	// ----------------------------------------------------
-	// Mark: - [Private]
-	
-	
-Function _isValidEmail($inEmail : Text) : Boolean
-	
-	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
-	return Match regex($pattern; $inEmail; 1)
+	return cs.Tools.me.isValidEmail(This.email)

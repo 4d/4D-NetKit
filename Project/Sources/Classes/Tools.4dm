@@ -323,6 +323,15 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isValidEmail($inEmail : Text) : Boolean
+	
+	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+	return Match regex($pattern; $inEmail; 1)
+
+	
+	// ----------------------------------------------------
+	
+	
 Function retainFileObject($inParameter : Variant) : 4D.File
 	
 	If (Value type($inParameter)#Is undefined)
