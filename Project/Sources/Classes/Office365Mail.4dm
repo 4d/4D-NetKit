@@ -118,33 +118,6 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	return $status
 	
 	
-	// ----------------------------------------------------
-	
-	
-Function _returnStatus($inAdditionalInfo : Object)->$status : Object
-	
-	var $errorStack : Collection:=Super._getErrorStack()
-	$status:={}
-	
-	If (Not(OB Is empty($inAdditionalInfo)))
-		
-		var $key : Text
-		var $keys : Collection:=OB Keys($inAdditionalInfo)
-		For each ($key; $keys)
-			$status[$key]:=$inAdditionalInfo[$key]
-		End for each 
-	End if 
-	
-	If ($errorStack.length>0)
-		$status.success:=False
-		$status.errors:=$errorStack
-		$status.statusText:=$errorStack[0].message
-	Else 
-		$status.success:=True
-		$status.statusText:=Super._getStatusLine()
-	End if 
-	
-	
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
