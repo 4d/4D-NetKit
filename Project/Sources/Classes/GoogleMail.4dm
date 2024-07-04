@@ -371,20 +371,21 @@ Function getLabelList($inParameters : Object) : Object
 	Super._clearErrorStack()
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
-	
 	var $response : Object:=Null
 	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
 	
+	If (($labelIds.length>0) && (Value type($labelIds[0])=Is object))
+		$labelIds:=$labelIds.extract("id")
+	End if 
+	
 	If ($labelIds.length=0)
 		
-		$URL+="users/"+$userId+"/labels"
-		$response:=Super._sendRequestAndWaitResponse("GET"; $URL)
-		
-	Else 
-		
-		If (Value type($labelIds[0])=Is object)
-			$labelIds:=$labelIds.extract("id")
+		$response:=Super._sendRequestAndWaitResponse("GET"; $URL+"users/"+$userId+"/labels")
+		If (Value type($response.labels)=Is collection)
+			$labelIds:=$response.labels.extract("id")
 		End if 
+
+	Else 
 		
 		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"})
 		var $labelId : Text
