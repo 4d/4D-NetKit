@@ -373,6 +373,7 @@ Function getLabelList($inParameters : Object) : Object
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	var $response : Object:=Null
 	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
+	var $bWithCounters : Boolean:=True
 	
 	If (($labelIds.length>0) && (Value type($labelIds[0])=Is object))
 		$labelIds:=$labelIds.extract("id")
@@ -384,10 +385,13 @@ Function getLabelList($inParameters : Object) : Object
 		If (Value type($response.labels)=Is collection)
 			$labelIds:=$response.labels.extract("id")
 		End if 
-
-	Else 
+		$bWithCounters:=(Value type($inParameters.ids)=Is boolean) ? $inParameters.withCounters : False
 		
-		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"})
+	End if 
+	
+	If (($labelIds.length>0) && $bWithCounters)
+		
+		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"; maxItemNumber: 10})
 		var $labelId : Text
 		
 		For each ($labelId; $labelIds)
