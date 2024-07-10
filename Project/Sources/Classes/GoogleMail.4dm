@@ -385,7 +385,7 @@ Function getLabelList($inParameters : Object) : Object
 		If (Value type($response.labels)=Is collection)
 			$labelIds:=$response.labels.extract("id")
 		End if 
-		$bWithCounters:=(Value type($inParameters.ids)=Is boolean) ? $inParameters.withCounters : False
+		$bWithCounters:=(Value type($inParameters.withCounters)=Is boolean) ? $inParameters.withCounters : False
 		
 	End if 
 	
