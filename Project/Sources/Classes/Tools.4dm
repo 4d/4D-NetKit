@@ -71,14 +71,14 @@ Function base64UrlSafeDecode($inBase64Encoded : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function camelCase($inString : Text)->$result : Text
+Function camelCase($inString : Text) : Text
 	
+	var $result : Text:=""
 	var $string : Text:=Lowercase($inString; *)
 	var $wordSep : Text:=" ,;:=?./\\±_@#&(!)*+=%\t\r\n"
 	var $uppercase : Boolean:=False
 	var $length : Integer:=Length($string)
 	var $i : Integer
-	$result:=""
 	
 	For ($i; 1; $length)
 		
@@ -98,11 +98,15 @@ Function camelCase($inString : Text)->$result : Text
 		End case 
 	End for 
 	
+	return $result
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function convertToGraphAttachment($inObject : cs.GraphAttachment)->$result : Object
+Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
+	
+	var $result : Object:=Null
 	
 	// converts cs.GraphAttachment into microsoft.graph.fileAttachment
 	If (OB Instance of($inObject; cs.GraphAttachment))
@@ -147,22 +151,25 @@ Function getErrorStack() : Object
 	// ----------------------------------------------------
 	
 	
-Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text)->$paramValue : Text
+Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text
 	
-	$paramValue:=This.getParameterValue($headerValue; $paramName)
-	If (Length($paramValue)=0)
-		$paramValue:=$defaultValue
+	var $result : Text:=This.getParameterValue($headerValue; $paramName)
+	If (Length($result)=0)
+		$result:=$defaultValue
 	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getParameterValue($headerValue : Text; $paramName : Text)->$paramValue : Text
+Function getParameterValue($headerValue : Text; $paramName : Text) : Text
 	
 	ARRAY LONGINT($foundPosArr; 0)
 	ARRAY LONGINT($foundLenArr; 0)
 	
+	var $result : Text
 	var $pattern : Text:=$paramName+"=(\"|)([A-Za-z0-9-\\/\\:;??=&\\.]+)(\"|)"
 	var $startPos; $endPos : Integer
 	
@@ -175,8 +182,10 @@ Function getParameterValue($headerValue : Text; $paramName : Text)->$paramValue 
 		End if 
 	End if 
 	If (($startPos>0) && ($endPos>$startPos))
-		$paramValue:=Substring($headerValue; $startPos; $endPos-$startPos)
+		$result:=Substring($headerValue; $startPos; $endPos-$startPos)
 	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
@@ -225,39 +234,41 @@ Function getJMAPAttribute($inKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function getPathFromURL($URL : Text)->$path : Text
+Function getPathFromURL($URL : Text) : Text
 	
 	ARRAY LONGINT($pos; 0)
 	ARRAY LONGINT($len; 0)
 	
+	var $result : Text
 	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)(/?.*)"  //was "(?mi-s)^(?:https?:\\/\\/)?(?:[^?\\/\\s]+[?\\/])(.*)"
 	
 	If (Match regex($pattern; $URL; 1; $pos; $len))
 		
 		If (Size of array($pos)>2)
-			$path:=Substring($URL; $pos{3}+1; $len{3}-1)
+			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
 		End if 
 		
-		$path:="/"+$path
+		$result:="/"+$result
 		
 	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getPortFromURL($URL : Text)->$port : Integer
+Function getPortFromURL($URL : Text) : Integer
 	
 	ARRAY LONGINT($pos; 0)
 	ARRAY LONGINT($len; 0)
 	
+	var $port : Integer
 	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)/?.*"
 	
 	If (Match regex($pattern; $URL; 1; $pos; $len))
 		
-		var $scheme : Text
-		
-		$scheme:=Substring($URL; $pos{1}; $len{1})
+		var $scheme : Text:=Substring($URL; $pos{1}; $len{1})
 		If (Size of array($pos)>1)
 			$port:=Num(Substring($URL; $pos{2}+1; $len{2}-1))
 		Else 
@@ -268,12 +279,15 @@ Function getPortFromURL($URL : Text)->$port : Integer
 		$port:=Choose((($URL="http:@") | ($URL="ws:@")); 80; 443)
 	End if 
 	
+	return $port
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function getURLParameterValue($URL : Text; $paramName : Text)->$paramValue : Text
+Function getURLParameterValue($URL : Text; $paramName : Text) : Text
 	
+	var $result : Text
 	var $posQuery : Integer:=Position("?"; $URL)
 	If ($posQuery>0)
 		
@@ -287,12 +301,14 @@ Function getURLParameterValue($URL : Text; $paramName : Text)->$paramValue : Tex
 			
 			If ($values.length=2)
 				If ($values[0]=$paramName)
-					$paramValue:=$values[1]
+					$result:=$values[1]
 					break
 				End if 
 			End if 
 		End for each 
 	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
@@ -327,7 +343,7 @@ Function isValidEmail($inEmail : Text) : Boolean
 	
 	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 	return Match regex($pattern; $inEmail; 1)
-
+	
 	
 	// ----------------------------------------------------
 	

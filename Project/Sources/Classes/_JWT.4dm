@@ -152,9 +152,9 @@ Function _hashHS($inJWT : Object) : Text
 	// ----------------------------------------------------
 	
 	
-Function _hashSign($inJWT : Object)->$hash : Text
+Function _hashSign($inJWT : Object) : Text
 	
-	var $encodedHead; $encodedPayload : Text
+	var $hash; $encodedHead; $encodedPayload : Text
 	var $settings : Object
 	var $privateKey : Text:=(String($inJWT.privateKey)#"") ? String($inJWT.privateKey) : String(This.privateKey)
 	
@@ -189,16 +189,18 @@ Function _hashSign($inJWT : Object)->$hash : Text
 		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT.header.alg="PS@"); encoding: "Base64URL"})
 	End if 
 	
+	return $hash
+	
 	
 	// ----------------------------------------------------
 	
 	
-function decode($inToken : Text) : Object
-
+Function decode($inToken : Text) : Object
+	
 	var $parts : Collection:=Split string($inToken; ".")
 	var $header; $payload : Text
-
+	
 	BASE64 DECODE($parts[0]; $header; *)
 	BASE64 DECODE($parts[1]; $payload; *)
-
+	
 	return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}

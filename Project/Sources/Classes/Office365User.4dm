@@ -9,17 +9,21 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
-Function _getUserInfo($inURL : Text)->$userInfo : Object
+Function _getUserInfo($inURL : Text) : Object
 	
-	$userInfo:=Super._sendRequestAndWaitResponse("GET"; $inURL)
-	$userInfo:=Super._cleanGraphObject($userInfo)
+	var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $inURL)
+	If (Value type($response)=Is object)
+		return Super._cleanGraphObject($response)
+	End if 
+	
+	return Null
 	
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
-Function getCurrent($inSelect : Text)->$userInfo : Object
+Function getCurrent($inSelect : Text) : Object
 	
 	var $urlParams : Text
 	
@@ -29,7 +33,7 @@ Function getCurrent($inSelect : Text)->$userInfo : Object
 	
 	var $URL : Text:=This._getURL()+"me"+$urlParams
 	
-	$userInfo:=This._getUserInfo($URL)
+	return This._getUserInfo($URL)
 	
 	
 	// ----------------------------------------------------

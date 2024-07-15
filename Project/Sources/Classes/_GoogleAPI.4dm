@@ -102,7 +102,9 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)->$response : Variant
+Function _extractRawMessage($result : Object; $format : Text; $mailType : Text) : Variant
+	
+	var $response : Variant:=Null
 	
 	If ($result#Null)
 		
@@ -135,3 +137,5 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text)-
 		End case 
 		
 	End if 
+	
+	return $response

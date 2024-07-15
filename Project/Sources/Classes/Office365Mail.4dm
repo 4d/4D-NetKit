@@ -215,7 +215,7 @@ Function delete($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
+Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	
 	Super._clearErrorStack()
 	
@@ -242,12 +242,11 @@ Function getMail($inMailId : Text; $inOptions : Object)->$response : Variant
 			$headers:={Prefer: String("outlook.body-content-type=\""+$contentType+"\"")}
 		End if 
 		
+		var $response : Variant:=Null
 		var $result : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
 		If ($result#Null)
 			If ($mailType="Microsoft")
-				$response:=cs.GraphMessage.new(This._internals._oAuth2Provider; \
-					{userId: String(This.userId)}; \
-					$result)
+				$response:=cs.GraphMessage.new(This._internals._oAuth2Provider; {userId: String(This.userId)}; $result)
 				
 			Else 
 				If (Value type($result)=Is text)

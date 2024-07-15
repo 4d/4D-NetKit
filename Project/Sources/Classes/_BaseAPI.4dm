@@ -61,10 +61,11 @@ Function _getAccessTokenType() : Text
 	// ----------------------------------------------------
 	
 	
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant)->$response : Variant
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant) : Variant
 	
 	This._try()
 	
+	var $response : Variant:=Null
 	var $options : Object:={headers: {}}
 	var $token : Text:=This._getAccessToken()
 	
@@ -91,7 +92,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	End case 
 	
 	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($inURL; $options).wait())
-	
 	var $status : Integer:=Num($request["response"]["status"])
 	var $statusText : Text:=String($request["response"]["statusText"])
 	This._internals._statusLine:=String($status)+" "+$statusText
@@ -166,6 +166,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 	This._finally()
 	
+	return $response
+	
 	
 	// ----------------------------------------------------
 	
@@ -194,10 +196,10 @@ Function _getOAuth2Provider() : cs.OAuth2Provider
 	// ----------------------------------------------------
 	
 	
-Function _returnStatus($inAdditionalInfo : Object)->$status : Object
+Function _returnStatus($inAdditionalInfo : Object) : Object
 	
+	var $status : Object:={}
 	var $errorStack : Collection:=Super._getErrorStack()
-	$status:={}
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
 		var $key : Text
@@ -215,3 +217,5 @@ Function _returnStatus($inAdditionalInfo : Object)->$status : Object
 		$status.success:=True
 		$status.statusText:=This._getStatusLine()
 	End if 
+	
+	return $status

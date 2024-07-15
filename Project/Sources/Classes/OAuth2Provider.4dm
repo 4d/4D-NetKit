@@ -454,8 +454,9 @@ Function _getAuthorizationCode() : Text
 	// ----------------------------------------------------
 	
 	
-Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
+Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
+	var $result : Object:=Null
 	var $params : Text
 	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
@@ -526,12 +527,15 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean)->$result : Object
 		
 	End if 
 	
+	return $result
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function _getToken_Service()->$result : Object
+Function _getToken_Service() : Object
 	
+	var $result : Object:=Null
 	var $params : Text
 	var $jwt : cs._JWT
 	var $options : Object
@@ -596,13 +600,15 @@ Function _getToken_Service()->$result : Object
 	
 	$result:=This._sendTokenRequest($params)
 	
+	return $result
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function _checkPrerequisites($obj : Object)->$OK : Boolean
+Function _checkPrerequisites($obj : Object) : Boolean
 	
-	$OK:=False
+	var $OK : Boolean:=False
 	
 	If (($obj#Null) && (Value type($obj)=Is object))
 		
@@ -634,12 +640,15 @@ Function _checkPrerequisites($obj : Object)->$OK : Boolean
 		
 	End if 
 	
+	return $OK
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function _sendTokenRequest($params : Text)->$result : Object
+Function _sendTokenRequest($params : Text) : Object
 	
+	var $result : Object:=Null
 	var $options : Object:={headers: {}}
 	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
 	$options.headers["Accept"]:="application/json"
@@ -720,11 +729,13 @@ Function _sendTokenRequest($params : Text)->$result : Object
 		
 	End if 
 	
+	return $result
+	
 	
 	// ----------------------------------------------------
 	
 	
-Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
+Function _unixTime($inDate : Date; $inTime : Time) : Real
 /*
  *	Unix_Time stolen from ThomasMaul/JWT_Token_Example
  *	https://github.com/ThomasMaul/JWT_Token_Example/blob/main/Project/Sources/Methods/Unix_Time.4dm
@@ -745,7 +756,7 @@ Function _unixTime($inDate : Date; $inTime : Time)->$result : Real
 	End if 
 	
 	var $days : Integer:=$date-$start
-	$result:=Num(($days*86400)+($time+0))  // convert in seconds
+	return Num(($days*86400)+($time+0))  // convert in seconds
 	
 	
 	// ----------------------------------------------------
@@ -768,7 +779,9 @@ Function _useJWTBearerAssertionType() : Boolean
 	// ----------------------------------------------------
 	
 	
-Function getToken()->$result : Object
+Function getToken() : Object
+	
+	var $result : Object:=Null
 	
 	This._try()
 	
@@ -844,6 +857,8 @@ Function getToken()->$result : Object
 	End if 
 	
 	This._finally()
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
@@ -932,7 +947,9 @@ Function get grantType() : Text
 	// ----------------------------------------------------
 	
 	
-Function get scope()->$scope : Text
+Function get scope() : Text
+	
+	var $scope : Text
 	
 	Case of 
 		: (This._isMicrosoft())

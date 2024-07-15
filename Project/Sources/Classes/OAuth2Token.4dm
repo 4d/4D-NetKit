@@ -30,7 +30,7 @@ Function _loadFromObject($inObject : Object)
 			
 			var $i : Integer
 			var $keys : Collection:=OB Keys($inObject.token)
-			var $values:collection:=OB Values($inObject.token)
+			var $values : Collection:=OB Values($inObject.token)
 			
 			This.token:={}
 			For ($i; 0; $keys.length-1)
@@ -54,7 +54,7 @@ Function _loadFromObject($inObject : Object)
 Function _loadFromResponse($inResponseString : Text)
 	
 	var $token : Object:=Try(JSON Parse($inResponseString))
-
+	
 	If (($token#Null) && (Not(OB Is empty($token))))
 		
 		This._loadFromObject({token: $token})
@@ -70,7 +70,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	var $token : Object:={}
 	var $params : Collection:=Split string($inResponseString; "&")
 	var $iter : Text
-
+	
 	For each ($iter; $params)
 		var $pair : Collection:=Split string($iter; "=")
 		If ($pair.length>1)
@@ -88,11 +88,11 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
-Function _Expired($inParams : Text)->$result : Boolean
+Function _Expired($inParams : Text) : Boolean
 	
+	var $result : Boolean:=True
 	var $expiration : Text:=Choose((Count parameters>0); $inParams; This.tokenExpiration)
 	
-	$result:=True
 	If (Length($expiration)>0)
 		Case of 
 			: (Current date<Date($expiration))
@@ -102,3 +102,5 @@ Function _Expired($inParams : Text)->$result : Boolean
 				$result:=False
 		End case 
 	End if 
+	
+	return $result

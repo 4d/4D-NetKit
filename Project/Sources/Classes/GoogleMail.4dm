@@ -212,7 +212,9 @@ Function getMailIds($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
+Function getMail($inMailId : Text; $inParameters : Object) : Variant
+	
+	var $response : Variant:=Null
 	
 	Super._throwErrors(False)
 	
@@ -251,6 +253,8 @@ Function getMail($inMailId : Text; $inParameters : Object)->$response : Variant
 	
 Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
+	var $result : Collection:=Null
+	
 	Super._clearErrorStack()
 	
 	Case of 
@@ -262,7 +266,6 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 			
 		Else 
 			
-			var $result : Collection:=Null
 			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
 			
 			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))

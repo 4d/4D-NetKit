@@ -32,7 +32,7 @@ Function fromString($inValue : Text)
 		This.email:=cs.Tools.me.trimSpaces(Substring($inValue; $startMailPos+1; $endMailPos-$startMailPos-1))
 	Else 
 		
-		var $email:Text:=cs.Tools.me.trimSpaces($inValue)
+		var $email : Text:=cs.Tools.me.trimSpaces($inValue)
 		If (cs.Tools.me.isValidEmail($email))
 			This.email:=$email
 		End if 
@@ -42,12 +42,12 @@ Function fromString($inValue : Text)
 	// ----------------------------------------------------
 	
 	
-Function toString()->$result : Text
+Function toString() : Text
 	
 	If (Length(This.name)=0)
-		$result:=This.email
+		return This.email
 	Else 
-		$result:=This.name+" <"+This.email+">"
+		return String(This.name+" <"+This.email+">")
 	End if 
 	
 	
