@@ -1493,12 +1493,19 @@ $unread:=$info.messagesUnread
 #### Parameters 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
+|parameters|Object|->|Parameter object|
 |Result|Object|<-| Status object |
 
 #### Description
 
 `Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox. 
 
+In the optional `parameters` parameter, pass an object containing the following values:
+
+|Property | Type| Description |
+|---|---|---|
+|ids|  Collection |Collection of objects containing an "id" attribute or a collection of texts containing label ids (maximum number of ids: 100).|
+|withCounters|  Boolean |If false (default): when the ids collection is present, counters are always returned, and this parameter has no effect. If true: adds the message and thread counters to the result.|
 
 #### Returned object 
 
@@ -1518,11 +1525,15 @@ A `mailLabel` object contains the following properties (note that additional inf
 
 |Property|Type|Description|
 |---------|--- |------|
-|name|Text|Display name of the label.|
+|name|Text|Display name of the label (If a mailbox name does not exist, the function returns null in the collection member corresponding).|
 |id|Text|Immutable ID of the label.|
 |messageListVisibility|Text|Visibility of messages with this label in the message list in the Gmail web interface. Can be "show" or "hide"|
 |labelListVisibility|Text|Visibility of the label in the label list in the Gmail web interface. Can be:<ul><li>"labelShow": Show the label in the label list.</li><li>"labelShowIfUnread": Show the label if there are any unread messages with that label</li><li>"labelHide": Do not show the label in the label list.</li></ul>|
 |type|Text| Owner type for the label:<ul><li>"user": User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread.</li><li>"system": System labels are internally created and cannot be added, modified, or deleted. System labels may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads.</li></ul>|
+| messagesTotal  | Integer | The total number of messages with the label.  |
+| messagesUnread | Integer | The number of unread messages with the label. |
+| threadsTotal   | Integer | The total number of threads with the label.   |
+| threadsUnread  | Integer | The number of unread threads with the label.  |
 
 
 ### Google.mail.getMail()
