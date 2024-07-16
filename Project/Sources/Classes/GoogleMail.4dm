@@ -288,19 +288,14 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 					$parameters.format:=$format
 				End if 
 				
-				var $i : Integer:=1
-				var $batchRequestes : Collection:=[]
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {mailType: $mailType; format: $format})
 				var $mailId : Text
 				
 				For each ($mailId; $mailIds)
-					var $item : Text:="<item"+String($i)+">"
-					$i+=1
 					var $urlParams : Text:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
-					$batchRequestes.push({request: {verb: "GET"; URL: $URL+$urlParams; id: $item}})
+					$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
 				End for each 
 				
-				var $batchParams : Object:={batchRequestes: $batchRequestes; mailType: $mailType; format: $format}
-				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); $batchParams)
 				$result:=$batchRequest.sendRequestAndWaitResponse()
 				
 				If (($result=Null) || ($batchRequest._getLastError()#Null))
@@ -371,14 +366,54 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function getLabelList() : Object
+Function getLabelList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	var $URL : Text:=Super._getURL()
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
-	$URL+="users/"+$userId+"/labels"
+	var $response : Object:=Null
+	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
+	var $bWithCounters : Boolean:=True
 	
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	If (($labelIds.length>0) && (Value type($labelIds[0])=Is object))
+		$labelIds:=$labelIds.extract("id")
+	End if 
+	
+	If ($labelIds.length=0)
+		
+		$response:=Super._sendRequestAndWaitResponse("GET"; $URL+"users/"+$userId+"/labels")
+		If (Value type($response.labels)=Is collection)
+			$labelIds:=$response.labels.extract("id")
+		End if 
+		$bWithCounters:=(Value type($inParameters.withCounters)=Is boolean) ? $inParameters.withCounters : False
+		
+	End if 
+	
+	If (($labelIds.length>0) && $bWithCounters)
+		
+		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"; maxItemNumber: 10})
+		var $labelId : Text
+		
+		For each ($labelId; $labelIds)
+			var $urlParams : Text:="users/"+$userId+"/labels/"+$labelId
+			$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
+		End for each 
+		
+		var $result:=$batchRequest.sendRequestAndWaitResponse()
+		
+		If (($result=Null) || ($batchRequest._getLastError()#Null))
+			var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+			var $error : Object
+			
+			For each ($error; $stack)
+				This._getErrorStack().push($error)
+				throw($error)
+			End for each 
+		End if 
+		
+		$response:={labels: $result}
+		
+	End if 
 	
 	return This._returnStatus($response)
 	

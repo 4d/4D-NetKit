@@ -3,87 +3,55 @@ Class extends _GoogleAPI
 property verb : Text
 property URL : Text
 property headers : Object
-property batchRequestes : Collection
-property _boundary : Text
-property _body : Text
-property _mailType : Text
-property _format : Text
+property boundary : Text
+property mailType : Text
+property format : Text
+property maxItemNumber : Integer:=100  // Google API cannot accept more than 100 batch requests
+property _requestes : Collection
+property _itemNumber : Integer:=0
 
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	Super($inProvider)
 	
-	This._internals._URL:="https://gmail.googleapis.com/batch/gmail/v1/"
-	
+	This.URL:="https://gmail.googleapis.com/batch/gmail/v1/"
 	This.verb:=(OB Is defined($inParam; "verb")) ? String($inParam.verb) : "POST"
+	This.boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch_"+Generate UUID
 	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
-	This.batchRequestes:=(Value type($inParam.batchRequestes)=Is collection) ? $inParam.batchRequestes : []
-	
-	This._boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch_"+Generate UUID
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
+
+	This._requestes:=[]
 	
-	This._body:=""
-	This._mailType:=(OB Is defined($inParam; "mailType")) ? String($inParam.mailType) : "MIME"
-	This._format:=(OB Is defined($inParam; "format")) ? String($inParam.format) : "raw"
+	If (OB Is defined($inParam; "mailType"))
+		// for Messages can be: "MIME" or "JMAP"
+		This.mailType:=String($inParam.mailType)
+	End if 
+	If (OB Is defined($inParam; "format"))
+		// for Messages can be: "minimal", "metadata" or "raw"
+		// for Labels (and other incomming data) can be: "JSON"
+		This.format:=String($inParam.format)
+	End if 
+	If (OB Is defined($inParam; "maxItemNumber"))
+		This.maxItemNumber:=Num($inParam.maxItemNumber)
+	End if 
 	
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
-Function get boundary() : Text
+Function appendRequest($inParam : Object)
 	
-	return This._boundary
+	var $request : Object:={}
+	This._itemNumber+=1
+	$request.id:="<item"+String(This._itemNumber)+">"
+	$request.verb:=(Length(String($inParam.verb))>0) ? String($inParam.verb) : "GET"
+	$request.URL:=String($inParam.URL)
+	$request.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
+	$request.body:=(Value type($inParam.body)=Is text) ? $inParam.body : ""
 	
-	
-	// ----------------------------------------------------
-	
-	
-Function get body() : Text
-	
-	If (Length(This._body)=0)
-		This._body:=This.generateBody()
-	End if 
-	
-	return This._body
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function generateBody() : Text
-	
-	var $body : Text:=""
-	
-	If (This.batchRequestes.length>0)
-		
-		var $batchRequest : Object
-		For each ($batchRequest; This.batchRequestes)
-			
-			$body+="--"+This._boundary+"\r\n"
-			$body+="Content-Type: application/http\r\n"
-			$body+="Content-ID: "+String($batchRequest.request.id)+"\r\n\r\n"
-			
-			$body+=String($batchRequest.request.verb)+" "+String($batchRequest.request.URL)+" HTTP/1.1\r\n"
-			
-			If (Num($batchRequest.headers.length)>0)
-				var $header : Object
-				For each ($header; $batchRequest.headers)
-					$body+=String($header.name)+": "+String($header.value)+"\r\n"
-				End for each 
-			End if 
-			$body+="\r\n"
-			If (Length(String($batchRequest.request.body))>0)
-				$body+=String($batchRequest.request.body)+"\r\n"
-			End if 
-			$body+="\r\n"
-		End for each 
-		
-		$body+="--"+This._boundary+"--\r\n"
-	End if 
-	
-	return $body
+	This._requestes.push({request: $request})
 	
 	
 	// ----------------------------------------------------
@@ -91,37 +59,87 @@ Function generateBody() : Text
 	
 Function sendRequestAndWaitResponse() : Collection
 	
-	var $collection : Collection
-	var $verb : Text:=This.verb
-	var $URL : Text:=This._internals._URL
-	var $body : Text:=This.body
-	var $headers : Object:=This.headers
-	var $response : Text:=This._sendRequestAndWaitResponse($verb; $URL; $headers; $body)
+	var $collection : Collection:=[]
+	var $startIndex : Integer:=0
+	var $endIndex : Integer:=$startIndex+((This._requestes.length<=This.maxItemNumber) ? This._requestes.length : This.maxItemNumber)
+	var $requests : Collection:=This._requestes.slice($startIndex; $endIndex)
 	
-	If (Length($response)>0)
+	While ($requests.length>0)
 		
-		var $message : Object:=HTTP Parse message($response)
-		var $part; $subPart : Object
+		var $body : Text:=This._generateBody(This.boundary; $requests)
+		var $response : Text:=This._sendRequestAndWaitResponse(This.verb; This.URL; This.headers; $body)
 		
-		$collection:=[]
-		For each ($part; $message.parts)
+		If (Length($response)>0)
 			
-			$part:=HTTP Parse message(String($part.content))
-			For each ($subPart; $part.parts)
+			var $message : Object:=HTTP Parse message($response)
+			var $part; $subPart : Object
+			
+			For each ($part; $message.parts)
 				
-				var $result : Variant:=Null
-				If ($subPart.contentType="application/json")
-					$result:=This._extractRawMessage(Try(JSON Parse($subPart.content)); This._format; This._mailType)
-				Else 
-					$result:=4D.Blob.new($subPart.content)
-				End if 
-				
-				If ($result#Null)
-					$collection.push($result)
-				End if 
+				$part:=HTTP Parse message(String($part.content))
+				For each ($subPart; $part.parts)
+					
+					var $result : Variant:=Null
+					If ($subPart.contentType="application/json")
+						If (This.format="JSON")
+							$result:=Try(JSON Parse($subPart.content))
+						Else 
+							$result:=This._extractRawMessage(Try(JSON Parse($subPart.content)); This.format; This.mailType)
+						End if 
+					Else 
+						$result:=4D.Blob.new($subPart.content)
+					End if 
+					
+					If ($result#Null)
+						$collection.push($result)
+					End if 
+				End for each 
 			End for each 
+			
+		End if 
+		
+		$startIndex+=$requests.length
+		$endIndex:=$startIndex+(((This._requestes.length-$startIndex)<=This.maxItemNumber) ? (This._requestes.length-$startIndex) : This.maxItemNumber)
+		$requests:=This._requestes.slice($startIndex; $endIndex)
+		
+	End while 
+	
+	return (Num($collection.length)>0) ? $collection : Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _generateBody($inBoundary : Text; $inRequests : Collection) : Text
+	
+	var $body : Text:=""
+	
+	If ($inRequests.length>0)
+		
+		var $request : Object
+		For each ($request; $inRequests)
+			
+			$body+="--"+$inBoundary+"\r\n"
+			$body+="Content-Type: application/http\r\n"
+			$body+="Content-ID: "+String($request.request.id)+"\r\n\r\n"
+			
+			$body+=String($request.request.verb)+" "+String($request.request.URL)+" HTTP/1.1\r\n"
+			
+			If (Num($request.headers.length)>0)
+				var $header : Object
+				For each ($header; $request.headers)
+					$body+=String($header.name)+": "+String($header.value)+"\r\n"
+				End for each 
+			End if 
+			$body+="\r\n"
+			If (Length(String($request.request.body))>0)
+				$body+=String($request.request.body)+"\r\n"
+			End if 
+			$body+="\r\n"
 		End for each 
+		
+		$body+="--"+$inBoundary+"--\r\n"
 		
 	End if 
 	
-	return (Num($collection.length)>0) ? $collection : Null
+	return $body
