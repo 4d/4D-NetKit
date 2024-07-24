@@ -376,7 +376,8 @@ Function getLabelList($inParameters : Object) : Object
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	var $response : Object:=Null
 	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
-	var $bWithCounters : Boolean:=True
+	var $bWithCounters : Boolean:=(Value type($inParameters.withCounters)=Is boolean) ? $inParameters.withCounters : False
+	var $bSendBatchRequest : Boolean:=False
 	
 	If (($labelIds.length>0) && (Value type($labelIds[0])=Is object))
 		$labelIds:=$labelIds.extract("id")
@@ -388,11 +389,14 @@ Function getLabelList($inParameters : Object) : Object
 		If (Value type($response.labels)=Is collection)
 			$labelIds:=$response.labels.extract("id")
 		End if 
-		$bWithCounters:=(Value type($inParameters.withCounters)=Is boolean) ? $inParameters.withCounters : False
-		
+		$bSendBatchRequest:=$bWithCounters
+
+	else
+
+		$bSendBatchRequest:=True
 	End if 
 	
-	If (($labelIds.length>0) && $bWithCounters)
+	If (($labelIds.length>0) && $bSendBatchRequest)
 		
 		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"; maxItemNumber: 10})
 		var $labelId : Text
@@ -402,15 +406,27 @@ Function getLabelList($inParameters : Object) : Object
 			$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
 		End for each 
 		
-		var $result:=$batchRequest.sendRequestAndWaitResponse()
+		var $result : Collection:=$batchRequest.sendRequestAndWaitResponse()
 		
 		If (($result=Null) || ($batchRequest._getLastError()#Null))
+
 			var $stack : Collection:=$batchRequest._getErrorStack().reverse()
 			var $error : Object
 			
 			For each ($error; $stack)
 				This._getErrorStack().push($error)
 				throw($error)
+			End for each 
+		End if 
+		
+		If (Not($bWithCounters))
+
+			var $label : Object
+			For each ($label; $result)
+				OB REMOVE($label; "threadsTotal")
+				OB REMOVE($label; "threadsUnread")
+				OB REMOVE($label; "messagesTotal")
+				OB REMOVE($label; "messagesUnread")
 			End for each 
 		End if 
 		
