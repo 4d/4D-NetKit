@@ -140,17 +140,6 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 	// ----------------------------------------------------
 	
 	
-Function getErrorStack() : Object
-	
-	C_LONGINT(Error; Error line)
-	C_TEXT(Error method; Error formula)
-	
-	return {error: Error; line: Error line; method: Error method; formula: Error formula; errors: Last errors}
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text
 	
 	var $result : Text:=This.getParameterValue($headerValue; $paramName)
