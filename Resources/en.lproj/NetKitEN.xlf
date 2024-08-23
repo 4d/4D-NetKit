@@ -65,6 +65,14 @@
           <source>The '{function}' function returned an unexpected error : {message}.</source>
           <target>The '{function}' function returned an unexpected error : {message}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_13">
+          <source>The '{which}' parameter value in function {function} is too large and must not exceed {max}.</source>
+          <target>The '{which}' parameter value in function {function} is too large and must not exceed {max}.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_14">
+          <source>The '{which}' parameter in function {function} is not of type {type}.</source>
+          <target>The '{which}' parameter in function {function} is not of type {type}.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>

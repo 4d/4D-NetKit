@@ -1,12 +1,17 @@
 Class extends _BaseClass
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider)
+Class constructor($inProvider : cs.OAuth2Provider)
 	
-	Super:C1705()
+	Super()
 	
-	This:C1470._internals._URL:=""
-	This:C1470._internals._oAuth2Provider:=$inProvider
-	This:C1470._internals._statusLine:=""
+	This._internals._URL:=""
+	This._internals._statusLine:=""
+	This._internals._oAuth2Provider:=Null
+	If (OB Class($inProvider)=cs.OAuth2Provider)
+		This._internals._oAuth2Provider:=$inProvider
+	Else 
+		This._throwError(14; {which: "\"$inProvider\""; function: "\"_BaseClass:constructor\""; type: "\"cs.OAuth2Provider\""})
+	End if 
 	
 	
 	// Mark: - [Private]
@@ -15,37 +20,35 @@ Class constructor($inProvider : cs:C1710.OAuth2Provider)
 	
 Function _getToken() : Object
 	
-	If (This:C1470._internals._oAuth2Provider.token=Null:C1517)
-		This:C1470._internals._oAuth2Provider.getToken()
+	If (OB Class(This._internals._oAuth2Provider)=cs.OAuth2Provider)
+		This._internals._oAuth2Provider.getToken()
 	End if 
 	
-	return This:C1470._internals._oAuth2Provider.token
+	return This._internals._oAuth2Provider.token
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _getAcessToken() : Text
+Function _getAccessToken() : Text
 	
-	return String:C10(This:C1470._getToken().access_token)
+	return String(This._getToken().access_token)
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _getAcessTokenType() : Text
+Function _getAccessTokenType() : Text
 	
 	var $tokenType : Text
-	var $token : Object
-	
-	$token:=This:C1470._getToken()
+	var $token : Object:=This._getToken()
 	
 	Case of 
-		: (Value type:C1509($token.token_type)=Is text:K8:3)
-			$tokenType:=String:C10($token.token_type)
+		: (Value type($token.token_type)=Is text)
+			$tokenType:=String($token.token_type)
 			
-		: (Value type:C1509($token.type)=Is text:K8:3)
-			$tokenType:=String:C10($token.type)
+		: (Value type($token.type)=Is text)
+			$tokenType:=String($token.type)
 			
 		Else 
 			$tokenType:="Bearer"
@@ -58,106 +61,112 @@ Function _getAcessTokenType() : Text
 	// ----------------------------------------------------
 	
 	
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant)->$response : Variant
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant) : Variant
 	
-	This:C1470._try()
+	This._try()
 	
-	var $options : Object
-	var $token; $savedMethod : Text
+	var $response : Variant:=Null
+	var $options : Object:={headers: {}}
+	var $token : Text:=This._getAccessToken()
 	
-	$token:=This:C1470._getAcessToken()
-	$options:=New object:C1471()
-	$options.headers:=New object:C1471()
-	If (Length:C16(String:C10($token))>0)
-		$options.headers["Authorization"]:=This:C1470._getAcessTokenType()+" "+$token
+	If (Length(String($token))>0)
+		$options.headers["Authorization"]:=This._getAccessTokenType()+" "+$token
 	End if 
-	If (($inHeaders#Null:C1517) && (Value type:C1509($inHeaders)=Is object:K8:27))
-		var $keys : Collection
+	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
+		var $keys : Collection:=OB Keys($inHeaders)
 		var $key : Text
-		$keys:=OB Keys:C1719($inHeaders)
 		For each ($key; $keys)
 			$options.headers[$key]:=$inHeaders[$key]
 		End for each 
 	End if 
-	If (Length:C16(String:C10($inMethod))>0)
-		$options.method:=Uppercase:C13($inMethod)
+	If (Length(String($inMethod))>0)
+		$options.method:=Uppercase($inMethod)
 	End if 
 	Case of 
-		: ((Value type:C1509($inBody)=Is text:K8:3) || (Value type:C1509($inBody)=Is object:K8:27))
+		: ((Value type($inBody)=Is text) || (Value type($inBody)=Is object))
 			$options.body:=$inBody
-			$options.dataType:=(Value type:C1509($inBody)=Is text:K8:3) ? "text" : "object"
+			$options.dataType:=(Value type($inBody)=Is text) ? "text" : "object"
 		Else 
 			$options.body:=$inBody
 			$options.dataType:="auto"
 	End case 
 	
-	var $request : 4D:C1709.HTTPRequest
+	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($inURL; $options).wait())
+	var $status : Integer:=Num($request["response"]["status"])
+	var $statusText : Text:=String($request["response"]["statusText"])
+	This._internals._statusLine:=String($status)+" "+$statusText
 	
-	$savedMethod:=Method called on error:C704
-	ON ERR CALL:C155("_ErrorHandler")
-	$request:=4D:C1709.HTTPRequest.new($inURL; $options)
-	$request.wait()
-	ON ERR CALL:C155($savedMethod)
-	
-	var $status : Integer
-	var $statusText : Text
-	$status:=$request["response"]["status"]
-	$statusText:=$request["response"]["statusText"]
-	This:C1470._internals._statusLine:=String:C10($status)+" "+$statusText
-	
-	If (Int:C8($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
+	If (Int($status/100)=2)  // 200 OK, 201 Created, 202 Accepted... are valid status codes
 		
-		var $contentType; $charset : Text
-		var $blob : Blob
+		var $contentType : Text:=String($request["response"]["headers"]["content-type"])
+		var $charset : Text:=cs.Tools.me.getHeaderValueParameter($contentType; "charset"; "UTF-8")
 		
-		$contentType:=String:C10($request["response"]["headers"]["content-type"])
-		$charset:=_getHeaderValueParameter($contentType; "charset"; "UTF-8")
-		
-		Case of 
-			: (Value type:C1509($request["response"]["body"])=Is object:K8:27)
-				$response:=$request["response"]["body"]
-				
-			: (($contentType="application/json@") || ($contentType="text/plain@"))
-				var $text : Text
-				If (Value type:C1509($request["response"]["body"])=Is text:K8:3)
-					$text:=$request["response"]["body"]
-				Else 
-					$text:=Convert to text:C1012($request["response"]["body"]; $charset)
-				End if 
-				If ($contentType="application/json@")
-					$response:=JSON Parse:C1218($text)
-				Else 
-					$response:=$text
-				End if 
-				
-			: ((OB Is defined:C1231($request.response; "body") && (Value type:C1509($request["response"]["body"])=Is BLOB:K8:12)))
-				$response:=4D:C1709.Blob.new($request["response"]["body"])
-				
-		End case 
+		If (OB Is defined($request.response; "body"))
+			var $text : Text
+			Case of 
+				: (Value type($request["response"]["body"])=Is object)
+					$response:=$request["response"]["body"]
+					
+				: (($contentType="application/json@") || ($contentType="text/plain@"))
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
+					End if 
+					If ($contentType="application/json@")
+						$response:=Try(JSON Parse($text))
+					Else 
+						$response:=$text
+					End if 
+					
+				: ((OB Is defined($request.response; "body") && (Value type($request["response"]["body"])=Is BLOB)))
+					$response:=4D.Blob.new($request["response"]["body"])
+					
+				: ($contentType="multipart/@")
+					var $headers : Text:="HTTP/1.1 "+This._internals._statusLine+"\r\n"
+					$keys:=OB Keys($request.response.headers)
+					For each ($key; $keys)
+						$headers+=$key+": "+$request.response.headers[$key]+"\r\n"
+					End for each 
+					$headers+="\r\n"
+					If (Value type($request["response"]["body"])=Is text)
+						$text:=$request["response"]["body"]
+					Else 
+						$text:=Try(Convert to text($request["response"]["body"]; $charset))
+					End if 
+					$response:=$headers+$text
+					
+			End case 
+			
+		Else 
+			
+			$response:=Null
+		End if 
 		
 	Else 
 		
-		var $explanation; $message : Text
-		$explanation:=$request["response"]["statusText"]
+		var $message : Text
 		
 		Case of 
-			: (Value type:C1509($request["response"]["body"])=Is text:K8:3)
+			: (Value type($request["response"]["body"])=Is text)
 				$message:=$request["response"]["body"]
 				
-			: (Value type:C1509($request["response"]["body"])=Is object:K8:27)
-				$message:=JSON Stringify:C1217($request["response"]["body"])
+			: (Value type($request["response"]["body"])=Is object)
+				$message:=Try(JSON Stringify($request["response"]["body"]))
 				
 			Else 
-				$message:=Convert to text:C1012($request["response"]["body"]; "UTF-8")
+				$message:=Try(Convert to text($request["response"]["body"]; "UTF-8"))
 				
 		End case 
 		
-		This:C1470._throwError(8; New object:C1471("status"; $status; "explanation"; $explanation; "message"; $message))
-		$response:=Null:C1517
+		This._throwError(8; {status: $status; explanation: $statusText; message: $message})
+		$response:=Null
 		
 	End if 
 	
-	This:C1470._finally()
+	This._finally()
+	
+	return $response
 	
 	
 	// ----------------------------------------------------
@@ -165,7 +174,7 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	
 Function _getStatusLine() : Text
 	
-	return This:C1470._internals._statusLine
+	return This._internals._statusLine
 	
 	
 	// ----------------------------------------------------
@@ -173,42 +182,40 @@ Function _getStatusLine() : Text
 	
 Function _getURL() : Text
 	
-	return This:C1470._internals._URL
+	return This._internals._URL
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _getOAuth2Provider() : cs:C1710.OAuth2Provider
+Function _getOAuth2Provider() : cs.OAuth2Provider
 	
-	return This:C1470._internals._oAuth2Provider
+	return This._internals._oAuth2Provider
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _returnStatus($inAdditionalInfo : Object)->$status : Object
+Function _returnStatus($inAdditionalInfo : Object) : Object
 	
-	var $errorStack : Collection
-	$errorStack:=Super:C1706._getErrorStack()
-	$status:=New object:C1471
+	var $status : Object:={}
+	var $errorStack : Collection:=Super._getErrorStack()
 	
-	If (Not:C34(OB Is empty:C1297($inAdditionalInfo)))
-		var $keys : Collection
+	If (Not(OB Is empty($inAdditionalInfo)))
 		var $key : Text
-		
-		$keys:=OB Keys:C1719($inAdditionalInfo)
+		var $keys : Collection:=OB Keys($inAdditionalInfo)
 		For each ($key; $keys)
 			$status[$key]:=$inAdditionalInfo[$key]
 		End for each 
 	End if 
 	
 	If ($errorStack.length>0)
-		$status.success:=False:C215
+		$status.success:=False
 		$status.errors:=$errorStack
-		$status.statusText:=$errorStack[0].message
+		$status.statusText:=$errorStack.first().message
 	Else 
-		$status.success:=True:C214
-		$status.statusText:=This:C1470._getStatusLine()
+		$status.success:=True
+		$status.statusText:=This._getStatusLine()
 	End if 
 	
+	return $status

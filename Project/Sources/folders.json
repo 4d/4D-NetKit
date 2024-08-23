@@ -17,6 +17,8 @@
 			"_BaseAPI",
 			"_BaseClass",
 			"_GoogleAPI",
+			"_GoogleBaseList",
+			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_JWT"
@@ -24,27 +26,19 @@
 	},
 	"Private Methods": {
 		"methods": [
-			"_buildComponent",
-			"_camelCase",
+			"__buildComponent",
 			"_catch",
-			"_convertToGraphAttachment",
-			"_ErrorHandler",
-			"_getErrorStack",
-			"_getHeaderValueParameter",
-			"_getPathFromURL",
-			"_getPortFromURL",
-			"_OnWebConnection",
-			"_retainFileObject",
-			"_StartWebServer",
-			"_StopWebServer",
-			"_throwError",
-			"_urlEscape"
+			"_errorHandler",
+			"_onWebConnection",
+			"_throwError"
 		]
 	},
 	"Public": {
 		"classes": [
+			"EmailAddress",
 			"Google",
 			"GoogleMail",
+			"GoogleMailIdList",
 			"GraphAttachment",
 			"GraphFolderList",
 			"GraphMessage",
@@ -55,7 +49,8 @@
 			"OAuth2Token",
 			"Office365",
 			"Office365Mail",
-			"Office365User"
+			"Office365User",
+			"Tools"
 		]
 	},
 	"Public Methods": {

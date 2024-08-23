@@ -1,8 +1,8 @@
-C_LONGINT:C283($1)
+C_LONGINT($1)
 
 Case of 
-	: ($1=On before host database startup:K74:3)
+	: ($1=On before host database startup)
 		var $webServer : Object
-		$webServer:=WEB Server:C1674
+		$webServer:=WEB Server
 End case 
 

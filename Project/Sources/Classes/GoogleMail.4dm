@@ -1,98 +1,106 @@
 Class extends _GoogleAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inParameters : Object)
+property mailType : Text
+property userId : Text
+
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470.mailType:=(Length:C16(String:C10($inParameters.mailType))>0) ? String:C10($inParameters.mailType) : "JMAP"
-	This:C1470.userId:=String:C10($inParameters.userId)
+	This.mailType:=(Length(String($inParameters.mailType))>0) ? String($inParameters.mailType) : "JMAP"
+	This.userId:=String($inParameters.userId)
 	
 	
 	// ----------------------------------------------------
 	// Mark: - [Private]
 	
 	
-Function _postJSONMessage($inURL : Text; \
-$inMail : Object; \
-$inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
-	If ($inMail#Null:C1517)
-		var $headers; $message; $messageCopy; $response : Object
+	var $response : Object:=Null
+	
+	If ($inMail#Null)
 		
-		$headers:=New object:C1471
+		var $headers : Object:={}
 		$headers["Content-Type"]:="message/rfc822"
-		If (($inHeader#Null:C1517) && (Value type:C1509($inHeader)=Is object:K8:27))
-			var $keys : Collection
+		If (($inHeader#Null) && (Value type($inHeader)=Is object))
+			var $keys : Collection:=OB Keys($inHeader)
 			var $key : Text
-			$keys:=OB Keys:C1719($inHeader)
 			For each ($key; $keys)
 				$headers[$key]:=$inHeader[$key]
 			End for each 
 		End if 
 		
-		$response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
+		$response:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $inMail)
+		This._internals._response:=$response
 	Else 
-		Super:C1706._pushError(1)
+		Super._throwError(1)
 	End if 
 	
-	return This:C1470._returnStatus((Length:C16(String:C10($response.id))>0) ? New object:C1471("id"; $response.id) : Null:C1517)
+	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
-	var $headers; $response : Object
 	var $requestBody : Text
-	
-	$headers:=New object:C1471
+	var $headers : Object:={}
 	$headers["Content-Type"]:="application/json"
 	
 	Case of 
-		: (Value type:C1509($inMail)=Is BLOB:K8:12)
-			$requestBody:=Convert to text:C1012($inMail; "UTF-8")
+		: (Value type($inMail)=Is BLOB)
+			$requestBody:=Try(Convert to text($inMail; "UTF-8"))
 			
-		: (Value type:C1509($inMail)=Is object:K8:27)
-			$requestBody:=MAIL Convert to MIME:C1604($inMail)
+		: (Value type($inMail)=Is object)
+			$requestBody:=Try(MAIL Convert to MIME($inMail))
 			
 		Else 
 			$requestBody:=$inMail
 	End case 
-	BASE64 ENCODE:C895($requestBody)
+	BASE64 ENCODE($requestBody)
 	
-	This:C1470._internals._response:=Super:C1706._sendRequestAndWaitResponse("POST"; $inURL; $headers; New object:C1471("raw"; $requestBody))
-	return This:C1470._returnStatus()
+	var $message : Object:={raw: $requestBody}
+	If ((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0))
+		$message.labelIds:=$inLabelIds
+	End if 
+	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $inURL; $headers; $message)
+	This._internals._response:=$response
+	
+	return This._returnStatus()
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function _postMessage($inFunction : Text; \
-$inURL : Text; \
-$inMail : Variant; \
-$inHeader : Object) : Object
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $status : Object
+	var $labelIds : Collection:=Null
 	
-	Super:C1706._throwErrors(False:C215)
+	Super._throwErrors(False)
+	
+	If ($inFunction="google.mail.append")
+		$labelIds:=((Value type($inLabelIds)=Is collection) && ($inLabelIds.length>0)) ? $inLabelIds : ["DRAFT"]
+	End if 
 	
 	Case of 
-		: ((This:C1470.mailType="MIME") && (\
-			(Value type:C1509($inMail)=Is text:K8:3) || \
-			(Value type:C1509($inMail)=Is BLOB:K8:12)))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="MIME") && (\
+			(Value type($inMail)=Is text) || \
+			(Value type($inMail)=Is BLOB)))
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
-		: ((This:C1470.mailType="JMAP") && (Value type:C1509($inMail)=Is object:K8:27))
-			$status:=This:C1470._postMailMIMEMessage($inURL; $inMail)
+		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
+			$status:=This._postMailMIMEMessage($inURL; $inMail; $labelIds)
 			
 		Else 
-			Super:C1706._pushError(10; New object:C1471("which"; 1; "function"; $inFunction))
-			$status:=This:C1470._returnStatus()
+			Super._throwError(10; {which: 1; function: $inFunction})
+			$status:=This._returnStatus()
 			
 	End case 
 	
-	Super:C1706._throwErrors(True:C214)
+	Super._throwErrors(True)
 	
 	return $status
 	
@@ -102,13 +110,453 @@ $inHeader : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function append($inMail : Variant; $inLabelIds : Collection) : Object
+	
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	$URL+="users/"+$userId+"/messages/"
+	
+	var $status : Object:=This._postMessage("google.mail.append"; $URL; $inMail; $inLabelIds)
+	If ((Value type(This._internals._response)=Is object) && (Length(String(This._internals._response.id))>0))
+		$status.id:=String(This._internals._response.id)
+	End if 
+	
+	return $status
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function send($inMail : Variant) : Object
 	
-	var $URL; $userId : Text
-	
-	$URL:=Super:C1706._getURL()
-	$userId:=(Length:C16(String:C10(This:C1470.userId))>0) ? This:C1470.userId : "me"
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	$URL+="users/"+$userId+"/messages/send"
 	
-	return This:C1470._postMessage("send"; $URL; $inMail)
+	return This._postMessage("google.mail.send"; $URL; $inMail)
 	
+	
+	// ----------------------------------------------------
+	
+	
+Function delete($inMailId : Text; $permanently : Boolean) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.delete"})
+			
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.delete"})
+			
+		Else 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/messages/"+$inMailId
+			If (Not(Bool($permanently)))
+				$URL+="/trash"
+			End if 
+			var $verb : Text:=Bool($permanently) ? "DELETE" : "POST"
+			
+			This._internals._response:=Super._sendRequestAndWaitResponse($verb; $URL)
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function untrash($inMailId : Text) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.untrash"})
+			
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.untrash"})
+			
+		Else 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/messages/"+$inMailId+"/untrash"
+			
+			This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $URL)
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMailIds($inParameters : Object) : Object
+	
+	Super._clearErrorStack()
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	var $urlParams : Text:="users/"+$userId+"/messages"+This._getURLParamsFromObject($inParameters)
+	
+	return cs.GoogleMailIdList.new(This._getOAuth2Provider(); $URL+$urlParams)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMail($inMailId : Text; $inParameters : Object) : Variant
+	
+	var $response : Variant:=Null
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inMailId)#Is text)
+			Super._throwError(10; {which: "\"mailId\""; function: "google.mail.getMail"})
+			
+		: (Length(String($inMailId))=0)
+			Super._throwError(9; {which: "\"mailId\""; function: "google.mail.getMail"})
+			
+		Else 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			var $mailType : Text:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+			var $format : Text:=String($inParameters.format)
+			$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
+			var $parameters : Object:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+			If ($parameters.format#$format)
+				$parameters.format:=$format
+			End if 
+			var $urlParams : Text:="users/"+$userId+"/messages/"+String($inMailId)+This._getURLParamsFromObject($parameters)
+			
+			var $result : Object:=Super._sendRequestAndWaitResponse("GET"; $URL+$urlParams)
+			$response:=This._extractRawMessage($result; $format; $mailType)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return $response
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
+	
+	var $result : Collection:=Null
+	
+	Super._clearErrorStack()
+	
+	Case of 
+		: (Type($inMailIds)#Is collection)
+			Super._throwError(10; {which: "\"mailIds\""; function: "google.mail.getMails"})
+			
+		: (Num($inMailIds.length)=0)
+			Super._throwError(9; {which: "\"mailIds\""; function: "google.mail.getMails"})
+			
+		Else 
+			
+			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+			
+			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+				$mailIds:=$mailIds.extract("id")
+			End if 
+			
+			If ($mailIds.length=1)
+				
+				var $response : Variant:=This.getMail($mailIds[0]; $inParameters)
+				If ($response#Null)
+					$result:=New collection($response)
+				End if 
+				
+			Else 
+				
+				var $URL : Text:=Super._getURL()
+				var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+				var $mailType : Text:=(Length(String($inParameters.mailType))>0) ? $inParameters.mailType : This.mailType
+				var $format : Text:=String($inParameters.format)
+				$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
+				var $parameters : Object:=(($inParameters#Null) && (Value type($inParameters)=Is object)) ? $inParameters : {format: $format}
+				If ($parameters.format#$format)
+					$parameters.format:=$format
+				End if 
+				
+				var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {mailType: $mailType; format: $format})
+				var $mailId : Text
+				
+				For each ($mailId; $mailIds)
+					var $urlParams : Text:="users/"+$userId+"/messages/"+$mailId+This._getURLParamsFromObject($parameters)
+					$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
+				End for each 
+				
+				$result:=$batchRequest.sendRequestAndWaitResponse()
+				
+				If (($result=Null) || ($batchRequest._getLastError()#Null))
+					var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+					var $error : Object
+					
+					For each ($error; $stack)
+						This._getErrorStack().push($error)
+						throw($error)
+					End for each 
+				End if 
+				
+			End if 
+			
+	End case 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function update($inMailIds : Collection; $inParameters : Object) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inMailIds)#Is collection)
+			Super._throwError(10; {which: "\"mailIds\""; function: "google.mail.update"})
+			
+		: (Num($inMailIds.length)=0)
+			Super._throwError(9; {which: "\"mailIds\""; function: "google.mail.update"})
+			
+		: (Num($inMailIds.length)>1000)
+			Super._throwError(13; {which: "\"mailIds\""; function: "google.mail.update"; max: 1000})
+			
+		: (Type($inParameters)#Is object)
+			Super._throwError(10; {which: "\"parameters\""; function: "google.mail.update"})
+			
+		Else 
+			
+			var $mailIds : Collection:=(Value type($inMailIds)=Is collection) ? $inMailIds : []
+			
+			If (($mailIds.length>0) && (Value type($mailIds[0])=Is object))
+				$mailIds:=$mailIds.extract("id")
+			End if 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/messages/batchModify"
+			
+			var $headers : Object:={}
+			var $body : Object:={}
+			$body.ids:=$mailIds
+			$body.addLabelIds:=(Value type($inParameters.addLabelIds)=Is collection) ? $inParameters.addLabelIds : []
+			$body.removeLabelIds:=(Value type($inParameters.removeLabelIds)=Is collection) ? $inParameters.removeLabelIds : []
+			
+			This._internals._response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $body)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
+	
+	
+	// Mark: - Labels
+	// ----------------------------------------------------
+	
+	
+Function getLabelList($inParameters : Object) : Object
+	
+	Super._clearErrorStack()
+	var $URL : Text:=Super._getURL()
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	var $response : Object:=Null
+	var $labelIds : Collection:=(Value type($inParameters.ids)=Is collection) ? $inParameters.ids : []
+	var $bWithCounters : Boolean:=(Value type($inParameters.withCounters)=Is boolean) ? $inParameters.withCounters : False
+	var $bSendBatchRequest : Boolean:=False
+	
+	If (($labelIds.length>0) && (Value type($labelIds[0])=Is object))
+		$labelIds:=$labelIds.extract("id")
+	End if 
+	
+	If ($labelIds.length=0)
+		
+		$response:=Super._sendRequestAndWaitResponse("GET"; $URL+"users/"+$userId+"/labels")
+		If (Value type($response.labels)=Is collection)
+			$labelIds:=$response.labels.extract("id")
+		End if 
+		$bSendBatchRequest:=$bWithCounters
+
+	else
+
+		$bSendBatchRequest:=True
+	End if 
+	
+	If (($labelIds.length>0) && $bSendBatchRequest)
+		
+		var $batchRequest : cs._GoogleBatchRequest:=cs._GoogleBatchRequest.new(This._getOAuth2Provider(); {format: "JSON"; maxItemNumber: 10})
+		var $labelId : Text
+		
+		For each ($labelId; $labelIds)
+			var $urlParams : Text:="users/"+$userId+"/labels/"+$labelId
+			$batchRequest.appendRequest({verb: "GET"; URL: $URL+$urlParams})
+		End for each 
+		
+		var $result : Collection:=$batchRequest.sendRequestAndWaitResponse()
+		
+		If (($result=Null) || ($batchRequest._getLastError()#Null))
+
+			var $stack : Collection:=$batchRequest._getErrorStack().reverse()
+			var $error : Object
+			
+			For each ($error; $stack)
+				This._getErrorStack().push($error)
+				throw($error)
+			End for each 
+		End if 
+		
+		If (Not($bWithCounters))
+
+			var $label : Object
+			For each ($label; $result)
+				OB REMOVE($label; "threadsTotal")
+				OB REMOVE($label; "threadsUnread")
+				OB REMOVE($label; "messagesTotal")
+				OB REMOVE($label; "messagesUnread")
+			End for each 
+		End if 
+		
+		$response:={labels: $result}
+		
+	End if 
+	
+	return This._returnStatus($response)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getLabel($inLabelId : Text) : Object
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.getLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.getLabel"})
+			
+		Else 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			return Super._sendRequestAndWaitResponse("GET"; $URL)
+			
+	End case 
+	
+	return Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function createLabel($inLabelInfo : Object) : Object
+	
+	var $response : Object:=Null
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelInfo)#Is object)
+			Super._throwError(10; {which: "\"labelInfo\""; function: "google.mail.createLabel"})
+			
+		: (OB Is empty($inLabelInfo))
+			Super._throwError(9; {which: "\"labelInfo\""; function: "google.mail.createLabel"})
+			
+		Else 
+			
+			var $headers : Object:={}
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels"
+			
+			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inLabelInfo)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)
+	
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function deleteLabel($inLabelId : Text) : Object
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.deleteLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.deleteLabel"})
+			
+		Else 
+			
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			This._internals._response:=Super._sendRequestAndWaitResponse("DELETE"; $URL)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus()
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
+	
+	var $response : Object:=Null
+	
+	Super._throwErrors(False)
+	
+	Case of 
+		: (Type($inLabelId)#Is text)
+			Super._throwError(10; {which: "\"labelId\""; function: "google.mail.updateLabel"})
+			
+		: (Length($inLabelId)=0)
+			Super._throwError(9; {which: "\"labelId\""; function: "google.mail.updateLabel"})
+			
+		: (Type($inLabelInfo)#Is object)
+			Super._throwError(10; {which: "\"labelInfo\""; function: "google.mail.updateLabel"})
+			
+		: (OB Is empty($inLabelInfo))
+			Super._throwError(9; {which: "\"labelInfo\""; function: "google.mail.updateLabel"})
+			
+		Else 
+			
+			var $headers : Object:={}
+			var $URL : Text:=Super._getURL()
+			var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+			$URL+="users/"+$userId+"/labels/"+$inLabelId
+			
+			$response:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inLabelInfo)
+			
+	End case 
+	
+	Super._throwErrors(True)
+	
+	return This._returnStatus(($response#Null) ? {label: $response} : Null)

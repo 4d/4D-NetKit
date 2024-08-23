@@ -1,29 +1,28 @@
 Class extends _BaseAPI
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider)
+Class constructor($inProvider : cs.OAuth2Provider)
 	
-	Super:C1705($inProvider)
+	Super($inProvider)
 	
-	This:C1470._internals._URL:="https://graph.microsoft.com/v1.0/"
+	This._internals._URL:="https://graph.microsoft.com/v1.0/"
 	
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
 	
-Function _cleanGraphObject($ioObject : Object) : Object
+Function _cleanGraphObject($inObject : Object) : Object
 	
-	var $keys : Collection
+	var $cleanObject : Object:=OB Copy($inObject)
+	var $keys : Collection:=OB Keys($cleanObject)
 	var $key : Text
-	
-	$keys:=OB Keys:C1719($ioObject)
 	For each ($key; $keys)
-		If ((Position:C15("@"; $key)=1) || ($ioObject[$key]=Null:C1517))
-			OB REMOVE:C1226($ioObject; $key)
+		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
+			OB REMOVE($cleanObject; $key)
 		End if 
 	End for each 
 	
-	return $ioObject
+	return $cleanObject
 	
 	
 	// ----------------------------------------------------
@@ -31,38 +30,36 @@ Function _cleanGraphObject($ioObject : Object) : Object
 	
 Function _copyGraphMessage($inMessage : Object) : Object
 	
-	If (OB Instance of:C1731($inMessage; cs:C1710.GraphMessage))
+	If (OB Instance of($inMessage; cs.GraphMessage))
 		
-		var $message : Object
-		var $keys : Collection
-		var $key : Text
-		var $iter; $attachment : Object
-		
-		$message:=New object:C1471
-		If (OB Is defined:C1231($inMessage; "attachments") && ($inMessage.attachments#Null:C1517))
-			$message.attachments:=New collection:C1472
+		var $result : Object:={}
+		var $message : Object:=OB Copy($inMessage)
+		If (OB Is defined($message; "attachments") && ($message.attachments#Null))
+			$result.attachments:=[]
 		End if 
-		$keys:=OB Keys:C1719($inMessage)
+		var $key : Text
+		var $keys : Collection:=OB Keys($message)
 		For each ($key; $keys)
 			
 			Case of 
-				: (($key="_internals") || (Position:C15("@"; $key)=1) || ($key="webLink"))
+				: (($key="_internals") || (Position("@"; $key)=1) || ($key="webLink"))
 					// do not copy
 					
 				: ($key="attachments")
-					For each ($iter; $inMessage.attachments)
-						$attachment:=_convertToGraphAttachment($iter)
-						$message.attachments.push($attachment)
+					var $iter : Object
+					For each ($iter; $message.attachments)
+						var $attachment : Object:=cs.Tools.me.convertToGraphAttachment($iter)
+						$result.attachments.push($attachment)
 					End for each 
 					
 				Else 
-					$message[$key]:=$inMessage[$key]
+					$result[$key]:=$message[$key]
 					
 			End case 
 			
 		End for each 
 		
-		return $message
+		return $result
 		
 	Else 
 		
@@ -75,15 +72,13 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	
 Function _loadFromObject($inObject : Object)
 	
-	If (($inObject#Null:C1517) & (Not:C34(OB Is empty:C1297($inObject))))
+	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
 		var $key : Text
-		var $keys : Collection
-		
-		$keys:=OB Keys:C1719($inObject)
+		var $keys : Collection:=OB Keys($inObject)
 		
 		For each ($key; $keys)
-			This:C1470[$key]:=$inObject[$key]
+			This[$key]:=$inObject[$key]
 		End for each 
 		
 	End if 
@@ -92,37 +87,38 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
-Function _getURLParamsFromObject($inParameters : Object) : Text
+Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
-	var $urlParams; $delimiter : Text
-	
-	$urlParams:=""
-	$delimiter:="?"
-	If (Bool:C1537($inParameters.includeHiddenFolders))
+	var $urlParams : Text:=""
+	var $delimiter : Text:="?"
+	If (Bool($inParameters.includeHiddenFolders))
 		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.search))>0)
+	If (Length(String($inParameters.search))>0)
 		$urlParams+=$delimiter+"$search="+$inParameters.search
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.filter))>0)
+	If (Length(String($inParameters.filter))>0)
 		$urlParams+=$delimiter+"$filter="+$inParameters.filter
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.select))>0)
+	If (Length(String($inParameters.select))>0)
 		$urlParams+=$delimiter+"$select="+$inParameters.select
 		$delimiter:="&"
 	End if 
-	If (Not:C34(Value type:C1509($inParameters.top)=Is undefined:K8:13))
-		$urlParams+=$delimiter+"$top="+Choose:C955(Value type:C1509($inParameters.top)=Is text:K8:3; \
-			$inParameters.top; String:C10($inParameters.top))
+	If (Not(Value type($inParameters.top)=Is undefined))
+		$urlParams+=$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
+			$inParameters.top; String($inParameters.top))
 		$delimiter:="&"
 	End if 
-	If (Length:C16(String:C10($inParameters.orderBy))>0)
+	If (Length(String($inParameters.orderBy))>0)
 		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
+		$delimiter:="&"
+	End if 
+	If (Bool($inCount))
+		$urlParams+=$delimiter+"$count=true"
 		$delimiter:="&"
 	End if 
 	
 	return $urlParams
-	
