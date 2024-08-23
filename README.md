@@ -67,18 +67,18 @@ The `OAuth2Provider` class allows you to request authentication tokens to third-
 Here's a diagram of the authorization process:
 ![authorization-flow](Documentation/Assets/authorization.png)
 
-This class can be instantiated in two ways: 
-* by calling the `New OAuth2 provider` method 
+This class can be instantiated in two ways:
+* by calling the `New OAuth2 provider` method
 * by calling the `cs.NetKit.OAuth2Provider.new()` function
 
 
-**Warning:** OAuth2 authentication in `signedIn` mode requires a browser. Since some servers have restrictions regarding the supported browsers (for example, check this [Google support](https://support.google.com/accounts/answer/7675428?hl=en) page), the functionality may not work properly. 
+**Warning:** OAuth2 authentication in `signedIn` mode requires a browser. Since some servers have restrictions regarding the supported browsers (for example, check this [Google support](https://support.google.com/accounts/answer/7675428?hl=en) page), the functionality may not work properly.
 
 ### **New OAuth2 provider**
 
 **New OAuth2 provider**( *paramObj* : Object ) : cs.NetKit.OAuth2Provider
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|Object|->| Determines the properties of the object to be returned |
@@ -88,7 +88,7 @@ This class can be instantiated in two ways:
 
 `New OAuth2 provider` instantiates an object of the `OAuth2Provider` class.
 
-In `paramObj`, pass an object that contains authentication information. 
+In `paramObj`, pass an object that contains authentication information.
 
 
 The available properties of `paramObj` are:
@@ -103,6 +103,7 @@ The available properties of `paramObj` are:
 | tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts (default value)</li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
 | authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
 | tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for Google: "https://accounts.google.com/o/oauth2/token".|Yes
+|tokenExpiration | text | Timestamp (ISO 8601 UTC) that indicates the expiration time of the token.| Yes
 | clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
 | token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes
 | timeout|real| Waiting time in seconds (by default 120s).|Yes
@@ -170,7 +171,7 @@ $token:=$oAuth2.getToken()
 
 var $credential:={}
 // google
-$credential.name:="Google" 
+$credential.name:="Google"
 $credential.permission:="signedIn"
 $credential.clientId:="499730xxx"
 $credential.clientSecret:="fc1kwxxx"
@@ -183,7 +184,7 @@ var $oauth2:=cs.NetKit.OAuth2Provider.new($credential)
 var $token:=Try($oauth2.getToken())
 if ($token=null)
   ALERT("Error: "+Last errors[0].message)
-end if 
+end if
 
 ```
 
@@ -196,7 +197,7 @@ end if
 |Result|Object|<-| Object that holds information on the token retrieved
 
 
-#### Description 
+#### Description
 
 `.getToken()` returns an object that contains a `token` property (as defined by the [IETF](https://datatracker.ietf.org/doc/html/rfc6749#section-5.1)), as well as optional additional information returned by the server:
 
@@ -212,9 +213,9 @@ Property|Object properties|Type|Description |
 
 If the value of `token` is empty, the command sends a request for a new token.
 
-If the token has expired: 
+If the token has expired:
 *   If the token object has the `refresh_token` property, the command sends a new request to refresh the token and returns it.
-*   If the token object does not have the `refresh_token` property, the command automatically sends a request for a new token. 
+*   If the token object does not have the `refresh_token` property, the command automatically sends a request for a new token.
 
 When requesting access on behalf of a user ("signedIn" mode) the command opens a web browser to request authorization.
 
@@ -228,15 +229,15 @@ The `Office365` class allows you to call the [Microsoft Graph API](https://docs.
 
 This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
 
-The `Office365` class can be instantiated in two ways: 
-* by calling the `New Office365 provider` method 
-* by calling the `cs.NetKit.Office365.new()` function 
+The `Office365` class can be instantiated in two ways:
+* by calling the `New Office365 provider` method
+* by calling the `cs.NetKit.Office365.new()` function
 
 ### **New Office365 provider**
 
 **New Office365 provider**( *paramObj* : Object { ; *options* : Object } ) : cs.NetKit.Office365
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
@@ -255,7 +256,7 @@ In `options`, you can pass an object that specifies the following options:
 |---------|---|------|
 |mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li></ul>|
 
-#### Returned object 
+#### Returned object
 
 The returned `Office365` object contains the following properties:
 
@@ -281,13 +282,13 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 
 #### Example 2
 
-Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode. 
+Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode.
 
 ### Office365.mail.append()
 
 **Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Object|->| Microsoft message object to append|
@@ -296,12 +297,12 @@ Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mod
 
 #### Description
 
-`Office365.mail.append()` creates a draft *email* in the *folderId* folder. 
+`Office365.mail.append()` creates a draft *email* in the *folderId* folder.
 
-In `email`, pass the email to create. It must be of the [Microsoft mail object](#microsoft-mail-object-properties) type. 
+In `email`, pass the email to create. It must be of the [Microsoft mail object](#microsoft-mail-object-properties) type.
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -327,7 +328,7 @@ $status:=$office365.mail.append($draft; $folder.id)
 
 **Office365.mail.copy**( *mailId* : Text ; *folderId* : Text) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to copy|
@@ -338,7 +339,7 @@ $status:=$office365.mail.append($draft; $folder.id)
 
 `Office365.mail.copy()` copies the *mailId* email to the *folderId* folder within the user's mailbox.
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -365,7 +366,7 @@ $status:=$office365.mail.copy($mailId; $folderId)
 
 **Office365.mail.createFolder**( *name* : Text { ; *isHidden* : Boolean { ; *parentFolderId* : Text } }) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |name|Text|->|Display name of the new folder|
@@ -377,7 +378,7 @@ $status:=$office365.mail.copy($mailId; $folderId)
 
 By default, the new folder is not hidden. Pass `True` in the isHidden parameter to create a hidden folder. This property cannot be changed afterwards. Find more information in [Hidden mail folders](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0#hidden-mail-folders) on the Microsoft web site.
 
-By default, the new folder is created at the root folder of the mailbox. If you want to create it within an existing folder, pass its id in the *parentFolderId* parameter. 
+By default, the new folder is created at the root folder of the mailbox. If you want to create it within an existing folder, pass its id in the *parentFolderId* parameter.
 
 #### Permissions
 
@@ -390,7 +391,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -412,7 +413,7 @@ End if
 
 **Office365.mail.delete**( *mailId* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to delete|
@@ -435,7 +436,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -457,7 +458,7 @@ End for each
 
 **Office365.mail.deleteFolder**( *folderId* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-name) if one exists.|
@@ -478,7 +479,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -492,13 +493,13 @@ $status:=$office365.mail.deleteFolder($folderId)
 
 **Office365.mail.getFolder**( *folderId* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-|mailFolder object|
 
-`Office365.mail.getFolder()` allows you to get a **mailFolder** object from its *folderId*. 
+`Office365.mail.getFolder()` allows you to get a **mailFolder** object from its *folderId*.
 
 #### Permissions
 
@@ -511,7 +512,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
 
-#### mailFolder object 
+#### mailFolder object
 
 The method returns a **mailFolder** object containing the following properties (additional information can be returned by the server):
 
@@ -530,13 +531,13 @@ The method returns a **mailFolder** object containing the following properties (
 
 **Office365.mail.getFolderList**( *options* : Object ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Description of folders to get|
 |Result|Object|<-| Status object that contains folder list and other information|
 
-`Office365.mail.getFolderList()` allows you to get a mail folder collection of the signed-in user. 
+`Office365.mail.getFolderList()` allows you to get a mail folder collection of the signed-in user.
 
 In *options*, pass an object to define the folders to get. The available properties for that object are (all properties are optional):
 
@@ -562,7 +563,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a status object containing the following properties:
 
@@ -578,7 +579,7 @@ The method returns a status object containing the following properties:
 | previous() ||   Function | Function that updates the `folders` collection with the previous folder information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `folders` collection is not updated and `False` is returned</li></ul>  |
 | statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
-| folders ||  Collection | Collection of `mailFolder` objects with information on folders.| 
+| folders ||  Collection | Collection of `mailFolder` objects with information on folders.|
 || [].childFolderCount|Integer|The number of immediate child mailFolders in the current mailFolder.
 || [].displayName|	Text|	The mailFolder's display name.
 || [].id|	Text|	The mailFolder's unique identifier.
@@ -611,7 +612,7 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 
 **Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
 
-#### Parameters 
+#### Parameters
 |Parameter||Type||Description|
 |-----|----|--- |:---:|------|
 |mailId||Text|->| Id of the mail to get|
@@ -620,7 +621,7 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 ||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
 |Result||Blob &#124; Object|<-| Downloaded mail|
 
-`Office365.mail.getMail()` allows you to get a single mail from its *mailId*. 
+`Office365.mail.getMail()` allows you to get a single mail from its *mailId*.
 
 By default, the mail is returned with its original format, as defined in the [`mail.type` property of the provider](#new-office365-provider). However, you can convert it to any type using the `mailType` property of the *options* parameter.   
 
@@ -662,7 +663,7 @@ $mail:=$office.mail.getMail($mailId)
 
 **Office365.mail.getMails**( *options* : Object ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Description of mails to get|
@@ -684,7 +685,7 @@ In *options*, pass an object to define the mails to get. The available propertie
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a status object containing the following properties:
 
@@ -728,7 +729,7 @@ $mails:=$office365.mail.getMails($param)
 
 **Office365.mail.move**( *mailId* : Text ; *folderId* : Text) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to move|
@@ -739,7 +740,7 @@ $mails:=$office365.mail.getMails($param)
 
 `Office365.mail.move()` moves the *mailId* email to the *folderId* folder. It actually creates a new copy of the email in the destination folder and removes the original email from its source folder.
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -767,7 +768,7 @@ $status:=$office365.mail.move($mailId; $folderId)
 
 **Office365.mail.renameFolder**( *folderId* : Text ; *name* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->| ID of the folder to rename|
@@ -778,7 +779,7 @@ $status:=$office365.mail.move($mailId; $folderId)
 
 `Office365.mail.renameFolder()` renames the *folderId* mail folder with the provided *name*.
 
-Note that the renamed folder ID is different from the *folderId*. You can get it in the returned [status object](#status-object). 
+Note that the renamed folder ID is different from the *folderId*. You can get it in the returned [status object](#status-object).
 
 #### Permissions
 
@@ -791,7 +792,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -808,7 +809,7 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 
 **Office365.mail.reply**( *reply* : Object ; *mailId* : Text { ; *replyAll* : Boolean } ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter||Type||Description|
 |----|-----|--- |:---:|------|
 |reply||Object|->| reply object|
@@ -822,11 +823,11 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 
 `Office365.mail.reply()` replies to the sender of *mailId* message and, optionnally, to all recipients of the message.
 
-**Note:** Some mails, like drafts, cannot be replied. 
+**Note:** Some mails, like drafts, cannot be replied.
 
 If you pass `False` in *replyAll* and if the original message specifies a recipient in the `replyTo` property, the reply is sent to the recipients in `replyTo` and not to the recipient in the `from` property.
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object)
 
@@ -857,7 +858,7 @@ $status:=$office365.mail.reply($reply; $mails.mailId)
 
 **Office365.mail.send**( *email* : Text ) : Object<br/>**Office365.mail.send**( *email* : Object ) : Object<br/>**Office365.mail.send**( *email* : Blob ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
@@ -870,20 +871,20 @@ $status:=$office365.mail.reply($reply; $mails.mailId)
 In `email`, pass the email to be sent. Possible types:
 
 * Text or Blob: the email is sent using the MIME format
-* Object: the email is sent using the JSON format, in accordance with either: 
+* Object: the email is sent using the JSON format, in accordance with either:
     * the [Microsoft mail object properties](#microsoft-mail-object-properties)
     * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
 
-The data type passed in `email` must be compatible with the [`Office365.mail.type` property](#returned-object-1). In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties): 
+The data type passed in `email` must be compatible with the [`Office365.mail.type` property](#returned-object-1). In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties):
 
-```4d 
+```4d
 $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
 
 > To avoid authentication errors, make sure your application asks for permission to send emails through the Microsoft Graph API. See [Permissions](https://docs.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0&tabs=http#permissions).
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -891,7 +892,7 @@ The method returns a [status object](#status-object).
 
 **Office365.mail.update**( *mailId* : Text ; *updatedFields* : Object ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->|The ID of the email to update|
@@ -928,7 +929,7 @@ In *updatedFields*, you can pass several properties:
 * Existing properties that are not included in the *updatedFields* object will maintain their previous values or be recalculated based on changes to other property values.
 * Specific properties, such as the body or subject, can only be updated for emails in draft status (isDraft = true).
 
-#### Returned object 
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -944,21 +945,21 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 
 | Property | Type | Description |
 |---|---|---|
-| attachments |[attachment](#attachment-object) collection | The attachments for the email. | 
-| bccRecipients |[recipient](#recipient-object) collection | The Bcc: recipients for the message. | 
-| body |itemBody object| The body of the message. It can be in HTML or text format.| 
+| attachments |[attachment](#attachment-object) collection | The attachments for the email. |
+| bccRecipients |[recipient](#recipient-object) collection | The Bcc: recipients for the message. |
+| body |itemBody object| The body of the message. It can be in HTML or text format.|
 | ccRecipients |[recipient](#recipient-object) collection | The Cc: recipients for the message. |  
-| flag |[followup flag](#followup-flag-object) object| The flag value that indicates the status, start date, due date, or completion date for the message. | 
-| from |[recipient](#recipient-object) object | The owner of the mailbox from which the message is sent. In most cases, this value is the same as the sender property, except for sharing or delegation scenarios. The value must correspond to the actual mailbox used.| 
+| flag |[followup flag](#followup-flag-object) object| The flag value that indicates the status, start date, due date, or completion date for the message. |
+| from |[recipient](#recipient-object) object | The owner of the mailbox from which the message is sent. In most cases, this value is the same as the sender property, except for sharing or delegation scenarios. The value must correspond to the actual mailbox used.|
 | id |Text|Unique identifier for the message (note that this value may change if a message is moved or altered).|
-| importance|Text| The importance of the message. The possible values are: `low`, `normal`, and `high`.| 
+| importance|Text| The importance of the message. The possible values are: `low`, `normal`, and `high`.|
 | internetMessageHeaders |[internetMessageHeader](#internetmessageheader-object) collection | A collection of message headers defined by [RFC5322](https://www.ietf.org/rfc/rfc5322.txt). The set includes message headers indicating the network path taken by a message from the sender to the recipient.|
-| isDeliveryReceiptRequested  |Boolean| Indicates whether a delivery receipt is requested for the message. | 
-| isReadReceiptRequested |Boolean| Indicates whether a read receipt is requested for the message. | 
-| replyTo |[recipient](#recipient-object) collection | The email addresses to use when replying. | 
-| sender |[recipient](#recipient-object) object | The account that is actually used to generate the message. In most cases, this value is the same as the from property. You can set this property to a different value when sending a message from a shared mailbox, for a shared calendar, or as a delegate. In any case, the value must correspond to the actual mailbox used. Find out more about setting the [from and sender properties](https://docs.microsoft.com/en-us/graph/outlook-create-send-messages#setting-the-from-and-sender-properties) of a message. | 
+| isDeliveryReceiptRequested  |Boolean| Indicates whether a delivery receipt is requested for the message. |
+| isReadReceiptRequested |Boolean| Indicates whether a read receipt is requested for the message. |
+| replyTo |[recipient](#recipient-object) collection | The email addresses to use when replying. |
+| sender |[recipient](#recipient-object) object | The account that is actually used to generate the message. In most cases, this value is the same as the from property. You can set this property to a different value when sending a message from a shared mailbox, for a shared calendar, or as a delegate. In any case, the value must correspond to the actual mailbox used. Find out more about setting the [from and sender properties](https://docs.microsoft.com/en-us/graph/outlook-create-send-messages#setting-the-from-and-sender-properties) of a message. |
 | subject |Text| The subject of the message.|
-| toRecipients |[recipient](#recipient-object) collection | The To: recipients for the message. | 
+| toRecipients |[recipient](#recipient-object) collection | The To: recipients for the message. |
 
 #### Attachment object
 | Property |  Type | Description |
@@ -1000,7 +1001,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 |flagStatus|Text|The status for follow-up for an item. Possible values are `"notFlagged"`, `"complete"`, and `"flagged"`.|
 |startDateTime|[dateTime &#124; TimeZone](#datetime-and-timezone)| The date and time that the follow-up is to begin.|
 
-#### dateTime and TimeZone 
+#### dateTime and TimeZone
 
 |Property|Type|Description|
 |---|---|---|
@@ -1076,7 +1077,7 @@ Basically, you can test the `success` and `statusText` properties of this object
 
 ### Error handling
 
-When an error occurs during the execution of an Office365.mail function: 
+When an error occurs during the execution of an Office365.mail function:
 
 - if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
 - if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
@@ -1087,7 +1088,7 @@ When an error occurs during the execution of an Office365.mail function:
 
 **Office365.user.get**( *id* : Text { ; *select* : Text }) : Object<br/>**Office365.user.get**( *userPrincipalName* : Text { ; *select* : Text }) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |id|Text|->| Unique identifier of the user to search for |
@@ -1097,7 +1098,7 @@ When an error occurs during the execution of an Office365.mail function:
 
 #### Description
 
-`Office365.user.get()` returns information on the user whose ID matches the *id* parameter, or whose User Principal Name (UPN) matches the *userPrincipalName* parameter. 
+`Office365.user.get()` returns information on the user whose ID matches the *id* parameter, or whose User Principal Name (UPN) matches the *userPrincipalName* parameter.
 
 
 > The UPN is an Internet-style login name for the user based on the Internet standard RFC 822. By convention, it should correspond to the user's email name.
@@ -1144,7 +1145,7 @@ In *select*, pass a string that contains a set of properties you want to retriev
 
 By default, if the *select* parameter is not defined, the command returns an object with a default set of properties (see the [property table](#returned-object)).
 
-#### Example 
+#### Example
 
 To retrieve information from the current user:
 
@@ -1153,7 +1154,7 @@ var $userInfo; $params : Object
 var $oAuth2 : cs.NetKit.OAuth2Provider
 var $Office365 : cs.NetKit.Office365
 
-// Set up parameters: 
+// Set up parameters:
 $params:=New object
 $params.name:="Microsoft"
 $params.permission:="signedIn"
@@ -1167,14 +1168,14 @@ $Office365:=New Office365 provider($oAuth2) // Creates an Office365 object
 
 // Return the properties specified in the parameter.
 $userInfo:=$Office365.user.getCurrent("id,userPrincipalName,\
-principalName,displayName,givenName,mail") 
+principalName,displayName,givenName,mail")
 ```
 
 ### Office365.user.list()
 
 **Office365.user.list**({*options*: Object}) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Additional options for the search|
@@ -1182,25 +1183,25 @@ principalName,displayName,givenName,mail")
 
 #### Description
 
-`Office365.user.list()` returns a list of Office365 users. 
+`Office365.user.list()` returns a list of Office365 users.
 
-In *options*, you can pass an object to specify additional search options. The following table groups the available search options: 
+In *options*, you can pass an object to specify additional search options. The following table groups the available search options:
 
 | Property | Type | Description |
 |---|---|---|
 | search | Text | Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
-| filter | Text | Allows retrieving just a subset of users. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter). | 
+| filter | Text | Allows retrieving just a subset of users. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter). |
 | select | Text | Set of properties to retrieve. Each property must be separated by a comma (,). By default, if `select` is not defined, the returned user objects have a [default set of properties](#returned-object)|
 |top| Integer | Defines the page size for a request. Maximum value is 999. If `top` is not defined, the default value is applied (100). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
-|orderBy| Text | Defines how the returned items are ordered. By default, they are arranged in ascending order. The syntax is "fieldname asc" or "fieldname desc". Replace "fieldname" with the name of the field to be arranged.  | 
+|orderBy| Text | Defines how the returned items are ordered. By default, they are arranged in ascending order. The syntax is "fieldname asc" or "fieldname desc". Replace "fieldname" with the name of the field to be arranged.  |
 
-#### Returned object 
+#### Returned object
 
-The returned object holds a collection of users as well as status properties and functions that allow you to navigate between different pages of results. 
+The returned object holds a collection of users as well as status properties and functions that allow you to navigate between different pages of results.
 
 By default, each user object in the collection has the [default set of properties listed in the `Office365.user.get()` function](#returned-object). This set of properties can be customized using the `select` parameter.
 
-| Property | Type | Description | 
+| Property | Type | Description |
 |---|---|---|
 | errors |  Collection | Collection of 4D error items (not returned if an Office 365 server response is received): <ul><li>[].errcode is the 4D error code number</li><li>[].message is a description of the 4D error</li><li>[].componentSignature is the signature of the internal component that returned the error</li></ul>|
 | isLastPage |  Boolean | `True` if the last page is reached |
@@ -1209,7 +1210,7 @@ By default, each user object in the collection has the [default set of propertie
 | previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
-| users | Collection | Collection of objects with information on users.| 
+| users | Collection | Collection of objects with information on users.|
 
 
 #### Example
@@ -1220,7 +1221,7 @@ var $Office365 : cs.NetKit.Office365
 var $userInfo; $params; $userList; $userList2; $userList3; $userList4 : Object
 var $col : Collection
 
-// Set up parameters: 
+// Set up parameters:
 $params:=New object
 $params.name:="Microsoft"
 $params.permission:="signedIn"
@@ -1229,13 +1230,13 @@ $params.redirectURI:="http://127.0.0.1:50993/authorize/"
 $params.scope:="https://graph.microsoft.com/.default"
 
 // Create an OAuth2Provider Object
-$oAuth2:=New OAuth2 provider($params) 
+$oAuth2:=New OAuth2 provider($params)
 
 // Create an Office365 object
-$Office365:=New Office365 provider($oAuth2) 
+$Office365:=New Office365 provider($oAuth2)
 
 // Return a list with the first 100 users
-$informationList1:=$Office365.user.list() 
+$informationList1:=$Office365.user.list()
 
 // Return a list of users whose displayName is Jean
 $userList2:=$Office365.user.list(New object("filter"; "startswith(displayName,'Jean')"))
@@ -1243,10 +1244,11 @@ $userList2:=$Office365.user.list(New object("filter"; "startswith(displayName,'J
 // return a list of users whose display names contain "F" and arrange it in descending order.
 $userList3:=$Office365.user.list(New object("search"; "\"displayName:F\""; "orderBy"; "displayName desc"; "select"; "displayName"))
 
-// Create a list filled with all the userPrincipalName 
+// Create a list filled with all the userPrincipalName
+
 $userList4:=$Office365.user.list(New object("select"; "userPrincipalName"))
 $col:=New collection
-Repeat 
+Repeat
     $col.combine($userList4.users)
 Until (Not($userList4.next()))
 ```
@@ -1264,7 +1266,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 
 **cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |oAuth2|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
@@ -1283,7 +1285,7 @@ In `options`, you can pass an object that specifies the following options:
 |---------|---|------|
 |mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
 
-#### Returned object 
+#### Returned object
 
 The returned `Google` object contains the following properties:
 
@@ -1311,7 +1313,7 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 **Google.mail.append**( *mail* : Blob { ; *labelIds* : Collection } ) : Object <br/>
 **Google.mail.append**( *mail* : Object { ; *labelIds* : Collection } ) : Object <br/>
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mail|Text &#124; Blob &#124; Object|->|Email to be append |
@@ -1325,7 +1327,7 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 
 >If the *labelIds* parameter is passed and the mail has a "from" or "sender" header, the Gmail server automatically adds the SENT label.
 
-#### Returned object 
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "id" property:
 
@@ -1354,7 +1356,7 @@ $status:=$google.mail.append($mail;["INBOX"])
 
 **Google.mail.createLabel**( *labelInfo* : Object ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |[labelInfo](#labelinfo-object)|Object|->|Label information.|
@@ -1364,7 +1366,7 @@ $status:=$google.mail.append($mail;["INBOX"])
 
 `Google.mail.createLabel()` creates a new label.
 
-#### Returned object 
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "label" property:
 
@@ -1373,7 +1375,7 @@ The method returns a [**status object**](status-object-google-class) with an add
 |label|Object|contains a newly created instance of Label (see [labelInfo](#labelinfo-object))|
 |success|Boolean| [see Status object](#status-object-google-class)|
 |statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)| 
+|errors|Collection| [see Status object](#status-object-google-class)|
 
 #### Example
 
@@ -1388,7 +1390,7 @@ $labelId:=$status.label.id
 
 **Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the mail to delete |
@@ -1398,11 +1400,11 @@ $labelId:=$status.label.id
 
 #### Description
 
-`Google.mail.delete()` deletes the specified message from the user's mailbox. 
+`Google.mail.delete()` deletes the specified message from the user's mailbox.
 
-#### Returned object 
+#### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class). 
+The method returns a standard [**status object**](#status-object-google-class).
 
 #### Permissions
 
@@ -1425,7 +1427,7 @@ $status:=$google.mail.delete($mailId; True)
 
 **Google.mail.deleteLabel**( *labelId* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1436,7 +1438,8 @@ $status:=$google.mail.delete($mailId; True)
 `Google.mail.deleteLabel()` immediately and permanently deletes the specified label and removes it from any messages and threads that it is applied to. 
 > This method is only available for labels with type="user".
 
-#### Returned object 
+
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
@@ -1453,7 +1456,7 @@ $status:=$google.mail.deleteLabel($labelId)
 
 **Google.mail.getLabel**( *labelId* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1463,7 +1466,7 @@ $status:=$google.mail.deleteLabel($labelId)
 
 `Google.mail.getLabel()` returns the information of a label as a [labelInfo](#labelinfo-object) object.
 
-#### Returned object 
+#### Returned object
 
 The returned [**labelInfo**](#labelinfo-object) object contains the following additional properties:
 
@@ -1490,17 +1493,17 @@ $unread:=$info.messagesUnread
 
 **Google.mail.getLabelList**() : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |Result|Object|<-| Status object |
 
 #### Description
 
-`Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox. 
+`Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox.
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "labels" property:
 
@@ -1529,7 +1532,7 @@ A `mailLabel` object contains the following properties (note that additional inf
 
 **Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Object<br/>**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Blob<br/>
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the message to retrieve |
@@ -1539,7 +1542,7 @@ A `mailLabel` object contains the following properties (note that additional inf
 
 #### Description
 
-`Google.mail.getMail()` gets the specified message from the user's mailbox. 
+`Google.mail.getMail()` gets the specified message from the user's mailbox.
 
 In *options*, you can pass several properties:
 
@@ -1551,7 +1554,7 @@ In *options*, you can pass several properties:
 
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a mail in one of the following formats, depending on the `mailType`:
 
@@ -1566,7 +1569,7 @@ The method returns a mail in one of the following formats, depending on the `mai
 
 **Google.mail.getMailIds**( { *options* : Object } ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->|Options for messages to get |
@@ -1574,7 +1577,7 @@ The method returns a mail in one of the following formats, depending on the `mai
 
 #### Description
 
-`Google.mail.getMailIds()` returns an object containing a collection of message ids in the user's mailbox. 
+`Google.mail.getMailIds()` returns an object containing a collection of message ids in the user's mailbox.
 
 In *options*, you can pass several properties:
 
@@ -1587,7 +1590,7 @@ In *options*, you can pass several properties:
 
 
 
-#### Returned object 
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with additional properties:
 
@@ -1617,7 +1620,7 @@ https://www.googleapis.com/auth/gmail.metadata
 
 **Google.mail.getMails**( *mailIDs* : Collection { ; *options* : Object } ) : Collection
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or a collection of objects (each object contains an ID property)|
@@ -1629,7 +1632,7 @@ https://www.googleapis.com/auth/gmail.metadata
 
 `Google.mail.getMails()` gets a collection of emails based on the specified *mailIDs* collection.
 
-> The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function returns null and throws an error. 
+> The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function returns null and throws an error.
 
 In *options*, you can pass several properties:
 
@@ -1641,7 +1644,7 @@ In *options*, you can pass several properties:
 
 
 
-#### Returned value 
+#### Returned value
 
 The method returns a collection of mails in one of the following formats, depending on the `mailType`:
 
@@ -1656,7 +1659,7 @@ The method returns a collection of mails in one of the following formats, depend
 
 **Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
@@ -1671,24 +1674,24 @@ In `email`, pass the email to be sent. Possible types:
 * Text or Blob: the email is sent using the MIME format
 * Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
 
-The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object: 
+The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object:
 
-```4d 
+```4d
 $Google:=cs.NetKit.Google.new($token;{mailType:"JMAP"})
 $status:=$Google.mail.send($email)
 ```
 
 > To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
 
-#### Returned object 
+#### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class). 
+The method returns a standard [**status object**](#status-object-google-class).
 
 ### Google.mail.untrash()
 
 **Google.mail.untrash**( *mailID* : Text ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|The ID of the message to remove from Trash |
@@ -1699,9 +1702,9 @@ The method returns a standard [**status object**](#status-object-google-class).
 
 `Google.mail.untrash()` removes the specified message from the trash.
 
-#### Returned object 
+#### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class). 
+The method returns a standard [**status object**](#status-object-google-class).
 
 #### Permissions
 
@@ -1717,7 +1720,7 @@ https://www.googleapis.com/auth/gmail.modify
 
 **Google.mail.update**( *mailIDs* : Collection ; *options* : Object) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or collection of objects (each object contains an ID property)|
@@ -1728,7 +1731,7 @@ https://www.googleapis.com/auth/gmail.modify
 
 #### Description
 
-`Google.mail.update()` adds or removes labels on the specified messages to help categorizing emails. The label can be a system label (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or a custom label. Multiple labels could be applied simultaneously. 
+`Google.mail.update()` adds or removes labels on the specified messages to help categorizing emails. The label can be a system label (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or a custom label. Multiple labels could be applied simultaneously.
 
 For more information check out the [label management documentation](https://developers.google.com/gmail/api/guides/labels).
 
@@ -1740,9 +1743,9 @@ In *options*, you can pass the following two properties:
 |removeLabelIds|Collection|A collection of label IDs to remove from messages.|
 
 
-#### Returned object 
+#### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class). 
+The method returns a standard [**status object**](#status-object-google-class).
 
 
 #### Example
@@ -1757,7 +1760,7 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 
 **Google.mail.updateLabel**( *labelId* : Text ; *labelInfo* : Object ) : Object
 
-#### Parameters 
+#### Parameters
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1769,7 +1772,7 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 `Google.mail.updateLabel()` updates the specified label.
 > This method is only available for labels with type="user".
 
-#### Returned object 
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "label" property:
 
@@ -1788,7 +1791,7 @@ To update a previously created label  to 'Backup January':
 $status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
 
 ```
-### labelInfo object 
+### labelInfo object
 
 Several Google.mail label management methods use a `labelInfo` object, containing the following properties:
 
@@ -1814,7 +1817,7 @@ Several Google.mail functions return a `status object`, containing the following
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
 
-Some functions adds specific properties to the **status object**, properties are described with the functions. 
+Some functions adds specific properties to the **status object**, properties are described with the functions.
 
 
 ## Tutorials
@@ -1853,7 +1856,7 @@ $credential.scope:="https://graph.microsoft.com/.default"
 $oAuth2:=New OAuth2 provider($credential)
 
 $office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
-// In service mode, you need to indicate on behalf of which user you are sending the request: 
+// In service mode, you need to indicate on behalf of which user you are sending the request:
 $office365.mail.UserId:="MyUserPrincipalName"
 // Get mails of MyUserPrincipalName account
 $mailList:=$office.mail.getMails()
@@ -1865,7 +1868,7 @@ $mailList:=$office.mail.getMails()
 ### (Archived) Authenticate to the Microsoft Graph API in signedIn mode and send an email with SMTP
 
 > This tutorial has been archived. We recommend using the [Office365.mail.send()](#office365providermailsend) method to send emails.
-#### Objectives 
+#### Objectives
 
 Establish a connection to the Microsoft Graph API in signedIn mode, and send an email using the [SMTP Transporter class](http://developer.4d.com/docs/fr/API/SMTPTransporterClass.html).
 
@@ -1905,11 +1908,11 @@ $oAuth2:=New OAuth2 provider($param)
 
 // Request a token using the class function
 
-// Send a token request and start the a web server on the port specified in $param.redirectURI 
+// Send a token request and start the a web server on the port specified in $param.redirectURI
 //to intercept the authorization response
-$token:=$oAuth2.getToken() 
+$token:=$oAuth2.getToken()
 
-// Set the email address for SMTP configuration 
+// Set the email address for SMTP configuration
 $address:= "email-sender-address@outlook.fr" // Replace with your Microsoft email account address
 
 // Set the email's content and metadata
@@ -1927,7 +1930,7 @@ $parameters.authenticationMode:=SMTP authentication OAUTH2
 $parameters.host:="smtp.office365.com"
 $parameters.user:=$address
 
-// Send the email 
+// Send the email
 
 $smtp:=SMTP New transporter($parameters)
 $statusSend:=$smtp.send($email)
@@ -1943,4 +1946,4 @@ $statusSend:=$smtp.send($email)
 
 (c) Microsoft, Microsoft Office, Microsoft 365, Microsoft Graph are trademarks of the Microsoft group of companies.
 
-(c) Google, Gmail are trademarks of the Alphabet, Inc. 
+(c) Google, Gmail are trademarks of the Alphabet, Inc.
