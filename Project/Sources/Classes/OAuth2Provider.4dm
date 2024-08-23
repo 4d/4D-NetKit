@@ -70,11 +70,19 @@ The application secret that you created in the app registration portal for your 
 /*
 Any valid existing token
 */
-		This:C1470.token:=Choose:C955(Value type:C1509($inParams.token)=Is object:K8:27; $inParams.token; Null:C1517)
+		If (Value type($inParams.token.token)=Is object)
+			This.token:=$inParams.token.token
+		Else 
+			This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
+		End if 
 		
 /*
 */
-		This:C1470.tokenExpiration:=Choose:C955(Value type:C1509($inParams.tokenExpiration)=Is text:K8:3; $inParams.tokenExpiration; Null:C1517)
+		If (Value type($inParams.token.tokenExpiration)=Is text)
+			This.tokenExpiration:=$inParams.token.tokenExpiration
+		Else 
+			This.tokenExpiration:=Choose(Value type($inParams.tokenExpiration)=Is text; $inParams.tokenExpiration; Null)
+		End if 
 		
 /*
 */
