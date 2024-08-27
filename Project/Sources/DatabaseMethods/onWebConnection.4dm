@@ -1,3 +1,3 @@
-C_TEXT($1; $2; $3; $4; $5; $6)
+#DECLARE($URL : Text; $header : Text; $peerIP : Text; $localIP : Text; $username : Text; $password : Text)
 
-_onWebConnection($1; $2; $3; $4; $5; $6)
+_onWebConnection($URL; $header; $peerIP; $localIP; $username; $password)

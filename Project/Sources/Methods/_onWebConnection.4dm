@@ -1,5 +1,5 @@
 //%attributes = {"invisible":true}
-C_TEXT($1; $2; $3; $4; $5; $6)
+#DECLARE($URL : Text; $header : Text; $peerIP : Text; $localIP : Text; $username : Text; $password : Text)
 
 var $redirectURI : Text
 var $customResponseFile; $customErrorFile : 4D.File
@@ -15,7 +15,7 @@ If (OB Is defined(Storage.requests; $state))
 	$customErrorFile:=(Value type(Storage.requests[$state].authenticationErrorPage)#Is undefined) ? Storage.requests[$state].authenticationErrorPage : Null
 End if 
 
-If ($1=$redirectURI)
+If ($URL=$redirectURI)
 	
 	var $result : Object
 	var WSTITLE; WSMESSAGE; WSDETAILS : Text

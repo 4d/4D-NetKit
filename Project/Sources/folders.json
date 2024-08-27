@@ -55,8 +55,6 @@
 	},
 	"Public Methods": {
 		"methods": [
-			"Compiler_Methods",
-			"Compiler_Variables",
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
