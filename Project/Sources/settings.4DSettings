@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><preferences stamp="7">
+<?xml version="1.0" encoding="UTF-8"?><preferences stamp="8">
 	<com.4d>
 		<compiler>
-			<options compilation_path="3" syntax_file="true"/>
+			<options syntax_file="true"/>
 		</compiler>
 		<general component_classStore_name="NetKit"/>
 		<web>
