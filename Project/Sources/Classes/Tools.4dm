@@ -1,6 +1,7 @@
 property webServer : 4D.WebServer
 property isDebug : Boolean
 property trace : Boolean
+property webLicenseAvailable : Boolean
 
 
 singleton Class constructor()
@@ -8,6 +9,16 @@ singleton Class constructor()
 	This.webServer:=WEB Server(Web server database)
 	This.isDebug:=False
 	This.trace:=False
+	This.webLicenseAvailable:=False
+	
+	
+Function init()
+	
+	If (Application type=4D Remote mode)
+		cs.Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
+	Else 
+		cs.Tools.me.webLicenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
+	End if 
 	
 	
 	// Mark: - [Public]

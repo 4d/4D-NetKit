@@ -702,13 +702,7 @@ Function _sendTokenRequest($params : Text) : Object
 			
 		Else 
 			
-			var $licenseAvailable : Boolean
-			If (Application type=4D Remote mode)
-				$licenseAvailable:=Is license available(4D Client Web license)
-			Else 
-				$licenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
-			End if 
-			If ($licenseAvailable)
+			If (cs.Tools.me.webLicenseAvailable)
 				This._throwError(4)  // Timeout error
 			Else 
 				This._throwError(11)  // License error
