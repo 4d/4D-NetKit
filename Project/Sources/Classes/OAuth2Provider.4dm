@@ -685,7 +685,7 @@ Function _sendTokenRequest($params : Text)->$result : Object
 			
 		Else 
 			
-			If (Storage.webLicenseAvailable)
+			If (Storage.options.webLicenseAvailable)
 				This._throwError(4)  // Timeout error
 			Else 
 				This._throwError(11)  // License error
