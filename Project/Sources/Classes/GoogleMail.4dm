@@ -390,9 +390,9 @@ Function getLabelList($inParameters : Object) : Object
 			$labelIds:=$response.labels.extract("id")
 		End if 
 		$bSendBatchRequest:=$bWithCounters
-
-	else
-
+		
+	Else 
+		
 		$bSendBatchRequest:=True
 	End if 
 	
@@ -409,7 +409,7 @@ Function getLabelList($inParameters : Object) : Object
 		var $result : Collection:=$batchRequest.sendRequestAndWaitResponse()
 		
 		If (($result=Null) || ($batchRequest._getLastError()#Null))
-
+			
 			var $stack : Collection:=$batchRequest._getErrorStack().reverse()
 			var $error : Object
 			
@@ -420,7 +420,7 @@ Function getLabelList($inParameters : Object) : Object
 		End if 
 		
 		If (Not($bWithCounters))
-
+			
 			var $label : Object
 			For each ($label; $result)
 				OB REMOVE($label; "threadsTotal")
