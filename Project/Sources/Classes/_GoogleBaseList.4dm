@@ -6,19 +6,19 @@ property statusText : Text
 property success : Boolean
 property errors : Collection
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text)
 	
-	Super($inProvider)
+	Super:C1705($inProvider)
 	
-	This._internals._URL:=$inURL
-	This._internals._attribute:=$inName
-	This._internals._nextPageToken:=""
-	This._internals._history:=[]
+	This:C1470._internals._URL:=$inURL
+	This:C1470._internals._attribute:=$inName
+	This:C1470._internals._nextPageToken:=""
+	This:C1470._internals._history:=[]
 	
-	This.page:=1
-	This.isLastPage:=False
+	This:C1470.page:=1
+	This:C1470.isLastPage:=False:C215
 	
-	This._getList()
+	This:C1470._getList()
 	
 	
 	// Mark: - [Private]
@@ -27,49 +27,49 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inName : Text
 	
 Function _getList($inPageToken : Text) : Boolean
 	
-	var $URL : Text:=This._internals._URL
+	var $URL : Text:=This:C1470._internals._URL
 	
-	If (Length(String($inPageToken))>0)
+	If (Length:C16(String:C10($inPageToken))>0)
 		
-		var $sep : Text:=((Position("?"; $URL)=0) ? "?" : "&")
+		var $sep : Text:=((Position:C15("?"; $URL)=0) ? "?" : "&")
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+	var $response : Object:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
 	
-	This.isLastPage:=False
-	This.statusText:=Super._getStatusLine()
-	This.success:=False
-	This._internals._nextPageToken:=""
+	This:C1470.isLastPage:=False:C215
+	This:C1470.statusText:=Super:C1706._getStatusLine()
+	This:C1470.success:=False:C215
+	This:C1470._internals._nextPageToken:=""
 	
-	If ($response#Null)
+	If ($response#Null:C1517)
 		
-		If (OB Is defined($response; This._internals._attribute))
+		If (OB Is defined:C1231($response; This:C1470._internals._attribute))
 			
-			This._internals._list:=OB Get($response; This._internals._attribute; Is collection)
+			This:C1470._internals._list:=OB Get:C1224($response; This:C1470._internals._attribute; Is collection:K8:32)
 		Else 
 			
-			This._internals._list:=[]
+			This:C1470._internals._list:=[]
 		End if 
 		
-		This.success:=True
-		This._internals._history.push($inPageToken)
-		This._internals._nextPageToken:=String($response.nextPageToken)
-		This.isLastPage:=(Length(This._internals._nextPageToken)=0)
+		This:C1470.success:=True:C214
+		This:C1470._internals._history.push($inPageToken)
+		This:C1470._internals._nextPageToken:=String:C10($response.nextPageToken)
+		This:C1470.isLastPage:=(Length:C16(This:C1470._internals._nextPageToken)=0)
 		
-		return True
+		return True:C214
 		
 	Else 
 		
-		var $errorStack : Collection:=Super._getErrorStack()
+		var $errorStack : Collection:=Super:C1706._getErrorStack()
 		
 		If ($errorStack.length>0)
 			
-			This.errors:=$errorStack
-			This.statusText:=$errorStack.first().message
+			This:C1470.errors:=$errorStack
+			This:C1470.statusText:=$errorStack.first().message
 		End if 
 		
-		return False
+		return False:C215
 	End if 
 	
 	
@@ -79,23 +79,23 @@ Function _getList($inPageToken : Text) : Boolean
 	
 Function next() : Boolean
 	
-	var $pageToken : Text:=String(This._internals._nextPageToken)
+	var $pageToken : Text:=String:C10(This:C1470._internals._nextPageToken)
 	
-	If (Length($pageToken)>0)
+	If (Length:C16($pageToken)>0)
 		
-		If (This._getList($pageToken))
+		If (This:C1470._getList($pageToken))
 			
-			This.page+=1
-			return True
+			This:C1470.page+=1
+			return True:C214
 		End if 
 		
 	Else 
 		
-		This.statusText:=Get localized string("List_No_Next_Page")
-		This.isLastPage:=True
+		This:C1470.statusText:=Localized string:C991("List_No_Next_Page")
+		This:C1470.isLastPage:=True:C214
 	End if 
 	
-	return False
+	return False:C215
 	
 	
 	// ----------------------------------------------------
@@ -103,24 +103,25 @@ Function next() : Boolean
 	
 Function previous() : Boolean
 	
-	If ((Num(This._internals._history.length)>0) && (This.page>1))
+	If ((Num:C11(This:C1470._internals._history.length)>0) && (This:C1470.page>1))
 		
-		var $index : Integer:=This.page-1
-		var $pageToken : Text:=String(This._internals._history[$index-1])
+		var $index : Integer:=This:C1470.page-1
+		var $pageToken : Text:=String:C10(This:C1470._internals._history[$index-1])
 		
-		If (This._getList($pageToken))
+		If (This:C1470._getList($pageToken))
 			
-			This.page-=1
-			This._internals._history.resize(This.page)
-			This.isLastPage:=(This.page<=1)
+			This:C1470.page-=1
+			This:C1470._internals._history.resize(This:C1470.page)
+			This:C1470.isLastPage:=(This:C1470.page<=1)
 			
-			return True
+			return True:C214
 		End if 
 		
 	Else 
 		
-		This.statusText:=Get localized string("List_No_Previous_Page")
-		This.isLastPage:=True
+		This:C1470.statusText:=Localized string:C991("List_No_Previous_Page")
+		This:C1470.isLastPage:=True:C214
 	End if 
 	
-	return False
+	return False:C215
+	
