@@ -625,7 +625,9 @@ Function _checkPrerequisites($obj : Object) : Boolean
 			: (Length(String($obj.clientId))=0)
 				This._throwError(2; {attribute: "clientId"})
 				
-			: ((Length(String($obj.name))>0) && (Length(String($obj.scope))=0))
+			: ((Length(String($obj.name))>0) && \
+				((Value type($obj.scope)=Is text) && (Length(String($obj.scope))=0)) || \
+				((Value type($obj.scope)=Is collection) && ($obj.scope.length=0)))
 				This._throwError(2; {attribute: "scope"})
 				
 			: (Length(String($obj.permission))=0)
