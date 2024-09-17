@@ -89,7 +89,16 @@ Any valid existing token
 		This:C1470.timeout:=Choose:C955(Value type:C1509($inParams.timeout)=Is undefined:K8:13; 120; Num:C11($inParams.timeout))
 		
 	End if 
-	
+/*
+A unique string value that is used to maintain state between the request and response. Can be used to mitigate CSRF attacks.
+*/
+		This:C1470.state:=String:C10($inParams.state)
+		
+/*
+A random value used by the app to verify the ID token. Used to prevent replay attacks.
+*/
+		This:C1470.nonce:=String:C10($inParams.nonce)
+			
 	This:C1470._finally()
 	
 	
@@ -99,9 +108,10 @@ Any valid existing token
 	
 Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 	
-	var $url; $redirectURI; $state; $scope : Text
+	var $url; $redirectURI; $state; $scope; $nonce : Text
 	
-	$state:=Generate UUID:C1066
+	$state:=Choose:C955(Length:C16(This:C1470.state)>0; This:C1470.state; Generate UUID:C1066)
+	$nonce:=This:C1470.nonce
 	$redirectURI:=This:C1470.redirectURI
 	$url:=This:C1470.authenticateURI
 	$scope:=This:C1470.scope
@@ -134,7 +144,9 @@ Function _OpenBrowserForAuthorisation()->$authorizationCode : Text
 				$url+="&scope="+_urlEscape($scope)
 			End if 
 			$url+="&state="+String:C10($state)
-			
+			If (Length:C16(String:C10($nonce))>0)
+				$url+="&nonce="+_urlEscape($nonce)
+			End if			
 			Use (Storage:C1525)
 				OB REMOVE:C1226(Storage:C1525; "token")
 				Storage:C1525.params:=New shared object:C1526("redirectURI"; $redirectURI)
