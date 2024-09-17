@@ -100,7 +100,7 @@ Class constructor($inParams : Object)
 /*
 	Any valid existing token
 */
-		If (Value type($inParams.token.token)=Is object)
+		If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.token)=Is object))
 			This.token:=$inParams.token.token
 		Else 
 			This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
@@ -108,7 +108,7 @@ Class constructor($inParams : Object)
 		
 /*
 */
-		If (Value type($inParams.token.tokenExpiration)=Is text)
+		If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.tokenExpiration)=Is text))
 			This.tokenExpiration:=$inParams.token.tokenExpiration
 		Else 
 			This.tokenExpiration:=Choose(Value type($inParams.tokenExpiration)=Is text; $inParams.tokenExpiration; Null)
