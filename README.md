@@ -79,10 +79,11 @@ This class can be instantiated in two ways:
 **New OAuth2 provider**( *paramObj* : Object ) : cs.NetKit.OAuth2Provider
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|Object|->| Determines the properties of the object to be returned |
-|Result|cs.NetKit.OAuth2Provider|<-| Object of the OAuth2Provider class
+|Result|cs.NetKit.OAuth2Provider|<-| Object of the OAuth2Provider class.|
 
 #### Description
 
