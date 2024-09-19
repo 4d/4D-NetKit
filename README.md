@@ -194,8 +194,6 @@ end if
 ```4d
 
 // Initial authentication with Microsoft OAuth2 and retrieval of token with refresh token
-var $provider; $OAuth : Object
-
 
 // Define OAuth2 provider details for Microsoft
 $provider:=New object()
