@@ -112,13 +112,12 @@ The available properties of `paramObj` are:
 |  loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.<br/> Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID.                                                                                       |Yes|
 |  accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.<br/> Valid parameter values are online (default) and offline.<br/> Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
 | clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used                                                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
-| privateKey  | text | (Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google"                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
 | authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
 | authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
 | PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only usable for permission=”SignIn”. |Yes
 | PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes
 | thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)
-| privateKey | text | Certificate private key. Only usable with permission="Service"	| Yes (No for certificate based authentication)
+| privateKey | text | Certificate private key. Only usable with permission="Service".<br/>(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)                                                                                                                                                                                                                                                                                                                                                                                                                
 | clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"	|Yes
 | browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes
 
@@ -213,16 +212,20 @@ $OAuth:= cs.NetKit.OAuth2Provider.new ($provider)
 var $myCurrentToken : Object := $OAuth.getToken()
 
 // After receiving the token and refresh token, save it for future token requests
-$provider:=New object()
+```
+
+
+```4d
+#DECLARE($myCurrentToken : object)
+var $provider:=New object()
 $provider.name:="Microsoft"
 $provider.permission:="signedIn"
 $provider.clientId:="xxx-xxx-xxx-xxx-c460fc"
 $provider.redirectURI:="http://127.0.0.1:50993/authorize/"
 $provider.scope:="https://graph.microsoft.com/.default"
 
-// Include the token and token expiration from the previous request
-$provider.token:=$myCurrentToken.token
-$provider.tokenExpiration:=$myCurrentToken.tokenExpiration
+// Include the token from the previous request
+$provider.token:=$myCurrentToken
 
 // Re-create OAuth2 object with the stored token
 $OAuth:= cs.NetKit.OAuth2Provider.new ($provider)
