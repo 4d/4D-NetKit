@@ -1,10 +1,10 @@
 Class extends _BaseAPI
 
-Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
+Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
 	
-	This._internals._URL:=(Length(String($inBaseURL)) > 0) ? $inBaseURL : "https://gmail.googleapis.com/gmail/v1/"
+	This._internals._URL:="https://gmail.googleapis.com/gmail/v1/"
 	
 	
 	// ----------------------------------------------------

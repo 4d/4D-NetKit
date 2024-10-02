@@ -1,11 +1,10 @@
 Class extends _GoogleAPI
 
+property _internals : Object:={_defaultPersonFields: "names,emailAddresses,photos"}
 
 Class constructor($inProvider : cs.OAuth2Provider)
-
-	Super($inProvider;"https://people.googleapis.com/v1/")
 	
-	This._internals._defaultPersonFields:="names,emailAddresses,photos"
+	Super($inProvider)
 	
 	
 	// ----------------------------------------------------
@@ -15,7 +14,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	Super._clearErrorStack()
-	
+
 	var $URL : Text:=Super._getURL()
 	var $resourceName : Text:=Length(String($inResourceName))>0 ? String($inResourceName) : "me"
 	var $personFields : Text
@@ -33,7 +32,7 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	var $headers : Object:={}
 	$headers["Content-Type"]:="application/json"
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; $headers)
 	
 	return $response
 	
@@ -62,7 +61,7 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 Function list($inParameter : Object) : Object
 	
 	Super._clearErrorStack()
-	
+
 	var $URL : Text:=Super._getURL()
 	var $personFields : Text
 	var $sources : Text
@@ -97,5 +96,5 @@ Function list($inParameter : Object) : Object
 	If (Type($inParameter.requestSyncToken)=Is boolean)
 		$URL+="&requestSyncToken="+$inParameter.requestSyncToken ? "true" : "false"
 	End if 
-	
+
 	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL)
