@@ -1,9 +1,8 @@
 Class extends _GoogleBaseList
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
     
-    Super($inProvider; $inURL; "users")
-    This._internals._URL:=$inURL
+    Super($inProvider; $inURL; "people"; $inHeaders)
     
     
     // Mark: - [Public]

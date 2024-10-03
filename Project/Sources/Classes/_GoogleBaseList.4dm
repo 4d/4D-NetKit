@@ -6,11 +6,12 @@ property statusText : Text
 property success : Boolean
 property errors : Collection
 
-Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text)
+Class constructor($inProvider : cs:C1710.OAuth2Provider; $inURL : Text; $inName : Text; $inHeaders : Object)
 	
 	Super:C1705($inProvider)
 	
 	This:C1470._internals._URL:=$inURL
+	This:C1470._internals._headers:=$inHeaders
 	This:C1470._internals._attribute:=$inName
 	This:C1470._internals._nextPageToken:=""
 	This:C1470._internals._history:=[]
@@ -35,7 +36,7 @@ Function _getList($inPageToken : Text) : Boolean
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
-	var $response : Object:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL)
+	var $response : Object:=Super:C1706._sendRequestAndWaitResponse("GET"; $URL; This:C1470._internals._headers)
 	
 	This:C1470.isLastPage:=False:C215
 	This:C1470.statusText:=Super:C1706._getStatusLine()
