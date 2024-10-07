@@ -122,7 +122,7 @@ Function list($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	
-	var $URL : Text:=Super._getURL()+"people:listDirectoryPeople"+This._getURLParamsFromObject(inParametersparameters)
+	var $URL : Text:=Super._getURL()+"people:listDirectoryPeople"+This._getURLParamsFromObject($inParameters)
 	var $headers : Object:={Accept: "application/json"}
 	
 	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers)
