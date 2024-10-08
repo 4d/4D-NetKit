@@ -26,7 +26,7 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	End if 
 	
 	Case of 
-		: ((Type($inPersonFields)=Is collection) && ($inPersonFields.length>0))
+		: ((Value type($inPersonFields)=Is collection) && ($inPersonFields.length>0))
 			$personFields:=$inPersonFields.join(","; ck ignore null or empty)
 		: ((Value type($inPersonFields)=Is text) && (Length(String($inPersonFields))>0))
 			$personFields:=$inPersonFields
@@ -51,9 +51,9 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	var $delimiter : Text:="?"
 	
 	Case of 
-		: (OB Is defined($inParameters; "select") && (Type($inParameters.select)=Is collection) && ($inParameters.select.length>0))
+		: ((Value type($inParameters.select)=Is collection) && ($inParameters.select.length>0))
 			$personFields:=$inParameters.select.join(","; ck ignore null or empty)
-		: (OB Is defined($inParameters; "select") && (Value type($inParameters.sources)=Is text) && (Length(String($inParameters.select))>0))
+		: ((Value type($inParameters.select)=Is text) && (Length(String($inParameters.select))>0))
 			$personFields:=$inParameters.select
 		Else 
 			$personFields:=This._internals.defaultPersonFields.join(","; ck ignore null or empty)
@@ -62,9 +62,9 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	$delimiter:="&"
 	
 	Case of 
-		: (OB Is defined($inParameters; "sources") && (Value type($inParameters.sources)=Is collection) && ($inParameters.sources>0))
+		: ((Value type($inParameters.sources)=Is collection) && ($inParameters.sources>0))
 			$sources:=This._internals.defaultSources.join("&sources="; ck ignore null or empty)
-		: (OB Is defined($inParameters; "sources") && (Value type($inParameters.sources)=Is text) && (Length(String($inParameters.sources))>0))
+		: ((Value type($inParameters.sources)=Is text) && (Length(String($inParameters.sources))>0))
 			$sources:=$inParameters.sources
 		Else 
 			$sources:=This._internals.defaultSources.join("&sources="; ck ignore null or empty)
@@ -72,9 +72,9 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	$urlParams+=($delimiter+"sources="+$sources)
 	
 	Case of 
-		: (OB Is defined($inParameters; "mergedSources") && (Value type($inParameters.mergedSources)=Is collection) && ($inParameters.mergedSources>0))
+		: ((Value type($inParameters.mergedSources)=Is collection) && ($inParameters.mergedSources>0))
 			$urlParams+=($delimiter+"mergeSources="+This._internals.defaultSources.join("&mergeSources="; ck ignore null or empty))
-		: (OB Is defined($inParameters; "mergedSources") && (Value type($inParameters.mergedSources)=Is text) && (Length(String($inParameters.mergedSources))>0))
+		: ((Value type($inParameters.mergedSources)=Is text) && (Length(String($inParameters.mergedSources))>0))
 			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergedSources)
 	End case 
 	
@@ -121,8 +121,9 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 Function list($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
-	
+
 	var $URL : Text:=Super._getURL()+"people:listDirectoryPeople"+This._getURLParamsFromObject($inParameters)
 	var $headers : Object:={Accept: "application/json"}
-	
-	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers)
+	var $requestSyncToken : Boolean:=OB Is defined($inParameters; "requestSyncToken") ? Bool($inParameters.requestSyncToken) : False
+
+	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers; $requestSyncToken)

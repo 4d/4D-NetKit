@@ -517,3 +517,12 @@ Function urlEncode($value : Text) : Text
 	End for 
 	
 	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function localizedString($inValue : Text) : Text
+
+	/* Temp to avoid compilation issues due to command renaming */
+	return Localized string:C991($inValue)
