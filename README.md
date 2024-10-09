@@ -1529,7 +1529,7 @@ $office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
 // In service mode, you need to indicate on behalf of which user you are sending the request: 
 $office365.mail.UserId:="MyUserPrincipalName"
 // Get mails of MyUserPrincipalName account
-$mailList:=$office.mail.getMails()
+$mailList:=$office365.mail.getMails()
 
 ```
 
