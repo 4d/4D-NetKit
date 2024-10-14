@@ -54,7 +54,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Co
 			$requestBody:=Try(Convert to text($inMail; "UTF-8"))
 			
 		: (Value type($inMail)=Is object)
-			$requestBody:=Try(MAIL Convert to MIME($inMail))
+			$requestBody:=Try(MAIL Convert to MIME($inMail; {includeBccHeaders: True}))
 			
 		Else 
 			$requestBody:=$inMail
