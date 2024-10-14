@@ -72,7 +72,7 @@ See also: https://learn.microsoft.com/en-us/answers/questions/544038/unabletodes
 			$requestBody:=Convert to text:C1012($inMail; "UTF-8")
 			
 		: (Value type:C1509($inMail)=Is object:K8:27)
-			$requestBody:=MAIL Convert to MIME:C1604($inMail)
+			$requestBody:=MAIL Convert to MIME:C1604($inMail; {includeBccHeaders: True})
 			
 		Else 
 			$requestBody:=$inMail
