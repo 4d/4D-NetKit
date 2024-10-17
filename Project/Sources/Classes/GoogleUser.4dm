@@ -7,6 +7,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 	This._internals.defaultPersonFields:=["names"; "emailAddresses"]
 	This._internals.defaultSources:=["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]
+	This._internals.defaultMergeSources:=["DIRECTORY_MERGE_SOURCE_TYPE_CONTACT"]
 	
 	
 	// ----------------------------------------------------
@@ -62,8 +63,8 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	$delimiter:="&"
 	
 	Case of 
-		: ((Value type($inParameters.sources)=Is collection) && ($inParameters.sources>0))
-			$sources:=This._internals.defaultSources.join("&sources="; ck ignore null or empty)
+		: ((Value type($inParameters.sources)=Is collection) && ($inParameters.sources.length>0))
+			$sources:=$inParameters.sources.join("&sources="; ck ignore null or empty)
 		: ((Value type($inParameters.sources)=Is text) && (Length(String($inParameters.sources))>0))
 			$sources:=$inParameters.sources
 		Else 
@@ -72,10 +73,12 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	$urlParams+=($delimiter+"sources="+$sources)
 	
 	Case of 
-		: ((Value type($inParameters.mergedSources)=Is collection) && ($inParameters.mergedSources>0))
-			$urlParams+=($delimiter+"mergeSources="+This._internals.defaultSources.join("&mergeSources="; ck ignore null or empty))
-		: ((Value type($inParameters.mergedSources)=Is text) && (Length(String($inParameters.mergedSources))>0))
-			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergedSources)
+		: ((Value type($inParameters.mergeSources)=Is collection) && ($inParameters.mergeSources.length>0))
+			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergeSources.join("&mergeSources="; ck ignore null or empty))
+		: ((Value type($inParameters.mergeSources)=Is text) && (Length(String($inParameters.mergeSources))>0))
+			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergeSources)
+		else
+			$sources:=This._internals.defaultMergeSources.join("&mergeSources="; ck ignore null or empty)
 	End case 
 	
 	If (OB Is defined($inParameters; "top") && (Num($inParameters.top)>0))
