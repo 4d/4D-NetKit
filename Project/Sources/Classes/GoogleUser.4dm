@@ -6,8 +6,6 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	Super($inProvider; "https://people.googleapis.com/v1/")
 	
 	This._internals.defaultPersonFields:=["names"; "emailAddresses"]
-	This._internals.defaultSources:=["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]
-	This._internals.defaultMergeSources:=["DIRECTORY_MERGE_SOURCE_TYPE_CONTACT"]
 	
 	
 	// ----------------------------------------------------
@@ -48,8 +46,10 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams; $personFields; $sources : Text
+	var $urlParams; $personFields : Text
 	var $delimiter : Text:="?"
+	var $sources : Collection:=Null
+	var $mergeSources : Collection:=Null
 	
 	Case of 
 		: ((Value type($inParameters.select)=Is collection) && ($inParameters.select.length>0))
@@ -64,22 +64,25 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	Case of 
 		: ((Value type($inParameters.sources)=Is collection) && ($inParameters.sources.length>0))
-			$sources:=$inParameters.sources.join("&sources="; ck ignore null or empty)
-		: ((Value type($inParameters.sources)=Is text) && (Length(String($inParameters.sources))>0))
 			$sources:=$inParameters.sources
+		: ((Value type($inParameters.sources)=Is text) && (Length(String($inParameters.sources))>0))
+			$sources:=Split string($inParameters.sources; ","; sk ignore empty strings+sk trim spaces)
 		Else 
-			$sources:=This._internals.defaultSources.join("&sources="; ck ignore null or empty)
+			$sources:=["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]
 	End case 
-	$urlParams+=($delimiter+"sources="+$sources)
+	If (($sources#Null) && ($sources.length>0))
+		$urlParams+=($delimiter+"sources="+$sources.join("&sources="; ck ignore null or empty))
+	End if 
 	
 	Case of 
 		: ((Value type($inParameters.mergeSources)=Is collection) && ($inParameters.mergeSources.length>0))
-			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergeSources.join("&mergeSources="; ck ignore null or empty))
+			$mergeSources:=$inParameters.mergeSources
 		: ((Value type($inParameters.mergeSources)=Is text) && (Length(String($inParameters.mergeSources))>0))
-			$urlParams+=($delimiter+"mergeSources="+$inParameters.mergeSources)
-		else
-			$sources:=This._internals.defaultMergeSources.join("&mergeSources="; ck ignore null or empty)
+			$sources:=Split string($inParameters.mergeSources; ","; sk ignore empty strings+sk trim spaces)
 	End case 
+	If (($mergeSources#Null) && ($mergeSources.length>0))
+		$urlParams+=($delimiter+"mergeSources="+$mergeSources.join("&mergeSources="; ck ignore null or empty))
+	End if 
 	
 	If (OB Is defined($inParameters; "top") && (Num($inParameters.top)>0))
 		$urlParams+=($delimiter+"pageSize="+String($inParameters.top))
@@ -124,9 +127,9 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 Function list($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
-
+	
 	var $URL : Text:=Super._getURL()+"people:listDirectoryPeople"+This._getURLParamsFromObject($inParameters)
 	var $headers : Object:={Accept: "application/json"}
 	var $requestSyncToken : Boolean:=OB Is defined($inParameters; "requestSyncToken") ? Bool($inParameters.requestSyncToken) : False
-
+	
 	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers; $requestSyncToken)
