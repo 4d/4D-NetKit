@@ -6,7 +6,7 @@ property statusText : Text
 property success : Boolean
 property errors : Collection
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListName : Text; $inHeaders : Object; $inRequestSyncToken : Boolean)
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListName : Text; $inHeaders : Object)
 	
 	Super($inProvider)
 	
@@ -14,7 +14,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListN
 	This._internals._headers:=$inHeaders
 	This._internals._attribute:=$inResultListName
 	This._internals._nextPageToken:=""
-	This._internals._requestSyncToken:=$inRequestSyncToken
 	This._internals._history:=[]
 	This._internals._throwErrors:=False
 
@@ -35,8 +34,7 @@ Function _getList($inPageToken : Text) : Boolean
 	If (Length(String($inPageToken))>0)
 		
 		var $sep : Text:=((Position("?"; $URL)=0) ? "?" : "&")
-		var $tokenName : Text:=This._internals._requestSyncToken ? "syncToken" : "pageToken"
-		$URL+=$sep+$tokenName+"="+$inPageToken
+		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
 	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; This._internals._headers)
@@ -55,11 +53,7 @@ Function _getList($inPageToken : Text) : Boolean
 		
 		This.success:=True
 		This._internals._history.push($inPageToken)
-		If (This._internals._requestSyncToken)
-			This._internals._nextPageToken:=String($response.nextSyncToken)
-		Else 
-			This._internals._nextPageToken:=String($response.nextPageToken)
-		End if 
+		This._internals._nextPageToken:=String($response.nextPageToken)
 		This.isLastPage:=(Length(This._internals._nextPageToken)=0)
 		
 		return True

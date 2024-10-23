@@ -88,16 +88,8 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 		$urlParams+=($delimiter+"pageSize="+String($inParameters.top))
 	End if 
 	
-	If (OB Is defined($inParameters; "requestSyncToken") && (Value type($inParameters.requestSyncToken)=Is boolean))
-		$urlParams+=($delimiter+"requestSyncToken="+(Bool($inParameters.requestSyncToken) ? "true" : "false"))
-	End if 
-	
 	If (OB Is defined($inParameters; "pageToken") && (Value type($inParameters.pageToken)=Is text) && (Length(String($inParameters.pageToken))>0))
 		$urlParams+=($delimiter+"pageToken="+String($inParameters.pageToken))
-	End if 
-	
-	If (OB Is defined($inParameters; "syncToken") && (Value type($inParameters.syncToken)=Is text) && (Length(String($inParameters.syncToken))>0))
-		$urlParams+=($delimiter+"syncToken="+String($inParameters.syncToken))
 	End if 
 	
 	return $urlParams
@@ -130,6 +122,5 @@ Function list($inParameters : Object) : Object
 	
 	var $URL : Text:=Super._getURL()+"people:listDirectoryPeople"+This._getURLParamsFromObject($inParameters)
 	var $headers : Object:={Accept: "application/json"}
-	var $requestSyncToken : Boolean:=OB Is defined($inParameters; "requestSyncToken") ? Bool($inParameters.requestSyncToken) : False
 	
-	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers; $requestSyncToken)
+	return cs.GoogleUserList.new(This._getOAuth2Provider(); $URL; $headers)
