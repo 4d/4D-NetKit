@@ -59,7 +59,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 		Else 
 			$personFields:=This._internals.defaultPersonFields.join(","; ck ignore null or empty)
 	End case 
-	$urlParams+=$delimiter+"readMask="+$personFields
+	$urlParams:=$delimiter+"readMask="+$personFields
 	$delimiter:="&"
 	
 	Case of 
