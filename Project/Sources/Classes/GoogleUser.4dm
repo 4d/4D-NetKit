@@ -78,7 +78,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 		: ((Value type($inParameters.mergeSources)=Is collection) && ($inParameters.mergeSources.length>0))
 			$mergeSources:=$inParameters.mergeSources
 		: ((Value type($inParameters.mergeSources)=Is text) && (Length(String($inParameters.mergeSources))>0))
-			$sources:=Split string($inParameters.mergeSources; ","; sk ignore empty strings+sk trim spaces)
+			$mergeSources:=Split string($inParameters.mergeSources; ","; sk ignore empty strings+sk trim spaces)
 	End case 
 	If (($mergeSources#Null) && ($mergeSources.length>0))
 		$urlParams+=($delimiter+"mergeSources="+$mergeSources.join("&mergeSources="; ck ignore null or empty))
