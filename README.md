@@ -79,10 +79,11 @@ This class can be instantiated in two ways:
 **New OAuth2 provider**( *paramObj* : Object ) : cs.NetKit.OAuth2Provider
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|Object|->| Determines the properties of the object to be returned |
-|Result|cs.NetKit.OAuth2Provider|<-| Object of the OAuth2Provider class
+|Result|cs.NetKit.OAuth2Provider|<-| Object of the OAuth2Provider class|
 
 #### Description
 
@@ -96,28 +97,27 @@ The available properties of `paramObj` are:
 |Parameter|Type|Description|Optional|
 |---------|--- |------|------|
 | name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
-| permission | text | <ul><li> "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).</li><li>"service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).</li></ul>|No
+| permission | text |- "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).<br/>- service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
 | redirectURI | text | (Not used in service mode) The redirect_uri of your app, the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response.|No in signedIn mode, Yes in service mode
 | scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
-| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: <ul><li>"common" for both Microsoft accounts and work or school accounts (default value)</li><li>"organizations" for work or school accounts only </li><li>"consumers" for Microsoft accounts only</li><li>tenant identifiers such as tenant ID or domain name.</li></ul>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
+| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: - "common" for both Microsoft accounts and work or school accounts (default value)<br/>- "organizations" for work or school accounts only <br/>- "consumers" for Microsoft accounts only<br/>- tenant identifiers such as tenant ID or domain name.<br/>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
 | authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
 | tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for Google: "https://accounts.google.com/o/oauth2/token".|Yes
 |tokenExpiration | text | Timestamp (ISO 8601 UTC) that indicates the expiration time of the token.| Yes
 | clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
 | token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes
 | timeout|real| Waiting time in seconds (by default 120s).|Yes
-|    prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.<br /><br/>Possible values are:<br/><ul><li>none: Do not display any authentication or consent screens. Must not be specified with other values.</li><li>consent: Prompt the user for consent.</li><li>select_account: Prompt the user to select an account.</li></ul>(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
+|    prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.<br/><br/>Possible values are:<br/>- none: Do not display any authentication or consent screens. Must not be specified with other values.<br/>- consent: Prompt the user for consent.<br/>- select_account: Prompt the user to select an account.<br/>(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
 |  loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.<br/> Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID.                                                                                       |Yes|
 |  accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.<br/> Valid parameter values are online (default) and offline.<br/> Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
 | clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used                                                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
-| privateKey  | text | (Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google"                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
 | authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
 | authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
 | PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only usable for permission=”SignIn”. |Yes
 | PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes
 | thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)
-| privateKey | text | Certificate private key. Only usable with permission="Service"	| Yes (No for certificate based authentication)
+| privateKey | text | Certificate private key. Only usable with permission="Service".<br/>(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)                                                                                                                                                                                                                                                                                                                                                                                                                
 | clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"	|Yes
 | browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes
 
@@ -133,7 +133,7 @@ The OAuth2 provider returned object `cs.NetKit.OAuth2Provider` properties corres
 |----|-----|------|
 |*paramObj.properties*||< properties passed in parameter [`paramObj`](#description)>|
 |authenticateURI|text|Returns the calculated authenticateURI. Can be used in a webbrowser or in a web area to open the connection page.|
-|isTokenValid	|Function| `OAuth2Provider.isTokenValid() : boolean` <br/> Verifies the token validity. <li> If no token is present, returns false.</li><li> If the current token is not expired, returns true. </li><li> If the token is expired and no refresh token is present, returns false.</li><li> If a refresh token is present, automatically requests a new token and returns true if the token is generated correctly, otherwise false.</li>|
+|isTokenValid	|Function| `OAuth2Provider.isTokenValid() : boolean` <br/> Verifies the token validity. <br/>- If no token is present, returns false.<br/>- If the current token is not expired, returns true. <br/>- If the token is expired and no refresh token is present, returns false.<br/>- If a refresh token is present, automatically requests a new token and returns true if the token is generated correctly, otherwise false.|
 
 #### Example 1
 
@@ -188,6 +188,59 @@ end if
 
 ```
 
+#### Example 3
+
+```4d
+
+// Initial authentication with Microsoft OAuth2 and retrieval of token with refresh token
+
+// Define OAuth2 provider details for Microsoft
+$provider:=New object()
+$provider.name:="Microsoft"
+$provider.permission:="signedIn"
+$provider.clientId:="xxx-xxx-xxx-xxx-c460fc"
+$provider.redirectURI:="http://127.0.0.1:50993/authorize/"
+$provider.scope:="https://graph.microsoft.com/.default"
+
+// Use the "offline" parameter to request a refresh token in addition to the regular access token
+$provider.accessType:="offline"
+
+// Create new OAuth2 object for Microsoft
+$OAuth:= cs.NetKit.OAuth2Provider.new ($provider)
+
+// Request the token, which includes the refresh token
+var $myCurrentToken : Object := $OAuth.getToken()
+
+// After receiving the token and refresh token, save it for future token requests
+```
+
+
+```4d
+#DECLARE($myCurrentToken : object)
+var $provider:=New object()
+$provider.name:="Microsoft"
+$provider.permission:="signedIn"
+$provider.clientId:="xxx-xxx-xxx-xxx-c460fc"
+$provider.redirectURI:="http://127.0.0.1:50993/authorize/"
+$provider.scope:="https://graph.microsoft.com/.default"
+
+// Include the token from the previous request
+$provider.token:=$myCurrentToken
+
+// Re-create OAuth2 object with the stored token
+$OAuth:= cs.NetKit.OAuth2Provider.new ($provider)
+
+// getToken() checks if the token has expired
+// If the token is still valid, it returns the current token
+// If the token has expired, it automatically requests a new one
+// If a refresh token is present, the token is automatically renewed without user sign-in
+// If no refresh token is available, the user will need to sign in again
+$myCurrentToken:=$OAuth.getToken()
+
+```
+
+**Note**: Some servers, like Google, do not always return the refresh token during subsequent token requests. In such cases, you should remember to include the refresh token in the token object before saving it for future use.
+
 ### OAuth2ProviderObject.getToken()
 
 **OAuth2ProviderObject.getToken()** : Object
@@ -238,6 +291,7 @@ The `Office365` class can be instantiated in two ways:
 **New Office365 provider**( *paramObj* : Object { ; *options* : Object } ) : cs.NetKit.Office365
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
@@ -254,7 +308,7 @@ In `options`, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
-|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li></ul>|
+|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <br/>- "MIME"<br/>- "JMAP"<br/>- "Microsoft" (default)|
 
 #### Returned object
 
@@ -289,6 +343,7 @@ Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mod
 **Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Object|->| Microsoft message object to append|
@@ -329,6 +384,7 @@ $status:=$office365.mail.append($draft; $folder.id)
 **Office365.mail.copy**( *mailId* : Text ; *folderId* : Text) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to copy|
@@ -367,6 +423,7 @@ $status:=$office365.mail.copy($mailId; $folderId)
 **Office365.mail.createFolder**( *name* : Text { ; *isHidden* : Boolean { ; *parentFolderId* : Text } }) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |name|Text|->|Display name of the new folder|
@@ -414,6 +471,7 @@ End if
 **Office365.mail.delete**( *mailId* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to delete|
@@ -459,6 +517,7 @@ End for each
 **Office365.mail.deleteFolder**( *folderId* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-name) if one exists.|
@@ -494,6 +553,7 @@ $status:=$office365.mail.deleteFolder($folderId)
 **Office365.mail.getFolder**( *folderId* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-name).|
@@ -532,6 +592,7 @@ The method returns a **mailFolder** object containing the following properties (
 **Office365.mail.getFolderList**( *options* : Object ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Description of folders to get|
@@ -543,7 +604,7 @@ In *options*, pass an object to define the folders to get. The available propert
 
 | Property | Type | Description |
 |---|---|---|
-|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <li>If it is a parent folder id, get the folder collection under the specified folder (children folders)</li> <li>If the property is omitted or its value is "", get the mail folder collection directly under the root folder.</li>|
+|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <br/>- If it is a parent folder id, get the folder collection under the specified folder (children folders<br/>- If the property is omitted or its value is "", get the mail folder collection directly under the root folder.|
 |search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
 |filter|text|Allows retrieving just a subset of folders. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
 |select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
@@ -575,8 +636,8 @@ The method returns a status object containing the following properties:
 ||[].componentSignature|Text|Signature of the internal component that returned the error|
 | isLastPage | |  Boolean | `True` if the last page is reached |
 | page ||   Integer | Folder information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` option. |
-| next() ||   Function | Function that updates the `folders` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `folders` collection is not updated and `False` is returned</li></ul>  |
-| previous() ||   Function | Function that updates the `folders` collection with the previous folder information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `folders` collection is not updated and `False` is returned</li></ul>  |
+| next() ||   Function | Function that updates the `folders` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <br/>- If a next page is successfully loaded, returns `True`<br/>- If no next page is returned, the `folders` collection is not updated and `False` is returned  |
+| previous() ||   Function | Function that updates the `folders` collection with the previous folder information page and decreases the `page` property by 1. Returns a boolean value: <br/>- If a previous page is successfully loaded, returns `True`<br/>- If no previous `page` is returned, the `folders` collection is not updated and `False` is returned  |
 | statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
 | folders ||  Collection | Collection of `mailFolder` objects with information on folders.|
@@ -613,12 +674,13 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 **Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
 
 #### Parameters
+
 |Parameter||Type||Description|
 |-----|----|--- |:---:|------|
 |mailId||Text|->| Id of the mail to get|
 |options||Object|->|Format options for the returned mail object|
-||mailType|Text|| Type of the mail object to return. Available values: <li>"MIME"</li><li>"JMAP"</li><li>"Microsoft" (default)</li>By default if omitted, the same format as the [`mail.type` property](#new-office365-provider) is used|
-||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <li>"text"</li><li>"html" (default)</li>|
+||mailType|Text|| Type of the mail object to return. Available values: <br/>- "MIME"<br/>- "JMAP"<br/>- "Microsoft" (default)<br/>By default if omitted, the same format as the [`mail.type` property](#new-office365-provider) is used|
+||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <br/>- "text"<br/>- "html" (default)|
 |Result||Blob &#124; Object|<-| Downloaded mail|
 
 `Office365.mail.getMail()` allows you to get a single mail from its *mailId*.
@@ -664,6 +726,7 @@ $mail:=$office.mail.getMail($mailId)
 **Office365.mail.getMails**( *options* : Object ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Description of mails to get|
@@ -697,8 +760,8 @@ The method returns a status object containing the following properties:
 ||[].componentSignature|Text|Signature of the internal component that returned the error|
 | isLastPage | |  Boolean | `True` if the last page is reached |
 | page ||   Integer | Mail information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` option. |
-| next() ||   Function | Function that updates the `mails` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
-| previous() ||   Function | Function that updates the `folders` collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `mails` collection is not updated and `False` is returned</li></ul>  |
+| next() ||   Function | Function that updates the `mails` collection with the next mail information page and increases the `page` property by 1. Returns a boolean value: <br/>- If a next page is successfully loaded, returns `True`<br/>- If no next page is returned, the `mails` collection is not updated and `False` is returned  |
+| previous() ||   Function | Function that updates the `folders` collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value: <br/>- If a previous page is successfully loaded, returns `True`<br/>- If no previous `page` is returned, the `mails` collection is not updated and `False` is returned  |
 | statusText ||   Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
 | mails ||  Collection | Collection of [Microsoft mail objects](#microsoft-mail-object-properties). If no mail is returned, the collection is empty|
@@ -730,6 +793,7 @@ $mails:=$office365.mail.getMails($param)
 **Office365.mail.move**( *mailId* : Text ; *folderId* : Text) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to move|
@@ -769,6 +833,7 @@ $status:=$office365.mail.move($mailId; $folderId)
 **Office365.mail.renameFolder**( *folderId* : Text ; *name* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->| ID of the folder to rename|
@@ -810,6 +875,7 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 **Office365.mail.reply**( *reply* : Object ; *mailId* : Text { ; *replyAll* : Boolean } ) : Object
 
 #### Parameters
+
 |Parameter||Type||Description|
 |----|-----|--- |:---:|------|
 |reply||Object|->| reply object|
@@ -859,6 +925,7 @@ $status:=$office365.mail.reply($reply; $mails.mailId)
 **Office365.mail.send**( *email* : Text ) : Object<br/>**Office365.mail.send**( *email* : Object ) : Object<br/>**Office365.mail.send**( *email* : Blob ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
@@ -893,6 +960,7 @@ The method returns a [status object](#status-object).
 **Office365.mail.update**( *mailId* : Text ; *updatedFields* : Object ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->|The ID of the email to update|
@@ -1070,7 +1138,7 @@ Several Office365.mail functions return a standard `**status object**`, containi
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
-|id|Text|<li>[`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.</li><li>[`createFolder()`](#office365-mail-createFolder) and [`renameFolder()`](#office365-mail-renameFolder): returned id of the folder</li>|
+|id|Text|<br/>- [`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.<br/>- [`createFolder()`](#office365-mail-createFolder) and [`renameFolder()`](#office365-mail-renameFolder): returned id of the folder|
 
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
@@ -1089,6 +1157,7 @@ When an error occurs during the execution of an Office365.mail function:
 **Office365.user.get**( *id* : Text { ; *select* : Text }) : Object<br/>**Office365.user.get**( *userPrincipalName* : Text { ; *select* : Text }) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |id|Text|->| Unique identifier of the user to search for |
@@ -1176,6 +1245,7 @@ principalName,displayName,givenName,mail")
 **Office365.user.list**({*options*: Object}) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->| Additional options for the search|
@@ -1203,11 +1273,11 @@ By default, each user object in the collection has the [default set of propertie
 
 | Property | Type | Description |
 |---|---|---|
-| errors |  Collection | Collection of 4D error items (not returned if an Office 365 server response is received): <ul><li>[].errcode is the 4D error code number</li><li>[].message is a description of the 4D error</li><li>[].componentSignature is the signature of the internal component that returned the error</li></ul>|
+| errors |  Collection | Collection of 4D error items (not returned if an Office 365 server response is received): <br/>- [].errcode is the 4D error code number<br/>- [].message is a description of the 4D error<br/>- [].componentSignature is the signature of the internal component that returned the error|
 | isLastPage |  Boolean | `True` if the last page is reached |
 | page |  Integer | User information page number. Starts at 1. By default, each page holds 100 results. Page size limit can be set in the `top` option. |
-| next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <ul><li>If a next page is successfully loaded, returns `True`</li><li>If no next page is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
-| previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <ul><li>If a previous page is successfully loaded, returns `True`</li><li>If no previous `page` is returned, the `users` collection is not updated and `False` is returned</li></ul>  |
+| next() |  Function | Function that updates the `users` collection with the next user information page and increases the `page` property by 1. Returns a boolean value: <br/>- If a next page is successfully loaded, returns `True`<br/>- If no next page is returned, the `users` collection is not updated and `False` is returned  |
+| previous() |  Function | Function that updates the `users` collection with the previous user information page and decreases the `page` property by 1. Returns a boolean value: <br/>- If a previous page is successfully loaded, returns `True`<br/>- If no previous `page` is returned, the `users` collection is not updated and `False` is returned  |
 | statusText |  Text | Status message returned by the Office 365 server, or last error returned in the 4D error stack |
 | success |  Boolean | `True` if the `Office365.user.list()` operation is successful, `False` otherwise |
 | users | Collection | Collection of objects with information on users.|
@@ -1267,6 +1337,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 **cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |oAuth2|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
@@ -1283,7 +1354,7 @@ In `options`, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
-|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
+|mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <br/>- "MIME"<br/>- "JMAP"|
 
 #### Returned object
 
@@ -1314,6 +1385,7 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 **Google.mail.append**( *mail* : Object { ; *labelIds* : Collection } ) : Object <br/>
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mail|Text &#124; Blob &#124; Object|->|Email to be append |
@@ -1357,6 +1429,7 @@ $status:=$google.mail.append($mail;["INBOX"])
 **Google.mail.createLabel**( *labelInfo* : Object ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |[labelInfo](#labelinfo-object)|Object|->|Label information.|
@@ -1391,6 +1464,7 @@ $labelId:=$status.label.id
 **Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the mail to delete |
@@ -1428,6 +1502,7 @@ $status:=$google.mail.delete($mailId; True)
 **Google.mail.deleteLabel**( *labelId* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1435,7 +1510,7 @@ $status:=$google.mail.delete($mailId; True)
 
 #### Description
 
-`Google.mail.deleteLabel()` immediately and permanently deletes the specified label and removes it from any messages and threads that it is applied to.
+`Google.mail.deleteLabel()` immediately and permanently deletes the specified label and removes it from any messages and threads that it is applied to. 
 > This method is only available for labels with type="user".
 
 
@@ -1457,6 +1532,7 @@ $status:=$google.mail.deleteLabel($labelId)
 **Google.mail.getLabel**( *labelId* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1494,25 +1570,19 @@ $unread:=$info.messagesUnread
 **Google.mail.getLabelList**() : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|parameters|Object|->|Parameter object|
 |Result|Object|<-| Status object |
 
 #### Description
 
 `Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox.
 
-In the optional `parameters` parameter, pass an object containing the following values:
-
-|Property | Type| Description |
-|---|---|---|
-|ids|  Collection |Collection of objects containing an "id" attribute or a collection of texts containing label ids (maximum number of ids: 100).|
-|withCounters|  Boolean |Taken into account only when the ids collection is not passed; otherwise, counters are always returned and this parameter has no effect. If true, adds the [message and thread counters](#maillabel-object) (messagesTotal, messagesUnread, threadsTotal, threadsUnread) to the result (false by default).|
 
 #### Returned object
 
-The method returns a [**status object**](#status-object-google-class) with an additional "labels" property:
+The method returns a [**status object**](status-object-google-class) with an additional "labels" property:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -1524,19 +1594,15 @@ The method returns a [**status object**](#status-object-google-class) with an ad
 
 #### mailLabel object
 
-A `mailLabel` object contains the following properties (note that not all properties are returned in some cases, and additional properties may be returned by the server in other cases):
+A `mailLabel` object contains the following properties (note that additional information can be returned by the server):
 
 |Property|Type|Description|
 |---------|--- |------|
-|name|Text|Display name of the label (If a mailbox name does not exist, the function returns null in the collection member corresponding).|
+|name|Text|Display name of the label.|
 |id|Text|Immutable ID of the label.|
 |messageListVisibility|Text|Visibility of messages with this label in the message list in the Gmail web interface. Can be "show" or "hide"|
-|labelListVisibility|Text|Visibility of the label in the label list in the Gmail web interface. Can be:<ul><li>"labelShow": Show the label in the label list.</li><li>"labelShowIfUnread": Show the label if there are any unread messages with that label</li><li>"labelHide": Do not show the label in the label list.</li></ul>|
-|type|Text| Owner type for the label:<ul><li>"user": User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread.</li><li>"system": System labels are internally created and cannot be added, modified, or deleted. System labels may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads.</li></ul>|
-| messagesTotal  | Integer | The total number of messages with the label. Returned if withCounters=true or the ids collection is passed|
-| messagesUnread | Integer | The number of unread messages with the label. Returned if withCounters=true or the ids collection is passed|
-| threadsTotal   | Integer | The total number of threads with the label. Returned if withCounters=true or the ids collection is passed|
-| threadsUnread  | Integer | The number of unread threads with the label. Returned if withCounters=true or the ids collection is passed|
+|labelListVisibility|Text|Visibility of the label in the label list in the Gmail web interface. Can be:<br/>- "labelShow": Show the label in the label list.<br/>- "labelShowIfUnread": Show the label if there are any unread messages with that label<br/>- "labelHide": Do not show the label in the label list.|
+|type|Text| Owner type for the label:<br/>- "user": User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread.<br/>- "system": System labels are internally created and cannot be added, modified, or deleted. System labels may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads.|
 
 
 ### Google.mail.getMail()
@@ -1544,6 +1610,7 @@ A `mailLabel` object contains the following properties (note that not all proper
 **Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Object<br/>**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Blob<br/>
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the message to retrieve |
@@ -1559,9 +1626,9 @@ In *options*, you can pass several properties:
 
 |Property|Type|Description|
 |---------|--- |------|
-|format|Text| The format to return the message in. Can be: <ul><li>"minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. </li><li>"raw": Returns the full email message (default)</li><li>"metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.</li></ul>|
+|format|Text| The format to return the message in. Can be: <br/>- "minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. <br/>- "raw": Returns the full email message (default)<br/>- "metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.|
 |headers|Collection|Collection of strings containing the email headers to be returned. When given and format is "metadata", only include headers specified.|
-|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <ul><li>"MIME"</li><li>"JMAP"</li></ul>|
+|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <br/>- "MIME"<br/>- "JMAP"|
 
 
 
@@ -1581,6 +1648,7 @@ The method returns a mail in one of the following formats, depending on the `mai
 **Google.mail.getMailIds**( { *options* : Object } ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |options|Object|->|Options for messages to get |
@@ -1609,9 +1677,9 @@ The method returns a [**status object**](status-object-google-class) with additi
 |---------|--- |------|
 |isLastPage|Boolean|True if the last page is reached|
 |page|Integer|Mail information page number. Starts at 1. By default, each page holds 10 results. Page size limit can be set in the `top` *option*.|
-|next()|`4D.Function` object|Function that updates the mail collection with the next mail information page and increases the `page` property by 1. Returns a boolean value:<ul><li>If a next page is successfully loaded, returns True</li><li>If no next page is returned, the mail collection is not updated and False is returned.</li></ul>|
-|previous()|`4D.Function` object|Function that updates the mail collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value:<ul><li>If a previous page is successfully loaded, returns True</li><li>If no previous page is returned, the mail collection is not updated and False is returned.</li></ul>|
-|mailIds|Collection| Collection of objects, where each object contains:<ul><li>*id* : Text : The id of the email</li><li>*threadId* : Text : The id of the thread to which this Email belongs</li></ul>If no mail is returned, the collection is empty.|
+|next()|`4D.Function` object|Function that updates the mail collection with the next mail information page and increases the `page` property by 1. Returns a boolean value:<br/>- If a next page is successfully loaded, returns True<br/>- If no next page is returned, the mail collection is not updated and False is returned.|
+|previous()|`4D.Function` object|Function that updates the mail collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value:<br/>- If a previous page is successfully loaded, returns True<br/>- If no previous page is returned, the mail collection is not updated and False is returned.|
+|mailIds|Collection| Collection of objects, where each object contains:<br/>- *id* : Text : The id of the email<br/>- *threadId* : Text : The id of the thread to which this Email belongs<br/>- If no mail is returned, the collection is empty.|
 |success|Boolean| [see Status object](#status-object-google-class)|
 |statusText|Text| [see Status object](#status-object-google-class)|
 |errors|Collection| [see Status object](#status-object-google-class)|
@@ -1632,6 +1700,7 @@ https://www.googleapis.com/auth/gmail.metadata
 **Google.mail.getMails**( *mailIDs* : Collection { ; *options* : Object } ) : Collection
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or a collection of objects (each object contains an ID property)|
@@ -1649,9 +1718,9 @@ In *options*, you can pass several properties:
 
 |Property|Type|Description|
 |---------|--- |------|
-|format|Text| The format to return the message in. Can be: <ul><li>"minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. </li><li>"raw": Returns the full email message (default)</li><li>"metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.</li></ul>|
+|format|Text| The format to return the message in. Can be: <br/>- "minimal": Returns only email message ID and labels; does not return the email headers, body, or payload. Returns a jmap object. <br/>- "raw": Returns the full email message (default)<br/>- "metadata": Returns only email message ID, labels, and email headers. Returns a jmap object.|
 |headers|Collection|Collection of strings containing the email headers to be returned. When given and format is "metadata", only include headers specified.|
-|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <ul><li>"MIME"</li><li>"JMAP"(Default)</li></ul>|
+|mailType|Text|Only available if format is "raw". By default, the same as the *mailType* property of the mail (see [cs.NetKit.Google.new()](#csnetkitgooglenew)). If format="raw", the format can be: <br/>- "MIME"<br/>- "JMAP"(Default)|
 
 
 
@@ -1671,6 +1740,7 @@ The method returns a collection of mails in one of the following formats, depend
 **Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
@@ -1703,6 +1773,7 @@ The method returns a standard [**status object**](#status-object-google-class).
 **Google.mail.untrash**( *mailID* : Text ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|The ID of the message to remove from Trash |
@@ -1732,6 +1803,7 @@ https://www.googleapis.com/auth/gmail.modify
 **Google.mail.update**( *mailIDs* : Collection ; *options* : Object) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or collection of objects (each object contains an ID property)|
@@ -1772,6 +1844,7 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 **Google.mail.updateLabel**( *labelId* : Text ; *labelInfo* : Object ) : Object
 
 #### Parameters
+
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
@@ -1810,10 +1883,10 @@ Several Google.mail label management methods use a `labelInfo` object, containin
 |---------|--- |------|
 |id|Text|The ID of the label.|
 |name|Text|The display name of the label. (mandatory)|
-|messageListVisibility|Text|The visibility of messages with this label in the message list.<br></br> Can be: <ul><li>"show": Show the label in the message list. </li><li>"hide": Do not show the label in the message list. </li></ul>|
-|labelListVisibility|Text|The visibility of the label in the label list. <br></br> Can be:<ul><li>"labelShow": Show the label in the label list. </li><li>"labelShowIfUnread" : Show the label if there are any unread messages with that label. </li><li>"labelHide": Do not show the label in the label list. </li></ul>|
-|[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <ul><li> textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. </li><li> backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
-|type|Text|The owner type for the label. <br></br> Can be: <ul><li>"system": Labels created by Gmail.</li><li>"user": Custom labels created by the user or application.</li></ul>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
+|messageListVisibility|Text|The visibility of messages with this label in the message list.<br></br> Can be: <br/>- "show": Show the label in the message list. <<br/>- "hide": Do not show the label in the message list. |
+|labelListVisibility|Text|The visibility of the label in the label list. <br></br> Can be:<br/>- "labelShow": Show the label in the label list. <br/>- "labelShowIfUnread" : Show the label if there are any unread messages with that label. <br/>- "labelHide": Do not show the label in the label list. |
+|[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <br/>-  textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. <br/>- backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
+|type|Text|The owner type for the label. <br></br> Can be: <br/>- "system": Labels created by Gmail.<br/>- "user": Custom labels created by the user or application.<br/>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
 
 
 ### Status object (Google class)
@@ -1824,7 +1897,7 @@ Several Google.mail functions return a `status object`, containing the following
 |---------|--- |------|
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the Gmail server or last error returned by the 4D error stack|
-|errors |  Collection | Collection of 4D error items (not returned if a Gmail server response is received): <ul><li>[].errcode is the 4D error code number</li><li>[].message is a description of the 4D error</li><li>[].componentSignature is the signature of the internal component that returned the error</li></ul>|
+|errors |  Collection | Collection of 4D error items (not returned if a Gmail server response is received): <br/>- [].errcode is the 4D error code number<br/>- [].message is a description of the 4D error<br/>- [].componentSignature is the signature of the internal component that returned the error|
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
 
@@ -1868,7 +1941,7 @@ $oAuth2:=New OAuth2 provider($credential)
 
 $office365:=$cs.NetKit.Office365.new($oAuth2; {mailType: "MIME"})
 // In service mode, you need to indicate on behalf of which user you are sending the request:
-$office365.mail.UserId:="MyUserPrincipalName"
+$office365.mail.userId:="MyUserPrincipalName"
 // Get mails of MyUserPrincipalName account
 $mailList:=$office365.mail.getMails()
 
