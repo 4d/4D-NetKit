@@ -1033,6 +1033,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 | toRecipients |[recipient](#recipient-object) collection | The To: recipients for the message. |
 
 #### Attachment object
+
 | Property |  Type | Description |
 |---|---|---|
 |@odata.type|Text|always "#microsoft.graph.fileAttachment" (note that the property name requires that you use the `[""]` syntax)|
@@ -1053,6 +1054,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 |contentType|Text| The type of the content. Possible values are `"text"` and `"html"` |No|
 
 #### recipient object
+
 | Property ||  Type | Description | Can be null of undefined |
 |---|---|---|---|---|
 |emailAddress||Object||Yes|
@@ -1060,12 +1062,14 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 ||name|Text| The display name of the person or entity.|Yes|
 
 #### internetMessageHeader object
+
 | Property |  Type | Description | Can be null of undefined |
 |---|---|---|---|
 |name |	Text|Represents the key in a key-value pair.|No|
 |value|Text|The value in a key-value pair.|No|
 
 #### followup flag object
+
 | Property |  Type | Description |
 |---|---|---|
 |dueDateTime|[dateTime &#124; TimeZone](#datetime-and-timezone)|	The date and time that the follow up is to be finished. Note: To set the due date, you must also specify the `startDateTime`; otherwise, you will get a `400 Bad Request` response.|
