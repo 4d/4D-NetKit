@@ -1,8 +1,11 @@
 Class extends _GraphAPI
 
-Class constructor($inProvider : cs.OAuth2Provider)
+property userId : Text
+
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider)
+    This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
     
     
     // Mark: - [Private]
@@ -17,10 +20,14 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     
     var $urlParams : Text:=""
     
-    If (Length(String($inID))>0)
-        $urlParams:="users/"+String($inID)+"/calendar"
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
     Else 
-        $urlParams:="me/calendar"
+        $urlParams:="me"
+    End if 
+    $urlParams+="/calendar"
+    If (Length(String($inID))>0)
+        $urlParams:="/"+String($inID)
     End if 
     
     If (Length(String($inSelect))>0)
@@ -46,10 +53,10 @@ Function getCalendarList($inParameters : Object) : Object
     var $urlParams : Text:=""
     var $delimiter : Text:="?"
     
-    If (Length(String($inID))>0)
-        $urlParams:="users/"+String($inID)+"/calendar"
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
     Else 
-        $urlParams:="me/calendar"
+        $urlParams:="me"
     End if 
     
     If (Length(String($inParameters.search))>0)
