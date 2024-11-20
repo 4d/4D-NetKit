@@ -30,6 +30,8 @@ property _grantType : Text
 property _codeVerifier : Text
 property _state : Text
 
+property enableDebugLog : Boolean // Enable HTTP Server debug log for Debug purposes only
+
 Class constructor($inParams : Object)
 	
 	Super()
