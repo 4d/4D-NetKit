@@ -58,6 +58,7 @@ Function getCalendarList($inParameters : Object) : Object
     Else 
         $urlParams:="me"
     End if 
+    $urlParams+="/calendar"
     
     If (Length(String($inParameters.search))>0)
         $urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
