@@ -49,6 +49,9 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     
 Function getCalendarList($inParameters : Object) : Object
     
+	Super._clearErrorStack()
+    Super._throwErrors(False)
+
     var $headers : Object
     var $urlParams : Text:=""
     var $delimiter : Text:="?"
@@ -83,5 +86,8 @@ Function getCalendarList($inParameters : Object) : Object
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    
-    return cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
+    var $result :cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
+
+	Super._throwErrors(True)
+
+    return $result

@@ -122,6 +122,7 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 	// converts cs.GraphAttachment into microsoft.graph.fileAttachment
 	If (OB Instance of($inObject; cs.GraphAttachment))
 		
+		//%W-550.26
 		$result:={}
 		$result["@odata.type"]:=(Length(String($inObject["@odata.type"]))>0) ? \
 			$inObject["@odata.type"] : "#microsoft.graph.fileAttachment"
@@ -142,6 +143,7 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 		End if 
 		$result.contentBytes:=$inObject.contentBytes
 		$result.size:=$inObject.size
+		//%W+550.26
 		
 	End if 
 	
