@@ -31,7 +31,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     End if 
     
     If (Length(String($inSelect))>0)
-        $urlParams:=$urlParams+"?$select="+$inSelect
+        $urlParams+="?$select="+$inSelect
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
@@ -64,24 +64,24 @@ Function getCalendarList($inParameters : Object) : Object
     $urlParams+="/calendar"
     
     If (Length(String($inParameters.search))>0)
-        $urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
+        $urlParams+=($delimiter+"$search="+$inParameters.search)
         $delimiter:="&"
         $headers:={ConsistencyLevel: "eventual"}
     End if 
     If (Length(String($inParameters.filter))>0)
-        $urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
+        $urlParams+=($delimiter+"$filter="+$inParameters.filter)
         $delimiter:="&"
     End if 
     If (Length(String($inParameters.select))>0)
-        $urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
+        $urlParams+=($delimiter+"$select="+$inParameters.select)
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.top)=Is undefined))
-        $urlParams:=$urlParams+$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top))
+        $urlParams+=($delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
         $delimiter:="&"
     End if 
     If (Length(String($inParameters.orderBy))>0)
-        $urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
+        $urlParams+=($delimiter+"$orderBy="+$inParameters.orderBy)
         $delimiter:="&"
     End if 
     
