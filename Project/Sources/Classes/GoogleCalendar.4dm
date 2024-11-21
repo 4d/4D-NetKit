@@ -45,11 +45,11 @@ Function getCalendarList($inParameters : Object) : Object
     $urlParams:="calendar/me/calendarList"
     
     If (Not(Value type($inParameters.maxResults)=Is undefined))
-        $urlParams:=$urlParams+$delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults))
+        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults)))
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.minAccessRole)=Is undefined))
-        $urlParams:=$urlParams+$delimiter+"minAccessRole="+String($inParameters.minAccessRole)
+        $urlParams+=($delimiter+"minAccessRole="+String($inParameters.minAccessRole))
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.pageToken)=Is undefined))
@@ -57,11 +57,11 @@ Function getCalendarList($inParameters : Object) : Object
         $delimiter:="&"
 	End if 
     If (Not(Value type($inParameters.showHidden)=Is undefined))
-        $urlParams:=$urlParams+$delimiter+"showHidden="+Choose(Bool($inParameters.showHidden); "true"; "false")
+        $urlParams+=($delimiter+"showHidden="+Choose(Bool($inParameters.showHidden); "true"; "false"))
         $delimiter:="&"
     End if
     If (Not(Value type($inParameters.showDeleted)=Is undefined))
-        $urlParams:=$urlParams+$delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false")
+        $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
         $delimiter:="&"
     End if
 
