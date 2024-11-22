@@ -4,8 +4,8 @@ property userId : Text
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
-	Super($inProvider; "https://www.googleapis.com/calendar/v3/")
-
+    Super($inProvider; "https://www.googleapis.com/calendar/v3/")
+    
     This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
     
     
@@ -37,7 +37,7 @@ Function getCalendarList($inParameters : Object) : Object
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList
     Super._clearErrorStack()
     Super._throwErrors(False)
-
+    
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
     var $delimiter : Text:="?"
@@ -53,21 +53,21 @@ Function getCalendarList($inParameters : Object) : Object
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.pageToken)=Is undefined))
-		$urlParams+=($delimiter+"pageToken="+String($inParameters.pageToken))
+        $urlParams+=($delimiter+"pageToken="+String($inParameters.pageToken))
         $delimiter:="&"
-	End if 
+    End if 
     If (Not(Value type($inParameters.showHidden)=Is undefined))
         $urlParams+=($delimiter+"showHidden="+Choose(Bool($inParameters.showHidden); "true"; "false"))
         $delimiter:="&"
-    End if
+    End if 
     If (Not(Value type($inParameters.showDeleted)=Is undefined))
         $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
         $delimiter:="&"
-    End if
-
+    End if 
+    
     var $URL : Text:=This._getURL()+$urlParams
     var $result : cs.GoogleCalendarList:=cs.GoogleCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
     
     Super._throwErrors(True)
     
-    return Null
+    return $result

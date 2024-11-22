@@ -37,7 +37,9 @@ Function _getList($inPageToken : Text) : Boolean
 		$URL+=$sep+"pageToken="+$inPageToken
 	End if 
 	
+	Super._throwErrors(False)
 	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; This._internals._headers)
+	Super._throwErrors(True)
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
