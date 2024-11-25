@@ -42,7 +42,7 @@ Function getCalendarList($inParameters : Object) : Object
     var $urlParams : Text:=""
     var $delimiter : Text:="?"
     
-    $urlParams:="calendar/me/calendarList"
+    $urlParams:="users/me/calendarList"
     
     If (Not(Value type($inParameters.maxResults)=Is undefined))
         $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults)))
