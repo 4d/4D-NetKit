@@ -34,6 +34,6 @@ Function get mail : cs.Office365Mail
 Function get calendar : cs.Office365Calendar
 	
 	If (This._internals._calendar=Null)
-		This._internals._calendar:=cs.Office365Calendar.new(This._internals._oAuth2Provider)
+		This._internals._calendar:=cs.Office365Calendar.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
 	return This._internals._calendar
