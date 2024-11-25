@@ -25,9 +25,11 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     Else 
         $urlParams:="me"
     End if 
-    $urlParams+="/calendar"
+
     If (Length(String($inID))>0)
-        $urlParams:="/"+String($inID)
+        $urlParams:="/calendars/"+String($inID)
+    Else 
+        $urlParams+="/calendar"
     End if 
     
     If (Length(String($inSelect))>0)
@@ -49,9 +51,9 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     
 Function getCalendarList($inParameters : Object) : Object
     
-	Super._clearErrorStack()
+    Super._clearErrorStack()
     Super._throwErrors(False)
-
+    
     var $headers : Object
     var $urlParams : Text:=""
     var $delimiter : Text:="?"
@@ -61,7 +63,7 @@ Function getCalendarList($inParameters : Object) : Object
     Else 
         $urlParams:="me"
     End if 
-    $urlParams+="/calendar"
+    $urlParams+="/calendars"
     
     If (Length(String($inParameters.search))>0)
         $urlParams+=($delimiter+"$search="+$inParameters.search)
@@ -86,8 +88,8 @@ Function getCalendarList($inParameters : Object) : Object
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $result :cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
-
-	Super._throwErrors(True)
-
+    var $result : cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
+    
+    Super._throwErrors(True)
+    
     return $result
