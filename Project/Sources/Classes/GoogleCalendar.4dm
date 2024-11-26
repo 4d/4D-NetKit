@@ -19,12 +19,27 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function getCalendar($inID : Text) : Object
     
-    // GET https://www.googleapis.com/calendar/v3/users/me/calendars/calendarId
-    Super._clearErrorStack()
+    // GET https://www.googleapis.com/calendar/v3/users/me/calendarList/calendarId
     
-    var $URL : Text:=Super._getURL()+"users/me/calendars/"+$inID
-    var $headers : Object:={Accept: "application/json"}
-    var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+    var $response : Variant:=Null
+    Super._throwErrors(False)
+    
+    Case of 
+        : (Type($inID)#Is text)
+            Super._throwError(10; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
+            
+        : (Length(String($inID))=0)
+            Super._throwError(9; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
+            
+        Else 
+            
+            var $URL : Text:=Super._getURL()+"users/me/calendarList/"+cs.Tools.me.urlEncode($inID)
+            var $headers : Object:={Accept: "application/json"}
+            $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+            
+    End case 
+    
+    Super._throwErrors(True)
     
     return $response
     
