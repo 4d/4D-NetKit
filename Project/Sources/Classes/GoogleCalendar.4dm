@@ -28,12 +28,10 @@ Function getCalendar($inID : Text) : Object
         : (Type($inID)#Is text)
             Super._throwError(10; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
             
-        : (Length(String($inID))=0)
-            Super._throwError(9; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
-            
         Else 
             
-            var $URL : Text:=Super._getURL()+"users/me/calendarList/"+cs.Tools.me.urlEncode($inID)
+            var $calendarID : Text:=(Length(String($inID))>0) ? $inID : "primary"
+            var $URL : Text:=Super._getURL()+"users/me/calendarList/"+cs.Tools.me.urlEncode($calendarID)
             var $headers : Object:={Accept: "application/json"}
             $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
             
