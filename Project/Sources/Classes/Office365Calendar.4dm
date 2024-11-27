@@ -27,7 +27,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     End if 
 
     If (Length(String($inID))>0)
-        $urlParams:="/calendars/"+String($inID)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inID)
     Else 
         $urlParams+="/calendar"
     End if 
