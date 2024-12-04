@@ -22,8 +22,7 @@ Function getCalendar($inID : Text) : Object
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList/calendarId
     
     var $response : Variant:=Null
-    Super._throwErrors(False)
-    
+
     Case of 
         : (Type($inID)#Is text)
             Super._throwError(10; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
@@ -36,8 +35,6 @@ Function getCalendar($inID : Text) : Object
             $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
             
     End case 
-    
-    Super._throwErrors(True)
     
     return $response
     
