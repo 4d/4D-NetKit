@@ -945,6 +945,8 @@ In `email`, pass the email to be sent. Possible types:
     * the [Microsoft mail object properties](#microsoft-mail-object-properties)
     * the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification
 
+> Passing both the `textBody` and `htmlBody` properties is not supported by `Office365.mail.send()`. In this case, only the html body part is actually sent.
+
 The data type passed in `email` must be compatible with the [`Office365.mail.type` property](#returned-object-1). In the following example, since the mail type is `Microsoft`, `$email` must be an object. For the list of available properties, see [Microsoft mail object's properties](#microsoft-mail-object-properties):
 
 ```4d
