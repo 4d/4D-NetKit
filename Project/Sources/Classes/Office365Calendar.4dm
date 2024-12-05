@@ -49,7 +49,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     // ----------------------------------------------------
     
     
-Function getCalendarList($inParameters : Object) : Object
+Function getCalendars($inParameters : Object) : Object
     
     Super._clearErrorStack()
     Super._throwErrors(False)
