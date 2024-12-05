@@ -42,7 +42,7 @@ Function getCalendar($inID : Text) : Object
     // ----------------------------------------------------
     
     
-Function getCalendarList($inParameters : Object) : Object
+Function getCalendars($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList
     Super._clearErrorStack()
@@ -54,8 +54,8 @@ Function getCalendarList($inParameters : Object) : Object
     
     $urlParams:="users/me/calendarList"
     
-    If (Not(Value type($inParameters.maxResults)=Is undefined))
-        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults)))
+    If (Not(Value type($inParameters.top)=Is undefined))
+        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.minAccessRole)=Is undefined))
