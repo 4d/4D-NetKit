@@ -25,7 +25,9 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	
 Function _getList($inURL : Text) : Boolean
 	
+	Super._throwErrors(False)
 	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
+	Super._throwErrors(True)
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
