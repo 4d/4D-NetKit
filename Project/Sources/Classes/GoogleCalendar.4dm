@@ -42,7 +42,7 @@ Function getCalendar($inID : Text) : Object
     // ----------------------------------------------------
     
     
-Function getCalendarList($inParameters : Object) : Object
+Function getCalendars($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList
     Super._clearErrorStack()
