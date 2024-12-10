@@ -1,0 +1,20 @@
+name: GitlabSync
+
+on:
+  push:
+  delete:
+  
+jobs:
+  sync:
+    runs-on: [self-hosted, macOS, ARM64]
+    name: Git Repo Sync
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true 
+    - uses: wangchucheng/git-repo-sync@v0.1.0
+      with:
+        target-url: ${{ secrets.TARGET_URL }}
+        target-username: ${{ secrets.TARGET_USERNAME }}
+        target-token: ${{ secrets.TARGET_TOKEN }}
