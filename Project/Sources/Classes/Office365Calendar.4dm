@@ -12,6 +12,23 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     // ----------------------------------------------------
     
     
+Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
+    
+    var $URL : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
+    var $delimiter : Text:=(Position("&";$URL)>0) ? "&" : "?"
+    
+    If (Length(String($inParameters.startDateTime))>0)
+        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode(inParameters.startDateTime)
+        $delimiter:="&"
+    End if 
+    If (Length(String($inParameters.endDateTime))>0)
+        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode(inParameters.endDateTime)
+        $delimiter:="&"
+    End if 
+
+    return $result
+    
+    
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
@@ -57,7 +74,6 @@ Function getCalendars($inParameters : Object) : Object
     
     var $headers : Object:={}
     var $urlParams : Text:=""
-    var $delimiter : Text:="?"
     
     If (Length(String(This.userId))>0)
         $urlParams:="users/"+This.userId
@@ -120,7 +136,7 @@ Function getEvent($inParameters : Object) : Object
             End if 
             $urlParams+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)
             
-            $urlParams+=Super._getURLParamsFromObject($inParameters)
+            $urlParams+=This._getURLParamsFromObject($inParameters)
             
             var $prefer : Text:=""
             If (Length(String($inParameters.timeZone))>0)
@@ -160,7 +176,7 @@ Function getEvents($inParameters : Object) : Object
                 GET /me/calendars/{id}/events
                 GET /users/{id | userPrincipalName}/calendars/{id}/events
 */
-var $urlParams : Text:=""
+    var $urlParams : Text:=""
     If (Length(String(This.userId))>0)
         $urlParams+="users/"+This.userId
     Else 
@@ -171,7 +187,7 @@ var $urlParams : Text:=""
     Else 
         $urlParams+="/calendar"
     End if 
-    $urlParams+="/events"+Super._getURLParamsFromObject($inParameters)
+    $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
     
     var $prefer : Text:=""
     If (Length(String($inParameters.timeZone))>0)
