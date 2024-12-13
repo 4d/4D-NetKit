@@ -15,7 +15,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
     var $URL : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
-    var $delimiter : Text:=(Position("&";$URL)>0) ? "&" : "?"
+    var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
     
     If (Length(String($inParameters.startDateTime))>0)
         $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode(inParameters.startDateTime)
@@ -25,7 +25,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
         $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode(inParameters.endDateTime)
         $delimiter:="&"
     End if 
-
+    
     return $result
     
     
@@ -182,7 +182,7 @@ Function getEvents($inParameters : Object) : Object
     Else 
         $urlParams+="me"
     End if 
-    If (Length(String($inParameters.calendarId))>0)
+    If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
         $urlParams+="/calendars/"+$inParameters.calendarId
     Else 
         $urlParams+="/calendar"
@@ -190,10 +190,10 @@ Function getEvents($inParameters : Object) : Object
     $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
     
     var $prefer : Text:=""
-    If (Length(String($inParameters.timeZone))>0)
+    If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
         $prefer+="outlook.timezone="+$inParameters.timeZone
     End if 
-    If (Length(String($inParameters.bodyContentType))>0)
+    If ((Value type($inParameters.bodyContentType)=Is text) && (Length(String($inParameters.bodyContentType))>0))
         $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+$inParameters.bodyContentType+" "
     End if 
     If (Length($prefer)>0)
