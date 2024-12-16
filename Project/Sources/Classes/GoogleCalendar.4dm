@@ -106,7 +106,7 @@ Function getEvent($inParameters : Object) : Object
             var $headers : Object:={Accept: "application/json"}
             var $urlParams : Text:="calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
             var $delimiter : Text:="?"
-
+            
             If (Not(Value type($inParameters.maxAttendees)=Is undefined))
                 $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
                 $delimiter:="&"
@@ -115,7 +115,7 @@ Function getEvent($inParameters : Object) : Object
                 $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
                 $delimiter:="&"
             End if 
-
+            
             var $URL : Text:=This._getURL()+$urlParams
             $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
             
@@ -130,7 +130,7 @@ Function getEvent($inParameters : Object) : Object
 Function getEvents($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
-
+    
     Super._clearErrorStack()
     Super._throwErrors(False)
     
@@ -139,6 +139,7 @@ Function getEvents($inParameters : Object) : Object
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $urlParams : Text:="calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
     var $delimiter : Text:="?"
+    var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
     
     If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
         $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)
@@ -176,16 +177,18 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"singleEvents="+Choose(Bool($inParameters.singleEvents); "true"; "false"))
         $delimiter:="&"
     End if 
+    If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
+        $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
+        $delimiter:="&"
+    End if 
     If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0))
-        $urlParams+=($delimiter+"startDateTime="+String($inParameters.startDateTime))
+        // TODO: Convert to RFC3339 using the correct timeZone
+        $urlParams+=($delimiter+"timeMin="+String($inParameters.startDateTime))
         $delimiter:="&"
     End if 
     If ((Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
-        $urlParams+=($delimiter+"endDateTime="+String($inParameters.endDateTime))
-        $delimiter:="&"
-    End if 
-    If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-        $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
+        // TODO: Convert to RFC3339 using the correct timeZone
+        $urlParams+=($delimiter+"timeMax="+String($inParameters.endDateTime))
         $delimiter:="&"
     End if 
     If ((Value type($inParameters.updatedMin)=Is text) && (Length(String($inParameters.updatedMin))>0))
