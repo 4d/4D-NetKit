@@ -103,8 +103,20 @@ Function getEvent($inParameters : Object) : Object
             
             var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : "primary"
             var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-            var $URL : Text:=Super._getURL()+"calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
             var $headers : Object:={Accept: "application/json"}
+            var $urlParams : Text:="calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+            var $delimiter : Text:="?"
+
+            If (Not(Value type($inParameters.maxAttendees)=Is undefined))
+                $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
+                $delimiter:="&"
+            End if 
+            If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
+                $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
+                $delimiter:="&"
+            End if 
+
+            var $URL : Text:=This._getURL()+$urlParams
             $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
             
     End case 
@@ -118,6 +130,7 @@ Function getEvent($inParameters : Object) : Object
 Function getEvents($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
+
     Super._clearErrorStack()
     Super._throwErrors(False)
     
