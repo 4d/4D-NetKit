@@ -84,8 +84,83 @@ Function getCalendars($inParameters : Object) : Object
     return $result
     
     
+    // Mark: - [Private]
+    // Mark: - Events
+    // ----------------------------------------------------
+    
+    
+    
+    
+Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    
+    // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
+    var $response : Variant:=Null
+    
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+    var $delimiter : Text:="?"
+    
+    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
+        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
+        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
+        $delimiter:="&"
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    $response:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    
+    return This._returnStatus($response)
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    
+    // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
+    
+    var $response : Variant:=Null
+    
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $delimiter : Text:="?"
+    
+    If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
+        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
+        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
+        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
+        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
+        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    $response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    
+    return This._returnStatus($response)
+    
+    
     // Mark: - [Public]
-    // Mark: - Calendars
+    // Mark: - Events
     // ----------------------------------------------------
     
     
@@ -134,7 +209,6 @@ Function getEvents($inParameters : Object) : Object
     Super._clearErrorStack()
     Super._throwErrors(False)
     
-    var $response : Object:=Null
     var $headers : Object:={Accept: "application/json"}
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
@@ -209,4 +283,4 @@ Function getEvents($inParameters : Object) : Object
     
     Super._throwErrors(False)
     
-    return $response
+    return $result
