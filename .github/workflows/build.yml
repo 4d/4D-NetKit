@@ -1,0 +1,52 @@
+name: Build
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: "Build on ${{ matrix.os }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macOS,Windows]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true 
+
+    - name: Build
+      uses: 4d/build4d-action@main
+      with:
+        product-line: vcs
+        version: vcs
+        build: official
+        token: ${{ secrets.DLTK }}
+  sync:
+    needs: ["build"]
+    runs-on: [self-hosted, macOS, ARM64]
+    name: Git Repo Sync
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true 
+
+    - name: Get Internal Sync action
+      uses: actions/checkout@v4
+      with:
+        repository: 4d/gitlabsync-action
+        ref: main
+        path: .github/workflows/external/sync
+        token: ${{ secrets.CI_GIT_SYNC }}
+
+    - id: Sync
+      uses: ./.github/workflows/external/sync/
+      with:
+        target-url: ${{ secrets.TARGET_URL }}
+        target-username: ${{ secrets.TARGET_USERNAME }}
+        target-token: ${{ secrets.TARGET_TOKEN }}
+
