@@ -104,7 +104,7 @@ Function getEvent($inParameters : Object) : Object
             var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : "primary"
             var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
             var $headers : Object:={Accept: "application/json"}
-            var $urlParams : Text:="calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+            var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
             var $delimiter : Text:="?"
             
             If (Not(Value type($inParameters.maxAttendees)=Is undefined))
@@ -137,7 +137,7 @@ Function getEvents($inParameters : Object) : Object
     var $response : Object:=Null
     var $headers : Object:={Accept: "application/json"}
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $urlParams : Text:="calendar/v3/calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
     var $delimiter : Text:="?"
     var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
     
