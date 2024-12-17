@@ -26,7 +26,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
         $delimiter:="&"
     End if 
     
-    return $result
+    return $URL
     
     
     // Mark: - [Public]
