@@ -55,8 +55,8 @@ Function getCalendars($inParameters : Object) : Object
     
     $urlParams:="users/me/calendarList"
     
-    If (Not(Value type($inParameters.maxResults)=Is undefined))
-        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults)))
+    If (Not(Value type($inParameters.top)=Is undefined))
+        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
         $delimiter:="&"
     End if 
     If (Not(Value type($inParameters.minAccessRole)=Is undefined))
@@ -227,8 +227,8 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
         $delimiter:="&"
     End if 
-    If (Not(Value type($inParameters.maxResults)=Is undefined))
-        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.maxResults)=Is text; $inParameters.maxResults; String($inParameters.maxResults)))
+    If (Not(Value type($inParameters.top)=Is undefined))
+        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
         $delimiter:="&"
     End if 
     If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
