@@ -89,8 +89,6 @@ Function getCalendars($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-    
-    
 Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
     
     // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId

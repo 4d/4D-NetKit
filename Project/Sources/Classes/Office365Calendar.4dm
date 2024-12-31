@@ -29,6 +29,85 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     return $URL
     
     
+Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    
+/*
+    DELETE /me/events/{id}
+    DELETE /users/{id | userPrincipalName}/events/{id}
+    DELETE /groups/{id}/events/{id}
+    
+    DELETE /me/calendar/events/{id}
+    DELETE /users/{id | userPrincipalName}/calendar/events/{id}
+    DELETE /groups/{id}/calendar/events/{id}/
+    
+    DELETE /me/calendars/{id}/events/{id}
+    DELETE /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+    
+    DELETE /me/calendarGroups/{id}/calendars/{id}/events/{id}
+    DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
+*/
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:=""
+    
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
+    Else 
+        $urlParams:="me"
+    End if 
+    If (Length(String($inParameters.calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $urlParams+="/calendar"
+    End if 
+    $urlParams+="/events"
+    If (Length(String($inParameters.eventId))>0)
+        $urlParams+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    
+    return This._returnStatus($response)
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    
+/*
+    POST /me/events
+    POST /users/{id | userPrincipalName}/events
+    
+    POST /me/calendar/events
+    POST /users/{id | userPrincipalName}/calendar/events
+    
+    POST /me/calendars/{id}/events
+    POST /users/{id | userPrincipalName}/calendars/{id}/events
+*/
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:=""
+    
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
+    Else 
+        $urlParams:="me"
+    End if 
+    
+    If (Length(String($inParameters.calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $urlParams+="/calendar"
+    End if 
+    $urlParams+="/events"
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    
+    return This._returnStatus($response)
+    
+    
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
