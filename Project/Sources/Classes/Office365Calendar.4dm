@@ -170,11 +170,15 @@ Function getEvents($inParameters : Object) : Object
             
                 GET /me/calendar/events
                 GET /users/{id | userPrincipalName}/calendar/events
+                GET /me/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+                GET /users/{id | userPrincipalName}/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
             
             A user's calendar in the default calendarGroup.
             
                 GET /me/calendars/{id}/events
                 GET /users/{id | userPrincipalName}/calendars/{id}/events
+                GET /me/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+                GET /users/{id | userPrincipalName}/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
 */
     var $headers : Object:={}
     var $urlParams : Text:=""
@@ -188,7 +192,12 @@ Function getEvents($inParameters : Object) : Object
     Else 
         $urlParams+="/calendar"
     End if 
-    $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
+    If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0)\
+      && (Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
+        $urlParams+="/calendarView"+This._getURLParamsFromObject($inParameters)
+    Else 
+        $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
+    End if 
     
     var $prefer : Text:=""
     If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
