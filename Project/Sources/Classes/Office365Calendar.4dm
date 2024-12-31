@@ -176,6 +176,7 @@ Function getEvents($inParameters : Object) : Object
                 GET /me/calendars/{id}/events
                 GET /users/{id | userPrincipalName}/calendars/{id}/events
 */
+    var $headers : Object:={}
     var $urlParams : Text:=""
     If (Length(String(This.userId))>0)
         $urlParams+="users/"+This.userId
