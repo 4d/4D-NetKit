@@ -5,7 +5,7 @@
     - //repos/4edimension/4DComponents/User Components/4D NetKit/Project/Sources/ (target folder)
 */
 
-var $status : Object:=Compile project
+var $status : Object:=Compile project({typeInference: "none"})
 
 If ($status.success=True)
 	
