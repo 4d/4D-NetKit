@@ -174,8 +174,9 @@ Function getEvent($inParameters : Object) : Object
             
         Else 
             
-            var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : "primary"
+            var $eventId : Text:=$inParameters.eventId
             var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+            var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
             var $headers : Object:={Accept: "application/json"}
             var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
             var $delimiter : Text:="?"
@@ -184,10 +185,7 @@ Function getEvent($inParameters : Object) : Object
                 $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
                 $delimiter:="&"
             End if 
-            If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-                $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
-                $delimiter:="&"
-            End if 
+            $urlParams+=($delimiter+"timeZone="+String($timeZone))
             
             var $URL : Text:=This._getURL()+$urlParams
             $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
@@ -275,6 +273,7 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"sharedExtendedProperty="+String($inParameters.sharedExtendedProperty))
         $delimiter:="&"
     End if 
+    $urlParams+=($delimiter+"timeZone="+String($timeZone))
     
     var $URL : Text:=This._getURL()+$urlParams
     var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $URL; $headers)
