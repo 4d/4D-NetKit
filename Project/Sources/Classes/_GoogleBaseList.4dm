@@ -6,17 +6,18 @@ property statusText : Text
 property success : Boolean
 property errors : Collection
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListName : Text; $inHeaders : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListName : Text; $inHeaders : Object; $inAdditionalAttributes : Collection)
 	
 	Super($inProvider)
 	
 	This._internals._URL:=$inURL
 	This._internals._headers:=$inHeaders
 	This._internals._attribute:=$inResultListName
+	This._internals._additionalAttributes:=$inAdditionalAttributes
 	This._internals._nextPageToken:=""
 	This._internals._history:=[]
 	This._internals._throwErrors:=False
-
+	
 	This.page:=1
 	This.isLastPage:=False
 	
@@ -46,11 +47,21 @@ Function _getList($inPageToken : Text) : Boolean
 	This.success:=False
 	This._internals._nextPageToken:=""
 	This._internals._list:=[]
-
+	
 	If ($response#Null)
 		
 		If (OB Is defined($response; This._internals._attribute))
 			This._internals._list:=OB Get($response; This._internals._attribute; Is collection)
+		End if 
+		
+		If (This._internals._additionalAttributes#Null)
+			var $key : Text
+			For each ($key; This._internals._additionalAttributes)
+				
+				If (OB Is defined($response; $key))
+					This[$key]:=OB Get($response; $key)
+				End if 
+			End for each 
 		End if 
 		
 		This.success:=True

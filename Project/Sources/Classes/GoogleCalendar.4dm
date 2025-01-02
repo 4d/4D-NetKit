@@ -276,7 +276,9 @@ Function getEvents($inParameters : Object) : Object
     $urlParams+=($delimiter+"timeZone="+String($timeZone))
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $URL; $headers)
+    
+    var $additionalAttributes : Collection:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
+    var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $URL; $headers; $additionalAttributes)
     
     Super._throwErrors(False)
     
