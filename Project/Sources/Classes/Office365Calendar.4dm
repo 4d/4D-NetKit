@@ -18,11 +18,11 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
     
     If (Length(String($inParameters.startDateTime))>0)
-        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode(inParameters.startDateTime)
+        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode($inParameters.startDateTime)
         $delimiter:="&"
     End if 
     If (Length(String($inParameters.endDateTime))>0)
-        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode(inParameters.endDateTime)
+        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode($inParameters.endDateTime)
         $delimiter:="&"
     End if 
     
