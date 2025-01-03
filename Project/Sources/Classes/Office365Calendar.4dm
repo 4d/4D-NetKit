@@ -296,6 +296,10 @@ Function getEvents($inParameters : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $result : cs.GraphEventList:=cs.GraphEventList.new(This._getOAuth2Provider(); $URL; $headers)
     
+    If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+        $result.calendarId:=$inParameters.calendarId
+    End if 
+    
     Super._throwErrors(True)
     
     return $result
