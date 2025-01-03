@@ -280,6 +280,10 @@ Function getEvents($inParameters : Object) : Object
     var $additionalAttributes : Collection:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
     var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $URL; $headers; $additionalAttributes)
     
+    If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+        $result.calendarId:=$inParameters.calendarId
+    End if 
+    
     Super._throwErrors(False)
     
     return $result
