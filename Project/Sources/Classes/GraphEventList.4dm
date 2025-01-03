@@ -1,5 +1,7 @@
 Class extends _GraphBaseList
 
+property calendarId : Text
+
 Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
 	Super($inProvider; $inURL; $inHeaders)
