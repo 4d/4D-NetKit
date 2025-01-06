@@ -10,9 +10,9 @@ property timeZone : Text
 property accessRole : Text
 property defaultReminders : Collection
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object; $inAdditionalAttributes : Collection)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
-    Super($inProvider; $inURL; "items"; $inHeaders; $inAdditionalAttributes)
+    Super($inProvider; $inParameters)
     
     
     // Mark: - [Public]

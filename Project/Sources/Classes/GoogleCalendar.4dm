@@ -76,8 +76,11 @@ Function getCalendars($inParameters : Object) : Object
         $delimiter:="&"
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GoogleCalendarList:=cs.GoogleCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
+    var $options : Object:={}
+    $options.url:=This._getURL()+$urlParams
+    $options.headers:={Accept: "application/json"}
+    
+    var $result : cs.GoogleCalendarList:=cs.GoogleCalendarList.new(This._getOAuth2Provider(); $options)
     
     Super._throwErrors(True)
     
@@ -205,7 +208,6 @@ Function getEvents($inParameters : Object) : Object
     Super._clearErrorStack()
     Super._throwErrors(False)
     
-    var $headers : Object:={Accept: "application/json"}
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
     var $delimiter : Text:="?"
@@ -275,10 +277,12 @@ Function getEvents($inParameters : Object) : Object
     End if 
     $urlParams+=($delimiter+"timeZone="+String($timeZone))
     
-    var $URL : Text:=This._getURL()+$urlParams
+    var $options : Object:={}
+    $options.url:=This._getURL()+$urlParams
+    $options.headers:={Accept: "application/json"}
+    $options.attributes:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
     
-    var $additionalAttributes : Collection:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
-    var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $URL; $headers; $additionalAttributes)
+    var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $options)
     
     If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
         $result.calendarId:=$inParameters.calendarId
