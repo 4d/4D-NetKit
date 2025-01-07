@@ -9,12 +9,12 @@ property errors : Collection
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
-
+	
 	If ((Value type($inParameters.url)=Is text) && (Length($inParameters.url)>0))
 		This._internals._URL:=$inParameters.url
 	End if 
 	This._internals._headers:=(Value type($inParameters.headers)=Is object) ? $inParameters.headers : Null
-	This._internals._elements:=(Value type($inParameters.elements)=Is text) ? $inParameters.elements : "items"
+	This._internals._elements:=((Value type($inParameters.elements)=Is text) && (Length($inParameters.elements)>0)) ? $inParameters.elements : "items"
 	This._internals._attributes:=(Value type($inParameters.attributes)=Is collection) ? $inParameters.attributes : Null
 	This._internals._nextPageToken:=""
 	This._internals._history:=[]
@@ -57,11 +57,11 @@ Function _getList($inPageToken : Text) : Boolean
 		End if 
 		
 		If (This._internals._attributes#Null)
-			var $key : Text
-			For each ($key; This._internals._attributes)
+			var $attribute : Text
+			For each ($attribute; This._internals._attributes)
 				
-				If (OB Is defined($response; $key))
-					This[$key]:=OB Get($response; $key)
+				If (OB Is defined($response; $attribute))
+					This[$attribute]:=OB Get($response; $attribute)
 				End if 
 			End for each 
 		End if 
