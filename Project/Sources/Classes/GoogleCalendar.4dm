@@ -25,7 +25,7 @@ Function getCalendar($inID : Text) : Object
     var $response : Variant:=Null
     
     Case of 
-        : (Type($inID)#Is text)
+        : (Value type($inID)#Is text)
             Super._throwError(10; {which: "\"calendarId\""; function: "google.calendar.getCalendar"})
             
         Else 
@@ -172,7 +172,7 @@ Function getEvent($inParameters : Object) : Object
     var $response : Variant:=Null
     
     Case of 
-        : (Type($inParameters.eventId)#Is text)
+        : (Value type($inParameters.eventId)#Is text)
             Super._throwError(10; {which: "\"eventId\""; function: "google.calendar.getEvent"})
             
         Else 
