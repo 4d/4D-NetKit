@@ -212,6 +212,23 @@ Function getEvents($inParameters : Object) : Object
     var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
     var $delimiter : Text:="?"
     var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
+    var $startDateTime : Text:=""
+    var $endDateTime : Text:=""
+    
+    Case of 
+        : (Value type($inParameters.startDateTime)=Is text)
+            $startDateTime:=$inParameters.startDateTime
+        : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
+    End case 
+    
+    Case of 
+        : (Value type($inParameters.endDateTime)=Is text)
+            $endDateTime:=$inParameters.endDateTime
+        : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
+    End case 
+
     
     If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
         $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)
@@ -253,14 +270,12 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
         $delimiter:="&"
     End if 
-    If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0))
-        // TODO: Convert to RFC3339 using the correct timeZone
-        $urlParams+=($delimiter+"timeMin="+String($inParameters.startDateTime))
+    If (Length(String($startDateTime))>0)
+        $urlParams+=($delimiter+"timeMin="+String($startDateTime))
         $delimiter:="&"
     End if 
-    If ((Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
-        // TODO: Convert to RFC3339 using the correct timeZone
-        $urlParams+=($delimiter+"timeMax="+String($inParameters.endDateTime))
+    If (Length(String($endDateTime))>0)
+        $urlParams+=($delimiter+"timeMax="+String($endDateTime))
         $delimiter:="&"
     End if 
     If ((Value type($inParameters.updatedMin)=Is text) && (Length(String($inParameters.updatedMin))>0))

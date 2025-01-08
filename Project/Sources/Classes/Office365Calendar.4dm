@@ -16,13 +16,29 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     
     var $URL : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
     var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
+    var $startDateTime : Text:=""
+    var $endDateTime : Text:=""
     
-    If (Length(String($inParameters.startDateTime))>0)
-        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode($inParameters.startDateTime)
+    Case of 
+        : (Value type($inParameters.startDateTime)=Is text)
+            $startDateTime:=$inParameters.startDateTime
+        : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
+    End case 
+    
+    Case of 
+        : (Value type($inParameters.endDateTime)=Is text)
+            $endDateTime:=$inParameters.endDateTime
+        : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
+    End case 
+    
+    If (Length($startDateTime)>0)
+        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode($startDateTime)
         $delimiter:="&"
     End if 
-    If (Length(String($inParameters.endDateTime))>0)
-        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode($inParameters.endDateTime)
+    If (Length($endDateTime)>0)
+        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode($endDateTime)
         $delimiter:="&"
     End if 
     

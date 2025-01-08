@@ -10,7 +10,7 @@ If ($errorFile.exists)
 	$errorFile.delete()
 End if 
 
-var $status : Object:=Compile project({typeInference: "locals"})
+var $status : Object:=Compile project({typeInference: "all"})
 
 If ($status.success=True)
 	
