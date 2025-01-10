@@ -96,8 +96,6 @@ Function _deleteEvent($inParameters : Object) : Object  // For test purposes onl
     
     // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
     
-    var $response : Variant:=Null
-    
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
     var $headers : Object:={Accept: "application/json"}
@@ -114,9 +112,9 @@ Function _deleteEvent($inParameters : Object) : Object  // For test purposes onl
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    $response:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
     
-    return This._returnStatus($response)
+    return This._returnStatus()
     
     
     // ----------------------------------------------------
@@ -125,8 +123,6 @@ Function _deleteEvent($inParameters : Object) : Object  // For test purposes onl
 Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
     
     // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
-    
-    var $response : Variant:=Null
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $headers : Object:={Accept: "application/json"}
@@ -155,9 +151,13 @@ Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // Fo
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    $response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
     
-    return This._returnStatus($response)
+    If ($response#Null)
+        return cs.GoogleEvent.new($response)
+    End if 
+    
+    return Null
     
     
     // Mark: - [Public]
@@ -168,8 +168,6 @@ Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // Fo
 Function getEvent($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
-    
-    var $response : Variant:=Null
     
     Case of 
         : (Value type($inParameters.eventId)#Is text)
@@ -191,11 +189,13 @@ Function getEvent($inParameters : Object) : Object
             $urlParams+=($delimiter+"timeZone="+String($timeZone))
             
             var $URL : Text:=This._getURL()+$urlParams
-            $response:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+            
+            return cs.GoogleEvent.new($response)
             
     End case 
     
-    return $response
+    return Null
     
     
     // ----------------------------------------------------
@@ -228,7 +228,6 @@ Function getEvents($inParameters : Object) : Object
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
             $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
     End case 
-
     
     If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
         $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)

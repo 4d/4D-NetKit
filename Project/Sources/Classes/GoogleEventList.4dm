@@ -14,6 +14,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider; $inParameters)
     
+    This._internals._events:=null
+    This._internals._update:=true
     
     // Mark: - [Public]
     // ----------------------------------------------------
@@ -21,4 +23,35 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function get events() : Collection
     
-    return This._internals._list
+    If (This._internals._update)
+        
+        var $iter : Object
+        
+        This._internals._events:=[]
+        For each ($iter; This._internals._list)
+            This._internals._events.push(cs.GoogleEvent.new($iter))
+        End for each 
+        
+        This._internals._update:=False
+    End if 
+    
+    return This._internals._events
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function next() : Boolean
+    
+    This._internals._update:=Super.next()
+    return This._internals._update
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function previous() : Boolean
+    
+    This._internals._update:=Super.previous()
+    return This._internals._update
+    
