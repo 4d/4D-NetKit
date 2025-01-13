@@ -208,7 +208,7 @@ Function getEvent($inParameters : Object) : Object
     Super._clearErrorStack()
     
     Case of 
-        : (Type($inParameters.eventId)#Is text)
+        : (Value type($inParameters.eventId)#Is text)
             Super._throwError(10; {which: "\"eventId\""; function: "office365.calendar.getEvent"})
             
         : (Length(String($inParameters.eventId))=0)
