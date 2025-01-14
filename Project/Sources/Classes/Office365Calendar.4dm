@@ -1,6 +1,7 @@
 Class extends _GraphAPI
 
-property userId : Text
+property userId : Text:=""
+property id : Text:=""
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
@@ -245,10 +246,11 @@ Function getEvent($inParameters : Object) : Object
             End if 
             
             var $URL : Text:=This._getURL()+$urlParams
-            var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; $URL; $headers))
             
-            If (Value type($response)=Is object)
-                return Super._cleanGraphObject($response)
+            If (Value type($result)=Is object)
+                var $options : Object:={userId: This.userId; calendarId: String($inParameters.calendarId); eventId: String($inParameters.eventId)}
+                return cs.GraphEvent.new(This._internals._oAuth2Provider; $options; $result)
             End if 
     End case 
     
@@ -284,6 +286,7 @@ Function getEvents($inParameters : Object) : Object
     End if 
     If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
         $urlParams+="/calendars/"+$inParameters.calendarId
+        This.id:=$inParameters.calendarId
     Else 
         $urlParams+="/calendar"
     End if 
@@ -310,7 +313,7 @@ Function getEvents($inParameters : Object) : Object
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GraphEventList:=cs.GraphEventList.new(This._getOAuth2Provider(); $URL; $headers)
+    var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL; $headers)
     
     If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
         $result.calendarId:=$inParameters.calendarId

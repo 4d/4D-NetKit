@@ -13,7 +13,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject
 	Super($inProvider)
 	
 	This._internals._userId:=String($inParams.userId)
-	This._internals._messageId:=String($inParams.messageId)
+	Case of 
+		: (Length(String($inParams.messageId))>0)
+			This._internals._messageId:=String($inParams.messageId)
+		: (Length(String(This._internals._eventId))>0)
+			This._internals._eventId:=String($inParams.eventId)
+	End case 
 	Super._loadFromObject($inObject)
 	If (Length(String(This["@odata.type"]))=0)
 		This["@odata.type"]:="#microsoft.graph.fileAttachment"
@@ -28,36 +33,44 @@ Function getContent() : 4D.Blob
 	
 	If (Not(OB Is defined(This; "contentBytes")))
 		
-		If (Length(String(This._internals._messageId))>0)
-			
-			var $urlParams : Text
-			
-			If (Length(String(This._internals._userId))>0)
-				$urlParams:="users/"+This._internals._userId
-			Else 
-				$urlParams:="me"
-			End if 
-			$urlParams+="/messages/"+This._internals._messageId
-			$urlParams+="/attachments/"+This.id
-			
-			var $URL : Text:=Super._getURL()+$urlParams
-			If (This["@odata.type"]="#microsoft.graph.itemAttachment")
-				$URL+="/?$expand=microsoft.graph.itemattachment/item"
-			End if 
-			
-			var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
-			If ($response#Null)
-				If (OB Is defined($response; "contentBytes"))
-					This.contentBytes:=$response.contentBytes
+		var $urlParams : Text
+		
+		Case of 
+			: (Length(String(This._internals._messageId))>0)
+				If (Length(String(This._internals._userId))>0)
+					$urlParams:="users/"+This._internals._userId
 				Else 
-					If (OB Is defined($response; "item"))
-						var $stringContent : Text
-						BASE64 ENCODE(JSON Stringify($response.item); $stringContent)
-						This.contentBytes:=$stringContent
-					End if 
+					$urlParams:="me"
 				End if 
-				
+				$urlParams+="/messages/"+This._internals._messageId
+				$urlParams+="/attachments/"+This.id
+			: (Length(String(This._internals._eventId))>0)
+				If (Length(String(This._internals._userId))>0)
+					$urlParams:="users/"+This._internals._userId
+				Else 
+					$urlParams:="me"
+				End if 
+				$urlParams+="/events/"+This._internals._eventId
+				$urlParams+="/attachments/"+This.id
+		End case 
+		
+		var $URL : Text:=Super._getURL()+$urlParams
+		If (This["@odata.type"]="#microsoft.graph.itemAttachment")
+			$URL+="/?$expand=microsoft.graph.itemattachment/item"
+		End if 
+		
+		var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL)
+		If ($response#Null)
+			If (OB Is defined($response; "contentBytes"))
+				This.contentBytes:=$response.contentBytes
+			Else 
+				If (OB Is defined($response; "item"))
+					var $stringContent : Text
+					BASE64 ENCODE(JSON Stringify($response.item); $stringContent)
+					This.contentBytes:=$stringContent
+				End if 
 			End if 
+			
 		End if 
 	End if 
 	
