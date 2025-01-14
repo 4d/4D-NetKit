@@ -1,5 +1,7 @@
 Class extends _GraphBaseList
 
+property calendarId : Text
+
 Class constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders : Object)
 	
 	Super($inCalendar._getOAuth2Provider(); $inURL; $inHeaders)
