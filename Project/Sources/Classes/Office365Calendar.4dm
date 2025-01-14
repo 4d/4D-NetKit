@@ -315,7 +315,7 @@ Function getEvents($inParameters : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL; $headers)
     
-    If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+    If (Not(OB Is defined($result; "calendarId")) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
         $result.calendarId:=$inParameters.calendarId
     End if 
     
