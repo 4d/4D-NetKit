@@ -350,6 +350,26 @@ Function isValidEmail($inEmail : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function quoteString($inString : text) : text
+	
+	var $result : Text:=$inString
+	var $length : Integer:=Length($result)
+		
+	if($length>0)
+		if ($result[[1]]#"\"")
+			$result:="\""+$result
+		End if
+		If ($result[[$length]]#"\"")
+			$result+="\""
+		End if
+	End if
+
+	return $result
+
+
+	// ----------------------------------------------------
+	
+	
 Function retainFileObject($inParameter : Variant) : 4D.File
 	
 	If (Value type($inParameter)#Is undefined)

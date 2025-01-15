@@ -236,10 +236,10 @@ Function getEvent($inParameters : Object) : Object
             
             var $prefer : Text:=""
             If (Length(String($inParameters.timeZone))>0)
-                $prefer+="outlook.timezone="+$inParameters.timeZone+" "
+                $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)+" "
             End if 
             If (Length(String($inParameters.bodyContentType))>0)
-                $prefer+="outlook.body-content-type="+$inParameters.bodyContentType+" "
+                $prefer+="outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
             End if 
             If (Length($prefer)>0)
                 $headers.Prefer:=$prefer
@@ -299,10 +299,10 @@ Function getEvents($inParameters : Object) : Object
     
     var $prefer : Text:=""
     If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-        $prefer+="outlook.timezone="+$inParameters.timeZone
+        $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)
     End if 
     If ((Value type($inParameters.bodyContentType)=Is text) && (Length(String($inParameters.bodyContentType))>0))
-        $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+$inParameters.bodyContentType+" "
+        $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
     End if 
     If (Length($prefer)>0)
         $headers.Prefer:=$prefer
