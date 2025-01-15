@@ -215,6 +215,12 @@ Function getEvent($inParameters : Object) : Object
         : (Length(String($inParameters.eventId))=0)
             Super._throwError(9; {which: "\"eventId\""; function: "office365.calendar.getEvent"})
             
+        : ((Value type($inParameters.startDateTime)=Is undefined) && (Value type($inParameters.endDateTime)#Is undefined))
+            Super._throwError(9; {which: "\"startDateTime\""; function: "office365.calendar.getEvent"})
+            
+        : ((Value type($inParameters.endDateTime)=Is undefined) && (Value type($inParameters.startDateTime)#Is undefined))
+            Super._throwError(9; {which: "\"endDateTime\""; function: "office365.calendar.getEvent"})
+            
         Else 
             var $headers : Object:={}
             var $urlParams : Text:=""
@@ -259,66 +265,80 @@ Function getEvent($inParameters : Object) : Object
     
 Function getEvents($inParameters : Object) : Object
     
+/*
+    A user's or group's default calendar.
+    
+        GET /me/calendar/events
+        GET /users/{id | userPrincipalName}/calendar/events
+        GET /me/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+        GET /users/{id | userPrincipalName}/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+    
+    A user's calendar in the default calendarGroup.
+    
+        GET /me/calendars/{id}/events
+        GET /users/{id | userPrincipalName}/calendars/{id}/events
+        GET /me/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+        GET /users/{id | userPrincipalName}/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+*/
     Super._clearErrorStack()
     Super._throwErrors(False)
     
-/*
-            A user's or group's default calendar.
+    Case of 
+        : ((Value type($inParameters.startDateTime)=Is undefined) && (Value type($inParameters.endDateTime)#Is undefined))
+            Super._throwError(9; {which: "\"startDateTime\""; function: "office365.calendar.getEvent"})
             
-                GET /me/calendar/events
-                GET /users/{id | userPrincipalName}/calendar/events
-                GET /me/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
-                GET /users/{id | userPrincipalName}/calendar/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
+        : ((Value type($inParameters.endDateTime)=Is undefined) && (Value type($inParameters.startDateTime)#Is undefined))
+            Super._throwError(9; {which: "\"endDateTime\""; function: "office365.calendar.getEvent"})
             
-            A user's calendar in the default calendarGroup.
+        Else 
+            var $headers : Object:={}
+            var $urlParams : Text:=""
+            If (Length(String(This.userId))>0)
+                $urlParams+="users/"+This.userId
+            Else 
+                $urlParams+="me"
+            End if 
+            If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+                $urlParams+="/calendars/"+$inParameters.calendarId
+                This.id:=$inParameters.calendarId
+            Else 
+                $urlParams+="/calendar"
+            End if 
+            If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0)\
+              && (Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
+                $urlParams+="/calendarView"+This._getURLParamsFromObject($inParameters)
+            Else 
+                $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
+            End if 
             
-                GET /me/calendars/{id}/events
-                GET /users/{id | userPrincipalName}/calendars/{id}/events
-                GET /me/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
-                GET /users/{id | userPrincipalName}/calendars/{id}/calendarView?startDateTime={start_datetime}&endDateTime={end_datetime}
-*/
-    var $headers : Object:={}
-    var $urlParams : Text:=""
-    If (Length(String(This.userId))>0)
-        $urlParams+="users/"+This.userId
-    Else 
-        $urlParams+="me"
-    End if 
-    If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-        $urlParams+="/calendars/"+$inParameters.calendarId
-        This.id:=$inParameters.calendarId
-    Else 
-        $urlParams+="/calendar"
-    End if 
-    If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0)\
-      && (Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
-        $urlParams+="/calendarView"+This._getURLParamsFromObject($inParameters)
-    Else 
-        $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
-    End if 
-    
-    var $prefer : Text:=""
-    If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-        $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)
-    End if 
-    If ((Value type($inParameters.bodyContentType)=Is text) && (Length(String($inParameters.bodyContentType))>0))
-        $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
-    End if 
-    If (Length($prefer)>0)
-        $headers.Prefer:=$prefer
-    End if 
-    
-    If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-        $headers.ConsistencyLevel:="eventual"
-    End if 
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL; $headers)
-    
-    If (Not(OB Is defined($result; "calendarId")) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-        $result.calendarId:=$inParameters.calendarId
-    End if 
-    
+            var $prefer : Text:=""
+            If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
+                $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)
+            End if 
+            If ((Value type($inParameters.bodyContentType)=Is text) && (Length(String($inParameters.bodyContentType))>0))
+                $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
+            End if 
+            If (Length($prefer)>0)
+                $headers.Prefer:=$prefer
+            End if 
+            
+            If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
+                $headers.ConsistencyLevel:="eventual"
+            End if 
+            
+            var $URL : Text:=This._getURL()+$urlParams
+            var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL; $headers)
+            
+            If (Not(OB Is defined($result; "calendarId")) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+                $result.calendarId:=$inParameters.calendarId
+            End if 
+            
+            Super._throwErrors(True)
+            
+            return $result
+            
+    End case 
+
     Super._throwErrors(True)
-    
-    return $result
+
+    return This._returnStatus()
