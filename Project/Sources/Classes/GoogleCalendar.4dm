@@ -186,7 +186,7 @@ Function getEvent($inParameters : Object) : Object
                 $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
                 $delimiter:="&"
             End if 
-            $urlParams+=($delimiter+"timeZone="+String($timeZone))
+            $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
             
             var $URL : Text:=This._getURL()+$urlParams
             var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
@@ -265,10 +265,6 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"singleEvents="+Choose(Bool($inParameters.singleEvents); "true"; "false"))
         $delimiter:="&"
     End if 
-    If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-        $urlParams+=($delimiter+"timeZone="+String($inParameters.timeZone))
-        $delimiter:="&"
-    End if 
     If (Length(String($startDateTime))>0)
         $urlParams+=($delimiter+"timeMin="+String($startDateTime))
         $delimiter:="&"
@@ -289,7 +285,7 @@ Function getEvents($inParameters : Object) : Object
         $urlParams+=($delimiter+"sharedExtendedProperty="+String($inParameters.sharedExtendedProperty))
         $delimiter:="&"
     End if 
-    $urlParams+=($delimiter+"timeZone="+String($timeZone))
+    $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
     
     var $options : Object:={}
     $options.url:=This._getURL()+$urlParams
