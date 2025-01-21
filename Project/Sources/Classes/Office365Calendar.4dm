@@ -91,6 +91,54 @@ Function _deleteEvent($inParameters : Object) : Object  // For test purposes onl
     // ----------------------------------------------------
     
     
+Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    
+/*
+    POST /me/events/{id}/attachments
+    POST /users/{id | userPrincipalName}/events/{id}/attachments
+    
+    POST /me/calendar/events/{id}/attachments
+    POST /users/{id | userPrincipalName}/calendar/events/{id}/attachments
+    
+    POST /me/calendars/{id}/events/{id}/attachments
+    POST /users/{id | userPrincipalName}/calendars/{id}/events/{id}/attachments
+*/
+    Case of 
+        : (Value type($inParameters.eventId)#Is text)
+            Super._throwError(10; {which: "\"eventId\""; function: "office365.calendar._insertAttachment"})
+            
+        : (Length(String($inParameters.eventId))=0)
+            Super._throwError(9; {which: "\"eventId\""; function: "office365.calendar._insertAttachment"})
+            
+        Else 
+            var $headers : Object:={Accept: "application/json"}
+            var $urlParams : Text:=""
+            
+            If (Length(String(This.userId))>0)
+                $urlParams:="users/"+This.userId
+            Else 
+                $urlParams:="me"
+            End if 
+            
+            If (Length(String($inParameters.calendarId))>0)
+                $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+            Else 
+                $urlParams+="/calendar"
+            End if 
+            $urlParams+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)+"/attachments"
+            
+            var $URL : Text:=This._getURL()+$urlParams
+            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inAttachement)
+            
+            return This._returnStatus($response)
+    End case 
+    
+    return This._returnStatus()
+    
+    
+    // ----------------------------------------------------
+    
+    
 Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
     
 /*
@@ -120,7 +168,29 @@ Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // Fo
     $urlParams+="/events"
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    var $event : Object:=Super._cleanGraphObject($inEvent)
+    var $attachments : Collection:=Null
+    
+    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
+        $attachments:=$event.attachments
+        OB REMOVE($event; "attachments")
+    End if 
+    
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $event)
+    
+    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
+        
+        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
+        var $attachment : Object
+        
+        For each ($attachment; $attachments)
+            
+            var $status : Object:=This._insertAttachment($params; $attachment)
+            If ($status.success=False)
+                return This._returnStatus($status)
+            End if 
+        End for each 
+    End if 
     
     return This._returnStatus($response)
     
@@ -338,7 +408,7 @@ Function getEvents($inParameters : Object) : Object
             return $result
             
     End case 
-
+    
     Super._throwErrors(True)
-
+    
     return This._returnStatus()
