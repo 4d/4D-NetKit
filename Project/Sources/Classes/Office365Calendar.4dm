@@ -183,16 +183,24 @@ Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // Fo
         var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
         var $attachment : Object
         
+        $response.attachments:=[]
         For each ($attachment; $attachments)
             
-            var $status : Object:=This._insertAttachment($params; $attachment)
-            If ($status.success=False)
-                return This._returnStatus($status)
+            var $result : Object:=This._insertAttachment($params; $attachment)
+            If ($result.success)
+                Try
+                    OB REMOVE($result; "success")
+                    OB REMOVE($result; "errors")
+                    OB REMOVE($result; "statusText")
+                End try
+                $response.attachments.push(This._cleanGraphObject($result))
+            Else 
+                return This._returnStatus($result)
             End if 
         End for each 
     End if 
     
-    return This._returnStatus($response)
+    return This._returnStatus(This._cleanGraphObject($response))
     
     
     // Mark: - [Public]
