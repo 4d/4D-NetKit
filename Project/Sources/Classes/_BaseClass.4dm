@@ -107,7 +107,9 @@ Function _clearErrorStack
 	// ----------------------------------------------------
 	
 	
-Function _throwErrors($inThrowErrors : Boolean)
+Function _throwErrors($inThrowErrors : Boolean) : Boolean
+	
+	var $oldValue : Boolean:=This._internals._throwErrors
 	
 	If (Bool($inThrowErrors))
 		This._internals._throwErrors:=True
@@ -117,6 +119,8 @@ Function _throwErrors($inThrowErrors : Boolean)
 		This._internals._throwErrors:=False
 		This._getErrorStack().clear()
 	End if 
+	
+	return $oldValue
 	
 	
 	// ----------------------------------------------------
