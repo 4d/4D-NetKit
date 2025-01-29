@@ -25,6 +25,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
             $startDateTime:=$inParameters.startDateTime
         : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
             $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
+            $startDateTime:=Replace string($startDateTime; "Z"; ".0000000")
     End case 
     
     Case of 
@@ -32,6 +33,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
             $endDateTime:=$inParameters.endDateTime
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
             $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
+            $endDateTime:=Replace string($endDateTime; "Z"; ".0000000")
     End case 
     
     If (Length($startDateTime)>0)
@@ -382,8 +384,7 @@ Function getEvents($inParameters : Object) : Object
             Else 
                 $urlParams+="/calendar"
             End if 
-            If ((Value type($inParameters.startDateTime)=Is text) && (Length(String($inParameters.startDateTime))>0)\
-              && (Value type($inParameters.endDateTime)=Is text) && (Length(String($inParameters.endDateTime))>0))
+            If ((Value type($inParameters.startDateTime)#Is undefined) && (Value type($inParameters.endDateTime)#Is undefined))
                 $urlParams+="/calendarView"+This._getURLParamsFromObject($inParameters)
             Else 
                 $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
