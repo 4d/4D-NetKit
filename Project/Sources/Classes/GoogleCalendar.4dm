@@ -264,7 +264,7 @@ Function getEvents($inParameters : Object) : Object
                 $delimiter:="&"
             End if 
             If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-                $urlParams+=($delimiter+"search="+String($inParameters.search))
+                $urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode(String($inParameters.search)))
                 $delimiter:="&"
             End if 
             If (Not(Value type($inParameters.showDeleted)=Is undefined))
