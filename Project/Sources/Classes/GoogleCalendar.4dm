@@ -214,110 +214,98 @@ Function getEvents($inParameters : Object) : Object
     Super._clearErrorStack()
     Super._throwErrors(False)
     
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $delimiter : Text:="?"
+    var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
+    var $startDateTime : Text:=""
+    var $endDateTime : Text:=""
+    
     Case of 
-        : ((Value type($inParameters.startDateTime)=Is undefined) && (Value type($inParameters.endDateTime)#Is undefined))
-            Super._throwError(9; {which: "\"startDateTime\""; function: "google.calendar.getEvent"})
-            
-        : ((Value type($inParameters.endDateTime)=Is undefined) && (Value type($inParameters.startDateTime)#Is undefined))
-            Super._throwError(9; {which: "\"endDateTime\""; function: "google.calendar.getEvent"})
-            
+        : (Value type($inParameters.startDateTime)=Is text)
+            $startDateTime:=$inParameters.startDateTime
+        : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
         Else 
-            var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-            var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-            var $delimiter : Text:="?"
-            var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
-            var $startDateTime : Text:=""
-            var $endDateTime : Text:=""
-            
-            Case of 
-                : (Value type($inParameters.startDateTime)=Is text)
-                    $startDateTime:=$inParameters.startDateTime
-                : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-                    $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
-            End case 
-            
-            Case of 
-                : (Value type($inParameters.endDateTime)=Is text)
-                    $endDateTime:=$inParameters.endDateTime
-                : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-                    $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
-            End case 
-            
-            If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
-                $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.iCalUID)=Is text) && (Length(String($inParameters.iCalUID))>0))
-                $urlParams+=($delimiter+"iCalUID="+String($inParameters.iCalUID))
-                $delimiter:="&"
-            End if 
-            If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-                $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-                $delimiter:="&"
-            End if 
-            If (Not(Value type($inParameters.top)=Is undefined))
-                $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
-                $urlParams+=($delimiter+"orderBy="+String($inParameters.orderBy))
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-                $urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode(String($inParameters.search)))
-                $delimiter:="&"
-            End if 
-            If (Not(Value type($inParameters.showDeleted)=Is undefined))
-                $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
-                $delimiter:="&"
-            End if 
-            If (Not(Value type($inParameters.showHiddenInvitations)=Is undefined))
-                $urlParams+=($delimiter+"showHiddenInvitations="+Choose(Bool($inParameters.showHiddenInvitations); "true"; "false"))
-                $delimiter:="&"
-            End if 
-            If (Not(Value type($inParameters.singleEvents)=Is undefined))
-                $urlParams+=($delimiter+"singleEvents="+Choose(Bool($inParameters.singleEvents); "true"; "false"))
-                $delimiter:="&"
-            End if 
-            If (Length(String($startDateTime))>0)
-                $urlParams+=($delimiter+"timeMin="+String($startDateTime))
-                $delimiter:="&"
-            End if 
-            If (Length(String($endDateTime))>0)
-                $urlParams+=($delimiter+"timeMax="+String($endDateTime))
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.updatedMin)=Is text) && (Length(String($inParameters.updatedMin))>0))
-                $urlParams+=($delimiter+"updatedMin="+String($inParameters.updatedMin))
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.privateExtendedProperty)=Is text) && (Length(String($inParameters.privateExtendedProperty))>0))
-                $urlParams+=($delimiter+"privateExtendedProperty="+String($inParameters.privateExtendedProperty))
-                $delimiter:="&"
-            End if 
-            If ((Value type($inParameters.sharedExtendedProperty)=Is text) && (Length(String($inParameters.sharedExtendedProperty))>0))
-                $urlParams+=($delimiter+"sharedExtendedProperty="+String($inParameters.sharedExtendedProperty))
-                $delimiter:="&"
-            End if 
-            $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
-            
-            var $options : Object:={}
-            $options.url:=This._getURL()+$urlParams
-            $options.headers:={Accept: "application/json"}
-            $options.attributes:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
-            
-            var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $options)
-            
-            If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-                $result.calendarId:=$inParameters.calendarId
-            End if 
-            
-            Super._throwErrors(True)
-            
-            return $result
-            
+            $startDateTime:=String(Current date; ISO date GMT; Current time)
     End case 
+    
+    Case of 
+        : (Value type($inParameters.endDateTime)=Is text)
+            $endDateTime:=$inParameters.endDateTime
+        : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
+            $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
+    End case 
+    
+    If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
+        $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.iCalUID)=Is text) && (Length(String($inParameters.iCalUID))>0))
+        $urlParams+=($delimiter+"iCalUID="+String($inParameters.iCalUID))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
+        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.top)=Is undefined))
+        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
+        $urlParams+=($delimiter+"orderBy="+String($inParameters.orderBy))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
+        $urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode(String($inParameters.search)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.showDeleted)=Is undefined))
+        $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.showHiddenInvitations)=Is undefined))
+        $urlParams+=($delimiter+"showHiddenInvitations="+Choose(Bool($inParameters.showHiddenInvitations); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.singleEvents)=Is undefined))
+        $urlParams+=($delimiter+"singleEvents="+Choose(Bool($inParameters.singleEvents); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If (Length(String($startDateTime))>0)
+        $urlParams+=($delimiter+"timeMin="+cs.Tools.me.urlEncode($startDateTime))
+        $delimiter:="&"
+    End if 
+    If (Length(String($endDateTime))>0)
+        $urlParams+=($delimiter+"timeMax="+cs.Tools.me.urlEncode($endDateTime))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.updatedMin)=Is text) && (Length(String($inParameters.updatedMin))>0))
+        $urlParams+=($delimiter+"updatedMin="+String($inParameters.updatedMin))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.privateExtendedProperty)=Is text) && (Length(String($inParameters.privateExtendedProperty))>0))
+        $urlParams+=($delimiter+"privateExtendedProperty="+String($inParameters.privateExtendedProperty))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sharedExtendedProperty)=Is text) && (Length(String($inParameters.sharedExtendedProperty))>0))
+        $urlParams+=($delimiter+"sharedExtendedProperty="+String($inParameters.sharedExtendedProperty))
+        $delimiter:="&"
+    End if 
+    $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
+    
+    var $options : Object:={}
+    $options.url:=This._getURL()+$urlParams
+    $options.headers:={Accept: "application/json"}
+    $options.attributes:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
+    
+    var $result : cs.GoogleEventList:=cs.GoogleEventList.new(This._getOAuth2Provider(); $options)
+    
+    If ((Value type($result.calendarId)=Is undefined) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
+        $result.calendarId:=$inParameters.calendarId
+    End if 
     
     Super._throwErrors(True)
     
-    return This._returnStatus()
+    return $result
