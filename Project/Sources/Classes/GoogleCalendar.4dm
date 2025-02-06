@@ -9,10 +9,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
     
     
-    // Mark: - [Private]
-    // ----------------------------------------------------
-    
-    
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
