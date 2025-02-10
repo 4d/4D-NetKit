@@ -600,4 +600,4 @@ Function urlEncode($value : Text) : Text
 Function localizedString($inValue : Text) : Text
 	
 /* Temp to avoid compilation issues due to command renaming */
-	return Get localized string($inValue)
+	return Localized string:C991($inValue)
