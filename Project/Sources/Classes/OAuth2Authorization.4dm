@@ -9,7 +9,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     $options.redirectURI:=$request.urlPath
     $options.result:=$request.getJSON()
 
-    If (_authorize($options; body))
+    If (_authorize($options; $body))
         
         $response.setStatus(200)
         $response.setHeader("Content-Type"; "text/html")

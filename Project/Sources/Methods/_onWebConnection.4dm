@@ -29,7 +29,7 @@ If ($URL=$redirectURI)
 				$result[$names{$i}]:=$values{$i}
 			End for 
 		End use 
-		$options.result:=New shared object($result)
+		$options.result:=$result
 	End if 
 	
 	If (_authorize($options; $responseBody))
