@@ -1,13 +1,11 @@
 //%attributes = {"invisible":true}
-#DECLARE($inOptions : Object; $outResponseBody : Text) : Boolean
+#DECLARE($inOptions : Object; $outResponseBodyPtr : Pointer) : Boolean
 
 var $redirectURI : Text
 var $URL : Text:=$inOptions.redirectURI
 var $customResponseFile; $customErrorFile : 4D.File
 var $state : Text:=String($inOptions.state)
 var $responseFile : 4D.File:=Folder(fk resources folder).file("Response_Template.html")
-
-$outResponseBody:=""
 
 If (OB Is defined(Storage.requests; $state))
     $redirectURI:=String(Storage.requests[$state].redirectURI)
@@ -24,7 +22,7 @@ If ($URL=$redirectURI)
     
     If (OB Is defined(Storage.requests; $state))
         Use (Storage.requests[$state])
-            Storage.requests[$state].token:=$inOptions.result.token
+            Storage.requests[$state].token:=$inOptions.result
         End use 
     End if 
     
@@ -58,7 +56,18 @@ If ($URL=$redirectURI)
     End if 
     
     var $responseFileContent : Text:=$responseFile.getText()
+    var $outResponseBody : Text:=""
+    
     PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails)
+    
+    If (Type($outResponseBodyPtr)=Is pointer)
+        Case of 
+            : (Type($outResponseBodyPtr->)=Is text)
+                $outResponseBodyPtr->:=$outResponseBody
+            : (Type($outResponseBodyPtr->)=Is BLOB)
+                CONVERT FROM TEXT($outResponseBody; "UTF-8"; $outResponseBodyPtr->)
+        End case 
+    End if 
     
     return True
     

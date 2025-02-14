@@ -13,7 +13,6 @@ End if
 
 If ($URL=$redirectURI)
 	
-	var $responseBody : Text:=""
 	var $options : Object:={redirectURI: $redirectURI; state: $state}
 
 	ARRAY TEXT($names; 0)
@@ -32,9 +31,12 @@ If ($URL=$redirectURI)
 		$options.result:=$result
 	End if 
 	
-	If (_authorize($options; $responseBody))
+	var $responseBody : Blob
+	If (_authorize($options; ->$responseBody))
 		
-		WEB SEND TEXT($responseBody; "text/html")
+		var $contentType : Text:="Content-Type: text/html"
+		WEB SET HTTP HEADER($contentType)
+		WEB SEND RAW DATA($responseBody)
 	End if 
 	
 End if 
