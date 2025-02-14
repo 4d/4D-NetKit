@@ -487,7 +487,6 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			
 			var $options : Object:={}
 			$options.port:=cs.Tools.me.getPortFromURL(This.redirectURI)
-			$options.domain:=cs.Tools.me.getDomainFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			$options.useTLS:=(Position("https"; This.redirectURI)=1)
 			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
@@ -498,15 +497,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			End if 
 			
 			var $bUseHostDatabaseServer : Boolean:=False
-			If (cs.Tools.me.isLocalIP($options.domain))
-				
-				var $hostDatabaseServer : Object:=WEB Server(Web server host database)
-				If (($hostDatabaseServer#Null)&& $hostDatabaseServer.isRunning)
-					If ($options.useTLS)
-						$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$options.port))
-					Else 
-						$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPEnabled && ($hostDatabaseServer.HTTPPort=$options.port))
-					End if 
+			var $hostDatabaseServer : Object:=WEB Server(Web server host database)
+			If (($hostDatabaseServer#Null)&& $hostDatabaseServer.isRunning)
+				If ($options.useTLS)
+					$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$options.port))
+				Else 
+					$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPEnabled && ($hostDatabaseServer.HTTPPort=$options.port))
 				End if 
 			End if 
 			
