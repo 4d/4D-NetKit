@@ -14,12 +14,10 @@ singleton Class constructor()
 	
 Function init()
 	
-	If (Is Windows || Is macOS)
-		If (Application type=4D Remote mode)
-			cs.Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
-		Else 
-			cs.Tools.me.webLicenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
-		End if 
+	If (Application type=4D Remote mode)
+		cs.Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
+	Else 
+		cs.Tools.me.webLicenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
 	End if 
 	
 	
