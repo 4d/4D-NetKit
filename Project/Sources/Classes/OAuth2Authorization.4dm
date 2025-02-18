@@ -3,17 +3,20 @@ shared singleton Class constructor()
 Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
     var $response:=4D.OutgoingMessage.new()
-    var $body : Blob
+    var $responseBody : Blob
     var $state : Text:=cs.Tools.me.getURLParameterValue($request.url; "state")
-    var $options : Object:={state: $state}
-    $options.redirectURI:=$request.urlPath
-    $options.result:=$request.getJSON()
-
-    If (_authorize($options; ->$body))
+    var $redirectURI : Text:=($request.urlPath.length>0) ? "/"+$request.urlPath[0]+"/@" : $request.url
+    var $options : Object:={state: $state; redirectURI: $redirectURI}
+    
+    If (Value type($request.urlQuery)=Is object)
+        $options.result:=OB Copy($request.urlQuery; ck shared)
+    End if 
+    
+    If (_authorize($options; ->$responseBody))
         
         $response.setStatus(200)
+        $response.setBody($responseBody)
         $response.setHeader("Content-Type"; "text/html")
-        $response.setBody($body)
     Else 
         
         $response.setStatus(404)
