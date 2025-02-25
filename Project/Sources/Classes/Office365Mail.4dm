@@ -16,22 +16,17 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
+Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
 	
 	var $response : Object
 	
 	If ($inMail#Null)
 		
 		var $headers : Object:={}
-		$headers["Content-Type"]:="application/json"
-		If (($inHeader#Null) && (Value type($inHeader)=Is object))
-			
-			var $key : Text
-			var $keys : Collection:=OB Keys($inHeader)
-			For each ($key; $keys)
-				$headers[$key]:=$inHeader[$key]
-			End for each 
+		If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
+			$headers:=OB Copy($inHeaders)
 		End if 
+		$headers["Content-Type"]:="application/json"
 		
 		var $message : Object
 		var $messageCopy : Object:=This._copyGraphMessage($inMail)

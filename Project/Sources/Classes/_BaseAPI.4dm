@@ -69,15 +69,11 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	var $options : Object:={headers: {}}
 	var $token : Text:=This._getAccessToken()
 	
+	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
+		$options.headers:=OB Copy($inHeaders)
+	End if 
 	If (Length(String($token))>0)
 		$options.headers["Authorization"]:=This._getAccessTokenType()+" "+$token
-	End if 
-	If (($inHeaders#Null) && (Value type($inHeaders)=Is object))
-		var $keys : Collection:=OB Keys($inHeaders)
-		var $key : Text
-		For each ($key; $keys)
-			$options.headers[$key]:=$inHeaders[$key]
-		End for each 
 	End if 
 	If (Length(String($inMethod))>0)
 		$options.method:=Uppercase($inMethod)
@@ -202,11 +198,7 @@ Function _returnStatus($inAdditionalInfo : Object) : Object
 	var $errorStack : Collection:=Super._getErrorStack()
 	
 	If (Not(OB Is empty($inAdditionalInfo)))
-		var $key : Text
-		var $keys : Collection:=OB Keys($inAdditionalInfo)
-		For each ($key; $keys)
-			$status[$key]:=$inAdditionalInfo[$key]
-		End for each 
+		$status:=OB Copy($inAdditionalInfo)
 	End if 
 	
 	If ($errorStack.length>0)
