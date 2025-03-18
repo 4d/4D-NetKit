@@ -26,11 +26,11 @@
           <target>"{attribute}" Attribute ist nicht definiert oder leer.</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_3">
-          <source>Unsupported value in "permission" attribute.</source>
+          <source>Unsupported value in "{attribute}" attribute.</source>
           <target>Nicht unterstützter Wert in Attribut "{attribute}".</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_4">
-          <source>"authorizationCode" attribute is empty.</source>
+          <source>The authorization code was not received within the time limit (timeout error).</source>
           <target>'GetToken' Anfrage hat eine leere Antwort zurückgeliefert.</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_5">
@@ -38,7 +38,7 @@
           <target>'GetToken' Anfrage hat einen unerwarteteten Statuscode zurückgeliefert (erhalten: {received} erwartet: {expected}).</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_6">
-          <source>'GetToken' request returned an empty 'authorizationCode'</source>
+          <source>'GetToken' request returned an empty 'authorizationCode'.</source>
           <target>'GetToken' Anfrage hat einen leeren 'authorizationCode' zurückgeliefert</target>
         </trans-unit>
         <trans-unit resname="ERR_4DNK_7">
