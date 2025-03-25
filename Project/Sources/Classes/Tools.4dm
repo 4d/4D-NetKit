@@ -598,4 +598,23 @@ Function urlEncode($value : Text) : Text
 Function localizedString($inValue : Text) : Text
 	
 /* Temp to avoid compilation issues due to command renaming */
-	return Localized string:C991($inValue)
+	return Localized string($inValue)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function makeError($inCode : Integer; $inParameters : Object) : Object
+	
+	var $description : Text:=cs.Tools.me.localizedString("ERR_4DNK_"+String($inCode))
+	
+	If (Not(OB Is empty($inParameters)))
+		var $key : Text
+		For each ($key; $inParameters)
+			$description:=Replace string($description; "{"+$key+"}"; String($inParameters[$key]))
+		End for each 
+	End if 
+	
+	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	
+	return $error

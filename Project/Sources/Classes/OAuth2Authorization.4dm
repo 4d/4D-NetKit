@@ -24,9 +24,11 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
             $response.setStatus(404)
         End if 
     Else 
-        throw({code: 9; component: "4DNK"; deferred: True; which: "request (4D.IncomingMessage)"; function: "OAuth2Authorization.getResponse"})
+        var $error : Object:=cs.Tools.me.makeError(9; {which: "request (4D.IncomingMessage)"; function: "OAuth2Authorization.getResponse"})
         
         $response.setStatus(500)
+        $response.setBody("Internal Server Error:\r\n\r\n"+JSON Stringify($error; *))
+        $response.setHeader("Content-Type"; "text/plain")
     End if 
     $response.setHeader("X-Request-Handler"; String(OB Class(This).name))
     
