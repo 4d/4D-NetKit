@@ -2,7 +2,7 @@ shared singleton Class constructor()
     
 Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
-    var $response:=4D.OutgoingMessage.new()
+    var $response : 4D.OutgoingMessage:=4D.OutgoingMessage.new()
     If ($request#Null)
         
         var $responseBody : Blob
@@ -29,5 +29,5 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
         $response.setStatus(500)
     End if 
     $response.setHeader("X-Request-Handler"; String(OB Class(This).name))
-
+    
     return $response
