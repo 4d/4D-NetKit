@@ -48,48 +48,6 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     return $URL
     
     
-Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
-    
-/*
-    DELETE /me/events/{id}
-    DELETE /users/{id | userPrincipalName}/events/{id}
-    DELETE /groups/{id}/events/{id}
-    
-    DELETE /me/calendar/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendar/events/{id}
-    DELETE /groups/{id}/calendar/events/{id}/
-    
-    DELETE /me/calendars/{id}/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendars/{id}/events/{id}
-    
-    DELETE /me/calendarGroups/{id}/calendars/{id}/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
-*/
-    
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:=""
-    
-    If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
-    Else 
-        $urlParams:="me"
-    End if 
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
-    Else 
-        $urlParams+="/calendar"
-    End if 
-    $urlParams+="/events"
-    If (Length(String($inParameters.eventId))>0)
-        $urlParams+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
-    End if 
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
-    
-    return This._returnStatus($response)
-    
-    
     // ----------------------------------------------------
     
     
@@ -136,73 +94,6 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
     End case 
     
     return This._returnStatus()
-    
-    
-    // ----------------------------------------------------
-    
-    
-Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
-    
-/*
-    POST /me/events
-    POST /users/{id | userPrincipalName}/events
-    
-    POST /me/calendar/events
-    POST /users/{id | userPrincipalName}/calendar/events
-    
-    POST /me/calendars/{id}/events
-    POST /users/{id | userPrincipalName}/calendars/{id}/events
-*/
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:=""
-    
-    If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
-    Else 
-        $urlParams:="me"
-    End if 
-    
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
-    Else 
-        $urlParams+="/calendar"
-    End if 
-    $urlParams+="/events"
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=Super._cleanGraphObject($inEvent)
-    var $attachments : Collection:=Null
-    
-    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
-        $attachments:=$event.attachments
-        OB REMOVE($event; "attachments")
-    End if 
-    
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $event)
-    
-    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
-        
-        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
-        var $attachment : Object
-        
-        $response.attachments:=[]
-        For each ($attachment; $attachments)
-            
-            var $result : Object:=This._insertAttachment($params; $attachment)
-            If ($result.success)
-                Try
-                    OB REMOVE($result; "success")
-                    OB REMOVE($result; "errors")
-                    OB REMOVE($result; "statusText")
-                End try
-                $response.attachments.push(This._cleanGraphObject($result))
-            Else 
-                return This._returnStatus($result)
-            End if 
-        End for each 
-    End if 
-    
-    return This._returnStatus(This._cleanGraphObject($response))
     
     
     // Mark: - [Public]
@@ -421,3 +312,190 @@ Function getEvents($inParameters : Object) : Object
     Super._throwErrors(True)
     
     return This._returnStatus()
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function createEvent($inEvent : Object; $inParameters : Object) : Object
+    
+/*
+        POST /me/events
+        POST /users/{id | userPrincipalName}/events
+        
+        POST /me/calendar/events
+        POST /users/{id | userPrincipalName}/calendar/events
+        
+        POST /me/calendars/{id}/events
+        POST /users/{id | userPrincipalName}/calendars/{id}/events
+    */
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:=""
+    
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
+    Else 
+        $urlParams:="me"
+    End if 
+    
+    If (Length(String($inParameters.calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $urlParams+="/calendar"
+    End if 
+    $urlParams+="/events"
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $event : Object:=Super._cleanGraphObject($inEvent)
+    var $attachments : Collection:=Null
+    
+    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
+        $attachments:=$event.attachments
+        OB REMOVE($event; "attachments")
+    End if 
+    
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $event)
+    
+    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
+        
+        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
+        var $attachment : Object
+        
+        $response.attachments:=[]
+        For each ($attachment; $attachments)
+            
+            var $result : Object:=This._insertAttachment($params; $attachment)
+            If ($result.success)
+                Try
+                    OB REMOVE($result; "success")
+                    OB REMOVE($result; "errors")
+                    OB REMOVE($result; "statusText")
+                End try
+                $response.attachments.push(This._cleanGraphObject($result))
+            Else 
+                return This._returnStatus($result)
+            End if 
+        End for each 
+    End if 
+    
+    return This._returnStatus(This._cleanGraphObject($response))
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function deleteEvent($inParameters : Object) : Object
+    
+/*
+        DELETE /me/events/{id}
+        DELETE /users/{id | userPrincipalName}/events/{id}
+        DELETE /groups/{id}/events/{id}
+        
+        DELETE /me/calendar/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendar/events/{id}
+        DELETE /groups/{id}/calendar/events/{id}/
+        
+        DELETE /me/calendars/{id}/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+        
+        DELETE /me/calendarGroups/{id}/calendars/{id}/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
+    */
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:=""
+    
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
+    Else 
+        $urlParams:="me"
+    End if 
+    If (Length(String($inParameters.calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $urlParams+="/calendar"
+    End if 
+    $urlParams+="/events"
+    If (Length(String($inParameters.eventId))>0)
+        $urlParams+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    
+    return This._returnStatus($response)
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function updateEvent($inEvent : Object; $inParameters : Object) : Object
+    
+/*
+    PATCH /me/events/{id}
+    PATCH /users/{id | userPrincipalName}/events/{id}
+    PATCH /groups/{id}/events/{id}
+    
+    PATCH /me/calendar/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendar/events/{id}
+    PATCH /groups/{id}/calendar/events/{id}
+    
+    PATCH /me/calendars/{id}/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+    
+    PATCH /me/calendarGroups/{id}/calendars/{id}/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
+*/
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:=""
+    
+    If (Length(String(This.userId))>0)
+        $urlParams:="users/"+This.userId
+    Else 
+        $urlParams:="me"
+    End if 
+    
+    If (Length(String($inParameters.calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $urlParams+="/calendar"
+    End if 
+    $urlParams+="/events"
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $event : Object:=Super._cleanGraphObject($inEvent)
+    var $attachments : Collection:=Null
+    
+    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
+        $attachments:=$event.attachments
+        OB REMOVE($event; "attachments")
+    End if 
+    
+    var $response : Object:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; $event)
+    
+    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
+        
+        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
+        var $attachment : Object
+        
+        $response.attachments:=[]
+        For each ($attachment; $attachments)
+            
+            var $result : Object:=This._insertAttachment($params; $attachment)
+            If ($result.success)
+                Try
+                    OB REMOVE($result; "success")
+                    OB REMOVE($result; "errors")
+                    OB REMOVE($result; "statusText")
+                End try
+                $response.attachments.push(This._cleanGraphObject($result))
+            Else 
+                return This._returnStatus($result)
+            End if 
+        End for each 
+    End if 
+    
+    return This._returnStatus($response)
+    
+    
