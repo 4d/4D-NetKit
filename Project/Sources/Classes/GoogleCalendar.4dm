@@ -83,79 +83,6 @@ Function getCalendars($inParameters : Object) : Object
     return $result
     
     
-    // Mark: - [Private]
-    // Mark: - Events
-    // ----------------------------------------------------
-    
-    
-Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
-    
-    // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
-    
-    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-    var $delimiter : Text:="?"
-    
-    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
-        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
-        $delimiter:="&"
-    End if 
-    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
-        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
-        $delimiter:="&"
-    End if 
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
-    
-    return This._returnStatus()
-    
-    
-    // ----------------------------------------------------
-    
-    
-Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
-    
-    // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
-    
-    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-    var $delimiter : Text:="?"
-    
-    If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
-        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
-        $delimiter:="&"
-    End if 
-    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-        $delimiter:="&"
-    End if 
-    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
-        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
-        $delimiter:="&"
-    End if 
-    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
-        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
-        $delimiter:="&"
-    End if 
-    If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
-        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
-        $delimiter:="&"
-    End if 
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
-    
-    If ($response#Null)
-        return cs.GoogleEvent.new($response)
-    End if 
-    
-    return Null
-    
-    
     // Mark: - [Public]
     // Mark: - Events
     // ----------------------------------------------------
@@ -305,3 +232,118 @@ Function getEvents($inParameters : Object) : Object
     Super._throwErrors(True)
     
     return $result
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function createEvent($inParameters : Object; $inEvent : Object) : Object
+    
+    // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
+    
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $delimiter : Text:="?"
+    
+    If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
+        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
+        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
+        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
+        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
+        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    
+    If ($response#Null)
+        return cs.GoogleEvent.new($response)
+    End if 
+    
+    return Null
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function deleteEvent($inParameters : Object) : Object
+    
+    // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+    var $delimiter : Text:="?"
+    
+    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
+        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
+        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
+        $delimiter:="&"
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    
+    return This._returnStatus()
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function updateEvent($inParameters : Object; $inEvent : Object) : Object
+    
+    // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
+    var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
+    var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
+    var $headers : Object:={Accept: "application/json"}
+    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+    var $delimiter : Text:="?"
+    
+    If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
+        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
+        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
+        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
+        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
+        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
+        $delimiter:="&"
+    End if 
+    
+    var $URL : Text:=This._getURL()+$urlParams
+    var $response : Object:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inEvent)
+    
+    If ($response#Null)
+        return cs.GoogleEvent.new($response)
+    End if 
+    
+    return Null
