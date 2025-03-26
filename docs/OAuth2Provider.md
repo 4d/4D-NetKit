@@ -8,7 +8,7 @@ The `OAuth2Provider` class allows you to request authentication tokens to third-
 2. You call the `OAuth2ProviderObject.getToken()` class function to retrieve a token from the web service provider.
 
 Here's a diagram of the authorization process:
-![authorization-flow](Documentation/Assets/authorization.png)
+![authorization-flow](Assets/authorization.png)
 
 This class can be instantiated in two ways:
 * by calling the `New OAuth2 provider` method

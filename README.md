@@ -18,7 +18,6 @@
 (c) Google, Gmail are trademarks of the Alphabet, Inc.
 
 
- <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        This site is open source. {% github_edit_link "Improve this page" %}.
-      </div>
-      
+<div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        BLA BLA BLA. {% github_edit_link "Improve this page" %}.
+</div>
