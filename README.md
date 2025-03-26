@@ -14,8 +14,3 @@
 (c) Microsoft, Microsoft Office, Microsoft 365, Microsoft Graph are trademarks of the Microsoft group of companies.
 
 (c) Google, Gmail are trademarks of the Alphabet, Inc.
-
-
-<div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        BLA BLA BLA. {% site.github.build_revision %}.
-</div>
