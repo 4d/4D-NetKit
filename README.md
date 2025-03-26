@@ -17,5 +17,5 @@
 
 
 <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        BLA BLA BLA. {% include head-custom.html %} {% site.github.build_revision %}.
+        BLA BLA BLA. {% site.github.build_revision %}.
 </div>
