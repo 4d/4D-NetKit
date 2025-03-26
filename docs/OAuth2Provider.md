@@ -231,5 +231,5 @@ In "signedIn" mode, when `.getToken()` is called, a web server included in 4D Ne
 
 ## See also
 
-[Google Class](./Google.md)
+[Google Class](./Google.md)<br/>
 [Office365 Class](./Office365.md)

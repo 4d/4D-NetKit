@@ -1,6 +1,4 @@
-# 4D NetKit
-
-## Overview
+# Documentation
 
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
@@ -19,5 +17,5 @@
 
 
 <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        BLA BLA BLA. {% github_edit_link "Improve this page" %}.
+        BLA BLA BLA. {% include head-custom.html %} {% site.github.build_revision %}.
 </div>

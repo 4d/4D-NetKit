@@ -815,5 +815,5 @@ Some functions adds specific properties to the **status object**, properties are
 
 ## See also
 
-[Office365 Class](./Office365.md)
+[Office365 Class](./Office365.md)<br/>
 [OAuth2Provider Class](./OAuth2Provider.md)

@@ -1087,5 +1087,5 @@ Until (Not($userList4.next()))
 
 ## See also
 
-[Google Class](./Google.md)
+[Google Class](./Google.md)<br/>
 [OAuth2Provider Class](./OAuth2Provider.md)
