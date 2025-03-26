@@ -91,34 +91,47 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
 	
 	var $urlParams : Text:=""
 	var $delimiter : Text:="?"
+
+	If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
+        $urlParams+=($delimiter+"$search="+$inParameters.search)
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.filter)=Is text) && (Length(String($inParameters.filter))>0))
+        $urlParams+=($delimiter+"$filter="+$inParameters.filter)
+        $delimiter:="&"
+    End if 
+    If (Not(Value type($inParameters.select)=Is undefined))
+        var $select : Text
+        Case of 
+            : (Value type($inParameters.select)=Is text)
+                $select:=$inParameters.select
+            : (Value type($inParameters.select)=Is collection)
+                $select:=$inParameters.select.join(","; ck ignore null or empty)
+            Else 
+                $select:=String($inParameters.select)
+        End case 
+        If (Length($select)>0)
+            $urlParams+=($delimiter+"$select="+$select)
+            $delimiter:="&"
+        End if 
+    End if 
+    If (Not(Value type($inParameters.top)=Is undefined))
+        $urlParams+=($delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
+        $delimiter:="&"
+    End if 
+    If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
+        $urlParams+=($delimiter+"$orderBy="+$inParameters.orderBy)
+        $delimiter:="&"
+    End if 
+
+	// Specific to .getFolder / .getFolderList
 	If (Bool($inParameters.includeHiddenFolders))
 		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
-		$delimiter:="&"
-	End if 
-	If (Length(String($inParameters.search))>0)
-		$urlParams+=$delimiter+"$search="+$inParameters.search
-		$delimiter:="&"
-	End if 
-	If (Length(String($inParameters.filter))>0)
-		$urlParams+=$delimiter+"$filter="+$inParameters.filter
-		$delimiter:="&"
-	End if 
-	If (Length(String($inParameters.select))>0)
-		$urlParams+=$delimiter+"$select="+$inParameters.select
-		$delimiter:="&"
-	End if 
-	If (Not(Value type($inParameters.top)=Is undefined))
-		$urlParams+=$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
-			$inParameters.top; String($inParameters.top))
-		$delimiter:="&"
-	End if 
-	If (Length(String($inParameters.orderBy))>0)
-		$urlParams+=$delimiter+"$orderBy="+$inParameters.orderBy
 		$delimiter:="&"
 	End if 
 	If (Bool($inCount))
 		$urlParams+=$delimiter+"$count=true"
 		$delimiter:="&"
 	End if 
-	
+
 	return $urlParams

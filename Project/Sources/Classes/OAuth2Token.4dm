@@ -25,17 +25,10 @@ Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
-		This.token:={}
 		If (OB Get type($inObject; "token")=Is object)
-			
-			var $i : Integer
-			var $keys : Collection:=OB Keys($inObject.token)
-			var $values : Collection:=OB Values($inObject.token)
-			
+			This.token:=OB Copy($inObject.token)
+		Else 
 			This.token:={}
-			For ($i; 0; $keys.length-1)
-				This.token[$keys[$i]]:=$values[$i]
-			End for 
 		End if 
 		
 		If (OB Is defined($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null))
@@ -98,7 +91,7 @@ Function _Expired($inParams : Text) : Boolean
 			: (Current date<Date($expiration))
 				$result:=False
 			: ((Current date=Date($expiration)) && \
-				((Current time+0)<(Time($expiration)+0)))
+				((Current time+0)<(Time($expiration)-10)))
 				$result:=False
 		End case 
 	End if 

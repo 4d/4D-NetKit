@@ -1,8 +1,8 @@
 Class extends _GoogleBaseList
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
-    Super($inProvider; $inURL; "items"; $inHeaders)
+    Super($inProvider; $inParameters)
     
     
     // Mark: - [Public]

@@ -2,7 +2,7 @@ Class extends _GoogleBaseList
 
 Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
 	
-	Super($inProvider; $inURL; "messages")
+	Super($inProvider; {url: $inURL; elements: "messages"})
 	This._internals._URL:=$inURL
 	
 	

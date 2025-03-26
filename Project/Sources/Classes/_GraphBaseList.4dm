@@ -26,7 +26,9 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 Function _getList($inURL : Text) : Boolean
 	
 	Super._throwErrors(False)
+	var $throwErrors : Boolean:=This._internals._oAuth2Provider._throwErrors(False)
 	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
+	This._internals._oAuth2Provider._throwErrors($throwErrors)
 	Super._throwErrors(True)
 	
 	This.isLastPage:=False
@@ -59,8 +61,8 @@ Function _getList($inURL : Text) : Boolean
 		End if 
 		return False
 	End if 
-
-
+	
+	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	

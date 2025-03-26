@@ -74,8 +74,8 @@
           <target>Le paramètre '{which}' dans la fonction {function} n'est pas du type {type}.</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
-          <target>4D NetKit Component</target>
-          <source>Composant 4D NetKit</source>
+          <source>4D NetKit Component</source>
+          <target>Composant 4D NetKit</target>
         </trans-unit>
         <trans-unit resname="OAuth2_Response_Message">
           <source>Verification code received</source>

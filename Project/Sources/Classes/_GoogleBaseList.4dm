@@ -6,17 +6,20 @@ property statusText : Text
 property success : Boolean
 property errors : Collection
 
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inResultListName : Text; $inHeaders : Object)
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
 	
-	This._internals._URL:=$inURL
-	This._internals._headers:=$inHeaders
-	This._internals._attribute:=$inResultListName
+	If ((Value type($inParameters.url)=Is text) && (Length($inParameters.url)>0))
+		This._internals._URL:=$inParameters.url
+	End if 
+	This._internals._headers:=(Value type($inParameters.headers)=Is object) ? $inParameters.headers : Null
+	This._internals._elements:=((Value type($inParameters.elements)=Is text) && (Length($inParameters.elements)>0)) ? $inParameters.elements : "items"
+	This._internals._attributes:=(Value type($inParameters.attributes)=Is collection) ? $inParameters.attributes : Null
 	This._internals._nextPageToken:=""
 	This._internals._history:=[]
 	This._internals._throwErrors:=False
-
+	
 	This.page:=1
 	This.isLastPage:=False
 	
@@ -46,11 +49,21 @@ Function _getList($inPageToken : Text) : Boolean
 	This.success:=False
 	This._internals._nextPageToken:=""
 	This._internals._list:=[]
-
+	
 	If ($response#Null)
 		
-		If (OB Is defined($response; This._internals._attribute))
-			This._internals._list:=OB Get($response; This._internals._attribute; Is collection)
+		If (OB Is defined($response; This._internals._elements))
+			This._internals._list:=OB Get($response; This._internals._elements; Is collection)
+		End if 
+		
+		If (This._internals._attributes#Null)
+			var $attribute : Text
+			For each ($attribute; This._internals._attributes)
+				
+				If (OB Is defined($response; $attribute))
+					This[$attribute]:=OB Get($response; $attribute)
+				End if 
+			End for each 
 		End if 
 		
 		This.success:=True

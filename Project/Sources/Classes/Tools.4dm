@@ -236,6 +236,28 @@ Function getJMAPAttribute($inKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function getDomainFromURL($URL : Text) : Text
+	
+	ARRAY LONGINT($pos; 0)
+	ARRAY LONGINT($len; 0)
+	
+	var $result : Text
+	var $pattern : Text:="(?mi-s)^(https?|wss?)://(.*)(:\\d*)(/?.*)"
+	
+	If (Match regex($pattern; $URL; 1; $pos; $len))
+		
+		If (Size of array($pos)>2)
+			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
+		End if 
+		
+	End if 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function getPathFromURL($URL : Text) : Text
 	
 	ARRAY LONGINT($pos; 0)
@@ -341,10 +363,59 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isLocalIP($inIPAddress : Text) : Boolean
+	
+	If (Length($inIPAddress)=0)
+		return False
+	End if 
+	If (($inIPAddress="127.0.0.1") || ($inIPAddress="::1") || ($inIPAddress="localhost"))
+		return True
+	End if 
+	
+	var $sysInfo : Object:=System info
+	var $networkInterfaces : Collection:=$sysInfo.networkInterfaces
+	var $networkInterface : Object
+	
+	For each ($networkInterface; $networkInterfaces)
+		var $ipAddresses : Collection:=$networkInterface.ipAddresses
+		var $ipAddress : Object
+		For each ($ipAddress; $ipAddresses)
+			If ($ipAddress.ip=$inIPAddress)
+				return True
+			End if 
+		End for each 
+	End for each 
+	
+	return False
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function isValidEmail($inEmail : Text) : Boolean
 	
 	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 	return Match regex($pattern; $inEmail; 1)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function quoteString($inString : Text) : Text
+	
+	var $result : Text:=$inString
+	var $length : Integer:=Length($result)
+	
+	If ($length>0)
+		If ($result[[1]]#"\"")
+			$result:="\""+$result
+		End if 
+		If ($result[[$length]]#"\"")
+			$result+="\""
+		End if 
+	End if 
+	
+	return $result
 	
 	
 	// ----------------------------------------------------
@@ -525,6 +596,25 @@ Function urlEncode($value : Text) : Text
 	
 	
 Function localizedString($inValue : Text) : Text
-
-	/* Temp to avoid compilation issues due to command renaming */
-	return Localized string:C991($inValue)
+	
+/* Temp to avoid compilation issues due to command renaming */
+	return Localized string($inValue)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function makeError($inCode : Integer; $inParameters : Object) : Object
+	
+	var $description : Text:=cs.Tools.me.localizedString("ERR_4DNK_"+String($inCode))
+	
+	If (Not(OB Is empty($inParameters)))
+		var $key : Text
+		For each ($key; $inParameters)
+			$description:=Replace string($description; "{"+$key+"}"; String($inParameters[$key]))
+		End for each 
+	End if 
+	
+	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	
+	return $error

@@ -5,7 +5,12 @@
     - //repos/4edimension/4DComponents/User Components/4D NetKit/Project/Sources/ (target folder)
 */
 
-var $status : Object:=Compile project
+var $errorFile:=File(Folder(fk logs folder).platformPath+"compilationErrors.json"; fk platform path)
+If ($errorFile.exists)
+	$errorFile.delete()
+End if 
+
+var $status : Object:=Compile project({typeInference: "all"})
 
 If ($status.success=True)
 	
@@ -38,6 +43,9 @@ If ($status.success=True)
 	End if 
 	
 	$status:={success: Bool($result#Null)}
+Else 
+	TEXT TO DOCUMENT($errorFile.platformPath; JSON Stringify($status; *))
+	SHOW ON DISK($errorFile.platformPath)
 End if 
 
-ALERT(JSON Stringify($status; *))
+ALERT(JSON Stringify($status))
