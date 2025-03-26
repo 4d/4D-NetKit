@@ -12,8 +12,7 @@ Class constructor()
 Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
-	var $error:object:=cs.Tools.me.makeError($inCode; $inParameters)
-	($error)
+	var $error : Object:=cs.Tools.me.makeError($inCode; $inParameters)
 	If (This._internals._errorStack=Null)
 		This._internals._errorStack:=[]
 	End if 
