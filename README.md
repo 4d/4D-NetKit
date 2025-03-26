@@ -10,10 +10,15 @@
 * [Office365 class](./docs/Office365.md)
 * [Google class](./docs/Google.md)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](./docs/Tutorial.md)
-* (Archived) [Tutorial : Authenticate to the Microsoft Graph API in signedIn mode (4D NetKit), then send an email (SMTP Transporter class)](./docs/Tutorial.md#authenticate-to-the-microsoft-graph-api-in-signedin-mode-and-send-an-email-with-smtp)
 
 ## Copyrights
 
 (c) Microsoft, Microsoft Office, Microsoft 365, Microsoft Graph are trademarks of the Microsoft group of companies.
 
 (c) Google, Gmail are trademarks of the Alphabet, Inc.
+
+
+ <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        This site is open source. {% github_edit_link "Improve this page" %}.
+      </div>
+      
