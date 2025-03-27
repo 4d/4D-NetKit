@@ -53,7 +53,7 @@ The available properties of `paramObj` are:
 | name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
 | permission | text |- "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).<br/>- service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
-| redirectURI | text | (Not used in service mode) The redirect_uri of your app, the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response.|No in signedIn mode, Yes in service mode
+| redirectURI | text | (Not used in service mode) The redirect_uri of your app, i.e. the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response. Depending on the port, the authentication response goes to the [web server of the host or of the 4D NetKit](#target-web-server-response) |No in signedIn mode, Yes in service mode
 | scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
 | tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: - "common" for both Microsoft accounts and work or school accounts (default value)<br/>- "organizations" for work or school accounts only <br/>- "consumers" for Microsoft accounts only<br/>- tenant identifiers such as tenant ID or domain name.<br/>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
 | authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
@@ -65,19 +65,68 @@ The available properties of `paramObj` are:
 |    prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.<br/><br/>Possible values are:<br/>- none: Do not display any authentication or consent screens. Must not be specified with other values.<br/>- consent: Prompt the user for consent.<br/>- select_account: Prompt the user to select an account.<br/>(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
 |  loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.<br/> Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID.                                                                                       |Yes|
 |  accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.<br/> Valid parameter values are online (default) and offline.<br/> Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
-| clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used                                                                                                                                                                                                                                                                                                                                                                                                                                                            |No|
+| clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used |No|
 | authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
 | authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
 | PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only usable for permission=”SignIn”. |Yes
 | PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes
 | thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)
-| privateKey | text | Certificate private key. Only usable with permission="Service".<br/>(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)                                                                                                                                                                                                                                                                                                                                                                                                                
+| privateKey | text | Certificate private key. Only usable with permission="Service".<br/>(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)                                                                                         
 | clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"	|Yes
 | browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes
 
 If you want the .getToken() function to use the Assertion Framework described in the RFC 7521 to connect to the server, make sure to pass the `thumbprint` and `privateKey` properties. If `clientSecret`,  `thumbprint` and `privateKey` are present, the `thumbprint` is used by default and the RFC 7521 is used to connect. For more information, please refer to the [OAuth2.0 authentication using a certificate](#https://blog.4d.com/) blog post.
 
 **Note:**  The `authenticationPage` and `authenticationErrorPage` and all the resources associated must be in the same folder.
+
+### Target web server response
+
+- If the `redirectURI` port is the same as the host port, 4D NetKit automatically uses the host web server to retrieve the authentication response.
+- If the port is not specified in the `redirectURI`, the default ports are used. If the host database is configured with the default port, the host database web server is used, else the 4D NetKit web server is used.
+- In any other case, the 4D NetKit component web server is used.
+
+If host web server is configured with HTTP port = 80
+
+```
+// with 4D host port -> uses 4D host server (requires an HTTPHandler)
+$param.redirectURI:="http://127.0.0.1:80/authorize/"
+
+// or without port uses the standard port 80 ->  uses 4D host server 
+$param.redirectURI:="http://127.0.0.1/authorize/"
+
+// or custom port 80993 -> uses 4D Netkit server
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+```
+
+If host web server is configured with HTTP port = 8080
+
+```
+// with 4D host port -> uses 4D host server (requires an HTTPHandler)
+$param.redirectURI:="http://127.0.0.1:8080/authorize/"
+
+// or without port uses the standard port 80 ->  uses 4D NetKit server
+$param.redirectURI:="http://127.0.0.1/authorize/"
+
+// or custom port 80993 -> uses 4D Netkit server
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+```
+
+If the host webserver is used, then a [**custom HTTPHandler**](https://developer.4d.com/docs/WebServer/http-request-handler/) must be added by the developer in the host database.
+
+#### HTTPHandler
+
+When `permission` is "signedIn" and 4D NetKit uses the host web server, the developer must add a handler in the `Project/Sources/HTTPHandlers.json` file of the host project, calling the `getResponse()` method of the [Netkit.Oauth2Authorization](OAuth2Authorization.md) singleton.
+
+```
+[
+  {
+    "class": "4D.NetKit.OAuth2Authorization",
+    "method": "getResponse",
+    "regexPattern": "/authorize",
+    "verbs": "get"
+  },
+  ...
+```
 
 ### Returned object
 
