@@ -1,6 +1,6 @@
 # Documentation
 
-      <div class="header border-top border-gray-light mt-5 pt-3 text-right text-gray">
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
         Version: 20 R9
       </div>
 
