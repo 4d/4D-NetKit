@@ -104,7 +104,7 @@ Function next() : Boolean
 		
 	Else 
 		
-		This.statusText:=cs.Tools.me.localizedString("List_No_Next_Page")
+		This.statusText:=Localized string("List_No_Next_Page")
 		This.isLastPage:=True
 	End if 
 	
@@ -132,7 +132,7 @@ Function previous() : Boolean
 		
 	Else 
 		
-		This.statusText:=cs.Tools.me.localizedString("List_No_Previous_Page")
+		This.statusText:=Localized string("List_No_Previous_Page")
 		This.isLastPage:=True
 	End if 
 	

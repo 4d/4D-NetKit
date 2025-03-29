@@ -28,8 +28,8 @@ If ($URL=$redirectURI)
     
     If (($inOptions.result=Null) | (OB Is defined($inOptions.result; "error")))
         
-        $pageTitle:=cs.Tools.me.localizedString("OAuth2_Response_Title")
-        $pageMessage:=cs.Tools.me.localizedString("OAuth2_Error_Message")
+        $pageTitle:=Localized string("OAuth2_Response_Title")
+        $pageMessage:=Localized string("OAuth2_Error_Message")
         
         If (OB Is defined($inOptions.result; "error"))
             $pageMessage+=("<br /><br />"+String($inOptions.result.error))
@@ -43,14 +43,14 @@ If ($URL=$redirectURI)
         If (OB Is defined($inOptions.result; "error_uri"))
             $pageMessage+=("<br /><br />"+String($inOptions.result.error_uri))
         End if 
-        $pageDetails:=cs.Tools.me.localizedString("OAuth2_Response_Details")
+        $pageDetails:=Localized string("OAuth2_Response_Details")
         
         $responseFile:=($customErrorFile#Null) ? $customErrorFile : $responseFile
     Else 
         
-        $pageTitle:=cs.Tools.me.localizedString("OAuth2_Response_Title")
-        $pageMessage:=cs.Tools.me.localizedString("OAuth2_Response_Message")
-        $pageDetails:=cs.Tools.me.localizedString("OAuth2_Response_Details")
+        $pageTitle:=Localized string("OAuth2_Response_Title")
+        $pageMessage:=Localized string("OAuth2_Response_Message")
+        $pageDetails:=Localized string("OAuth2_Response_Details")
         
         $responseFile:=($customResponseFile#Null) ? $customResponseFile : $responseFile
     End if 
