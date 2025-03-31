@@ -53,7 +53,7 @@ The available properties of `paramObj` are:
 | name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
 | permission | text |- "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).<br/>- service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).|No
 | clientId | text | The client ID assigned to the app by the registration portal.|No
-| redirectURI | text | (Not used in service mode) The redirect_uri of your app, i.e. the location where the authorization server sends the user once the app has been successfully authorized. When you call the `.getToken()` class function, a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response. Depending on the port, the authentication response goes to the [web server of the host or of the 4D NetKit](#target-web-server-response) |No in signedIn mode, Yes in service mode
+| redirectURI | text | (Not used in service mode) The redirect_uri of your app, i.e. the location where the authorization server sends the user once the app has been successfully authorized. Depending on the port specified in this property, the authentication response goes to the [web server of the host or of the 4D NetKit](#web-server-for-redirect-uri) when you call the [`.getToken()`](#oauth2providerobjectgettoken) class function.  a web server included in 4D NetKit is started on the port specified in this parameter to intercept the provider's authorization response. |No in signedIn mode, Yes in service mode
 | scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
 | tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: - "common" for both Microsoft accounts and work or school accounts (default value)<br/>- "organizations" for work or school accounts only <br/>- "consumers" for Microsoft accounts only<br/>- tenant identifiers such as tenant ID or domain name.<br/>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
 | authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
@@ -79,43 +79,18 @@ If you want the .getToken() function to use the Assertion Framework described in
 
 **Note:**  The `authenticationPage` and `authenticationErrorPage` and all the resources associated must be in the same folder.
 
-### Target web server response
+### Web server for redirect URI
 
-- If the `redirectURI` port is the same as the host port, 4D NetKit automatically uses the host web server to retrieve the authentication response.
-- If the port is not specified in the `redirectURI`, the default ports are used. If the host database is configured with the default port, the host database web server is used, else the 4D NetKit web server is used.
-- In any other case, the 4D NetKit component web server is used.
+The provider's authorization response can be intercepted and handled either by the **web server of the host** or a **web server included in 4D NetKit**, depending on the port number specified in the `redirectURI` property. 
 
-If host web server is configured with HTTP port = 80
+- If the `redirectURI` port is the same as the web server port of the host, 4D NetKit automatically uses the web server of the host to retrieve the authentication response.  
+- If `redirectURI` does not specify a port, the default port is used. If the host web server is also configured with the default port, it is used; otherwise, the 4D NetKit web server is started and used.
+- In any other cases, the 4D NetKit web server is started and used.
 
-```
-// with 4D host port -> uses 4D host server (requires an HTTPHandler)
-$param.redirectURI:="http://127.0.0.1:80/authorize/"
 
-// or without port uses the standard port 80 ->  uses 4D host server 
-$param.redirectURI:="http://127.0.0.1/authorize/"
+#### HTTP Handler
 
-// or custom port 80993 -> uses 4D Netkit server
-$param.redirectURI:="http://127.0.0.1:50993/authorize/"
-```
-
-If host web server is configured with HTTP port = 8080
-
-```
-// with 4D host port -> uses 4D host server (requires an HTTPHandler)
-$param.redirectURI:="http://127.0.0.1:8080/authorize/"
-
-// or without port uses the standard port 80 ->  uses 4D NetKit server
-$param.redirectURI:="http://127.0.0.1/authorize/"
-
-// or custom port 80993 -> uses 4D Netkit server
-$param.redirectURI:="http://127.0.0.1:50993/authorize/"
-```
-
-If the host webserver is used, then a [**custom HTTPHandler**](https://developer.4d.com/docs/WebServer/http-request-handler/) must be added by the developer in the host database.
-
-#### HTTPHandler
-
-When `permission` is "signedIn" and 4D NetKit uses the host web server, the developer must add a handler in the `Project/Sources/HTTPHandlers.json` file of the host project, calling the `getResponse()` method of the [Netkit.Oauth2Authorization](OAuth2Authorization.md) singleton.
+If the web server of the host is used, you can install a **preconfigured HTTP handler**. You just need to add a the following lines in the `Project/Sources/HTTPHandlers.json` file of the host project:
 
 ```
 [
@@ -127,6 +102,27 @@ When `permission` is "signedIn" and 4D NetKit uses the host web server, the deve
   },
   ...
 ```
+
+**Note:** You can define any pattern for your redirect URI, `/authorize` is a just an example. For more information, please refer to [HTTP Handlers](https://developer.4d.com/docs/WebServer/http-request-handler).  
+
+#### Examples
+
+1. If the host web server is configured with the default HTTP port (80)
+
+```
+$param.redirectURI:="http://127.0.0.1:80/authorize/" //uses 4D host server
+$param.redirectURI:="http://127.0.0.1/authorize/" //uses 4D host server
+$param.redirectURI:="http://127.0.0.1:50993/authorize/" //uses 4D Netkit server
+```
+
+2. If the host web server is configured with non-default HTTP port (8080)
+
+```
+$param.redirectURI:="http://127.0.0.1:8080/authorize/" //uses 4D host server
+$param.redirectURI:="http://127.0.0.1/authorize/" //uses 4D Netkit server
+$param.redirectURI:="http://127.0.0.1:50993/authorize/" //uses 4D Netkit server
+```
+
 
 ### Returned object
 
