@@ -90,7 +90,7 @@ The provider's authorization response can be intercepted and handled either by t
 
 #### HTTP Handler
 
-If the web server of the host is used, you can install a **preconfigured HTTP handler**. You just need to add a the following lines in the `Project/Sources/HTTPHandlers.json` file of the host project:
+If the web server of the host is used, you must install a **preconfigured HTTP handler**. You just need to add a the following lines in the `Project/Sources/HTTPHandlers.json` file of the host project:
 
 ```
 [
