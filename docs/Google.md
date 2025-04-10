@@ -14,6 +14,10 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 ## Table of contents
 
 - [cs.NetKit.Google.new()](#csnetkitgooglenew)
+- [Google.Calendar.getCalendar()](#googlecalendargetcalendar)
+- [Google.Calendar.getCalendars()](#googlecalendargetCalendars)
+- [Google.Calendar.getEvent()](#googlecalendargetevent)
+- [Google.Calendar.getEvents()](#googlecalendargetevents)
 - [Google.mail.append()](#googlemailappend)
 - [Google.mail.createLabel()](#googlemailcreatelabel)
 - [Google.mail.delete()](#googlemaildelete)
@@ -80,6 +84,234 @@ var $google : cs.NetKit.Google
 $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
+
+## Google.Calendar.getCalendar()
+
+**Google.Calendar.getCalendar**( { *id* : Text } ) : Object
+
+### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|id|Text|->|ID of the calender to retrieve. |
+|calendar|Object|<-| Object containing the details of the specified calendar. For more details, see the [Google Calendar API resource](https://developers.google.com/calendar/api/v3/reference/calendarList#resource).|
+
+> To retrieve calendar IDs call the getCalendars() function. If id is null, empty or missing, returns the primary calendar of the currently logged in user.
+
+### Description
+
+`Google.Calendar.getCalendar()` retrieves a specific calendar from the authenticated user's calendar list; using an `id` to identify the calendar and returns a `calendar` object containing details about the requested calendar.
+
+### Example 
+
+```4d
+
+var $google : cs.NetKit.Google
+var $oauth2 : cs.NetKit.OAuth2Provider
+var $param; $Calendars; $myCalendar : Object
+
+$param:={}
+$param.name:="google"
+$param.permission:="signedIn"
+$param.clientId:="your-client-id" // Replace with your Google identity platform client ID
+$param.clientSecret:="xxxxxxxxx"
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+$param.scope:=[]
+$param.scope.push("https://mail.google.com/")
+$param.scope.push("https://www.googleapis.com/auth/calendar")
+
+$oauth2:=New OAuth2 provider($param)
+
+$google:=cs.NetKit.Google.new($oauth2)
+
+// Retrieve the entire list of calendars
+$Calendars:=$google.calendar.getCalendars()
+
+// Retrieve the first calendar in the list using its ID
+$myCalendar:=$google.calendar.getCalendar($Calendars.calendars[0].id)
+
+```
+
+
+## Google.Calendar.getCalendars()
+
+**Google.Calendar.getCalendar**( { *param* : Object } ) : Object
+
+### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Set of options to filter or refine the calendar list request.|
+|Result|Object|<-|Object containing the calendar list with the related data.|
+
+### Description
+
+`Google.Calendar.getCalendars()` retrieves a list of calendars that the authenticated user can access. The passed filtering and paging options in `param` are returned in the `result` object.
+
+In *param*, you can pass the following optional properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+| maxResults | Integer | Maximum number of calendar entries returned per page. Default is 100. Maximum is 250.|
+| minAccessRole | String  | Minimum access role for the user in the returned calendars. Default is no restriction. Acceptable values:|
+| | |- "freeBusyReader": User can read free/busy information.             |                                                                                                                                                                    
+| | |- "owner":  User can read, modify events, and control access. |
+| | |- "reader": User can read non-private events.  |
+| | |- "writer": User can read and modify events.                         |         
+| showDeleted | Boolean | Whether to include deleted calendar list entries in the result. Optional. The default is False.|
+| showHidden | Boolean | Whether to show hidden entries. Optional. The default is False.|
+
+### Returned object
+
+The function returns a Collection of details about the user's calendar list in the following properties:
+
+| **Property**         | **Type**          | **Description**                                                                                                                                                             |
+|----------------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `calendars`          | Collection        | Collection of calendar objects present in the user's calendar list. Each calendar object contains details such as `id`, `summary`, and `accessRole`.                                                             |
+| `isLastPage`         | Boolean           | `True` if the last page of results has been reached.                                                                                                                       |
+| `page`               | Integer           | Current page number of results. Starts at `1`. By default, each page holds 100 results.                                                                                   |
+| `next()`             | Function          | Loads the next page of calendar entries and increments the `page` property by 1. Returns:                                                                                  |
+|                      |                   | - `True` if the next page is loaded successfully.                                                                                                                         |
+|                      |                   | - `False` if no additional pages are available (the collection is not updated).                                                                                           |
+| `previous()`         | Function          | Loads the previous page of calendar entries and decrements the `page` property by 1. Returns:                                                                              |
+|                      |                   | - `True` if the previous page is loaded successfully.                                                                                                                     |
+|                      |                   | - `False` if no previous pages are available (the collection is not updated).                                                                                             |
+| `statusText`         | Text              | Status message returned by the Google server or the last error message from the 4D error stack.                                                                            |
+| `success`            | Boolean           | `True` if the operation is successful, `False` otherwise.                                                                                                                 |
+| `errors`             | Collection        | Collection of 4D error items (if any):                                                                                                                                     |
+|                      |                   | - `.errcode`: 4D error code number.                                                                                                                                         |
+|                      |                   | - `.message`: Error description.                                                                                                                                           |
+|                      |                   | - `.componentSignature`: Signature of the component that returned the error.                                                                                              |
+
+
+### Example 
+
+```4d
+
+var $google : cs.NetKit.Google
+var $oauth2 : cs.NetKit.OAuth2Provider
+var $param; $Calendars : Object
+
+$param:={}
+$param.name:="google"
+$param.permission:="signedIn"
+$param.clientId:="your-client-id" // Replace with your Google identity platform client ID
+$param.clientSecret:="xxxxxxxxx"
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+$param.scope:=[]
+$param.scope.push("https://mail.google.com/")
+$param.scope.push("https://www.googleapis.com/auth/calendar")
+
+$oauth2:=New OAuth2 provider($param)
+
+$google:=cs.NetKit.Google.new($oauth2)
+
+// Retrieve the entire list of calendars
+
+$Calendars:=$google.calendar.getCalendars()
+
+```
+## Google.Calendar.getEvent()
+
+**Google.Calendar.getEvent**( *param* : Object ) : Object
+
+### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Object containing the necessary details to retrieve a specific event|
+|Result|Object|<-|Object containing the retrieved event|
+
+### Description
+
+`Google.Calendar.getEvent()` retrieves a specific event from a Google Calendar using its unique `eventId`.
+
+In *param*, you can pass the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+| eventId | String | (Required) The unique identifier of the event to retrieve |
+| calendarId | String | Calendar identifier. To retrieve calendar IDs, call calendarList.list(). If not provided, the user's primary (currently logged-in) calendar is used |
+| maxAttendees | Integer | Max number of attendees to be returned for the event|
+| timeZone | String | Time zone used in the response (formatted as an IANA Time Zone Database name, e.g., "Europe/Zurich"). Defaults to UTC |
+
+### Returned object 
+
+The function returns a Google [`event`](https://developers.google.com/calendar/api/v3/reference/events) object.
+
+## Google.Calendar.getEvents()
+
+**Google.Calendar.getEvents**( { *param* : Object } ) : Object
+
+### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Object containing filters and options for retrieving calendar events|
+|Result|Object|<-|Object containing the retrieved events|
+
+### Description
+
+`Google.Calendar.getEvents()` retrieves events on the specified calendar. If *param* is not provided, it returns all events from the user's primary calendar.
+
+In *param*, you can pass the following optional properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+| calendarId | String | Calendar identifier. To retrieve calendar IDs, call `Google.Calendar.getCalendars()`. If not provided, the user's primary calendar is used. |
+| eventTypes | String | Specifies the types of events to return. Can be repeated multiple times to retrieve multiple event types. If not set, all event types are returned. Acceptable values: "birthday" (special all-day events with annual recurrence), "default" (regular events), "focusTime" (focus time events), "fromGmail" (events from Gmail), "outOfOffice" (out-of-office events), "workingLocation" (working location events). |
+| iCalUID | String | Searches for an event by its iCalendar ID. **Note:** `icalUID` and `id` are not identical. In recurring events, all occurrences have unique `id`s but share the same `icalUID`. |
+| maxAttendees | Integer | Limits the number of attendees to be returned per event|
+| top | Integer | Mximum number of events per page. Default is `250`, maximum is `2500`. |
+| orderBy | String | Specifies how events should be ordered in the response. Default is an **unspecified but stable order**. Acceptable values: "startTime" (ascending, only when `singleEvents=True`), "updated" (ascending order of last modification time). |
+| privateExtendedProperty | Collection | Returns events that match these properties specified as propertyName=value |
+| search | String | Searches for events using free text in multiple fields, including summary, description, location, attendee names/emails, organizer names/emails, and working location properties. Also matches predefined keywords for out-of-office, focus-time, and working-location events. |
+| sharedExtendedProperty | Collection | Returns events that match these properties specified as propertyName=value. The returned events match **all** specified constraints |
+| showDeleted | Boolean | Whether to include deleted events (`status="cancelled"`) in the result. Defaults to `False`. Behavior depends on the `singleEvents` setting |
+| showHiddenInvitations | Boolean | Whether to include hidden invitations in the result. Defaults to `False` |
+| singleEvents | Boolean | Whether to expand recurring events into instances and return only individual events and instances, **excluding** the underlying recurring event. Defaults to `False` |
+| startDateTime | Text, Object | Filters events by start time. If set, `endDateTime` must also be provided. **Text:** ISO 8601 UTC timestamp. **Object:** Must contain `date` (date type) and `time` (time type), formatted according to system settings |
+| endDateTime | Text, Object | Filters events by end time. If set, `startDateTime` must also be provided. **Text:** ISO 8601 UTC timestamp. **Object:** Must contain `date` (date type) and `time` (time type), formatted according to system settings |
+| timeZone | String | Time zone for the response, formatted as an IANA Time Zone Database name (e.g., "Europe/Zurich"). Defaults to UTC |
+| updatedMin | Text | Filters events based on last modification time (`ISO 8601 UTC`). When set, deleted events since this time are always included, regardless of `showDeleted` |
+
+### Returned object
+
+The method returns a [**status object**](#status-object-google-class) in addition to the following properties:
+
+| Property |  Type | Description |
+|---| ---|---|
+| isLastPage | Boolean | True if the last page is reached. |
+| page | Integer | Page number of the user information. Defaults to 1, with a page size of 100 (configurable via top). |
+| next() | Function | Fetches the next page of users, increments page by 1. Returns True if successful, False otherwise. |
+| previous() | Function | Fetches the previous page of users, decrements page by 1. Returns True if successful, False otherwise. |
+| kind | String | Type of collection ("calendar#events"). |
+| etag | String | ETag of the collection. |
+| summary | String | Title of the calendar (read-only). |
+| calendarId | String | Calendar identifier, same as the calendarId passed in the parameter if present. |
+| description | String | Description of the calendar (read-only). |
+| updated | Text | Last modification time of the calendar (ISO 8601 UTC). |
+| timeZone | String | Time zone of the calendar (formatted as an IANA Time Zone Database name, e.g., "Europe/Zurich"). |
+| accessRole | String | User’s access role for the calendar (read-only). Possible values: "none", "freeBusyReader", "reader", "writer", "owner". |
+| defaultReminders | Collection | Default reminders for the authenticated user. Applies to events that do not explicitly override them. |
+| defaultReminders[].method | String | Method used for the reminder ("email" or "popup"). |
+| defaultReminders[].minutes | Integer | Minutes before the event when the reminder triggers. |
+| events | Collection | List of events on the calendar. If some events have attachments, an "attachments" attribute is added, containing a collection of attachments. |
+
+### Example
+
+```4d
+
+// Gets all the calendars 
+var $calendars:=$google.calendar.getCalendars()
+// For the rest of the example, we'll use the first calendar in the list
+var $myCalendar:=$calendars.calendars[0]
+
+// Gets all the event of the selected calendars
+var $events:=$google.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
+
+```
+
 ## Google.mail.append()
 
 **Google.mail.append**( *mail* : Text { ; *labelIds* : Collection } ) : Object <br/>
@@ -498,7 +730,6 @@ This method requires one of the following OAuth scopes:
 https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
-
 
 ## Google.mail.update()
 

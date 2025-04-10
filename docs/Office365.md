@@ -18,6 +18,10 @@ The `Office365` class can be instantiated in two ways:
 ## Table of contents
 
 - [New Office365 provider](#new-office365-provider)
+- [Office365.calendar.getCalendar()](#office365calendargetcalendar)
+- [Office365.calendar.getCalendars()](#office365calendargetCalendars)
+- [Office365.calendar.getEvent()](#office365calendargetevent)
+- [Office365.calendar.getEvents()](#office365calendargetevents)
 - [Office365.mail.append()](#office365mailappend)
 - [Office365.mail.copy()](#office365mailcopy)
 - [Office365.mail.createFolder()](#office365mailcreatefolder)
@@ -93,6 +97,202 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 ### Example 2
 
 Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode.
+
+### Office365.calendar.getCalendar()
+
+**Office365.calendar.getCalendar**({*id*: Text}) : Object
+
+#### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|id|Text|->|ID of the calender to retrieve.|
+|calendar|Object|<-|[Object](https://learn.microsoft.com/en-us/graph/api/resources/calendar?view=graph-rest-1.0#properties) containing the properties and relationships of the specified calendar.  |
+
+> To retrieve calendar IDs call the getCalendars() function. If id is null, empty or missing, returns the primary calendar of the currently logged in user.
+
+#### Description
+
+`Office365.calendar.getCalendar()` retrieves the properties and relationships of a specific calendar associated with the passed `id` and returns a `calendar` object containing the requested calendar's details.
+
+#### Example
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $Office365 : cs.NetKit.Office365
+var $params; $calendarList; $calendarA : Object
+
+// Set up parameters:
+$params:=New object
+$params.name:="Microsoft"
+$params.permission:="signedIn"
+$params.clientId:="your-client-id" // Replace with your Microsoft identity platform client ID
+$params.redirectURI:="http://127.0.0.1:50993/authorize/"
+$params.scope:="https://graph.microsoft.com/.default"
+
+// Create an OAuth2Provider Object
+$oAuth2:=New OAuth2 provider($params)
+
+// Create an Office365 object
+$Office365:=New Office365 provider($oAuth2)
+
+
+// Retrieve the entire list of calendars
+$calendarList:=$Office365.calendar.getCalendars()
+
+// Retrieve the first calendar in the list using its ID
+$calendarA:=$Office365.calendar.getCalendar($calendarList.calendars[0].id)
+
+```
+
+### Office365.calendar.getCalendars()
+
+**Office365.calendar.getCalendars**({*param*: Object}) : Object
+
+#### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Set of options to filter, order, or select specific calendar properties.|
+|result|Object|<-| Object containing the retrieved calendars and related data.|
+
+#### Description
+
+`Office365.calendar.getCalendars()` retrieves a collection of the user's calendars. 
+
+In *param*, you can pass the following optional properties:
+
+| Property | Type | Description |
+|---|---|---|
+|select| Text | Specifies which calendar properties (columns) to retrieve. Comma-separated values.|
+|orderby | Text | Specifies the order of the returned results. Syntax is property name followed by `asc` (ascending) or `desc` (descending).|
+|filter| Text  | OData filter expression to filter the results. For example: `"name eq 'Work'"` retrieves calendars with the name "Work". |
+
+#### Returned object
+
+The function returns an object containing the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+|calendars| Collection  | Collection of calendar objects retrieved from the user's account. Each calendar object contains properties such as `id`, `name`, and `owner`.                               |
+|statusText| Text | Status message returned by the Microsoft server or the last error message from the 4D error stack.|                                                                          
+|success| Boolean | `True` if the operation is successful, `False` otherwise.|
+|errors | Collection | Collection of 4D error items (if any):|                                                                                                                                  
+|   | | - `.errcode`: 4D error code number.|                                                                                                                                         
+|  | | - `.message`: Error description.|                                                                                                                                           
+| |  | - `.componentSignature`: Signature of the component that returned the error.|                                                                                                                                                                                                              
+
+#### Example
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $Office365 : cs.NetKit.Office365
+var $params; $calendarList : Object
+
+// Set up parameters:
+$params:=New object
+$params.name:="Microsoft"
+$params.permission:="signedIn"
+$params.clientId:="your-client-id" // Replace with your Microsoft identity platform client ID
+$params.redirectURI:="http://127.0.0.1:50993/authorize/"
+$params.scope:="https://graph.microsoft.com/.default"
+
+// Create an OAuth2Provider Object
+$oAuth2:=New OAuth2 provider($params)
+
+// Create an Office365 object
+$Office365:=New Office365 provider($oAuth2)
+
+// Retrieve the entire list of calendars
+$calendarList:=$Office365.calendar.getCalendars()
+
+```
+
+### Office365.calendar.getEvent()
+
+**Office365.calendar.getEvent**(*param*: Object) : Object
+
+#### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Object containing the necessary details to retrieve a specific event|
+|result|Object|<-|Object containing the retrieved event|
+
+#### Description
+
+`Office365.calendar.getEvent()` retrieves details of a specific event, including its properties and relationships. The event is identified by its unique `eventId` within the specified calendar.
+
+In *param*, you can pass the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+| eventId | String |(Required) The unique identifier of the event|
+| calendarId | String | Calendar identifier. To retrieve calendar IDs call the calendarList.list(). If not provided, the user's primary (currently logged-in) calendar is used |
+| timeZone | String | Time zone used in the response. UTC by default |
+
+
+#### Returned object
+
+The function returns a Microsoft [`event`](https://learn.microsoft.com/en-us/graph/api/resources/event?view=graph-rest-1.0) object. If the event has attachments, an `attachments` attribute is included, which holds a collection of attachment objects.
+
+### Office365.calendar.getEvents()
+
+**Office365.calendar.getEvents**({*param*: Object}) : Object
+
+#### Parameters
+
+|Parameter|Type||Description|
+|---------|--- |:---:|------|
+|param|Object|->|Object containing filters and options for retrieving calendar events|
+|result|Object|<-| Object containing the retrieved events |
+
+#### Description
+
+`Office365.calendar.getEvents()` retrieves events from a specified calendar. By default, events are pulled from the user's primary calendar unless another calendar is specified.
+
+In *param*, you can pass the following optional properties:
+
+| Property | Type | Description |
+|---|---|---|
+| calendarId | String | Calendar identifier. To retrieve calendar IDs, call Google.Calendar.getCalendars(). If not provided, the user's primary (currently logged-in) calendar is used |
+| startDateTime | Text, Object | Filters events by start time. If set, `endDateTime` must also be provided. **Text:** ISO 8601 UTC timestamp (exclusive upper bound). Defaults to no filtering. **Object:** Must contain `date` (date type) and `time` (time type), formatted according to system settings |
+| endDateTime | Text, Object | Filters events by end time. If set, `startDateTime` must also be provided. **Text:** ISO 8601 UTC timestamp (exclusive lower bound). Defaults to no filtering. **Object:** Must contain `date` (date type) and `time` (time type), formatted according to system settings |
+| timeZone | String | Time zone used in the response. UTC by default|
+| select | Text | Specifies which event properties to return (columns) |
+| orderby | Text | Defines sorting order for results |
+| filter | Text | Applies additional filters based on specific conditions, such as event status, organizer, or categories. Uses [Microsoft Graph OData query syntax](https://learn.microsoft.com/en-us/graph/query-parameters#filter-parameter). Example: "status eq 'confirmed' and organizer/emailAddress/address eq 'example@domain.com'"|
+| top | Integer | Limit number of events per page. Maximum value is 999. If top is not defined, the default value is applied (10). When a result set spans multiple pages. Use `.next()` to fetch additional pages. See [Microsoft’s documentation on paging](https://learn.microsoft.com/en-us/graph/paging) for more information |
+
+**Note**: If no time range is provided (`startDateTime` or `endDateTime`) it returns single-instance meetings and series masters. When both `startDateTime` and `endDateTime` are specified, it retrieves all occurrences, exceptions, and single-instance events within the defined time range.
+
+#### Returned object
+
+The method returns an object containing the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+| errors | Collection | Collection of 4D error items (not returned if an Office 365 server response is received). Each item includes: `[].errcode` (4D error code number), `[].message` (error description), and `[].componentSignature` (component that returned the error) | 
+| statusText | Text | Status message returned by the Office 365 server, or the last error message from the 4D error stack | 
+|success |Boolean| `True` if the operation is successful, `False` otherwise | 
+|isLastPage|Boolean | `True` if the last page of results has been reached |
+| page | Integer | Current page number in the result set. Starts at `1`. The default page size is `10`, but this can be adjusted using the `top` parameter | 
+| next() | Function | Retrieves the next page of results and increments `page` by `1`. Returns `True` if successful, `False` if there are no more pages. | 
+| previous() | Function | Retrieves the previous page of results and decrements `page` by `1`. Returns `True` if successful, `False` if there are no previous pages | 
+| calendarId | String | Calendar identifier, same as the `calendarId` provided in the passed parameters (if present) | 
+| events | Collection | Collection of event objects. If any events have attachments, an `attachments` attribute is included, containing a collection of attachment objects | 
+
+#### Example
+
+```4d
+// Gets all the calendars 
+var $calendars:=$office365.calendar.getCalendars()
+// For the rest of the example, we'll use the first calendar in the list
+var $myCaldendar:=$calendars.calendars[0]
+
+// Gets all the event of the selected calendars
+var $events:=$office365.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
+```
 
 ## Office365.mail.append()
 
