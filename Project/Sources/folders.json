@@ -27,6 +27,7 @@
 	"Private Methods": {
 		"methods": [
 			"__buildComponent",
+			"_authorize",
 			"_catch",
 			"_errorHandler",
 			"_onWebConnection",
@@ -35,6 +36,7 @@
 	},
 	"Public": {
 		"classes": [
+			"DateTime",
 			"EmailAddress",
 			"Google",
 			"GoogleCalendar",
@@ -48,6 +50,7 @@
 			"GoogleUserList",
 			"GraphAttachment",
 			"GraphCalendarList",
+			"GraphCategoryList",
 			"GraphEvent",
 			"GraphEventList",
 			"GraphFolderList",
@@ -55,6 +58,7 @@
 			"GraphMessageList",
 			"GraphRecipient",
 			"GraphUserList",
+			"OAuth2Authorization",
 			"OAuth2Provider",
 			"OAuth2Token",
 			"Office365",
