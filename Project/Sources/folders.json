@@ -2,17 +2,22 @@
 	"4D NetKit": {
 		"groups": [
 			"Classes",
-			"Private Methods",
-			"Public Methods"
+			"Methods"
 		]
 	},
 	"Classes": {
 		"groups": [
-			"Private",
-			"Public"
+			"Private Classes",
+			"Public Classes"
 		]
 	},
-	"Private": {
+	"Methods": {
+		"groups": [
+			"Private Methods",
+			"Public Methods"
+		]
+	},
+	"Private Classes": {
 		"classes": [
 			"_BaseAPI",
 			"_BaseClass",
@@ -21,6 +26,7 @@
 			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
+			"_GraphCategoryListBuilder",
 			"_JWT"
 		]
 	},
@@ -34,7 +40,7 @@
 			"_throwError"
 		]
 	},
-	"Public": {
+	"Public Classes": {
 		"classes": [
 			"DateTime",
 			"EmailAddress",

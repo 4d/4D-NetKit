@@ -19,21 +19,24 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
+    var $dateTime : cs.DateTime
     
     Case of 
         : (Value type($inParameters.startDateTime)=Is text)
-            $startDateTime:=$inParameters.startDateTime
+            $dateTime:=cs.DateTime.new($inParameters.startDateTime)
+            $startDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
-            $startDateTime:=Replace string($startDateTime; "Z"; ".0000000")
+            $dateTime:=cs.DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
+            $startDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     Case of 
         : (Value type($inParameters.endDateTime)=Is text)
-            $endDateTime:=$inParameters.endDateTime
+            $dateTime:=cs.DateTime.new($inParameters.endDateTime)
+            $endDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
-            $endDateTime:=Replace string($endDateTime; "Z"; ".0000000")
+            $dateTime:=cs.DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
+            $endDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     If (Length($startDateTime)>0)
@@ -378,7 +381,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         End for each 
     End if 
     
-    return This._returnStatus(This._cleanGraphObject($response))
+    return This._returnStatus({event: This._cleanGraphObject($response)})
     
     
     // ----------------------------------------------------
@@ -421,9 +424,9 @@ Function deleteEvent($inParameters : Object) : Object
     End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
     
-    return This._returnStatus($response)
+    return This._returnStatus()
     
     
     // ----------------------------------------------------
@@ -496,39 +499,4 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
         End for each 
     End if 
     
-    return This._returnStatus($response)
-    
-    
-    // Mark: - Categories
-	// ----------------------------------------------------
-	
-	
-Function categories : cs.GraphCategoryList
-	
-    /*
-        GET /me/outlook/masterCategories
-        GET /users/{id|userPrincipalName}/outlook/masterCategories
-    */
-    Super._clearErrorStack()
-    Super._throwErrors(False)
-    
-    var $headers : Object:={}
-    var $urlParams : Text:=""
-    
-    If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
-    Else 
-        $urlParams:="me"
-    End if 
-    $urlParams+="/outlook/masterCategories"+Super._getURLParamsFromObject($inParameters)
-    
-    If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-        $headers.ConsistencyLevel:="eventual"
-    End if 
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GraphCategoryList:=cs.GraphCategoryList.new(This._getOAuth2Provider(); $URL; $headers)
-    
-    Super._throwErrors(True)
-    
-    return $result
+    return This._returnStatus({event: This._cleanGraphObject($response)})

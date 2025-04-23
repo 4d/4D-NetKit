@@ -52,6 +52,15 @@ Function getGraphDateTime() : Object  // returns GraphDateTime Object
 	// ----------------------------------------------------
 	
 	
+Function getDateTimeURLParameter()->$dateTimeString : Text // returns Graph DateTime URL parameter
+	
+	$dateTimeString:=String(Date(This.date); ISO date GMT; Time(This.time))
+	$dateTimeString:=Replace string($dateTimeString; "Z"; ".0000000")
+
+
+	// ----------------------------------------------------
+	
+	
 Function addTime($duration : Time)
 	
 	var $extraDays : Real
