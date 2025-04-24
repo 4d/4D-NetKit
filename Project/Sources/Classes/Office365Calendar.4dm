@@ -54,6 +54,39 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     // ----------------------------------------------------
     
     
+Function _conformEventDateTime($inObject : Object) : Object
+    
+    var $event : Object:=$inObject
+    var $dateTime : cs.DateTime
+    
+    If (OB Is defined($event; "end"))
+        Case of 
+            : ((Value type($event.end.date)=Is date) && (Value type($event.end.time)=Is time))
+                $dateTime:=cs.DateTime.new($event.end.date; $event.end.time)
+                $event.end:=$dateTime.getGraphDateTime()
+            : (Value type($event.end.dateTime)=Is text)
+                $dateTime:=cs.DateTime.new($event.end.dateTime)
+                $event.end:=$dateTime.getGraphDateTime()
+        End case 
+    End if 
+    
+    If (OB Is defined($event; "start"))
+        Case of 
+            : ((Value type($event.start.date)=Is date) && (Value type($event.start.time)=Is time))
+                $dateTime:=cs.DateTime.new($event.start.date; $event.start.time)
+                $event.start:=$dateTime.getGraphDateTime()
+            : (Value type($event.start.dateTime)=Is text)
+                $dateTime:=cs.DateTime.new($event.start.dateTime)
+                $event.start:=$dateTime.getGraphDateTime()
+        End case 
+    End if 
+    
+    return $event
+    
+    
+    // ----------------------------------------------------
+    
+    
 Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
     
 /*
@@ -349,7 +382,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     $urlParams+="/events"
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=Super._cleanGraphObject($inEvent)
+    var $event : Object:=This._conformEventDateTime(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
     If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
@@ -467,7 +500,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     $urlParams+="/events"
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=Super._cleanGraphObject($inEvent)
+    var $event : Object:=This._conformEventDateTime(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
     If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
