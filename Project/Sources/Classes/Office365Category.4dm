@@ -13,7 +13,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     // ----------------------------------------------------
     
     
-Function categories : cs.GraphCategoryList
+Function list : cs.GraphCategoryList
     
 /*
         GET /me/outlook/masterCategories

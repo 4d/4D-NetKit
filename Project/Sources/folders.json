@@ -26,7 +26,6 @@
 			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
-			"_GraphCategoryListBuilder",
 			"_JWT"
 		]
 	},
@@ -69,6 +68,7 @@
 			"OAuth2Token",
 			"Office365",
 			"Office365Calendar",
+			"Office365Category",
 			"Office365Mail",
 			"Office365User",
 			"Tools"

@@ -42,7 +42,9 @@ Function get calendar : cs.Office365Calendar
 	// ----------------------------------------------------
 	
 	
-Function categories : cs.GraphCategoryList
+Function category : cs.Office365Category
 	
-	var $categoryListBuilder : cs._GraphCategoryListBuilder:=cs._GraphCategoryListBuilder.new(This._internals._oAuth2Provider; This._internals._parameters)
-	return $categoryListBuilder.categories()
+	If (This._internals._category=Null)
+		This._internals._category:=cs.Office365Category.new(This._internals._oAuth2Provider; This._internals._parameters)
+	End if 
+	return This._internals._category
