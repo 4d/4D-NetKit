@@ -2,6 +2,7 @@
 
 property date : Date
 property time : Integer
+property timeZone : Text
 
 Class constructor( ...  : Variant)
 	
@@ -25,9 +26,27 @@ Class constructor( ...  : Variant)
 				: (Value type($1)=Is text)  // timestamp string
 					This.date:=Date($1)
 					This.time:=Time($1)
+					
+				: (Value type($1)=Is object)  // GraphDateTime object
+					Case of 
+						: (Value type($1.dateTime)=Is text)  // date and time string
+							This.date:=Date($1.dateTime)
+							This.time:=Time($1.dateTime)
+							
+						: (Value type($1.date)=Is date) && (Value type($1.time)=Is time)  // date and time
+							This.date:=$1.date
+							This.time:=$1.time
+							
+						: (Value type($1.time)=Is date) && (Value type($1.date)=Is time)  // time and date
+							This.time:=$1.time
+							This.date:=$1.date
+					End case 
+					If (Value type($1.timeZone)=Is text)
+						This.timeZone:=String($3.timeZone)
+					End if 
 			End case 
 			
-		: (Count parameters=2)
+		: (Count parameters>=2)
 			Case of 
 				: (Value type($1)=Is date) && (Value type($2)=Is time)  // date and time
 					This.date:=$1
@@ -36,7 +55,16 @@ Class constructor( ...  : Variant)
 				: (Value type($1)=Is time) && (Value type($2)=Is date)  // time and date
 					This.time:=$1
 					This.date:=$2
+					
+				: (Value type($1)=Is text) && (Value type($2)=Is text)  // timestamp string and timezone string
+					This.date:=Date($1)
+					This.time:=Time($1)
+					This.timeZone:=String($2)
 			End case 
+			If ((Count parameters>2) && (Value type($3)=Is text))
+				This.timeZone:=String($3.timeZone)
+			End if 
+			
 	End case 
 	
 	
@@ -46,18 +74,22 @@ Class constructor( ...  : Variant)
 	
 Function getGraphDateTime() : Object  // returns GraphDateTime Object
 	
-	return New object("@odata.type"; "microsoft.graph.dateTimeTimeZone"; "dateTime"; String(Date(This.date); ISO date GMT; Time(This.time)); "timeZone"; "Etc/GMT")
+	var $bIsTimeZoneUndefined : Boolean:=(Bool(Value type(This.timeZone)=Is undefined) || Bool(Length(String(This.timeZone))=0))
+	var $timeZone : Text:=($bIsTimeZoneUndefined) ? "Etc/GMT" : This.timeZone
+	var $dateTimeString : Text:=String(Date(This.date); $bIsTimeZoneUndefined ? ISO date GMT : ISO date; Time(This.time))
+	
+	return New object("@odata.type"; "microsoft.graph.dateTimeTimeZone"; "dateTime"; $dateTimeString; "timeZone"; $timeZone)
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getDateTimeURLParameter()->$dateTimeString : Text // returns Graph DateTime URL parameter
+Function getDateTimeURLParameter()->$dateTimeString : Text  // returns Graph DateTime URL parameter
 	
 	$dateTimeString:=String(Date(This.date); ISO date GMT; Time(This.time))
 	$dateTimeString:=Replace string($dateTimeString; "Z"; ".0000000")
-
-
+	
+	
 	// ----------------------------------------------------
 	
 	

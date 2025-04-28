@@ -54,31 +54,38 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     // ----------------------------------------------------
     
     
-Function _conformEventDateTime($inObject : Object) : Object
+Function _conformEvent($inObject : Object) : Object
     
     var $event : Object:=$inObject
     var $dateTime : cs.DateTime
+    var $timeZone : Text:=""
     
     If (OB Is defined($event; "end"))
+        $timeZone:=((Value type($event.end.timeZone)=Is text) && (Length($event.end.timeZone)>0)) ? String($event.end.timeZone) : ""
         Case of 
             : ((Value type($event.end.date)=Is date) && (Value type($event.end.time)=Is time))
-                $dateTime:=cs.DateTime.new($event.end.date; $event.end.time)
+                $dateTime:=cs.DateTime.new({date: $event.end.date; time: $event.end.time; timeZone: $timeZone})
                 $event.end:=$dateTime.getGraphDateTime()
             : (Value type($event.end.dateTime)=Is text)
-                $dateTime:=cs.DateTime.new($event.end.dateTime)
+                $dateTime:=cs.DateTime.new({dateTime: $event.end.dateTime; timeZone: $timeZone})
                 $event.end:=$dateTime.getGraphDateTime()
         End case 
     End if 
     
     If (OB Is defined($event; "start"))
+        $timeZone:=((Value type($event.start.timeZone)=Is text) && (Length($event.start.timeZone)>0)) ? String($event.start.timeZone) : ""
         Case of 
             : ((Value type($event.start.date)=Is date) && (Value type($event.start.time)=Is time))
-                $dateTime:=cs.DateTime.new($event.start.date; $event.start.time)
+                $dateTime:=cs.DateTime.new({date: $event.start.date; time: $event.start.time; timeZone: $timeZone})
                 $event.start:=$dateTime.getGraphDateTime()
             : (Value type($event.start.dateTime)=Is text)
-                $dateTime:=cs.DateTime.new($event.start.dateTime)
+                $dateTime:=cs.DateTime.new({dateTime: $event.start.dateTime; timeZone: $timeZone})
                 $event.start:=$dateTime.getGraphDateTime()
         End case 
+    End if 
+    
+    If (OB Is defined($event; "calendarId"))
+        OB REMOVE($event; "calendarId")
     End if 
     
     return $event
@@ -367,6 +374,14 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     */
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
+    var $calendarId : Text:=""
+    
+    Case of 
+        : (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0)
+            $calendarId:=$inParameters.calendarId
+        : (Value type($inEvent.calendarId)=Is text) && (Length(String($inEvent.calendarId))>0)
+            $calendarId:=$inEvent.calendarId
+    End case 
     
     If (Length(String(This.userId))>0)
         $urlParams:="users/"+This.userId
@@ -374,15 +389,15 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         $urlParams:="me"
     End if 
     
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    If (Length(String($calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
     Else 
         $urlParams+="/calendar"
     End if 
     $urlParams+="/events"
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=This._conformEventDateTime(Super._cleanGraphObject($inEvent))
+    var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
     If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
@@ -394,7 +409,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     If ((Value type($attachments)=Is collection) && ($attachments.length>0))
         
-        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
+        var $params : Object:={eventId: $response.id; calendarId: String($calendarId)}
         var $attachment : Object
         
         $response.attachments:=[]
@@ -500,7 +515,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     $urlParams+="/events"
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=This._conformEventDateTime(Super._cleanGraphObject($inEvent))
+    var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
     If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
