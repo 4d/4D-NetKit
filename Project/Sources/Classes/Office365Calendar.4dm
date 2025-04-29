@@ -91,7 +91,7 @@ Function _conformEvent($inObject : Object) : Object
     If (OB Is defined($event; "id"))
         OB REMOVE($event; "id")
     End if 
-
+    
     return $event
     
     
@@ -515,12 +515,12 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     End case 
     
     Case of 
-    : (Value type($inParameters.id)=Is text) && (Length(String($inParameters.id))>0)
-        $eventId:=$inParameters.id
-    : (Value type($inEvent.id)=Is text) && (Length(String($inEvent.id))>0)
-        $eventId:=$inEvent.id
+        : (Value type($inParameters.id)=Is text) && (Length(String($inParameters.id))>0)
+            $eventId:=$inParameters.id
+        : (Value type($inEvent.id)=Is text) && (Length(String($inEvent.id))>0)
+            $eventId:=$inEvent.id
     End case 
-
+    
     If (Length(String(This.userId))>0)
         $urlParams:="users/"+This.userId
     Else 

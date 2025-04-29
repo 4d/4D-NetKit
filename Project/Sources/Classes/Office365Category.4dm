@@ -1,7 +1,6 @@
 Class extends _GraphAPI
 
 property userId : Text:=""
-property id : Text:=""
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     

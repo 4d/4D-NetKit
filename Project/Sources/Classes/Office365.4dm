@@ -42,7 +42,7 @@ Function get calendar : cs.Office365Calendar
 	// ----------------------------------------------------
 	
 	
-Function category : cs.Office365Category
+Function get category : cs.Office365Category
 	
 	If (This._internals._category=Null)
 		This._internals._category:=cs.Office365Category.new(This._internals._oAuth2Provider; This._internals._parameters)
