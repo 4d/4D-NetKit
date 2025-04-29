@@ -88,6 +88,10 @@ Function _conformEvent($inObject : Object) : Object
         OB REMOVE($event; "calendarId")
     End if 
     
+    If (OB Is defined($event; "id"))
+        OB REMOVE($event; "id")
+    End if 
+
     return $event
     
     
@@ -500,19 +504,35 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
+    var $calendarId : Text:=""
+    var $eventId : Text:=""
     
+    Case of 
+        : (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0)
+            $calendarId:=$inParameters.calendarId
+        : (Value type($inEvent.calendarId)=Is text) && (Length(String($inEvent.calendarId))>0)
+            $calendarId:=$inEvent.calendarId
+    End case 
+    
+    Case of 
+    : (Value type($inParameters.id)=Is text) && (Length(String($inParameters.id))>0)
+        $eventId:=$inParameters.id
+    : (Value type($inEvent.id)=Is text) && (Length(String($inEvent.id))>0)
+        $eventId:=$inEvent.id
+    End case 
+
     If (Length(String(This.userId))>0)
         $urlParams:="users/"+This.userId
     Else 
         $urlParams:="me"
     End if 
     
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    If (Length(String($calendarId))>0)
+        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
     Else 
         $urlParams+="/calendar"
     End if 
-    $urlParams+="/events"
+    $urlParams+="/events/"+cs.Tools.me.urlEncode($eventId)
     
     var $URL : Text:=This._getURL()+$urlParams
     var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
