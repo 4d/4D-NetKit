@@ -42,7 +42,7 @@ Class constructor( ...  : Variant)
 							This.date:=$1.date
 					End case 
 					If (Value type($1.timeZone)=Is text)
-						This.timeZone:=String($3.timeZone)
+						This.timeZone:=String($1.timeZone)
 					End if 
 			End case 
 			
@@ -62,7 +62,7 @@ Class constructor( ...  : Variant)
 					This.timeZone:=String($2)
 			End case 
 			If ((Count parameters>2) && (Value type($3)=Is text))
-				This.timeZone:=String($3.timeZone)
+				This.timeZone:=String($3)
 			End if 
 			
 	End case 
