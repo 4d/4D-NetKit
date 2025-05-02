@@ -376,6 +376,9 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         POST /me/calendars/{id}/events
         POST /users/{id | userPrincipalName}/calendars/{id}/events
     */
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
     var $calendarId : Text:=""
@@ -428,10 +431,13 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
                 End try
                 $response.attachments.push(This._cleanGraphObject($result))
             Else 
+                Super._throwErrors(True)
                 return This._returnStatus($result)
             End if 
         End for each 
     End if 
+    
+    Super._throwErrors(True)
     
     return This._returnStatus({event: This._cleanGraphObject($response)})
     
@@ -457,6 +463,9 @@ Function deleteEvent($inParameters : Object) : Object
         DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
     */
     
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
     
@@ -477,6 +486,8 @@ Function deleteEvent($inParameters : Object) : Object
     
     var $URL : Text:=This._getURL()+$urlParams
     Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    
+    Super._throwErrors(True)
     
     return This._returnStatus()
     
@@ -501,6 +512,8 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     PATCH /me/calendarGroups/{id}/calendars/{id}/events/{id}
     PATCH /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
 */
+    Super._clearErrorStack()
+    Super._throwErrors(False)
     
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:=""
@@ -562,9 +575,12 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
                 End try
                 $response.attachments.push(This._cleanGraphObject($result))
             Else 
+                Super._throwErrors(True)
                 return This._returnStatus($result)
             End if 
         End for each 
     End if 
+    
+    Super._throwErrors(True)
     
     return This._returnStatus({event: This._cleanGraphObject($response)})
