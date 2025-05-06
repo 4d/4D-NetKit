@@ -237,7 +237,7 @@ Function getEvents($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function createEvent($inParameters : Object; $inEvent : Object) : Object
+Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
     
@@ -270,11 +270,7 @@ Function createEvent($inParameters : Object; $inEvent : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
     
-    If ($response#Null)
-        return cs.GoogleEvent.new($response)
-    End if 
-    
-    return Null
+    return This._returnStatus({event: cs.GoogleEvent.new($response)})
     
     
     // ----------------------------------------------------
@@ -308,7 +304,7 @@ Function deleteEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function updateEvent($inParameters : Object; $inEvent : Object) : Object
+Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
     
@@ -342,8 +338,4 @@ Function updateEvent($inParameters : Object; $inEvent : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $response : Object:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inEvent)
     
-    If ($response#Null)
-        return cs.GoogleEvent.new($response)
-    End if 
-    
-    return Null
+    return This._returnStatus({event: cs.GoogleEvent.new($response)})
