@@ -241,6 +241,9 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
     
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
@@ -270,6 +273,8 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
     
+    Super._throwErrors(True)
+    
     return This._returnStatus({event: cs.GoogleEvent.new($response)})
     
     
@@ -279,6 +284,9 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
 Function deleteEvent($inParameters : Object) : Object
     
     // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
+    Super._clearErrorStack()
+    Super._throwErrors(False)
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
@@ -298,6 +306,8 @@ Function deleteEvent($inParameters : Object) : Object
     var $URL : Text:=This._getURL()+$urlParams
     var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
     
+    Super._throwErrors(True)
+    
     return This._returnStatus()
     
     
@@ -307,6 +317,9 @@ Function deleteEvent($inParameters : Object) : Object
 Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
+    Super._clearErrorStack()
+    Super._throwErrors(False)
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
@@ -337,5 +350,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     var $URL : Text:=This._getURL()+$urlParams
     var $response : Object:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inEvent)
+    
+    Super._throwErrors(True)
     
     return This._returnStatus({event: cs.GoogleEvent.new($response)})
