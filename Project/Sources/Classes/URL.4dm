@@ -1,14 +1,15 @@
-property URL : Text
 property scheme : Text
 property host : Text
-property port : Integer
+property _port : Integer
 property path : Text
 property queryParams : Collection
 property hash : Text
 
-Class constructor($inURL : Text)
+Class constructor($inURL : Text; $inDecodeURL : Boolean)
     
-    This.parse(cs.Tools.me.urlDecode($inURL))
+    var $URL : Text:=Bool($inDecodeURL) ? cs.Tools.me.urlDecode($inURL) : $inURL
+    
+    This.parse($URL)
     
     
     // Mark: - [Public]
@@ -16,6 +17,7 @@ Class constructor($inURL : Text)
     
     
 Function parse($inURL : Text)
+    
     // Parse the URL into its components
     // Example: https://www.example.com:8080/path/to/resource?query=param#hash
     // Result:
@@ -27,23 +29,18 @@ Function parse($inURL : Text)
     // hash: hash
     // queryParams: [{name: "query"; value: "param"}]
     
-    var $urlComponents : Collection
     var $urlWithoutScheme : Text
-    var $portIndex : Integer
-    var $pathIndex : Integer
-    var $queryIndex : Integer
-    var $hashIndex : Integer
     
     // Initialize properties
     This.scheme:="https"
     This.host:=""
-    This.port:=0
     This.path:=""
     This.queryParams:=[]
     This.hash:=""
+    This._port:=0
     
     // Extract scheme
-    $urlComponents:=Split string($inURL; "://"; sk ignore empty strings)
+    var $urlComponents : Collection:=Split string($inURL; "://"; sk ignore empty strings)
     If ($urlComponents.length>1)
         This.scheme:=$urlComponents[0]
         $urlWithoutScheme:=$urlComponents[1]
@@ -52,16 +49,16 @@ Function parse($inURL : Text)
     End if 
     
     // Extract host and port
-    $portIndex:=Position(":"; $urlWithoutScheme)
-    $pathIndex:=Position("/"; $urlWithoutScheme)
+    var $portIndex : Integer:=Position(":"; $urlWithoutScheme)
+    var $pathIndex : Integer:=Position("/"; $urlWithoutScheme)
     If (($portIndex>0) && (($pathIndex=0) || ($portIndex<$pathIndex)))
         This.host:=Substring($urlWithoutScheme; 1; $portIndex-1)
         $urlWithoutScheme:=Substring($urlWithoutScheme; $portIndex+1)
         If ($pathIndex>0)
-            This.port:=Num(Substring($urlWithoutScheme; 1; $pathIndex-$portIndex-1))
+            This._port:=Num(Substring($urlWithoutScheme; 1; $pathIndex-$portIndex-1))
             $urlWithoutScheme:=Substring($urlWithoutScheme; $pathIndex-$portIndex)
         Else 
-            This.port:=Num($urlWithoutScheme)
+            This._port:=Num($urlWithoutScheme)
             $urlWithoutScheme:=""
         End if 
     Else 
@@ -75,8 +72,8 @@ Function parse($inURL : Text)
     End if 
     
     // Extract path
-    $queryIndex:=Position("?"; $urlWithoutScheme)
-    $hashIndex:=Position("#"; $urlWithoutScheme)
+    var $queryIndex : Integer:=Position("?"; $urlWithoutScheme)
+    var $hashIndex : Integer:=Position("#"; $urlWithoutScheme)
     If ($queryIndex>0)
         This.path:=Substring($urlWithoutScheme; 1; $queryIndex-1)
         $urlWithoutScheme:=Substring($urlWithoutScheme; $queryIndex)
@@ -122,28 +119,58 @@ Function parse($inURL : Text)
     
     
 Function toString() : Text
+    
     // Convert the URL object to a string representation
-    var $url : Text
-    $url:=This.scheme+"://"+This.host
-    If (This.port>0)
-        $url+=":"+String(This.port)
+    var $URL : Text:=This.scheme+"://"+This.host
+    If (This._port>0)
+        $URL+=":"+String(This._port)
     End if 
     If (Length(This.path)>0)
-        $url+=This.path
+        $URL+=This.path
     End if 
     If (Length(This.query)>0)
-        $url+="?"+This.query
+        $URL+="?"+This.query
     End if 
     If (Length(This.hash)>0)
-        $url+="#"+This.hash
+        $URL+="#"+This.hash
     End if 
-    return $url
+    return $URL
     
     
     // ----------------------------------------------------
     
     
+Function addQueryParameter( ...  : Variant)
+    
+    Case of 
+        : (Count parameters=1)
+            Case of 
+                : (Value type($1)=Is object)  // {name: "name"; value: "value"} object
+                    If ((Value type($1.name)=Is text) && (Value type($1.value)=Is text))
+                        This.queryParams.push({name: $1.name; value: $1.value})
+                    End if 
+                    
+                : (Value type($1)=Is text)  // name=value string
+                    If (Position("="; $1)>1)
+                        var $name : Text:=Substring($1; 1; Position("="; $1)-1)
+                        var $value : Text:=Substring($1; Position("="; $1)+1)
+                        This.queryParams.push({name: $name; value: $value})
+                    End if 
+            End case 
+            
+        : (Count parameters=2)
+            If (Value type($1)=Is text) && (Value type($2)=Is text)  // timestamp string and timezone string
+                This.queryParams.push({name: $1; value: $2})
+            End if 
+    End case 
+    
+    
+    // Mark: - Getters
+    // ----------------------------------------------------
+    
+    
 Function get query() : Text
+    
     // Get the query string
     var $query : Text:=""
     If (This.queryParams.length>0)
@@ -154,3 +181,34 @@ Function get query() : Text
         $query:=Substring($query; 1; Length($query)-1)
     End if 
     return $query
+    // ----------------------------------------------------
+    
+    
+Function get port() : Integer
+    
+    // Get the port number
+    var $port : Integer:=This._port
+    If ($port=0)
+        // Set default port based on scheme
+        Case of 
+            : (This.scheme="ftp")
+                $port:=21
+            : (This.scheme="sftp")
+                $port:=22
+            : (This.scheme="smtp")
+                $port:=25
+            : (This.scheme="pop3")
+                $port:=110
+            : (This.scheme="imap")
+                $port:=143
+            : (This.scheme="ldap")
+                $port:=389
+            : (This.scheme="ldaps")
+                $port:=636
+            : ((This.scheme="http") || (This.scheme="ws"))
+                $port:=80
+            : ((This.scheme="https") || (This.scheme="wss"))
+                $port:=443
+        End case 
+    End if 
+    return $port
