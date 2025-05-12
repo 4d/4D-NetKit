@@ -15,8 +15,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
-    var $URL : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
-    var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
+    var $URLString : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
+    var $URL : cs.URL:=cs.URL.new($URLString)
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
     var $dateTime : cs.DateTime
@@ -40,15 +40,13 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     End case 
     
     If (Length($startDateTime)>0)
-        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode($startDateTime)
-        $delimiter:="&"
+        $URL.addQueryParameter("startDateTime"; cs.Tools.me.urlEncode($startDateTime))
     End if 
     If (Length($endDateTime)>0)
-        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode($endDateTime)
-        $delimiter:="&"
+        $URL.addQueryParameter("endDateTime"; cs.Tools.me.urlEncode($endDateTime))
     End if 
     
-    return $URL
+    return $URL.toString()
     
     
     // ----------------------------------------------------
