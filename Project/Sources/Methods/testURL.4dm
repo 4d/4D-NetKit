@@ -32,3 +32,17 @@ ASSERT:C1129($URL.host="www.example.com")
 ASSERT:C1129($URL.port=80)
 ASSERT:C1129($URL.path="/")
 ASSERT:C1129($URL.toString()=$URLString)
+
+$URLString:=""
+$URL:=cs:C1710.URL.new($URLString)
+$URL.addQueryParameter("query=param")
+$URL.addQueryParameter("q2=v2")
+$URL.addQueryParameter("q3"; "v3")
+$URL.addQueryParameter({name: "q4"; value: "v4"})
+
+ASSERT:C1129($URL.scheme="https")
+ASSERT:C1129($URL.host="")
+ASSERT:C1129($URL.port=80)
+ASSERT:C1129($URL.path="")
+ASSERT:C1129($URL.query="query=param&q2=v2&q3=v3&q4=v4")
+$URLString:=$URL.toString()
