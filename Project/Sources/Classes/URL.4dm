@@ -1,4 +1,6 @@
 property scheme : Text
+property username : Text
+property password : Text
 property host : Text
 property _port : Integer
 property _path : Text
@@ -23,9 +25,12 @@ Class constructor($inParam : Variant)
 Function parse($inURL : Text)
     
     // Parse the URL into its components
-    // Example: https://www.example.com:8080/path/to/resource?query=param#ref
+    // Example: https://username:password@www.example.com:8080/path/to/resource?query=param#ref
     // Result:
     // scheme: https
+    // username: username
+    // password: password
+    // host: www.example.com
     // host: www.example.com
     // port: 8080
     // path: /path/to/resource
@@ -37,6 +42,8 @@ Function parse($inURL : Text)
     
     // Initialize properties
     This.scheme:=""
+    This.username:=""
+    This.password:=""
     This.host:=""
     This._path:=""
     This.queryParams:=[]
@@ -53,7 +60,8 @@ Function parse($inURL : Text)
     End if 
     
     // Extract host and port
-    var $portIndex : Integer:=Position(":"; $urlWithoutScheme)
+    var $userInfoIndex : Integer:=Position("@"; $urlWithoutScheme)
+    var $portIndex : Integer:=Position(":"; $urlWithoutScheme; $userInfoIndex)
     var $pathIndex : Integer:=Position("/"; $urlWithoutScheme)
     var $queryIndex : Integer:=Position("?"; $urlWithoutScheme)
     var $hashIndex : Integer:=Position("#"; $urlWithoutScheme)
@@ -85,6 +93,20 @@ Function parse($inURL : Text)
                     This.host:=$urlWithoutScheme
                     $urlWithoutScheme:=""
                 End if 
+            End if 
+        End if 
+    End if 
+    
+    // Extract username and password
+    $userInfoIndex:=Position("@"; This.host)
+    If ($userInfoIndex>0)
+        var $userInfo : Text:=Substring(This.host; 1; $userInfoIndex-1)
+        This.host:=Substring(This.host; $userInfoIndex+1)
+        var $userInfoComponents : Collection:=Split string($userInfo; ":"; sk ignore empty strings)
+        If ($userInfoComponents.length>0)
+            This.username:=$userInfoComponents[0]
+            If ($userInfoComponents.length>1)
+                This.password:=$userInfoComponents[1]
             End if 
         End if 
     End if 
@@ -164,6 +186,13 @@ Function toString() : Text
         If (Length(This.scheme)>0)
             $URL+=This.scheme+"://"
         End if 
+        If (Length(This.username)>0)
+            $URL+=This.username
+            If (Length(This.password)>0)
+                $URL+=":"+This.password
+            End if 
+            $URL+="@"
+        End if 
         $URL+=This.host
     End if 
     If (This._port>0)
@@ -190,6 +219,8 @@ Function toJSON() : Object
     // Convert the URL object to a JSON representation
     var $json : Object:={}
     $json.scheme:=This.scheme
+    $json.username:=This.username
+    $json.password:=This.password
     $json.host:=This.host
     $json.port:=This.port
     $json.path:=This.path
@@ -211,8 +242,10 @@ Function fromJSON($inURL : Object)
     // host: www.example.com
     // port: 8080
     This.scheme:=(Value type($inURL.scheme)=Is text) ? $inURL.scheme : ""
+    This.username:=(Value type($inURL.username)=Is text) ? $inURL.username : ""
+    This.password:=(Value type($inURL.password)=Is text) ? $inURL.password : ""
     This.host:=(Value type($inURL.host)=Is text) ? $inURL.host : ""
-    This._port:=(Value type($inURL.port)=is number) ? $inURL.port : 0
+    This._port:=(Value type($inURL.port)#Is undefined) ? $inURL.port : 0
     This._path:=(Value type($inURL.path)=Is text) ? $inURL.path : ""
     This.queryParams:=(Value type($inURL.queryParams)=Is collection) ? $inURL.queryParams : []
     This.ref:=(Value type($inURL.ref)=Is text) ? $inURL.ref : ""
