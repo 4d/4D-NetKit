@@ -177,7 +177,7 @@ Function addQueryParameter( ...  : Variant)
             End case 
             
         : (Count parameters=2)
-            If (Value type($1)=Is text) && (Value type($2)=Is text)  // timestamp string and timezone string
+            If (Value type($1)=Is text) && (Value type($2)=Is text)  // name string and value string
                 This.queryParams.push({name: $1; value: $2})
             End if 
     End case 
