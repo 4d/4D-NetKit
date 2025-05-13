@@ -1,7 +1,11 @@
 //%attributes = {}
+var $URLString : Text:=""
+var $URL : cs:C1710.URL:=Null:C1517
+var $JSONObject : Object:=Null:C1517
+
 //--------------------------------------------------------
-var $URLString : Text:="http://www.example.com:8080/path/to/resource?query=param#hash"
-var $URL : cs:C1710.URL:=cs:C1710.URL.new($URLString)
+$URLString:="http://www.example.com:8080/path/to/resource?query=param#hash"
+$URL:=cs:C1710.URL.new($URLString)
 ASSERT:C1129($URL.scheme="http")
 ASSERT:C1129($URL.host="www.example.com")
 ASSERT:C1129($URL.port=8080)
@@ -88,3 +92,27 @@ ASSERT:C1129($URL.path="/path/to/resource")
 ASSERT:C1129($URL.query="query=param")
 ASSERT:C1129($URL.ref="hash")
 ASSERT:C1129($URL.toString()=$URLString)
+
+//--------------------------------------------------------
+$URLString:="?query=param&q2=v2&q3=v3&q4=v4"
+$URL:=cs:C1710.URL.new("")
+$URL.parseQuery($URLString)
+
+ASSERT:C1129($URL.scheme="")
+ASSERT:C1129($URL.host="")
+ASSERT:C1129($URL.port=0)
+ASSERT:C1129($URL.path="")
+ASSERT:C1129($URL.query="query=param&q2=v2&q3=v3&q4=v4")
+ASSERT:C1129($URL.ref="")
+ASSERT:C1129($URL.toString()=$URLString)
+
+//--------------------------------------------------------
+$URLString:="http://www.example.com:8080/path/to/resource?query=param#hash"
+$URL:=cs:C1710.URL.new($URLString)
+$JSONObject:=$URL.toJSON()
+
+$URL:=cs:C1710.URL.new("")
+$URL.fromJSON($JSONObject)
+
+$URL:=cs:C1710.URL.new("")
+$URL:=cs:C1710.URL.new($JSONObject)
