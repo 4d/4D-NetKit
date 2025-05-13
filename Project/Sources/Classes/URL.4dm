@@ -5,9 +5,15 @@ property _path : Text
 property queryParams : Collection
 property ref : Text
 
-Class constructor($inURL : Text)
+Class constructor($inParam : Variant)
     
-    This.parse($inURL)
+    Case of 
+        : (Value type($inParam)=Is text)  // URL string
+            This.parse($inParam)
+            
+        : (Value type($inParam)=Is object)  // URL object
+            This.fromJSON($inParam)
+    End case 
     
     
     // Mark: - [Public]
@@ -111,19 +117,39 @@ Function parse($inURL : Text)
             $urlWithoutScheme:=""
         End if 
         If (Length($query)>0)
-            var $queryParams : Collection:=Split string($query; "&"; sk ignore empty strings)
-            var $param; $name; $value : Text
-            For each ($param; $queryParams)
-                $name:=Substring($param; 1; Position("="; $param)-1)
-                $value:=Substring($param; Position("="; $param)+1)
-                This.queryParams.push({name: $name; value: $value})
-            End for each 
+            This.parseQuery($query)
         End if 
     End if 
     
     // Extract hash
     If (Position("#"; $urlWithoutScheme)>0)
         This.ref:=Substring($urlWithoutScheme; 2)
+    End if 
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function parseQuery($inQueryString : Text)
+    
+    // Example: ?query=param&anotherQuery=anotherParam
+    // Result:
+    // query: query=param&anotherQuery=anotherParam
+    // queryParams: [{name: "query"; value: "param"}, {name: "abotherQuery"; value: "anotherParam"}]
+    
+    var $queryString : Text:=$inQueryString
+    
+    If (Position("?"; $queryString)=1)
+        $queryString:=Substring($queryString; 2)
+    End if 
+    If (Length($queryString)>0)
+        var $queryParams : Collection:=Split string($queryString; "&"; sk ignore empty strings)
+        var $param; $name; $value : Text
+        For each ($param; $queryParams)
+            $name:=Substring($param; 1; Position("="; $param)-1)
+            $value:=Substring($param; Position("="; $param)+1)
+            This.queryParams.push({name: $name; value: $value})
+        End for each 
     End if 
     
     
@@ -152,7 +178,44 @@ Function toString() : Text
     If (Length(This.ref)>0)
         $URL+="#"+This.ref
     End if 
+    
     return $URL
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function toJSON() : Object
+    
+    // Convert the URL object to a JSON representation
+    var $json : Object:={}
+    $json.scheme:=This.scheme
+    $json.host:=This.host
+    $json.port:=This.port
+    $json.path:=This.path
+    $json.query:=This.query
+    $json.ref:=This.ref
+    $json.queryParams:=This.queryParams
+    return $json
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function fromJSON($inURL : Object)
+    
+    // Convert a JSON representation to a URL object
+    // Example: {scheme: "http"; host: "www.example.com"; port: 8080; path: "/path/to/resource"; query: "query=param"; ref: "hash"}
+    // Result:
+    // scheme: http
+    // host: www.example.com
+    // port: 8080
+    This.scheme:=(Value type($inURL.scheme)=Is text) ? $inURL.scheme : ""
+    This.host:=(Value type($inURL.host)=Is text) ? $inURL.host : ""
+    This._port:=(Value type($inURL.port)=is number) ? $inURL.port : 0
+    This._path:=(Value type($inURL.path)=Is text) ? $inURL.path : ""
+    This.queryParams:=(Value type($inURL.queryParams)=Is collection) ? $inURL.queryParams : []
+    This.ref:=(Value type($inURL.ref)=Is text) ? $inURL.ref : ""
     
     
     // ----------------------------------------------------
@@ -230,6 +293,16 @@ Function get query() : Text
         $query:=Substring($query; 1; Length($query)-1)
     End if 
     return $query
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function set query($inQueryString : Text)
+    
+    // Set the query string
+    This.queryParams:=[]
+    This.parseQuery($inQueryString)
     
     
     // ----------------------------------------------------
