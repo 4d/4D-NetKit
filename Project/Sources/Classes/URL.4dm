@@ -1,7 +1,7 @@
 property scheme : Text
 property host : Text
 property _port : Integer
-property path : Text
+property _path : Text
 property queryParams : Collection
 property ref : Text
 
@@ -32,7 +32,7 @@ Function parse($inURL : Text)
     // Initialize properties
     This.scheme:=""
     This.host:=""
-    This.path:=""
+    This._path:=""
     This.queryParams:=[]
     This.ref:=""
     This._port:=0
@@ -87,14 +87,14 @@ Function parse($inURL : Text)
     $queryIndex:=Position("?"; $urlWithoutScheme)
     $hashIndex:=Position("#"; $urlWithoutScheme)
     If ($queryIndex>0)
-        This.path:=Substring($urlWithoutScheme; 1; $queryIndex-1)
+        This._path:=Substring($urlWithoutScheme; 1; $queryIndex-1)
         $urlWithoutScheme:=Substring($urlWithoutScheme; $queryIndex)
     Else 
         If ($hashIndex>0)
-            This.path:=Substring($urlWithoutScheme; 1; $hashIndex-1)
+            This._path:=Substring($urlWithoutScheme; 1; $hashIndex-1)
             $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
         Else 
-            This.path:=$urlWithoutScheme
+            This._path:=$urlWithoutScheme
             $urlWithoutScheme:=""
         End if 
     End if 
@@ -143,8 +143,8 @@ Function toString() : Text
     If (This._port>0)
         $URL+=":"+String(This._port)
     End if 
-    If (Length(This.path)>0)
-        $URL+=This.path
+    If (Length(This._path)>0)
+        $URL+=This._path
     End if 
     If (Length(This.query)>0)
         $URL+="?"+This.query
@@ -214,7 +214,7 @@ Function getDefaultPort() : Integer
     return $port
     
     
-    // Mark: - Getters
+    // Mark: - Getters/Setters
     // ----------------------------------------------------
     
     
@@ -243,3 +243,34 @@ Function get port() : Integer
     End if 
     
     return This._port
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function set port($inPort : Integer)
+    
+    // Set the port number
+    This._port:=$inPort
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function get path() : Text
+    
+    // Get the path
+    return This._path
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function set path($inPath : Text)
+    
+    // Set the path 
+    If (Position("/"; $inPath)=1)
+        This._path:=$inPath
+    Else 
+        This._path:="/"+$inPath
+    End if 
