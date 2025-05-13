@@ -317,6 +317,9 @@ Function deleteEvent($inParameters : Object) : Object
 Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    // or
+    // PATCH https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
+    
     
     Super._clearErrorStack()
     Super._throwErrors(False)
@@ -326,6 +329,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     var $headers : Object:={Accept: "application/json"}
     var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
     var $delimiter : Text:="?"
+    var $bFullUpdate : Boolean:=False
     
     If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
         $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
@@ -347,9 +351,12 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
         $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
         $delimiter:="&"
     End if 
+    If (Not(Value type($inParameters.fullUpdate)=Is undefined))
+        $bFullUpdate:=Bool($inParameters.fullUpdate)
+    End if 
     
     var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("PUT"; $URL; $headers; $inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse(bFullUpdate ? "PUT" : "PATCH"; $URL; $headers; $inEvent)
     
     Super._throwErrors(True)
     
