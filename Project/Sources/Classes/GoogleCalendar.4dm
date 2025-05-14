@@ -293,7 +293,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
+    var $eventId : Text:=(Length(String($inEvent.id))>0) ? $inEvent.id : ""
     var $headers : Object:={Accept: "application/json"}
     var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
     var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
