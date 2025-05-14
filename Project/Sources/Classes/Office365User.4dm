@@ -66,35 +66,26 @@ Function get($inID : Text; $inSelect : Text) : Object
 Function list($inParameters : Object) : Object
 	
 	var $headers : Object
-	var $urlParams : Text:="users"
-	var $delimiter : Text:="?"
+	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
-		$delimiter:="&"
+		$URL.addQueryParameter("$search"; $inParameters.search)
 		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	If (Length(String($inParameters.filter))>0)
-		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
-		$delimiter:="&"
+		$URL.addQueryParameter("$filter"; $inParameters.filter)
 	End if 
 	If (Length(String($inParameters.select))>0)
-		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
-		$delimiter:="&"
+		$URL.addQueryParameter("$select"; $inParameters.select)
 	End if 
 	If (Not(Value type($inParameters.top)=Is undefined))
-		$urlParams:=$urlParams+$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
-			$inParameters.top; String($inParameters.top))
-		$delimiter:="&"
+		$URL.addQueryParameter("$top"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
 	End if 
 	If (Length(String($inParameters.orderBy))>0)
-		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
-		$delimiter:="&"
+		$URL.addQueryParameter("$orderBy"; $inParameters.orderBy)
 	End if 
 	
-	var $URL : Text:=This._getURL()+$urlParams
-	
-	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL.toString(); $headers)
 	
 	
 	// ----------------------------------------------------
@@ -103,35 +94,26 @@ Function list($inParameters : Object) : Object
 Function count($inParameters : Object) : Object
 	
 	var $headers : Object
-	var $urlParams : Text:="users"
-	var $delimiter : Text:="?"
+	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams:=$urlParams+$delimiter+"$search="+$inParameters.search
-		$delimiter:="&"
+		$URL.addQueryParameter("$search"; $inParameters.search)
 		$headers:={ConsistencyLevel: "eventual"}
 	End if 
 	If (Length(String($inParameters.filter))>0)
-		$urlParams:=$urlParams+$delimiter+"$filter="+$inParameters.filter
-		$delimiter:="&"
+		$URL.addQueryParameter("$filter"; $inParameters.filter)
 	End if 
 	If (Length(String($inParameters.select))>0)
-		$urlParams:=$urlParams+$delimiter+"$select="+$inParameters.select
-		$delimiter:="&"
+		$URL.addQueryParameter("$select"; $inParameters.select)
 	End if 
 	If (Not(Value type($inParameters.top)=Is undefined))
-		$urlParams:=$urlParams+$delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; \
-			$inParameters.top; String($inParameters.top))
-		$delimiter:="&"
+		$URL.addQueryParameter("$top"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
 	End if 
 	If (Length(String($inParameters.orderBy))>0)
-		$urlParams:=$urlParams+$delimiter+"$orderBy="+$inParameters.orderBy
-		$delimiter:="&"
+		$URL.addQueryParameter("$orderBy"; $inParameters.orderBy)
 	End if 
-	$urlParams:=$urlParams+$delimiter+"$count"
+	$URL.addQueryParameter("$count"; "true")
 	$headers:={ConsistencyLevel: "eventual"}
-	
-	var $URL : Text:=This._getURL()+$urlParams
-	
-	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL; $headers)
+
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL.toString(); $headers)
 	

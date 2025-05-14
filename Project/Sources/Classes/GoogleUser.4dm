@@ -46,8 +46,8 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams; $personFields : Text
-	var $delimiter : Text:="?"
+	var $urlParams : cs.URL:=cs.URL.new("")
+	var $personFields : Text
 	var $sources : Collection:=Null
 	var $mergeSources : Collection:=Null
 	
@@ -59,8 +59,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 		Else 
 			$personFields:=This._internals.defaultPersonFields.join(","; ck ignore null or empty)
 	End case 
-	$urlParams:=$delimiter+"readMask="+$personFields
-	$delimiter:="&"
+	$urlParams.addQueryParameter("readMask"; $personFields)
 	
 	Case of 
 		: ((Value type($inParameters.sources)=Is collection) && ($inParameters.sources.length>0))
@@ -71,7 +70,12 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 			$sources:=["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]
 	End case 
 	If (($sources#Null) && ($sources.length>0))
-		$urlParams+=($delimiter+"sources="+$sources.join("&sources="; ck ignore null or empty))
+		var $source : Text
+		For each ($source; $sources)
+			If (Length($source)>0)
+				$urlParams.addQueryParameter("sources"; $source)
+			End if 
+		End for each 
 	End if 
 	
 	Case of 
@@ -81,18 +85,23 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 			$mergeSources:=Split string($inParameters.mergeSources; ","; sk ignore empty strings+sk trim spaces)
 	End case 
 	If (($mergeSources#Null) && ($mergeSources.length>0))
-		$urlParams+=($delimiter+"mergeSources="+$mergeSources.join("&mergeSources="; ck ignore null or empty))
+		var $mergeSource : Text
+		For each ($mergeSource; $mergeSources)
+			If (Length($mergeSource)>0)
+				$urlParams.addQueryParameter("mergeSources"; $mergeSource)
+			End if 
+		End for each 
 	End if 
 	
 	If (OB Is defined($inParameters; "top") && (Num($inParameters.top)>0))
-		$urlParams+=($delimiter+"pageSize="+String($inParameters.top))
+		$urlParams.addQueryParameter("pageSize"; String($inParameters.top))
 	End if 
 	
 	If (OB Is defined($inParameters; "pageToken") && (Value type($inParameters.pageToken)=Is text) && (Length(String($inParameters.pageToken))>0))
-		$urlParams+=($delimiter+"pageToken="+String($inParameters.pageToken))
+		$urlParams.addQueryParameter("pageToken"; String($inParameters.pageToken))
 	End if 
 	
-	return $urlParams
+	return $urlParams.toString()
 	
 	
 	// Mark: - [Public]

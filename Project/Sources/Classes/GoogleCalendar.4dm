@@ -46,34 +46,27 @@ Function getCalendars($inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:=""
-    var $delimiter : Text:="?"
-    
-    $urlParams:="users/me/calendarList"
+    var $URLString : Text:="users/me/calendarList"
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
     
     If (Not(Value type($inParameters.top)=Is undefined))
-        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
-        $delimiter:="&"
+        $URL.addQueryParameter("maxResults"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
     End if 
     If (Not(Value type($inParameters.minAccessRole)=Is undefined))
-        $urlParams+=($delimiter+"minAccessRole="+String($inParameters.minAccessRole))
-        $delimiter:="&"
+        $URL.addQueryParameter("minAccessRole"; String($inParameters.minAccessRole))
     End if 
     If (Not(Value type($inParameters.pageToken)=Is undefined))
-        $urlParams+=($delimiter+"pageToken="+String($inParameters.pageToken))
-        $delimiter:="&"
+        $URL.addQueryParameter("pageToken"; String($inParameters.pageToken))
     End if 
     If (Not(Value type($inParameters.showHidden)=Is undefined))
-        $urlParams+=($delimiter+"showHidden="+Choose(Bool($inParameters.showHidden); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("showHidden"; Choose(Bool($inParameters.showHidden); "true"; "false"))
     End if 
     If (Not(Value type($inParameters.showDeleted)=Is undefined))
-        $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("showDeleted"; Choose(Bool($inParameters.showDeleted); "true"; "false"))
     End if 
     
     var $options : Object:={}
-    $options.url:=This._getURL()+$urlParams
+    $options.url:=$URL.toString()
     $options.headers:={Accept: "application/json"}
     
     var $result : cs.GoogleCalendarList:=cs.GoogleCalendarList.new(This._getOAuth2Provider(); $options)
@@ -108,17 +101,15 @@ Function getEvent($inParameters : Object) : Object
             var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
             var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
             var $headers : Object:={Accept: "application/json"}
-            var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-            var $delimiter : Text:="?"
+            var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+            var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
             
             If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-                $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-                $delimiter:="&"
+                $URL.addQueryParameter("maxAttendees"; Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
             End if 
-            $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
+            $URL.addQueryParameter("timeZone"; cs.Tools.me.urlEncode($timeZone))
             
-            var $URL : Text:=This._getURL()+$urlParams
-            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; $headers)
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers)
             
             return cs.GoogleEvent.new($response)
             
@@ -138,8 +129,8 @@ Function getEvents($inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-    var $delimiter : Text:="?"
+    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
     var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
@@ -161,65 +152,51 @@ Function getEvents($inParameters : Object) : Object
     End case 
     
     If ((Value type($inParameters.eventTypes)=Is text) && (Length(String($inParameters.eventTypes))>0))
-        $urlParams+=($delimiter+"eventTypes="+$inParameters.eventTypes)
-        $delimiter:="&"
+        $URL.addQueryParameter("eventTypes"; $inParameters.eventTypes)
     End if 
     If ((Value type($inParameters.iCalUID)=Is text) && (Length(String($inParameters.iCalUID))>0))
-        $urlParams+=($delimiter+"iCalUID="+String($inParameters.iCalUID))
-        $delimiter:="&"
+        $URL.addQueryParameter("iCalUID"; String($inParameters.iCalUID))
     End if 
     If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-        $delimiter:="&"
+        $URL.addQueryParameter("maxAttendees"; Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
     End if 
     If (Not(Value type($inParameters.top)=Is undefined))
-        $urlParams+=($delimiter+"maxResults="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
-        $delimiter:="&"
+        $URL.addQueryParameter("maxResults"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
     End if 
     If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
-        $urlParams+=($delimiter+"orderBy="+String($inParameters.orderBy))
-        $delimiter:="&"
+        $URL.addQueryParameter("orderBy"; String($inParameters.orderBy))
     End if 
     If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-        $urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode(String($inParameters.search)))
-        $delimiter:="&"
+        $URL.addQueryParameter("q"; cs.Tools.me.urlEncode(String($inParameters.search)))
     End if 
     If (Not(Value type($inParameters.showDeleted)=Is undefined))
-        $urlParams+=($delimiter+"showDeleted="+Choose(Bool($inParameters.showDeleted); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("showDeleted"; Choose(Bool($inParameters.showDeleted); "true"; "false"))
     End if 
     If (Not(Value type($inParameters.showHiddenInvitations)=Is undefined))
-        $urlParams+=($delimiter+"showHiddenInvitations="+Choose(Bool($inParameters.showHiddenInvitations); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("showHiddenInvitations"; Choose(Bool($inParameters.showHiddenInvitations); "true"; "false"))
     End if 
     If (Not(Value type($inParameters.singleEvents)=Is undefined))
-        $urlParams+=($delimiter+"singleEvents="+Choose(Bool($inParameters.singleEvents); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("singleEvents"; Choose(Bool($inParameters.singleEvents); "true"; "false"))
     End if 
     If (Length(String($startDateTime))>0)
-        $urlParams+=($delimiter+"timeMin="+cs.Tools.me.urlEncode($startDateTime))
-        $delimiter:="&"
+        $URL.addQueryParameter("timeMin"; cs.Tools.me.urlEncode($startDateTime))
     End if 
     If (Length(String($endDateTime))>0)
-        $urlParams+=($delimiter+"timeMax="+cs.Tools.me.urlEncode($endDateTime))
-        $delimiter:="&"
+        $URL.addQueryParameter("timeMax"; cs.Tools.me.urlEncode($endDateTime))
     End if 
     If ((Value type($inParameters.updatedMin)=Is text) && (Length(String($inParameters.updatedMin))>0))
-        $urlParams+=($delimiter+"updatedMin="+String($inParameters.updatedMin))
-        $delimiter:="&"
+        $URL.addQueryParameter("updatedMin"; String($inParameters.updatedMin))
     End if 
     If ((Value type($inParameters.privateExtendedProperty)=Is text) && (Length(String($inParameters.privateExtendedProperty))>0))
-        $urlParams+=($delimiter+"privateExtendedProperty="+String($inParameters.privateExtendedProperty))
-        $delimiter:="&"
+        $URL.addQueryParameter("privateExtendedProperty"; String($inParameters.privateExtendedProperty))
     End if 
     If ((Value type($inParameters.sharedExtendedProperty)=Is text) && (Length(String($inParameters.sharedExtendedProperty))>0))
-        $urlParams+=($delimiter+"sharedExtendedProperty="+String($inParameters.sharedExtendedProperty))
-        $delimiter:="&"
+        $URL.addQueryParameter("sharedExtendedProperty"; String($inParameters.sharedExtendedProperty))
     End if 
-    $urlParams+=($delimiter+"timeZone="+cs.Tools.me.urlEncode($timeZone))
+    $URL.addQueryParameter("timeZone"; cs.Tools.me.urlEncode($timeZone))
     
     var $options : Object:={}
-    $options.url:=This._getURL()+$urlParams
+    $options.url:=$URL.toString()
     $options.headers:={Accept: "application/json"}
     $options.attributes:=["kind"; "etag"; "summary"; "calendarId"; "description"; "updated"; "timeZone"; "accessRole"; "defaultReminders"]
     
@@ -246,32 +223,26 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-    var $delimiter : Text:="?"
+    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
     
     If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
-        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
-        $delimiter:="&"
+        $URL.addQueryParameter("conferenceDataVersion"; Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
     End if 
     If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-        $delimiter:="&"
+        $URL.addQueryParameter("maxAttendees"; Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
     End if 
     If (Not(Value type($inParameters.sendNotifications)=Is undefined))
-        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("sendNotifications"; Choose(Bool($inParameters.sendNotifications); "true"; "false"))
     End if 
     If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
-        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
-        $delimiter:="&"
+        $URL.addQueryParameter("sendUpdates"; $inParameters.sendUpdates)  // "all", "externalOnly", "none"
     End if 
     If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
-        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("supportsAttachments"; Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; $inEvent)
     
     Super._throwErrors(True)
     
@@ -291,20 +262,17 @@ Function deleteEvent($inParameters : Object) : Object
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
     var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-    var $delimiter : Text:="?"
+    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
     
     If (Not(Value type($inParameters.sendNotifications)=Is undefined))
-        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
-        $delimiter:="&"
+        $URL.addQueryParameter("sendNotifications"; Choose(Bool($inParameters.sendNotifications); "true"; "false"))
     End if 
     If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
-        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
-        $delimiter:="&"
+        $URL.addQueryParameter("sendUpdates"; $inParameters.sendUpdates)  // "all", "externalOnly", "none"
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL.toString(); $headers)
     
     Super._throwErrors(True)
     
@@ -327,36 +295,30 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
     var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-    var $delimiter : Text:="?"
+    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
     var $bFullUpdate : Boolean:=False
     
-    If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
-        $urlParams+=($delimiter+"conferenceDataVersion="+Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
-        $delimiter:="&"
+    If (Value type($inParameters.conferenceDataVersion)#Is undefined)
+        $URL.addQueryParameter("conferenceDataVersion"; Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
     End if 
-    If (Not(Value type($inParameters.maxAttendees)=Is undefined))
-        $urlParams+=($delimiter+"maxAttendees="+Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
-        $delimiter:="&"
+    If (Value type($inParameters.maxAttendees)#Is undefined)
+        $URL.addQueryParameter("maxAttendees"; Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
     End if 
-    If (Not(Value type($inParameters.sendNotifications)=Is undefined))
-        $urlParams+=($delimiter+"sendNotifications="+Choose(Bool($inParameters.sendNotifications); "true"; "false"))
-        $delimiter:="&"
+    If (Value type($inParameters.sendNotifications)#Is undefined)
+        $URL.addQueryParameter("sendNotifications"; Choose(Bool($inParameters.sendNotifications); "true"; "false"))
     End if 
     If ((Value type($inParameters.sendUpdates)=Is text) && (Length(String($inParameters.sendUpdates))>0))
-        $urlParams+=($delimiter+"sendUpdates="+$inParameters.sendUpdates)  // "all", "externalOnly", "none"
-        $delimiter:="&"
+        $URL.addQueryParameter("sendUpdates"; $inParameters.sendUpdates)  // "all", "externalOnly", "none"
     End if 
-    If (Not(Value type($inParameters.supportsAttachments)=Is undefined))
-        $urlParams+=($delimiter+"supportsAttachments="+Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
-        $delimiter:="&"
+    If (Value type($inParameters.supportsAttachments)#Is undefined)
+        $URL.addQueryParameter("supportsAttachments"; Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
     End if 
-    If (Not(Value type($inParameters.fullUpdate)=Is undefined))
+    If (Value type($inParameters.fullUpdate)#Is undefined)
         $bFullUpdate:=Bool($inParameters.fullUpdate)
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse(bFullUpdate ? "PUT" : "PATCH"; $URL; $headers; $inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse($bFullUpdate ? "PUT" : "PATCH"; $URL.toString(); $headers; $inEvent)
     
     Super._throwErrors(True)
     

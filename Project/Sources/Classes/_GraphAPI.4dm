@@ -89,49 +89,41 @@ Function _loadFromObject($inObject : Object)
 	
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
-	var $urlParams : Text:=""
-	var $delimiter : Text:="?"
-
+	var $urlParams : cs.URL:=cs.URL.new("")
+	
 	If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-        $urlParams+=($delimiter+"$search="+$inParameters.search)
-        $delimiter:="&"
-    End if 
-    If ((Value type($inParameters.filter)=Is text) && (Length(String($inParameters.filter))>0))
-        $urlParams+=($delimiter+"$filter="+$inParameters.filter)
-        $delimiter:="&"
-    End if 
-    If (Not(Value type($inParameters.select)=Is undefined))
-        var $select : Text
-        Case of 
-            : (Value type($inParameters.select)=Is text)
-                $select:=$inParameters.select
-            : (Value type($inParameters.select)=Is collection)
-                $select:=$inParameters.select.join(","; ck ignore null or empty)
-            Else 
-                $select:=String($inParameters.select)
-        End case 
-        If (Length($select)>0)
-            $urlParams+=($delimiter+"$select="+$select)
-            $delimiter:="&"
-        End if 
-    End if 
-    If (Not(Value type($inParameters.top)=Is undefined))
-        $urlParams+=($delimiter+"$top="+Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
-        $delimiter:="&"
-    End if 
-    If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
-        $urlParams+=($delimiter+"$orderBy="+$inParameters.orderBy)
-        $delimiter:="&"
-    End if 
-
+		$urlParams.addQueryParameter("$search"; $inParameters.search)
+	End if 
+	If ((Value type($inParameters.filter)=Is text) && (Length(String($inParameters.filter))>0))
+		$urlParams.addQueryParameter("$filter"; $inParameters.filter)
+	End if 
+	If (Not(Value type($inParameters.select)=Is undefined))
+		var $select : Text
+		Case of 
+			: (Value type($inParameters.select)=Is text)
+				$select:=$inParameters.select
+			: (Value type($inParameters.select)=Is collection)
+				$select:=$inParameters.select.join(","; ck ignore null or empty)
+			Else 
+				$select:=String($inParameters.select)
+		End case 
+		If (Length($select)>0)
+			$urlParams.addQueryParameter("$select"; $select)
+		End if 
+	End if 
+	If (Not(Value type($inParameters.top)=Is undefined))
+		$urlParams.addQueryParameter("$top"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
+	End if 
+	If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
+		$urlParams.addQueryParameter("$orderBy"; $inParameters.orderBy)
+	End if 
+	
 	// Specific to .getFolder / .getFolderList
 	If (Bool($inParameters.includeHiddenFolders))
-		$urlParams+="/"+$delimiter+"includeHiddenFolders=true"
-		$delimiter:="&"
+		$urlParams.addQueryParameter("includeHiddenFolders"; "true")
 	End if 
 	If (Bool($inCount))
-		$urlParams+=$delimiter+"$count=true"
-		$delimiter:="&"
+		$urlParams.addQueryParameter("$count"; "true")
 	End if 
-
-	return $urlParams
+	
+	return $urlParams.toString()

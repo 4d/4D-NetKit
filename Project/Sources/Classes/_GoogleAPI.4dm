@@ -4,7 +4,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	Super($inProvider)
 	
-	This._internals._URL:=(Length(String($inBaseURL)) > 0) ? $inBaseURL : "https://gmail.googleapis.com/gmail/v1/"
+	This._internals._URL:=(Length(String($inBaseURL))>0) ? $inBaseURL : "https://gmail.googleapis.com/gmail/v1/"
 	
 	
 	// ----------------------------------------------------
@@ -12,36 +12,40 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams : Text:=""
-	var $delimiter : Text:="?"
+	var $urlParams : cs.URL:=cs.URL.new("")
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams+=($delimiter+"q="+cs.Tools.me.urlEncode($inParameters.search))
-		$delimiter:="&"
+		$urlParams.addQueryParameter("q"; cs.Tools.me.urlEncode($inParameters.search))
 	End if 
 	If (Value type($inParameters.top)#Is undefined)
-		$urlParams+=($delimiter+"maxResults="+String($inParameters.top))
-		$delimiter:="&"
+		$urlParams.addQueryParameter("maxResults"; String($inParameters.top))
 	End if 
 	If (Value type($inParameters.includeSpamTrash)=Is boolean)
-		$urlParams+=($delimiter+"includeSpamTrash="+($inParameters.includeSpamTrash ? "true" : "false"))
-		$delimiter:="&"
+		$urlParams.addQueryParameter("includeSpamTrash"; ($inParameters.includeSpamTrash ? "true" : "false"))
 	End if 
 	If (Value type($inParameters.labelIds)=Is collection)
-		$urlParams+=($delimiter+"labelIds="+$inParameters.labelIds.join("&labelIds="; ck ignore null or empty))
-		$delimiter:="&"
+		var $labelId : Text
+		For each ($labelId; $inParameters.labelIds)
+			If (Length($labelId)>0)
+				$urlParams.addQueryParameter("labelIds"; $labelId)
+			End if 
+		End for each 
 	End if 
 	If (Length(String($inParameters.format))>0)
 		var $format : Text:=String($inParameters.format)
 		$format:=(($format="minimal") || ($format="metadata")) ? $format : "raw"
 		If (($format="metadata") && (Value type($inParameters.headers)=Is collection))
-			$urlParams+=($delimiter+"metadataHeaders="+$inParameters.headers.join("&metadataHeaders="; ck ignore null or empty))
-			$delimiter:="&"
+			var $header : Text
+			For each ($header; $inParameters.headers)
+				If (Length($header)>0)
+					$urlParams.addQueryParameter("metadataHeaders"; $header)
+				End if 
+			End for each 
 		End if 
-		$urlParams+=($delimiter+"format="+$format)
+		$urlParams.addQueryParameter("format"; $format)
 	End if 
 	
-	return $urlParams
+	return $urlParams.toString()
 	
 	
 	// ----------------------------------------------------
