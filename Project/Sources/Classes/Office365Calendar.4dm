@@ -52,34 +52,35 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     // ----------------------------------------------------
     
     
+Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
+    
+    var $dateTime : cs.DateTime
+    var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
+    Case of 
+        : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
+            return $dateTime.getGraphDateTime()
+        : (Value type($inObject[$inName].dateTime)=Is text)
+            $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            return $dateTime.getGraphDateTime()
+    End case 
+    
+    return $inObject[$inName]
+    
+    
+    // ----------------------------------------------------
+    
+    
 Function _conformEvent($inObject : Object) : Object
     
     var $event : Object:=$inObject
-    var $dateTime : cs.DateTime
-    var $timeZone : Text:=""
     
     If (OB Is defined($event; "end"))
-        $timeZone:=((Value type($event.end.timeZone)=Is text) && (Length($event.end.timeZone)>0)) ? String($event.end.timeZone) : ""
-        Case of 
-            : ((Value type($event.end.date)=Is date) && (Value type($event.end.time)=Is time))
-                $dateTime:=cs.DateTime.new({date: $event.end.date; time: $event.end.time; timeZone: $timeZone})
-                $event.end:=$dateTime.getGraphDateTime()
-            : (Value type($event.end.dateTime)=Is text)
-                $dateTime:=cs.DateTime.new({dateTime: $event.end.dateTime; timeZone: $timeZone})
-                $event.end:=$dateTime.getGraphDateTime()
-        End case 
+        $event.end:=This._conformEventDateTime($event; "end")
     End if 
     
     If (OB Is defined($event; "start"))
-        $timeZone:=((Value type($event.start.timeZone)=Is text) && (Length($event.start.timeZone)>0)) ? String($event.start.timeZone) : ""
-        Case of 
-            : ((Value type($event.start.date)=Is date) && (Value type($event.start.time)=Is time))
-                $dateTime:=cs.DateTime.new({date: $event.start.date; time: $event.start.time; timeZone: $timeZone})
-                $event.start:=$dateTime.getGraphDateTime()
-            : (Value type($event.start.dateTime)=Is text)
-                $dateTime:=cs.DateTime.new({dateTime: $event.start.dateTime; timeZone: $timeZone})
-                $event.start:=$dateTime.getGraphDateTime()
-        End case 
+        $event.start:=This._conformEventDateTime($event; "start")
     End if 
     
     If (OB Is defined($event; "calendarId"))

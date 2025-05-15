@@ -19,7 +19,7 @@ Class constructor( ...  : Variant)
 					This.date:=$1
 					This.time:=?00:00:00?
 					
-				: (Value type($1)=Is time)  // no date, time
+				: ((Value type($1)=Is real) || (Value type($1)=Is time))  // no date, time
 					This.time:=$1
 					This.date:=!00-00-00!
 					
@@ -33,13 +33,10 @@ Class constructor( ...  : Variant)
 							This.date:=Date($1.dateTime)
 							This.time:=Time($1.dateTime)
 							
-						: (Value type($1.date)=Is date) && (Value type($1.time)=Is time)  // date and time
-							This.date:=$1.date
-							This.time:=$1.time
+						: (Value type($1.date)#Is undefined) && (Value type($1.time)#Is undefined)  // date and time
+							This.date:=Date($1.date)
+							This.time:=Time($1.time)
 							
-						: (Value type($1.time)=Is date) && (Value type($1.date)=Is time)  // time and date
-							This.time:=$1.time
-							This.date:=$1.date
 					End case 
 					If (Value type($1.timeZone)=Is text)
 						This.timeZone:=String($1.timeZone)
@@ -48,13 +45,9 @@ Class constructor( ...  : Variant)
 			
 		: (Count parameters>=2)
 			Case of 
-				: (Value type($1)=Is date) && (Value type($2)=Is time)  // date and time
+				: (Value type($1)=Is date) && ((Value type($2)=Is real) || (Value type($2)=Is time))  // date and time
 					This.date:=$1
 					This.time:=$2
-					
-				: (Value type($1)=Is time) && (Value type($2)=Is date)  // time and date
-					This.time:=$1
-					This.date:=$2
 					
 				: (Value type($1)=Is text) && (Value type($2)=Is text)  // timestamp string and timezone string
 					This.date:=Date($1)
