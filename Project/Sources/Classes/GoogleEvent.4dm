@@ -10,7 +10,7 @@ property eventType : Text
 Class constructor($inObject : Object)
     
     Super()
-
+    This._internals._attachments:=[]
     var $key : Text
     var $keys : Collection:=OB Keys($inObject)
     For each ($key; $keys)
@@ -21,7 +21,7 @@ Class constructor($inObject : Object)
         End if 
     End for each 
     
-    This._internals._update:=((Value type(This._internals._attachments)=Is collection) && (Int(This._internals._attachments.length)>0)) ? True : False
+    This._internals._update:=(This._internals._attachments.length>0) ? True : False
     
     
     // Mark: - [Public]
