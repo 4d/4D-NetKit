@@ -12,22 +12,22 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams : cs.URL:=cs.URL.new("")
+	var $URLParams : cs.URL:=cs.URL.new()
 	
 	If (Length(String($inParameters.search))>0)
-		$urlParams.addQueryParameter("q"; cs.Tools.me.urlEncode($inParameters.search))
+		$URLParams.addQueryParameter("q"; cs.Tools.me.urlEncode($inParameters.search))
 	End if 
 	If (Value type($inParameters.top)#Is undefined)
-		$urlParams.addQueryParameter("maxResults"; String($inParameters.top))
+		$URLParams.addQueryParameter("maxResults"; String($inParameters.top))
 	End if 
 	If (Value type($inParameters.includeSpamTrash)=Is boolean)
-		$urlParams.addQueryParameter("includeSpamTrash"; ($inParameters.includeSpamTrash ? "true" : "false"))
+		$URLParams.addQueryParameter("includeSpamTrash"; ($inParameters.includeSpamTrash ? "true" : "false"))
 	End if 
 	If (Value type($inParameters.labelIds)=Is collection)
 		var $labelId : Text
 		For each ($labelId; $inParameters.labelIds)
 			If (Length($labelId)>0)
-				$urlParams.addQueryParameter("labelIds"; $labelId)
+				$URLParams.addQueryParameter("labelIds"; $labelId)
 			End if 
 		End for each 
 	End if 
@@ -38,14 +38,14 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 			var $header : Text
 			For each ($header; $inParameters.headers)
 				If (Length($header)>0)
-					$urlParams.addQueryParameter("metadataHeaders"; $header)
+					$URLParams.addQueryParameter("metadataHeaders"; $header)
 				End if 
 			End for each 
 		End if 
-		$urlParams.addQueryParameter("format"; $format)
+		$URLParams.addQueryParameter("format"; $format)
 	End if 
 	
-	return $urlParams.toString()
+	return $URLParams.toString()
 	
 	
 	// ----------------------------------------------------

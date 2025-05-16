@@ -15,8 +15,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
-    var $URLString : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
-    var $URL : cs.URL:=cs.URL.new($URLString)
+    var $URL : cs.URL:=cs.URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
     var $dateTime : cs.DateTime
@@ -133,8 +132,7 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
             End if 
             $URLString+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)+"/attachments"
             
-            var $URL : cs.URL:=cs.URL.new($URLString)
-            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; $inAttachement)
+            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $inAttachement)
             
             return This._returnStatus($response)
     End case 
@@ -167,8 +165,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
         $URLString+=Super._getURLParamsFromObject({select: $inSelect})
     End if 
     
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
-    var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL.toString())
+    var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString)
     
     If (Value type($response)=Is object)
         return Super._cleanGraphObject($response)
@@ -199,8 +196,7 @@ Function getCalendars($inParameters : Object) : Object
         $headers.ConsistencyLevel:="eventual"
     End if 
     
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
-    var $result : cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL.toString(); $headers)
+    var $result : cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); This._getURL()+$URLString; $headers)
     
     Super._throwErrors(True)
     
@@ -268,8 +264,7 @@ Function getEvent($inParameters : Object) : Object
                 $headers.Prefer:=$prefer
             End if 
             
-            var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
-            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers))
+            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString; $headers))
             
             If (Value type($result)=Is object)
                 var $options : Object:={userId: This.userId; calendarId: String($inParameters.calendarId); eventId: String($inParameters.eventId)}
@@ -342,8 +337,7 @@ Function getEvents($inParameters : Object) : Object
                 $headers.ConsistencyLevel:="eventual"
             End if 
             
-            var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
-            var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL.toString(); $headers)
+            var $result : cs.GraphEventList:=cs.GraphEventList.new(This; This._getURL()+$URLString; $headers)
             
             If (Not(OB Is defined($result; "calendarId")) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
                 $result.calendarId:=$inParameters.calendarId
@@ -402,7 +396,6 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     $URLString+="/events"
     
-    var $URL : cs.URL:=cs.URL.new($URLString)
     var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
@@ -411,7 +404,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         OB REMOVE($event; "attachments")
     End if 
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; $event)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $event)
     
     If ((Value type($attachments)=Is collection) && ($attachments.length>0))
         
@@ -483,8 +476,7 @@ Function deleteEvent($inParameters : Object) : Object
         $URLString+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
     End if 
     
-    var $URL : cs.URL:=cs.URL.new($URLString)
-    Super._sendRequestAndWaitResponse("DELETE"; $URL.toString(); $headers)
+    Super._sendRequestAndWaitResponse("DELETE"; $URLString; $headers)
     
     Super._throwErrors(True)
     
@@ -546,7 +538,6 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     $URLString+="/events/"+cs.Tools.me.urlEncode($eventId)
     
-    var $URL : cs.URL:=cs.URL.new($URLString)
     var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null
     
@@ -555,7 +546,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
         OB REMOVE($event; "attachments")
     End if 
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("PATCH"; $URL.toString(); $headers; $event)
+    var $response : Object:=Super._sendRequestAndWaitResponse("PATCH"; $URLString; $headers; $event)
     
     If ((Value type($attachments)=Is collection) && ($attachments.length>0))
         

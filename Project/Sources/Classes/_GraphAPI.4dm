@@ -89,13 +89,13 @@ Function _loadFromObject($inObject : Object)
 	
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
-	var $urlParams : cs.URL:=cs.URL.new("")
+	var $URLParams : cs.URL:=cs.URL.new()
 	
 	If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
-		$urlParams.addQueryParameter("$search"; $inParameters.search)
+		$URLParams.addQueryParameter("$search"; $inParameters.search)
 	End if 
 	If ((Value type($inParameters.filter)=Is text) && (Length(String($inParameters.filter))>0))
-		$urlParams.addQueryParameter("$filter"; $inParameters.filter)
+		$URLParams.addQueryParameter("$filter"; $inParameters.filter)
 	End if 
 	If (Not(Value type($inParameters.select)=Is undefined))
 		var $select : Text
@@ -108,22 +108,22 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
 				$select:=String($inParameters.select)
 		End case 
 		If (Length($select)>0)
-			$urlParams.addQueryParameter("$select"; $select)
+			$URLParams.addQueryParameter("$select"; $select)
 		End if 
 	End if 
 	If (Not(Value type($inParameters.top)=Is undefined))
-		$urlParams.addQueryParameter("$top"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
+		$URLParams.addQueryParameter("$top"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
 	End if 
 	If ((Value type($inParameters.orderBy)=Is text) && (Length(String($inParameters.orderBy))>0))
-		$urlParams.addQueryParameter("$orderBy"; $inParameters.orderBy)
+		$URLParams.addQueryParameter("$orderBy"; $inParameters.orderBy)
 	End if 
 	
 	// Specific to .getFolder / .getFolderList
 	If (Bool($inParameters.includeHiddenFolders))
-		$urlParams.addQueryParameter("includeHiddenFolders"; "true")
+		$URLParams.addQueryParameter("includeHiddenFolders"; "true")
 	End if 
 	If (Bool($inCount))
-		$urlParams.addQueryParameter("$count"; "true")
+		$URLParams.addQueryParameter("$count"; "true")
 	End if 
 	
-	return $urlParams.toString()
+	return $URLParams.toString()

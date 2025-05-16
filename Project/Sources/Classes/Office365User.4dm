@@ -67,6 +67,7 @@ Function list($inParameters : Object) : Object
 	
 	var $headers : Object
 	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
+	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)
 		$URL.addQueryParameter("$search"; $inParameters.search)
@@ -84,8 +85,9 @@ Function list($inParameters : Object) : Object
 	If (Length(String($inParameters.orderBy))>0)
 		$URL.addQueryParameter("$orderBy"; $inParameters.orderBy)
 	End if 
+	$URLString:=$URL.toString()
 	
-	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL.toString(); $headers)
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URLString; $headers)
 	
 	
 	// ----------------------------------------------------
@@ -95,6 +97,7 @@ Function count($inParameters : Object) : Object
 	
 	var $headers : Object
 	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
+	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)
 		$URL.addQueryParameter("$search"; $inParameters.search)
@@ -114,6 +117,7 @@ Function count($inParameters : Object) : Object
 	End if 
 	$URL.addQueryParameter("$count"; "true")
 	$headers:={ConsistencyLevel: "eventual"}
+	$URLString:=$URL.toString()
 
-	return cs.GraphUserList.new(This._getOAuth2Provider(); $URL.toString(); $headers)
+	return cs.GraphUserList.new(This._getOAuth2Provider(); $URLString; $headers)
 	

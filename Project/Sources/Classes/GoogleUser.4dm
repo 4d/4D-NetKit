@@ -46,7 +46,7 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $urlParams : cs.URL:=cs.URL.new("")
+	var $urlParams : cs.URL:=cs.URL.new()
 	var $personFields : Text
 	var $sources : Collection:=Null
 	var $mergeSources : Collection:=Null

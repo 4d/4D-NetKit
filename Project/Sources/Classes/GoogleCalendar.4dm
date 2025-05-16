@@ -46,8 +46,7 @@ Function getCalendars($inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $headers : Object:={Accept: "application/json"}
-    var $URLString : Text:="users/me/calendarList"
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+"users/me/calendarList")
     
     If (Not(Value type($inParameters.top)=Is undefined))
         $URL.addQueryParameter("maxResults"; Choose(Value type($inParameters.top)=Is text; $inParameters.top; String($inParameters.top)))
@@ -101,15 +100,15 @@ Function getEvent($inParameters : Object) : Object
             var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
             var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
             var $headers : Object:={Accept: "application/json"}
-            var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-            var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+            var $URL : cs.URL:=cs.URL.new(This._getURL()+"calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId))
             
             If (Not(Value type($inParameters.maxAttendees)=Is undefined))
                 $URL.addQueryParameter("maxAttendees"; Choose(Value type($inParameters.maxAttendees)=Is text; $inParameters.maxAttendees; String($inParameters.maxAttendees)))
             End if 
             $URL.addQueryParameter("timeZone"; cs.Tools.me.urlEncode($timeZone))
             
-            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers)
+            var $URLString : Text:=$URL.toString()
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URLString; $headers)
             
             return cs.GoogleEvent.new($response)
             
@@ -129,8 +128,7 @@ Function getEvents($inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
-    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+"calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events")
     var $timeZone : Text:=(Length(String($inParameters.timeZone))>0) ? String($inParameters.timeZone) : "UTC"
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
@@ -223,8 +221,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $headers : Object:={Accept: "application/json"}
-    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events"
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+"calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events")
     
     If (Not(Value type($inParameters.conferenceDataVersion)=Is undefined))
         $URL.addQueryParameter("conferenceDataVersion"; Choose(Value type($inParameters.conferenceDataVersion)=Is text; $inParameters.conferenceDataVersion; String($inParameters.conferenceDataVersion)))
@@ -242,7 +239,8 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         $URL.addQueryParameter("supportsAttachments"; Choose(Bool($inParameters.supportsAttachments); "true"; "false"))
     End if 
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; $inEvent)
+    var $URLString : Text:=$URL.toString()
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $inEvent)
     
     Super._throwErrors(True)
     
@@ -262,8 +260,7 @@ Function deleteEvent($inParameters : Object) : Object
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inParameters.eventId))>0) ? $inParameters.eventId : ""
     var $headers : Object:={Accept: "application/json"}
-    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+"calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId))
     
     If (Not(Value type($inParameters.sendNotifications)=Is undefined))
         $URL.addQueryParameter("sendNotifications"; Choose(Bool($inParameters.sendNotifications); "true"; "false"))
@@ -272,7 +269,8 @@ Function deleteEvent($inParameters : Object) : Object
         $URL.addQueryParameter("sendUpdates"; $inParameters.sendUpdates)  // "all", "externalOnly", "none"
     End if 
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL.toString(); $headers)
+    var $URLString : Text:=$URL.toString()
+    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URLString; $headers)
     
     Super._throwErrors(True)
     
@@ -295,8 +293,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     var $calendarId : Text:=(Length(String($inParameters.calendarId))>0) ? $inParameters.calendarId : "primary"
     var $eventId : Text:=(Length(String($inEvent.id))>0) ? $inEvent.id : ""
     var $headers : Object:={Accept: "application/json"}
-    var $URLString : Text:="calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId)
-    var $URL : cs.URL:=cs.URL.new(This._getURL()+$URLString)
+    var $URL : cs.URL:=cs.URL.new(This._getURL()+"calendars/"+cs.Tools.me.urlEncode($calendarID)+"/events/"+cs.Tools.me.urlEncode($eventId))
     var $bFullUpdate : Boolean:=False
     
     If (Value type($inParameters.conferenceDataVersion)#Is undefined)
@@ -318,7 +315,8 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
         $bFullUpdate:=Bool($inParameters.fullUpdate)
     End if 
     
-    var $response : Object:=Super._sendRequestAndWaitResponse($bFullUpdate ? "PUT" : "PATCH"; $URL.toString(); $headers; $inEvent)
+    var $URLString : Text:=$URL.toString()
+    var $response : Object:=Super._sendRequestAndWaitResponse($bFullUpdate ? "PUT" : "PATCH"; $URLString; $headers; $inEvent)
     
     Super._throwErrors(True)
     
