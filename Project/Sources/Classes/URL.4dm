@@ -1,11 +1,11 @@
-property scheme : Text
-property username : Text
-property password : Text
-property host : Text
-property _port : Integer
-property _path : Text
-property queryParams : Collection
-property ref : Text
+property scheme : Text:=""
+property username : Text:=""
+property password : Text:=""
+property host : Text:=""
+property _port : Integer:=0
+property _path : Text:=""
+property queryParams : Collection:=[]
+property ref : Text:=""
 
 Class constructor($inParam : Variant)
     
@@ -38,114 +38,183 @@ Function parse($inURL : Text)
     // ref: ref
     // queryParams: [{name: "query"; value: "param"}]
     
-    var $urlWithoutScheme : Text
-    
-    // Initialize properties
-    This.scheme:=""
-    This.username:=""
-    This.password:=""
-    This.host:=""
-    This._path:=""
-    This.queryParams:=[]
-    This.ref:=""
-    This._port:=0
-    
-    // Extract scheme
-    var $urlComponents : Collection:=Split string($inURL; "://"; sk ignore empty strings)
-    If ($urlComponents.length>1)
-        This.scheme:=$urlComponents[0]
-        $urlWithoutScheme:=$urlComponents[1]
-    Else 
-        $urlWithoutScheme:=$inURL
-    End if 
-    
-    // Extract host and port
-    var $userInfoIndex : Integer:=Position("@"; $urlWithoutScheme)
-    var $portIndex : Integer:=Position(":"; $urlWithoutScheme; $userInfoIndex)
-    var $pathIndex : Integer:=Position("/"; $urlWithoutScheme)
-    var $queryIndex : Integer:=Position("?"; $urlWithoutScheme)
-    var $hashIndex : Integer:=Position("#"; $urlWithoutScheme)
-    If (($portIndex>0) && (($pathIndex=0) || ($portIndex<$pathIndex)))
-        This.host:=Substring($urlWithoutScheme; 1; $portIndex-1)
-        $urlWithoutScheme:=Substring($urlWithoutScheme; $portIndex+1)
-        If ($pathIndex>0)
-            This._port:=Num(Substring($urlWithoutScheme; 1; $pathIndex-$portIndex-1))
-            $urlWithoutScheme:=Substring($urlWithoutScheme; $pathIndex-$portIndex)
+    If (Length($inURL)>0)
+        
+        // See: https://www.rfc-editor.org/rfc/rfc3986#appendix-B
+        
+        // Group1= "https:" 
+        // Group2= "https"
+        // Group3= "//username:password@www.example.com:8080"
+        // Group4= "username:password@www.example.com:8080"
+        // Group5= "/path/to/resource"
+        // Group6= "?query=param"
+        // Group7= "query=param"
+        // Group8= "#ref"
+        // Group9= "ref"
+        
+        ARRAY LONGINT($foundPos; 0)
+        ARRAY LONGINT($foundLen; 0)
+        
+        var $pattern : Text:="^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"
+        var $userInfoIndex : Integer:=0
+        var $portIndex : Integer:=0
+        var $pathIndex : Integer:=0
+        var $queryIndex : Integer:=0
+        var $hashIndex : Integer:=0
+        var $userInfo : Text
+        var $userInfoComponents : Collection
+        
+        If (Try(Match regex($pattern; $inURL; 1; $foundPos; $foundLen)))
+            If (Size of array($foundPos)>8)
+                
+                // Extract scheme
+                If ($foundPos{2}>0)
+                    This.scheme:=Substring($inURL; $foundPos{2}; $foundLen{2})
+                End if 
+                
+                // Extract host
+                If ($foundPos{4}>0)
+                    var $host : Text:=Substring($inURL; $foundPos{4}; $foundLen{4})
+                    $userInfoIndex:=Position("@"; $host)
+                    If ($userInfoIndex>0)
+                        $userInfo:=Substring($host; 1; $userInfoIndex-1)
+                        $host:=Substring($host; $userInfoIndex+1)
+                        $userInfoComponents:=Split string($userInfo; ":"; sk ignore empty strings)
+                        If ($userInfoComponents.length>0)
+                            This.username:=$userInfoComponents[0]
+                            If ($userInfoComponents.length>1)
+                                This.password:=$userInfoComponents[1]
+                            End if 
+                        End if 
+                    End if 
+                    $portIndex:=Position(":"; $host; $userInfoIndex)
+                    If ($portIndex>0)
+                        This._port:=Num(Substring($host; $portIndex+1))
+                        This.host:=Substring($host; 1; $portIndex-1)
+                    Else 
+                        This.host:=$host
+                    End if 
+                End if 
+                
+                // Extract path
+                If ($foundPos{5}>0)
+                    This._path:=Substring($inURL; $foundPos{5}; $foundLen{5})
+                End if 
+                
+                // Extract query
+                If ($foundPos{7}>0)
+                    This.query:=Substring($inURL; $foundPos{7}; $foundLen{7})
+                End if 
+                
+                // Extract ref
+                If ($foundPos{9}>0)
+                    This.ref:=Substring($inURL; $foundPos{9}; $foundLen{9})
+                End if 
+            End if 
+            
         Else 
-            This._port:=Num($urlWithoutScheme)
-            $urlWithoutScheme:=""
-        End if 
-    Else 
-        If ($pathIndex>0)
-            This.host:=Substring($urlWithoutScheme; 1; $pathIndex-1)
-            $urlWithoutScheme:=Substring($urlWithoutScheme; $pathIndex)
-        Else 
+            // Fallback to manual parsing if regex fails 
+            
+            var $urlWithoutScheme : Text
+            
+            // Extract scheme
+            var $urlComponents : Collection:=Split string($inURL; "://"; sk ignore empty strings)
+            If ($urlComponents.length>1)
+                This.scheme:=$urlComponents[0]
+                $urlWithoutScheme:=$urlComponents[1]
+            Else 
+                $urlWithoutScheme:=$inURL
+            End if 
+            
+            // Extract host and port
+            $userInfoIndex:=Position("@"; $urlWithoutScheme)
+            $portIndex:=Position(":"; $urlWithoutScheme; $userInfoIndex)
+            $pathIndex:=Position("/"; $urlWithoutScheme)
+            $queryIndex:=Position("?"; $urlWithoutScheme)
+            $hashIndex:=Position("#"; $urlWithoutScheme)
+            If (($portIndex>0) && (($pathIndex=0) || ($portIndex<$pathIndex)))
+                This.host:=Substring($urlWithoutScheme; 1; $portIndex-1)
+                $urlWithoutScheme:=Substring($urlWithoutScheme; $portIndex+1)
+                If ($pathIndex>0)
+                    This._port:=Num(Substring($urlWithoutScheme; 1; $pathIndex-$portIndex-1))
+                    $urlWithoutScheme:=Substring($urlWithoutScheme; $pathIndex-$portIndex)
+                Else 
+                    This._port:=Num($urlWithoutScheme)
+                    $urlWithoutScheme:=""
+                End if 
+            Else 
+                If ($pathIndex>0)
+                    This.host:=Substring($urlWithoutScheme; 1; $pathIndex-1)
+                    $urlWithoutScheme:=Substring($urlWithoutScheme; $pathIndex)
+                Else 
+                    If ($queryIndex>0)
+                        This.host:=Substring($urlWithoutScheme; 1; $queryIndex-1)
+                        $urlWithoutScheme:=Substring($urlWithoutScheme; $queryIndex)
+                    Else 
+                        If (hashIndex>0)
+                            This.host:=Substring($urlWithoutScheme; 1; $hashIndex-1)
+                            $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
+                        Else 
+                            // No port, path, or query/hash
+                            // Set host to the entire URL without scheme
+                            This.host:=$urlWithoutScheme
+                            $urlWithoutScheme:=""
+                        End if 
+                    End if 
+                End if 
+            End if 
+            
+            // Extract username and password
+            $userInfoIndex:=Position("@"; This.host)
+            If ($userInfoIndex>0)
+                $userInfo:=Substring(This.host; 1; $userInfoIndex-1)
+                This.host:=Substring(This.host; $userInfoIndex+1)
+                $userInfoComponents:=Split string($userInfo; ":"; sk ignore empty strings)
+                If ($userInfoComponents.length>0)
+                    This.username:=$userInfoComponents[0]
+                    If ($userInfoComponents.length>1)
+                        This.password:=$userInfoComponents[1]
+                    End if 
+                End if 
+            End if 
+            
+            // Extract path
+            $queryIndex:=Position("?"; $urlWithoutScheme)
+            $hashIndex:=Position("#"; $urlWithoutScheme)
             If ($queryIndex>0)
-                This.host:=Substring($urlWithoutScheme; 1; $queryIndex-1)
+                This._path:=Substring($urlWithoutScheme; 1; $queryIndex-1)
                 $urlWithoutScheme:=Substring($urlWithoutScheme; $queryIndex)
             Else 
-                If (hashIndex>0)
-                    This.host:=Substring($urlWithoutScheme; 1; $hashIndex-1)
+                If ($hashIndex>0)
+                    This._path:=Substring($urlWithoutScheme; 1; $hashIndex-1)
                     $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
                 Else 
-                    // No port, path, or query/hash
-                    // Set host to the entire URL without scheme
-                    This.host:=$urlWithoutScheme
+                    This._path:=$urlWithoutScheme
                     $urlWithoutScheme:=""
                 End if 
             End if 
-        End if 
-    End if 
-    
-    // Extract username and password
-    $userInfoIndex:=Position("@"; This.host)
-    If ($userInfoIndex>0)
-        var $userInfo : Text:=Substring(This.host; 1; $userInfoIndex-1)
-        This.host:=Substring(This.host; $userInfoIndex+1)
-        var $userInfoComponents : Collection:=Split string($userInfo; ":"; sk ignore empty strings)
-        If ($userInfoComponents.length>0)
-            This.username:=$userInfoComponents[0]
-            If ($userInfoComponents.length>1)
-                This.password:=$userInfoComponents[1]
+            
+            // Extract query
+            If (Position("?"; $urlWithoutScheme)>0)
+                var $query : Text
+                $hashIndex:=Position("#"; $urlWithoutScheme)
+                If ($hashIndex>0)
+                    $query:=Substring($urlWithoutScheme; 2; $hashIndex-2)
+                    $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
+                Else 
+                    $query:=Substring($urlWithoutScheme; 2)
+                    $urlWithoutScheme:=""
+                End if 
+                If (Length($query)>0)
+                    This.parseQuery($query)
+                End if 
+            End if 
+            
+            // Extract hash
+            If (Position("#"; $urlWithoutScheme)>0)
+                This.ref:=Substring($urlWithoutScheme; 2)
             End if 
         End if 
-    End if 
-    
-    // Extract path
-    $queryIndex:=Position("?"; $urlWithoutScheme)
-    $hashIndex:=Position("#"; $urlWithoutScheme)
-    If ($queryIndex>0)
-        This._path:=Substring($urlWithoutScheme; 1; $queryIndex-1)
-        $urlWithoutScheme:=Substring($urlWithoutScheme; $queryIndex)
-    Else 
-        If ($hashIndex>0)
-            This._path:=Substring($urlWithoutScheme; 1; $hashIndex-1)
-            $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
-        Else 
-            This._path:=$urlWithoutScheme
-            $urlWithoutScheme:=""
-        End if 
-    End if 
-    
-    // Extract query
-    If (Position("?"; $urlWithoutScheme)>0)
-        var $query : Text
-        $hashIndex:=Position("#"; $urlWithoutScheme)
-        If ($hashIndex>0)
-            $query:=Substring($urlWithoutScheme; 2; $hashIndex-2)
-            $urlWithoutScheme:=Substring($urlWithoutScheme; $hashIndex)
-        Else 
-            $query:=Substring($urlWithoutScheme; 2)
-            $urlWithoutScheme:=""
-        End if 
-        If (Length($query)>0)
-            This.parseQuery($query)
-        End if 
-    End if 
-    
-    // Extract hash
-    If (Position("#"; $urlWithoutScheme)>0)
-        This.ref:=Substring($urlWithoutScheme; 2)
     End if 
     
     
@@ -161,6 +230,7 @@ Function parseQuery($inQueryString : Text)
     
     var $queryString : Text:=$inQueryString
     
+    This.queryParams:=[]
     If (Position("?"; $queryString)=1)
         $queryString:=Substring($queryString; 2)
     End if 
