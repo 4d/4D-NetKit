@@ -22,6 +22,22 @@ Class constructor($inParam : Variant)
     // ----------------------------------------------------
     
     
+Function _clear()
+    
+    This.scheme:=""
+    This.username:=""
+    This.password:=""
+    This.host:=""
+    This._port:=0
+    This._path:=""
+    This.queryParams:=[]
+    This.ref:=""
+    
+    
+    // Mark: - [Public]
+    // ----------------------------------------------------
+    
+    
 Function parse($inURL : Text)
     
     // Parse the URL into its components
@@ -37,6 +53,8 @@ Function parse($inURL : Text)
     // query: query=param
     // ref: ref
     // queryParams: [{name: "query"; value: "param"}]
+    
+    This._clear()
     
     If (Length($inURL)>0)
         
@@ -62,7 +80,7 @@ Function parse($inURL : Text)
         var $queryIndex : Integer:=0
         var $hashIndex : Integer:=0
         var $userInfo : Text
-        var $userInfoComponents : Collection
+        var $URLComponents : Collection
         
         If (Try(Match regex($pattern; $inURL; 1; $foundPos; $foundLen)))
             If (Size of array($foundPos)>8)
@@ -79,18 +97,20 @@ Function parse($inURL : Text)
                     If ($userInfoIndex>0)
                         $userInfo:=Substring($host; 1; $userInfoIndex-1)
                         $host:=Substring($host; $userInfoIndex+1)
-                        $userInfoComponents:=Split string($userInfo; ":"; sk ignore empty strings)
-                        If ($userInfoComponents.length>0)
-                            This.username:=$userInfoComponents[0]
-                            If ($userInfoComponents.length>1)
-                                This.password:=$userInfoComponents[1]
+                        $URLComponents:=Split string($userInfo; ":"; sk ignore empty strings)
+                        If ($URLComponents.length>0)
+                            This.username:=$URLComponents[0]
+                            If ($URLComponents.length>1)
+                                This.password:=$URLComponents[1]
                             End if 
                         End if 
                     End if 
-                    $portIndex:=Position(":"; $host; $userInfoIndex)
-                    If ($portIndex>0)
-                        This._port:=Num(Substring($host; $portIndex+1))
-                        This.host:=Substring($host; 1; $portIndex-1)
+                    $URLComponents:=Split string($host; ":"; sk ignore empty strings)
+                    If ($URLComponents.length>0)
+                        This.host:=$URLComponents[0]
+                        If ($URLComponents.length>1)
+                            This._port:=Num($URLComponents[1])
+                        End if 
                     Else 
                         This.host:=$host
                     End if 
@@ -118,10 +138,10 @@ Function parse($inURL : Text)
             var $urlWithoutScheme : Text
             
             // Extract scheme
-            var $urlComponents : Collection:=Split string($inURL; "://"; sk ignore empty strings)
-            If ($urlComponents.length>1)
-                This.scheme:=$urlComponents[0]
-                $urlWithoutScheme:=$urlComponents[1]
+            $URLComponents:=Split string($inURL; "://"; sk ignore empty strings)
+            If ($URLComponents.length>1)
+                This.scheme:=$URLComponents[0]
+                $urlWithoutScheme:=$URLComponents[1]
             Else 
                 $urlWithoutScheme:=$inURL
             End if 
@@ -169,11 +189,11 @@ Function parse($inURL : Text)
             If ($userInfoIndex>0)
                 $userInfo:=Substring(This.host; 1; $userInfoIndex-1)
                 This.host:=Substring(This.host; $userInfoIndex+1)
-                $userInfoComponents:=Split string($userInfo; ":"; sk ignore empty strings)
-                If ($userInfoComponents.length>0)
-                    This.username:=$userInfoComponents[0]
-                    If ($userInfoComponents.length>1)
-                        This.password:=$userInfoComponents[1]
+                $URLComponents:=Split string($userInfo; ":"; sk ignore empty strings)
+                If ($URLComponents.length>0)
+                    This.username:=$URLComponents[0]
+                    If ($URLComponents.length>1)
+                        This.password:=$URLComponents[1]
                     End if 
                 End if 
             End if 
@@ -445,7 +465,7 @@ Function get path() : Text
 Function set path($inPath : Text)
     
     // Set the path 
-    If (Position("/"; $inPath)=1)
+    If ((Length($inPath)=0) || (Position("/"; $inPath)=1))
         This._path:=$inPath
     Else 
         This._path:="/"+$inPath
