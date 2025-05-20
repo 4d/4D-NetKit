@@ -18,11 +18,11 @@ Class constructor($inParam : Variant)
     End case 
     
     
-    // Mark: - [Public]
+    // Mark: - [Private]
     // ----------------------------------------------------
     
     
-Function _clear()
+Function _init()
     
     This.scheme:=""
     This.username:=""
@@ -54,7 +54,7 @@ Function parse($inURL : Text)
     // ref: ref
     // queryParams: [{name: "query"; value: "param"}]
     
-    This._clear()
+    This._init()
     
     If (Length($inURL)>0)
         
@@ -335,7 +335,7 @@ Function fromJSON($inURL : Object)
     This.username:=(Value type($inURL.username)=Is text) ? $inURL.username : ""
     This.password:=(Value type($inURL.password)=Is text) ? $inURL.password : ""
     This.host:=(Value type($inURL.host)=Is text) ? $inURL.host : ""
-    This._port:=(Value type($inURL.port)#Is undefined) ? $inURL.port : 0
+    This._port:=(Value type($inURL.port)#Is undefined) ? Num($inURL.port) : 0
     This._path:=(Value type($inURL.path)=Is text) ? $inURL.path : ""
     This.queryParams:=(Value type($inURL.queryParams)=Is collection) ? $inURL.queryParams : []
     This.ref:=(Value type($inURL.ref)=Is text) ? $inURL.ref : ""
