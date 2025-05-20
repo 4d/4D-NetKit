@@ -56,11 +56,11 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     var $dateTime : cs.DateTime
     var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
     Case of 
-        : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
-            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
-            return $dateTime.getGraphDateTime()
         : (Value type($inObject[$inName].dateTime)=Is text)
             $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            return $dateTime.getGraphDateTime()
+        : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
             return $dateTime.getGraphDateTime()
     End case 
     
