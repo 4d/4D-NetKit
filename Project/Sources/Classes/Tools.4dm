@@ -236,74 +236,31 @@ Function getJMAPAttribute($inKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function getDomainFromURL($URL : Text) : Text
+Function getDomainFromURL($inURL : Text) : Text
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $result : Text
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://(.*)(:\\d*)(/?.*)"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		If (Size of array($pos)>2)
-			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
-		End if 
-		
-	End if 
-	
-	return $result
+	return $URL.host
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getPathFromURL($URL : Text) : Text
+Function getPathFromURL($inURL : Text) : Text
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $result : Text
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)(/?.*)"  //was "(?mi-s)^(?:https?:\\/\\/)?(?:[^?\\/\\s]+[?\\/])(.*)"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		If (Size of array($pos)>2)
-			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
-		End if 
-		
-		$result:="/"+$result
-		
-	End if 
-	
-	return $result
+	return $URL.path
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getPortFromURL($URL : Text) : Integer
+Function getPortFromURL($inURL : Text) : Integer
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $port : Integer
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)/?.*"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		var $scheme : Text:=Substring($URL; $pos{1}; $len{1})
-		If (Size of array($pos)>1)
-			$port:=Num(Substring($URL; $pos{2}+1; $len{2}-1))
-		Else 
-			$port:=Choose((($scheme="http") | ($scheme="ws")); 80; 443)
-		End if 
-		
-	Else 
-		$port:=Choose((($URL="http:@") | ($URL="ws:@")); 80; 443)
-	End if 
-	
-	return $port
+	return $URL.port
 	
 	
 	// ----------------------------------------------------
