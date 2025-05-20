@@ -9,6 +9,44 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
     
     
+    // Mark: - [Private]
+    // ----------------------------------------------------
+    
+    
+Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
+    
+    var $dateTime : cs.DateTime
+    var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
+    Case of 
+        : (Value type($inObject[$inName].dateTime)=Is text)
+            $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            return $dateTime.getGoogleDateTime()
+        : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
+            return $dateTime.getGoogleDateTime()
+    End case 
+    
+    return $inObject[$inName]
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _conformEvent($inObject : Object) : Object
+    
+    var $event : Object:=$inObject
+    
+    If (OB Is defined($event; "end"))
+        $event.end:=This._conformEventDateTime($event; "end")
+    End if 
+    
+    If (OB Is defined($event; "start"))
+        $event.start:=This._conformEventDateTime($event; "start")
+    End if 
+    
+    return $event
+    
+    
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
@@ -240,7 +278,8 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     
     var $URLString : Text:=$URL.toString()
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $inEvent)
+    var $event : Object:=This._conformEvent($inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $event)
     
     Super._throwErrors(True)
     
@@ -316,7 +355,8 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     
     var $URLString : Text:=$URL.toString()
-    var $response : Object:=Super._sendRequestAndWaitResponse($bFullUpdate ? "PUT" : "PATCH"; $URLString; $headers; $inEvent)
+    var $event : Object:=This._conformEvent($inEvent)
+    var $response : Object:=Super._sendRequestAndWaitResponse($bFullUpdate ? "PUT" : "PATCH"; $URLString; $headers; $event)
     
     Super._throwErrors(True)
     
