@@ -270,32 +270,30 @@ Function addQueryParameter( ...  : Variant)
     // ----------------------------------------------------
     
     
+Function getQueryString() : Text
+    
+    // Get the query string from the URL object
+    var $query : Text:=""
+    If (This.queryParams.length>0)
+        $query:="?"+This.query
+    End if 
+    return $query
+    
+    
+    // ----------------------------------------------------
+    
+    
 Function getDefaultPort() : Integer
     
     // Get default port based on scheme
-    var $port : Integer:=0
     Case of 
-        : (This.scheme="ftp")
-            $port:=21
-        : (This.scheme="sftp")
-            $port:=22
-        : (This.scheme="smtp")
-            $port:=25
-        : (This.scheme="pop3")
-            $port:=110
-        : (This.scheme="imap")
-            $port:=143
-        : (This.scheme="ldap")
-            $port:=389
-        : (This.scheme="ldaps")
-            $port:=636
         : ((This.scheme="http") || (This.scheme="ws"))
-            $port:=80
+            return 80
         : ((This.scheme="https") || (This.scheme="wss"))
-            $port:=443
+            return 443
     End case 
     
-    return $port
+    return 0
     
     
     // Mark: - Getters/Setters
