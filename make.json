@@ -4,7 +4,7 @@
       "LICENSE.md",
       "README.md",
       "CONTRIBUTING.md",
-      "Documentation/Assets",
+      "docs",
       "make.json"
     ]
   }
