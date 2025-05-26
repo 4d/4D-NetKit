@@ -24,6 +24,9 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
         : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
             $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
             return $dateTime.getGoogleDateTime()
+        : ((Value type($inObject[$inName].date)=Is date))
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date})
+            return $dateTime.getGoogleDate()
     End case 
     
     return $inObject[$inName]

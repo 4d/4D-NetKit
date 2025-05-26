@@ -28,16 +28,17 @@ Class constructor( ...  : Variant)
 					This.time:=Time($1)
 					
 				: (Value type($1)=Is object)  // GraphDateTime object
-					Case of 
-						: (Value type($1.dateTime)=Is text)  // date and time string
-							This.date:=Date($1.dateTime)
-							This.time:=Time($1.dateTime)
-							
-						: (Value type($1.date)#Is undefined) && (Value type($1.time)#Is undefined)  // date and time
+					If (Value type($1.dateTime)=Is text)  // date and time string
+						This.date:=Date($1.dateTime)
+						This.time:=Time($1.dateTime)
+					Else 
+						If (Value type($1.date)#Is undefined)  // date
 							This.date:=Date($1.date)
+						End if 
+						If (Value type($1.time)#Is undefined)  // time
 							This.time:=Time($1.time)
-							
-					End case 
+						End if 
+					End if 
 					If (Value type($1.timeZone)=Is text)
 						This.timeZone:=String($1.timeZone)
 					End if 
@@ -84,6 +85,16 @@ Function getGoogleDateTime() : Object  // returns Google DateTime Object
 	var $dateTimeString : Text:=String(Date(This.date); $bIsTimeZoneUndefined ? ISO date GMT : ISO date; Time(This.time))
 	
 	return {dateTime: $dateTimeString; timeZone: $timeZone}
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function getGoogleDate() : Object  // returns Google Date Object
+	
+	var $dateString : Text:=String(Date(This.date); "yyyy-MM-dd")
+	
+	return {date: $dateString}
 	
 	
 	// ----------------------------------------------------
