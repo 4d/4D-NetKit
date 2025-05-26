@@ -181,17 +181,17 @@ Function toString() : Text
     
     // Convert the URL object to a string representation
     var $URL : Text:=""
+    If (Length(This.scheme)>0)
+        $URL+=This.scheme+"://"
+    End if 
+    If (Length(This.username)>0)
+        $URL+=This.username
+        If (Length(This.password)>0)
+            $URL+=":"+This.password
+        End if 
+        $URL+="@"
+    End if 
     If (Length(This.host)>0)
-        If (Length(This.scheme)>0)
-            $URL+=This.scheme+"://"
-        End if 
-        If (Length(This.username)>0)
-            $URL+=This.username
-            If (Length(This.password)>0)
-                $URL+=":"+This.password
-            End if 
-            $URL+="@"
-        End if 
         $URL+=This.host
     End if 
     If (This._port>0)
