@@ -73,7 +73,7 @@ Function parse($inURL : Text)
         ARRAY LONGINT($foundPos; 0)
         ARRAY LONGINT($foundLen; 0)
         
-        var $pattern : Text:="^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?"
+        var $pattern : Text:="^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?$"
         var $userInfoIndex : Integer:=0
         var $portIndex : Integer:=0
         var $pathIndex : Integer:=0
@@ -105,14 +105,25 @@ Function parse($inURL : Text)
                             End if 
                         End if 
                     End if 
-                    $URLComponents:=Split string($host; ":"; sk ignore empty strings)
-                    If ($URLComponents.length>0)
-                        This.host:=$URLComponents[0]
-                        If ($URLComponents.length>1)
-                            This._port:=Num($URLComponents[1])
+                    $URLComponents:=[]
+                    var $posLeftBackets : Integer:=Position("["; $host)
+                    var $posRightBackets : Integer:=Position("]"; $host)
+                    If (($posLeftBackets>0) && ($posRightBackets>0) && ($posLeftBackets<$posRightBackets))
+                        // IPv6 address
+                        This.host:=Substring($host; $posLeftBackets; $posRightBackets-$posLeftBackets+1)
+                        $portIndex:=Position(":"; $host; $posRightBackets+1)
+                        If ($portIndex>0)
+                            This._port:=Num(Substring($host; $portIndex+1))
                         End if 
                     Else 
-                        This.host:=$host
+                        // Regular host
+                        $URLComponents:=Split string($host; ":"; sk ignore empty strings)
+                        If ($URLComponents.length>0)
+                            This.host:=$URLComponents[0]
+                            If ($URLComponents.length>1)
+                                This._port:=Num($URLComponents[1])
+                            End if 
+                        End if 
                     End if 
                 End if 
                 
