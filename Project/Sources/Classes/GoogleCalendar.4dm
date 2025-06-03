@@ -37,7 +37,7 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
 Function _conformEvent($inObject : Object) : Object
     
-    var $event : Object:=$inObject
+    var $event : Object:=OB Copy($inObject)
     
     If (OB Is defined($event; "end"))
         $event.end:=This._conformEventDateTime($event; "end")
@@ -47,6 +47,14 @@ Function _conformEvent($inObject : Object) : Object
         $event.start:=This._conformEventDateTime($event; "start")
     End if 
     
+    If (OB Is defined($event; "id"))
+        OB REMOVE($event; "id")
+    End if 
+
+    If (OB Is defined($event; "_internals"))
+        OB REMOVE($event; "_internals")
+    End if 
+
     return $event
     
     
