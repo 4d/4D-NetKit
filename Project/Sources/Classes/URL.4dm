@@ -40,14 +40,6 @@ Function _init()
     
 Function parse($inURL : Text)
     
-    This._init()
-    
-    // Before parsing, check if the URL is empty or valid
-    var $isValid : Boolean:=Match regex("^(https?|wss?):\\/\\/([^\\s\\/?#]+)([^\\s]*)$"; $inURL)
-    If (Not($isValid))
-        return 
-    End if 
-    
     // Parse the URL into its components
     // Example: https://username:password@www.example.com:8080/path/to/resource?query=param#ref
     // Result:
@@ -61,6 +53,8 @@ Function parse($inURL : Text)
     // query: query=param
     // ref: ref
     // queryParams: [{name: "query"; value: "param"}]
+    
+    This._init()
     
     If (Length($inURL)>0)
         
