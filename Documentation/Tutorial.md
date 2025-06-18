@@ -1,6 +1,5 @@
 # Tutorials
 
-
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
 ## Table of contents
@@ -56,7 +55,7 @@ $mailList:=$office365.mail.getMails()
 
 ## (Archived) Authenticate to the Microsoft Graph API in signedIn mode and send an email with SMTP
 
-> This tutorial has been archived. We recommend using the [Office365.mail.send()](./Office365.md#office365mailsend) method to send emails.
+> This tutorial has been archived. We recommend using the [Office365.mail.send()](Classes/Office365.md#office365mailsend) method to send emails.
 
 #### Objectives
 

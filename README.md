@@ -2,18 +2,16 @@
         Version: 20 R9
       </div>
       
-# Documentation
-
-
+# 4D NetKit
 
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
 ## Table of contents
 
-* [OAuth2Provider class](./docs/OAuth2Provider.md)
-* [Office365 class](./docs/Office365.md)
-* [Google class](./docs/Google.md)
-* [Tutorial : Authenticate to the Microsoft Graph API in service mode](./docs/Tutorial.md)
+* [OAuth2Provider class](Documentation/Classes/OAuth2Provider.md)
+* [Office365 class](Documentation/Classes/Office365.md)
+* [Google class](Documentation/Classes/Google.md)
+* [Tutorial : Authenticate to the Microsoft Graph API in service mode](Documentation/Tutorial.md)
 
 ## Copyrights
 

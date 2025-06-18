@@ -1,3 +1,3 @@
-## Description
+# New Office365 provider
 
-Click [here](https://github.com/4d/4D-NetKit#office365) to access the documentation for this method.
+See [Office365](../Classes/Office365.md#new-office365-provider) class documentation.

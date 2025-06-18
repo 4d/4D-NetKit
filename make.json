@@ -2,9 +2,7 @@
   "postBuild": {
     "remove": [
       "LICENSE.md",
-      "README.md",
       "CONTRIBUTING.md",
-      "docs",
       "make.json"
     ]
   }

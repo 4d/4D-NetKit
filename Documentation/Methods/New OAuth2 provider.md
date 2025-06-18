@@ -1,3 +1,3 @@
-## Description
+# New OAuth2 provider
 
-Click [here](https://github.com/4d/4D-NetKit#oauth2provider) to access the documentation for this method.
+See [OAuth2Provider](../Classes/OAuth2Provider.md#new-oauth2-provider) class documentation.
