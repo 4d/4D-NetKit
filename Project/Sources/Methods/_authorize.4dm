@@ -5,7 +5,7 @@ var $redirectURI : Text
 var $URL : Text:=$inOptions.redirectURI
 var $customResponseFile; $customErrorFile : 4D.File
 var $state : Text:=String($inOptions.state)
-var $responseFile : 4D.File:=Folder(fk resources folder).file("Response_Template.html")
+var $responseFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
 
 If (OB Is defined(Storage.requests; $state))
     $redirectURI:=String(Storage.requests[$state].redirectURI)
