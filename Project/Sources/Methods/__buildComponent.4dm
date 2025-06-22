@@ -5,7 +5,7 @@
     - //repos/4edimension/4DComponents/User Components/4D NetKit/Project/Sources/ (target folder)
 */
 
-var $errorFile:=File(Folder(fk logs folder).platformPath+"compilationErrors.json"; fk platform path)
+var $errorFile : 4D.File:=File(Folder(fk logs folder).platformPath+"compilationErrors.json"; fk platform path)
 If ($errorFile.exists)
 	$errorFile.delete()
 End if 
