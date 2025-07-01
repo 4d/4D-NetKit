@@ -21,7 +21,14 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
             $response.setHeader("Content-Type"; "text/html")
         Else 
             
-            $response.setStatus(404)
+            // Send a 403 status line
+            // This is not strictly necessary, but it makes it clear that the request was forbidden
+            // and not just a 404 Not Found
+            $response.setStatus(403)
+            var $errorBody : Text:="<html><body><h1>403 Forbidden</h1><p>Access denied</p></body></html>"
+            $response.setBody($errorBody)
+            $response.setHeader("Content-Type"; "text/html")
+            
         End if 
     Else 
         var $error : Object:=cs.Tools.me.makeError(9; {which: "request (4D.IncomingMessage)"; function: "OAuth2Authorization.getResponse"})
