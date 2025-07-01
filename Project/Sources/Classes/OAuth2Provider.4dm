@@ -498,7 +498,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			
 			var $bUseHostDatabaseServer : Boolean:=False
 			var $hostDatabaseServer : Object:=WEB Server(Web server host database)
-			If (($hostDatabaseServer#Null)&& $hostDatabaseServer.isRunning)
+			If (($hostDatabaseServer#Null) && $hostDatabaseServer.isRunning)
 				If ($options.useTLS)
 					$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$options.port))
 				Else 
@@ -713,6 +713,13 @@ Function _sendTokenRequest($params : Text) : Object
 					$result:=Null
 					
 			End case 
+			
+			// If we already had a refresh token, we need to add it to result object in case it was not present in the response
+			If (Value type($result.token.refresh_token)=Is undefined)
+				If (OB Is defined(This.token; "refresh_token") && (Length(String(This.token.refresh_token))>0))
+					$result.token.refresh_token:=This.token.refresh_token
+				End if 
+			End if 
 			
 		Else 
 			
