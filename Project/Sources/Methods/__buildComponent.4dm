@@ -29,6 +29,9 @@ If ($status.success=True)
 	var $sourceFolder : 4D.Folder:=Folder(Structure file; fk platform path)
 	$sourceFolder:=Folder($sourceFolder.parent.platformPath+"Sources"; fk platform path)
 	$targetFolder:=Folder($netKitFolder.platformPath+"Project"+Folder separator; fk platform path)
+	If (Not($targetFolder.exists))
+		$targetFolder.create()
+	End if 
 	
 	var $result : 4D.Folder:=$sourceFolder.copyTo($targetFolder; fk overwrite)
 	
@@ -38,6 +41,9 @@ If ($status.success=True)
 		$sourceFolder:=Folder(Structure file; fk platform path)
 		$sourceFolder:=Folder($sourceFolder.parent.parent.platformPath+"Resources"; fk platform path)
 		$targetFolder:=Folder($netKitFolder.platformPath; fk platform path)
+		If (Not($targetFolder.exists))
+			$targetFolder.create()
+		End if 
 		
 		$result:=$sourceFolder.copyTo($targetFolder; fk overwrite)
 	End if 
