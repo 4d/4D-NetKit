@@ -71,7 +71,8 @@
 			"Office365Category",
 			"Office365Mail",
 			"Office365User",
-			"Tools"
+			"Tools",
+			"URL"
 		]
 	},
 	"Public Methods": {
