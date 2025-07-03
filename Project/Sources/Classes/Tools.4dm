@@ -266,27 +266,14 @@ Function getPortFromURL($inURL : Text) : Integer
 	// ----------------------------------------------------
 	
 	
-Function getURLParameterValue($URL : Text; $paramName : Text) : Text
+Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	
-	var $result : Text
-	var $posQuery : Integer:=Position("?"; $URL)
-	If ($posQuery>0)
-		
-		var $queryString : Text:=Substring($URL; $posQuery+1)
-		var $parameters : Collection:=Split string($queryString; "&"; sk ignore empty strings)
-		var $parameter : Text
-		
-		For each ($parameter; $parameters)
-			
-			var $values : Collection:=Split string($parameter; "=")
-			
-			If ($values.length=2)
-				If ($values[0]=$paramName)
-					$result:=$values[1]
-					break
-				End if 
-			End if 
-		End for each 
+	var $result : Text:=""
+	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $foundParam : Object:=$URL.queryParams.find(Formula($1.value.name=$2); $inParamName)
+	
+	If ((Value type($foundParam)=Is object) && (OB Is defined($foundParam; "value")))
+		$result:=$foundParam.value
 	End if 
 	
 	return $result
@@ -582,7 +569,7 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	
 	
 Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inButtonText : Text) : Text
-	/*
+/*
 		Builds a response page from the template file.
 		Parameters:
 			- $inTitle: Title of the page
