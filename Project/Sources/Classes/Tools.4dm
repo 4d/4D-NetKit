@@ -581,12 +581,20 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text) : Text
-	
+Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inButtonText : Text) : Text
+	/*
+		Builds a response page from the template file.
+		Parameters:
+			- $inTitle: Title of the page
+			- $inMessage: Main message to display
+			- $inDetails: Additional details to display
+			- $inButtonText: Text for the close button (optional)
+	*/
 	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
 	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
 	var $responseBody : Text:=""
+	var $closeButtonText : Text:=(Length($inButtonText)>0) ? $inButtonText : Localized string("OAuth2_Response_Close")
 	
-	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails)
+	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails; $closeButtonText)
 	
 	return $responseBody

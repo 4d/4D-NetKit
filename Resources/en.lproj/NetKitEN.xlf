@@ -89,6 +89,10 @@
           <source>You may now close this window</source>
           <target>You may now close this window</target>
         </trans-unit>
+        <trans-unit resname="OAuth2_Response_Close">
+          <source>Close</source>
+          <target>Close</target>
+        </trans-unit>
         <trans-unit resname="List_No_Next_Page">
           <source>No next page.</source>
           <target>No next page.</target>

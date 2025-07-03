@@ -85,8 +85,9 @@ If ($URL=$redirectURI)
             
             var $responseFileContent : Text:=$responseFile.getText()
             var $outResponseBody : Text:=""
+            var $closeButtonText : Text:=Localized string("OAuth2_Response_Close")
             
-            PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails)
+            PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails; $closeButtonText)
             
             $outResponse.status:=200
             $outResponse.body:=$outResponseBody
