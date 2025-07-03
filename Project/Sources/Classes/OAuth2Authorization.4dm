@@ -19,7 +19,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
             
             // If the response contains a redirect URL, we send a 302 Temporary Redirect
             If ((Value type($response.redirectURL)=Is text) && (Length($response.redirectURL)>0))
-                $outgoingResponse.setStatus(302)  // Temporary redirect
+                $outgoingResponse.setStatus($response.status)
                 $outgoingResponse.setHeader("Location"; String($response.redirectURL))
             Else 
                 $outgoingResponse.setStatus($response.status)

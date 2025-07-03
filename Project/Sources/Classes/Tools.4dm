@@ -358,6 +358,16 @@ Function isValidEmail($inEmail : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isValidURL($inURL : Text) : Boolean
+	
+	var $URL : cs.URL:=cs.URL.new($inURL)
+	
+	return (((Length($URL.scheme)>0) && ($URL.scheme="http@")) && (Length($URL.host)>0))
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function quoteString($inString : Text) : Text
 	
 	var $result : Text:=$inString
