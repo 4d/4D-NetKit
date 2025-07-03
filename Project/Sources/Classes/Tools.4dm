@@ -566,3 +566,17 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
 	
 	return $error
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text) : Text
+	
+	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
+	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
+	var $responseBody : Text:=""
+	
+	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails)
+	
+	return $responseBody

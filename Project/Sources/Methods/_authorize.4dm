@@ -1,5 +1,5 @@
 //%attributes = {"invisible":true}
-#DECLARE($inOptions : Object; $outResponseBodyPtr : Pointer) : Boolean
+#DECLARE($inOptions : Object; $outResponse : Object) : Boolean
 
 var $redirectURI : Text
 var $URL : Text:=$inOptions.redirectURI
@@ -60,14 +60,9 @@ If ($URL=$redirectURI)
     
     PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails)
     
-    If (Type($outResponseBodyPtr)=Is pointer)
-        Case of 
-            : (Type($outResponseBodyPtr->)=Is text)
-                $outResponseBodyPtr->:=$outResponseBody
-            : (Type($outResponseBodyPtr->)=Is BLOB)
-                CONVERT FROM TEXT($outResponseBody; "UTF-8"; $outResponseBodyPtr->)
-        End case 
-    End if 
+    $outResponse.status:=200
+    $outResponse.body:=$outResponseBody
+    $outResponse.contentType:="text/html; charset=UTF-8"
     
     return True
     
