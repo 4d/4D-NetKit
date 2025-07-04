@@ -125,7 +125,7 @@ Class constructor($inParams : Object)
 	is received correctly in signed in mode
 	If not present the default page is used
 */
-		If (cs.Tools.me.isValidURL(String($inParams.authenticationPage)))
+		If ((Value type($inParams.authenticationPage)=Is text) && cs.Tools.me.isValidURL(String($inParams.authenticationPage)))
 			This.authenticationPage:=String($inParams.authenticationPage)
 		Else 
 			This.authenticationPage:=cs.Tools.me.retainFileObject($inParams.authenticationPage)
@@ -135,7 +135,7 @@ Class constructor($inParams : Object)
 	returns an error in signed in mode
 	If not present the default page is used
 */
-		If (cs.Tools.me.isValidURL(String($inParams.authenticationErrorPage)))
+		If ((Value type($inParams.authenticationErrorPage)=Is text) && cs.Tools.me.isValidURL(String($inParams.authenticationErrorPage)))
 			This.authenticationErrorPage:=String($inParams.authenticationErrorPage)
 		Else 
 			This.authenticationErrorPage:=cs.Tools.me.retainFileObject($inParams.authenticationErrorPage)
