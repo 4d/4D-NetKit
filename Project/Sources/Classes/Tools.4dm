@@ -385,9 +385,11 @@ Function retainFileObject($inParameter : Variant) : 4D.File
 		Else 
 			$platformPath:=String($inParameter)
 		End if 
-		var $file : 4D.File:=File($platformPath; fk platform path)
-		If ($file.exists)
-			return $file
+		If (Length($platformPath)>0)
+			var $file : 4D.File:=File($platformPath; fk platform path)
+			If ($file.exists)
+				return $file
+			End if 
 		End if 
 	End if 
 	
