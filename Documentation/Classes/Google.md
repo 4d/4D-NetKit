@@ -11,43 +11,60 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 **Warning:** Shared objects are not supported by the 4D NetKit API.
 
 
-## Table of contents
+## Table of Contents
 
-- [cs.NetKit.Google.new()](#csnetkitgooglenew)
-- [Google.Calendar.getCalendar()](#googlecalendargetcalendar)
-- [Google.Calendar.getCalendars()](#googlecalendargetCalendars)
-- [Google.Calendar.getEvent()](#googlecalendargetevent)
-- [Google.Calendar.getEvents()](#googlecalendargetevents)
-- [Google.mail.append()](#googlemailappend)
-- [Google.mail.createLabel()](#googlemailcreatelabel)
-- [Google.mail.delete()](#googlemaildelete)
-- [Google.mail.deleteLabel()](#googlemaildeletelabel)
-- [Google.mail.getLabel()](#googlemailgetlabel)
-- [Google.mail.getLabelList()](#googlemailgetlabellist)
-- [Google.mail.getMail()](#googlemailgetmail)
-- [Google.mail.getMailIds()](#googlemailgetmailids)
-- [Google.mail.getMails()](#googlemailgetmails)
-- [Google.mail.send()](#googlemailsend)
-- [Google.mail.untrash()](#googlemailuntrash)
-- [Google.mail.update()](#googlemailupdate)
-- [Google.mail.updateLabel()](#googlemailupdatelabel)
-- [Google.user.get()](#googleuserget)
-- [Google.user.getCurrent()](#googleusergetcurrent)
-- [Google.user.list()](#googleuserlist)
-- [labelInfo object](#labelinfo-object)
-- [Status object (Google Class)](#status-object-google-class)
+### [Initialization](#csnetkitgooglenew)
 
+* [cs.NetKit.Google.new()](#csnetkitgooglenew)
+
+### [Calendar](#calendar-1)
+
+* [Google.Calendar.getCalendar()](#googlecalendargetcalendar)
+* [Google.Calendar.getCalendars()](#googlecalendargetcalendars)
+* [Google.Calendar.getEvent()](#googlecalendargetevent)
+* [Google.Calendar.getEvents()](#googlecalendargetevents)
+* [Google.Calendar.createEvent()](#googlecalendarcreateevent)
+* [Google.Calendar.updateEvent()](#googlecalendarupdateevent)
+* [Google.Calendar.deleteEvent()](#googlecalendardeleteevent)
+* [Event object](#event-object)
+
+### [Mail](#mail-1)
+
+* [Google.mail.send()](#googlemailsend)
+* [Google.mail.append()](#googlemailappend)
+* [Google.mail.update()](#googlemailupdate)
+* [Google.mail.createLabel()](#googlemailcreatelabel)
+* [Google.mail.updateLabel()](#googlemailupdatelabel)
+* [Google.mail.deleteLabel()](#googlemaildeletelabel)
+* [Google.mail.delete()](#googlemaildelete)
+* [Google.mail.getLabel()](#googlemailgetlabel)
+* [Google.mail.getLabelList()](#googlemailgetlabellist)
+* [Google.mail.getMail()](#googlemailgetmail)
+* [Google.mail.getMailIds()](#googlemailgetmailids)
+* [Google.mail.getMails()](#googlemailgetmails)
+* [Google.mail.untrash()](#googlemailuntrash)
+* [labelInfo object](#labelinfo-object)
+
+### [User](#user-1)
+
+* [Google.user.get()](#googleuserget)
+* [Google.user.getCurrent()](#googleusergetcurrent)
+* [Google.user.list()](#googleuserlist)
+
+### [Status](#status-object)
+
+* [Status object](#status-object)
 
 ## **cs.NetKit.Google.new()**
 
-**cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *options* : Object } ) : cs.NetKit.Google
+**cs.NetKit.Google.new**( *oAuth2* : cs.NetKit.OAuth2Provider { ; *param* : Object } ) : cs.NetKit.Google
 
 ### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |oAuth2|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
-|options|Object|->| Additional options |
+|param|Object|->| Additional options |
 |Result|cs.NetKit.Google|<-| Object of the Google class|
 
 ### Description
@@ -56,7 +73,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 
 In `oAuth2`, pass an [OAuth2Provider object](#oauth2provider).
 
-In `options`, you can pass an object that specifies the following options:
+In `param`, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
@@ -85,11 +102,13 @@ $oAuth2:=New OAuth2 provider($param)
 $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 ```
 
-## Google.Calendar.getCalendar()
+## Calendar
+
+### Google.Calendar.getCalendar()
 
 **Google.Calendar.getCalendar**( { *id* : Text } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -98,11 +117,11 @@ $google:=cs.NetKit.Google.new($oAuth2;New object("mailType"; "MIME"))
 
 > To retrieve calendar IDs call the getCalendars() function. If id is null, empty or missing, returns the primary calendar of the currently logged in user.
 
-### Description
+#### Description
 
 `Google.Calendar.getCalendar()` retrieves a specific calendar from the authenticated user's calendar list; using an `id` to identify the calendar and returns a `calendar` object containing details about the requested calendar.
 
-### Example 
+#### Example 
 
 ```4d
 
@@ -133,18 +152,18 @@ $myCalendar:=$google.calendar.getCalendar($Calendars.calendars[0].id)
 ```
 
 
-## Google.Calendar.getCalendars()
+### Google.Calendar.getCalendars()
 
 **Google.Calendar.getCalendar**( { *param* : Object } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |param|Object|->|Set of options to filter or refine the calendar list request.|
 |Result|Object|<-|Object containing the calendar list with the related data.|
 
-### Description
+#### Description
 
 `Google.Calendar.getCalendars()` retrieves a list of calendars that the authenticated user can access. The passed filtering and paging options in `param` are returned in the `result` object.
 
@@ -161,7 +180,7 @@ In *param*, you can pass the following optional properties:
 | showDeleted | Boolean | Whether to include deleted calendar list entries in the result. Optional. The default is False.|
 | showHidden | Boolean | Whether to show hidden entries. Optional. The default is False.|
 
-### Returned object
+#### Returned object
 
 The function returns a Collection of details about the user's calendar list in the following properties:
 
@@ -184,7 +203,7 @@ The function returns a Collection of details about the user's calendar list in t
 |                      |                   | - `.componentSignature`: Signature of the component that returned the error.                                                                                              |
 
 
-### Example 
+#### Example 
 
 ```4d
 
@@ -211,18 +230,18 @@ $google:=cs.NetKit.Google.new($oauth2)
 $Calendars:=$google.calendar.getCalendars()
 
 ```
-## Google.Calendar.getEvent()
+### Google.Calendar.getEvent()
 
 **Google.Calendar.getEvent**( *param* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |param|Object|->|Object containing the necessary details to retrieve a specific event|
 |Result|Object|<-|Object containing the retrieved event|
 
-### Description
+#### Description
 
 `Google.Calendar.getEvent()` retrieves a specific event from a Google Calendar using its unique `eventId`.
 
@@ -235,22 +254,22 @@ In *param*, you can pass the following properties:
 | maxAttendees | Integer | Max number of attendees to be returned for the event|
 | timeZone | String | Time zone used in the response (formatted as an IANA Time Zone Database name, e.g., "Europe/Zurich"). Defaults to UTC |
 
-### Returned object 
+#### Returned object 
 
 The function returns a Google [`event`](https://developers.google.com/calendar/api/v3/reference/events) object.
 
-## Google.Calendar.getEvents()
+### Google.Calendar.getEvents()
 
 **Google.Calendar.getEvents**( { *param* : Object } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |param|Object|->|Object containing filters and options for retrieving calendar events|
 |Result|Object|<-|Object containing the retrieved events|
 
-### Description
+#### Description
 
 `Google.Calendar.getEvents()` retrieves events on the specified calendar. If *param* is not provided, it returns all events from the user's primary calendar.
 
@@ -275,7 +294,7 @@ In *param*, you can pass the following optional properties:
 | timeZone | String | Time zone for the response, formatted as an IANA Time Zone Database name (e.g., "Europe/Zurich"). Defaults to UTC |
 | updatedMin | Text | Filters events based on last modification time (`ISO 8601 UTC`). When set, deleted events since this time are always included, regardless of `showDeleted` |
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](#status-object-google-class) in addition to the following properties:
 
@@ -298,7 +317,7 @@ The method returns a [**status object**](#status-object-google-class) in additio
 | defaultReminders[].minutes | Integer | Minutes before the event when the reminder triggers. |
 | events | Collection | List of events on the calendar. If some events have attachments, an "attachments" attribute is added, containing a collection of attachments. |
 
-### Example
+#### Example
 
 ```4d
 
@@ -312,13 +331,220 @@ var $events:=$google.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
 
 ```
 
-## Google.mail.append()
+### Google.calendar.createEvent()
+
+**Google.calendar.createEvent**(*event*: Object{; *param*: Object}) : Object
+
+#### Parameters
+
+| Parameter | Type   |  | Description|                                                                                                                                                                 
+| -------- | ------ | --- |--------------------------- |
+|event | Object | ->|Object containing details of the calendar [event](#event-object) to create |
+|param | Object | -> | Object containing additional creation options | 
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+#### Description
+
+`Google.calendar.createEvent()` creates a new calendar event.
+
+In *event*, pass an [event](#event-object) object to create. Only `start` and `end` properties are required.
+
+In *param*, you can pass the following additional optional properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|sendUpdates|String|Defines who should receive email notifications about the event. Acceptable values:<br>• `"all"` – Notify all attendees.<br>• `"externalOnly"` – Notify only non-Google users.<br>• `"none"` – No notifications sent.| 
+|supportsAttachments|Boolean| `true` to allow creation or modification of the [`attachments`](#attachment-object-google) property. Defaults to `false`  |
+
+#### Returned Object
+
+The method returns a [**status object**](status-object-google-class) with an additional "event" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|event|Object|[Event object](#event-object) returned by the server|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+#### Example
+
+Create an event in the Google calendar:
+
+```4d
+var $Google:=cs.NetKit.Google.new($Oauth)
+var $event; $result : Object
+
+$event:={}
+$event.summary:="Team Meeting"
+$event.start:={date: Current date; time: Current time}
+$event.end:={date: Current date; time: Current time+3600}
+$event.attendees:=[{email: "first.lastname@gmail.com"}]
+$event.description:="description of the event"
+
+$result:=$Google.calendar.createEvent($event)
+If (Not($result.success))
+  ALERT($result.statusText)
+End if
+```
+
+### Google.calendar.updateEvent()
+
+**Google.calendar.updateEvent**(*event*: Object{; *param*: Object}) : Object
+
+#### Parameters
+
+| Parameter | Type   | | Description|                                                                          
+| -------- | ----- | -------- | --------------- |
+|event |Object|->| Object containing details of the calendar [event](#event-object) to update. |
+|param |Object|->| Object containing additional update options. | 
+|Result | Object | <-| [Status object](#status-object-google-class) |
+
+#### Description
+
+`Google.calendar.updateEvent()` updates an existing event.
+
+In *event*, pass an [event](#event-object) object to create. `start`, `end` and `id` properties are required.
+
+And in *param*, you can pass the following additional optional properties:
+
+| Property | Type    | Description |
+|------------|---------|-------------|
+| sendUpdates | String  | Defines who should receive email notifications about the update. Acceptable values:<br>• `"all"` – Notify all attendees.<br>• `"externalOnly"` – Notify only non-Google users.<br>• `"none"` – No notifications sent. |
+| supportsAttachments | Boolean | `true` to allow creation or modification of the [`attachments`](#attachment-object-google) property. Defaults to `false`. |
+| fullUpdate | Boolean | If `true`, the full event is replaced. If `false` (default), only specified fields are updated. | 
+
+#### Returned Object
+
+The method returns a [**status object**](status-object-google-class) with an additional "event" property:
+
+|Property|Type|Description|
+|---------|--- |------|
+|event|Object|Updated [event object](#event-object) returned by the server|
+|success|Boolean| [see Status object](#status-object-google-class)|
+|statusText|Text| [see Status object](#status-object-google-class)|
+|errors|Collection| [see Status object](#status-object-google-class)|
+
+#### Example
+
+Update an already existing event:
+
+```4d
+#DECLARE($eventId:Text)  
+var $Google:=cs.NetKit.Google.new($Oauth)
+var $result : Object
+
+$event.id:=$eventId
+$event.summary:="Updated Event Title"
+$event.description:="Updated Event description"
+$event.start:={date: Current date; time: Current time}
+$event.end:={date: Current date; time: Current time+3600}
+
+$result:=$Google.calendar.updateEvent($event)
+If (Not($result.success))
+  ALERT($result.statusText)
+End if
+```
+
+
+### Google.calendar.deleteEvent()
+
+**Google.calendar.deleteEvent**(*param*: Object) : Object
+
+#### Parameters
+
+| Parameter | Type   | | Description                                                                                                                                                                                                                                                                   |
+| -------- | ----- | --- | -------------------- |
+| param | Object | -> | Object containing details of the calendar [event](#event-object) to delete | 
+|Result|Object|<-|[Status object](#status-object-google-class)|
+
+#### Description
+
+`Google.calendar.deleteEvent()` deletes an event from a specified calendar. 
+
+In *param*, you can pass the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+| eventId | String | **Required.** ID of the event to delete|
+| calendarId | String |**Optional.** Calendar ID. If not provided or null, uses the user's primary calendar. To retrieve calendar IDs, call `Google.calendar.getCalendars()`|
+| sendUpdates | String |**Optional.** Controls which  attendees of the event receive notifications about the deletion. Acceptable values:<br>• `"all"` – Notify all attendees of the event (Google or non-Google users) <br>• `"externalOnly"` – Notify only non-Google users <br>• `"none"` – No notifications sent|
+
+#### Returned Object
+
+The method returns a standard [**status object**](#status-object-google-class).
+
+#### Example
+
+Delete a calendar event:
+
+```4d
+var $Google:=cs.NetKit.Google.new($Oauth)
+
+$status:=$google.calendar.deleteEvent({eventId: $event.id})
+If ($result.success)
+  ALERT("Calendar event correctly deleted")
+Else
+  ALERT($result.statusText)
+End if
+```
+
+### Event object
+
+The `event` object used with Google Calendar methods includes the following main properties. For the full list, refer to the [official Google Calendar API documentation](https://developers.google.com/calendar/api/v3/reference/events#resource).
+
+| Property | | Type | Description|                                                                                                                                                           
+| ------ |---| -------- | ------------------- |
+|id 	||	Text 	| ID for the event.|
+| calendarId | | Text | Calendar ID. If not provided, the user's primary calendar is used. Use `Google.calendar.getCalendars()` to retrieve IDs.|                                       
+| attachments | | Collection | File [attachments](#attachment-object-google) (max 25). To use this, `supportsAttachments` must be set to `true` in the request.| 
+| attendees| | Collection | List of attendees.  |
+| | email | String | Required. Email address of the attendee. |
+| | displayName | String | Name of the attendee. |
+| | comment| String | The attendee’s response comment. |
+| | optional| Boolean  | (Default: false) Whether the attendee is optional.|
+| | resource| Boolean  | (Default: false) Set to `true` when the attendee is a resource (e.g., room or equipment). Can only be set when the attendee is first added. Ignored in later updates. |
+| | additionalGuests| Integer  | (Default: `0`) Allowed number of additional guests of the attendee.  |
+| description | | Text       | Description of the event (HTML allowed).|  
+| start | | Object     | Start time. Use `dateTime` with optional `timeZone`, or `date` for all-day events.|
+| | date | Date, Text | Start date of the event. If provided as text, use the format `"yyyy-mm-dd"`. |
+| | time | Time |Start time of the event (not present if all-day event)| 
+| | dateTime | Text | Combined start date and time in RFC3339 format. A time zone offset is required unless `timeZone` is specified. IOverrides `date` and `time`.(not used for all-day events). |
+| | timeZone | String | Time zone for the `dateTime`, using IANA format (e.g., `"Europe/Zurich"`). Defaults to UTC if not provided.   |  
+| end | | Object     | End time. Use `dateTime` with optional `timeZone`, or `date` for all-day events.|
+| | date | Date, Text | End date of the event. If provided as text, use the format `"yyyy-mm-dd"`. |
+| | time | Time |End time of the event (not present if all-day event)|
+| | dateTime | Text |Combined date and time in RFC3339 format. A time zone offset is required unless `timeZone` is specified. Overrides `date` and `time`.(not used for all-day events). |
+| | timeZone | String | Time zone for the `dateTime`, using IANA format (e.g., `"Europe/Zurich"`). Defaults to UTC if not provided. |
+| eventType | | Text       | Specific type of the event (Cannot be changed after creation). <br> Possible values: `"default"`, `"birthday"`, `"focusTime"`, `"outOfOffice"`, etc.|
+| extendedProperties.private | | Object     | [Custom key-value pairs](https://developers.google.com/calendar/api/v3/reference/events#extendedProperties)  only visible to the event owner to store additional information (e.g; `"internalNote": "Discuss Q3 targets"`)|
+| extendedProperties.shared | | Object     | [Custom key-value pairs](https://developers.google.com/calendar/api/v3/reference/events#extendedProperties) shared with all attendees to share additional notes or tags (e.g., `"projectCode": "XYZ123"`).|                                                                                                                         
+| focusTimeProperties| | Object     | [Focus Time event-specific settings](https://developers.google.com/calendar/api/v3/reference/events#focustimeproperties). Used when `eventType` is `"focusTime"`.|
+| guestsCanInviteOthers | | Boolean    | (Default: true) If attendees can invite guests. |
+| guestsCanModify  | | Boolean    | (Default: false) If attendees can edit the event. |  
+| guestsCanSeeOtherGuests| | Boolean    | (Default: true) If attendees can see each other.| 
+| location | | Text       | Event location.|                                                                                                                                              
+| recurrence\[] | | Collection       | List of rules for repeating events using [RFC5545](https://www.rfc-editor.org/rfc/rfc5545) format (RRULE/EXRULE/RDATE/EXDATE (e.g., FREQ=WEEKLY;BYDAY=MO)). Does not include start/end times, use the `start` and `end` for that. Omit this field for one-time events. |                                                                       
+| reminders.overrides\[] | | Collection       | Custom reminders.|
+| | method | String  | **Required**. Method of the reminder: "email" or "popup"|
+| | minutes | Integer  | **Required**. Time before event (in minutes) when reminder should trigger. Between 0 and 40320.|
+| reminders.useDefault | | Boolean    | Whether to use the calendar’s default reminders for the event.| 
+| source.title | | Text       | Title of the source linked to the event, such as a web page or email subject.|  
+| source.url | | Text       | URL of the source linked to the event (must use `http` or `https`).| 
+| status | | Text       |Describes the event's current state. <br> Possible values: `"confirmed"` (default) `"tentative"`, or `"cancelled"`.| 
+| summary | | Text  | Title of the event.| 
+| transparency | | Text       | Whether the event blocks time on the calendar. Values: `"opaque"` (busy) or `"transparent"` (available).|
+| visibility | | Text       | Visibility level: `"default"`, `"public"`, `"private"`, or `"confidential"`.|                                                                                           
+
+## Mail
+
+### Google.mail.append()
 
 **Google.mail.append**( *mail* : Text { ; *labelIds* : Collection } ) : Object <br/>
 **Google.mail.append**( *mail* : Blob { ; *labelIds* : Collection } ) : Object <br/>
 **Google.mail.append**( *mail* : Object { ; *labelIds* : Collection } ) : Object <br/>
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -327,13 +553,13 @@ var $events:=$google.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
 
-### Description
+#### Description
 
 `Google.mail.append()` appends *mail* to the user's mailbox as a DRAFT or with designated *labelIds*.
 
 >If the *labelIds* parameter is passed and the mail has a "from" or "sender" header, the Gmail server automatically adds the SENT label.
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "id" property:
 
@@ -344,7 +570,7 @@ The method returns a [**status object**](status-object-google-class) with an add
 |statusText|Text| [see Status object](#status-object-google-class)|
 |errors|Collection| [see Status object](#status-object-google-class)|
 
-### Example
+#### Example
 
 To append an email :
 
@@ -358,22 +584,22 @@ By default, the mail is created with a DRAFT label. To change the designated lab
 $status:=$google.mail.append($mail;["INBOX"])
 ```
 
-## Google.mail.createLabel()
+### Google.mail.createLabel()
 
 **Google.mail.createLabel**( *labelInfo* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |[labelInfo](#labelinfo-object)|Object|->|Label information.|
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
-### Description
+#### Description
 
 `Google.mail.createLabel()` creates a new label.
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "label" property:
 
@@ -384,7 +610,7 @@ The method returns a [**status object**](status-object-google-class) with an add
 |statusText|Text| [see Status object](#status-object-google-class)|
 |errors|Collection| [see Status object](#status-object-google-class)|
 
-### Example
+#### Example
 
 To create a label named 'Backup':
 
@@ -393,11 +619,11 @@ $status:=$google.mail.createLabel({name: "Backup"})
 $labelId:=$status.label.id
 ```
 
-## Google.mail.delete()
+### Google.mail.delete()
 
 **Google.mail.delete**( *mailID* : Text { ; *permanently* : Boolean } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -406,15 +632,15 @@ $labelId:=$status.label.id
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
 
-### Description
+#### Description
 
 `Google.mail.delete()` deletes the specified message from the user's mailbox.
 
-### Returned object
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
-### Permissions
+#### Permissions
 
 This method requires one of the following OAuth scopes:
 
@@ -423,7 +649,7 @@ https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
 
-### Example
+#### Example
 
 To delete an email permanently:
 
@@ -431,28 +657,28 @@ To delete an email permanently:
 $status:=$google.mail.delete($mailId; True)
 ```
 
-## Google.mail.deleteLabel()
+### Google.mail.deleteLabel()
 
 **Google.mail.deleteLabel**( *labelId* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
-### Description
+#### Description
 
 `Google.mail.deleteLabel()` immediately and permanently deletes the specified label and removes it from any messages and threads that it is applied to. 
 > This method is only available for labels with type="user".
 
 
-### Returned object
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
-### Example
+#### Example
 
 To delete a label:
 
@@ -461,22 +687,22 @@ $status:=$google.mail.deleteLabel($labelId)
 
 ```
 
-## Google.mail.getLabel()
+### Google.mail.getLabel()
 
 **Google.mail.getLabel**( *labelId* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
 |Result|Object|<-|[labelInfo](#labelinfo-object)|
 
-### Description
+#### Description
 
 `Google.mail.getLabel()` returns the information of a label as a [labelInfo](#labelinfo-object) object.
 
-### Returned object
+#### Returned object
 
 The returned [**labelInfo**](#labelinfo-object) object contains the following additional properties:
 
@@ -488,7 +714,7 @@ The returned [**labelInfo**](#labelinfo-object) object contains the following ad
 |threadsTotal|Integer|The total number of threads with the label.|
 |threadsUnread|Integer|The number of unread threads with the label.|
 
-### Example
+#### Example
 
 To retrieve the label name, total message count, and unread messages:
 
@@ -499,22 +725,22 @@ $emailNumber:=$info.messagesTotal
 $unread:=$info.messagesUnread
 ```
 
-## Google.mail.getLabelList()
+### Google.mail.getLabelList()
 
 **Google.mail.getLabelList**() : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |Result|Object|<-| Status object |
 
-### Description
+#### Description
 
 `Google.mail.getLabelList()` returns an object containing the collection of all labels in the user's mailbox.
 
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "labels" property:
 
@@ -526,7 +752,7 @@ The method returns a [**status object**](status-object-google-class) with an add
 |errors|Collection| [see Status object](#status-object-google-class)|
 
 
-### mailLabel object
+#### mailLabel object
 
 A `mailLabel` object contains the following properties (note that additional information can be returned by the server):
 
@@ -539,24 +765,24 @@ A `mailLabel` object contains the following properties (note that additional inf
 |type|Text| Owner type for the label:<br/>- "user": User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread.<br/>- "system": System labels are internally created and cannot be added, modified, or deleted. System labels may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads.|
 
 
-## Google.mail.getMail()
+### Google.mail.getMail()
 
-**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Object<br/>**Google.mail.getMail**( *mailID* : Text { ; *options* : Object } ) : Blob<br/>
+**Google.mail.getMail**( *mailID* : Text { ; *param* : Object } ) : Object<br/>**Google.mail.getMail**( *mailID* : Text { ; *param* : Object } ) : Blob<br/>
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the message to retrieve |
-|options|Object|->|Options |
+|param|Object|->|Options for the message to retrieve|
 |Result|Object &#124; Blob|<-| Downloaded mail|
 
 
-### Description
+#### Description
 
 `Google.mail.getMail()` gets the specified message from the user's mailbox.
 
-In *options*, you can pass several properties:
+In *param*, you can pass several properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -566,7 +792,7 @@ In *options*, you can pass several properties:
 
 
 
-### Returned object
+#### Returned object
 
 The method returns a mail in one of the following formats, depending on the `mailType`:
 
@@ -577,22 +803,22 @@ The method returns a mail in one of the following formats, depending on the `mai
 
 
 
-## Google.mail.getMailIds()
+### Google.mail.getMailIds()
 
-**Google.mail.getMailIds**( { *options* : Object } ) : Object
+**Google.mail.getMailIds**( { *param* : Object } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|options|Object|->|Options for messages to get |
+|param|Object|->|Options for messages to get |
 |Result|Object|<-| Status object |
 
-### Description
+#### Description
 
 `Google.mail.getMailIds()` returns an object containing a collection of message ids in the user's mailbox.
 
-In *options*, you can pass several properties:
+In *param*, you can pass several properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -603,7 +829,7 @@ In *options*, you can pass several properties:
 
 
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with additional properties:
 
@@ -619,7 +845,7 @@ The method returns a [**status object**](status-object-google-class) with additi
 |errors|Collection| [see Status object](#status-object-google-class)|
 
 
-### Permissions
+#### Permissions
 
 This method requires one of the following OAuth scopes:
 
@@ -629,26 +855,26 @@ https://www.googleapis.com/auth/gmail.readonly
 https://www.googleapis.com/auth/gmail.metadata
 ```
 
-## Google.mail.getMails()
+### Google.mail.getMails()
 
-**Google.mail.getMails**( *mailIDs* : Collection { ; *options* : Object } ) : Collection
+**Google.mail.getMails**( *mailIDs* : Collection { ; *param* : Object } ) : Collection
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or a collection of objects (each object contains an ID property)|
-|options|Object|->|Options|
+|param|Object|->|Options|
 |Result|Collection|<-|Collection of mails in format depending on *mailType*: JMAP (collection of objects) or MIME (collection of blobs)</br>If no mail is returned, the collection is empty|
 
 
-### Description
+#### Description
 
 `Google.mail.getMails()` gets a collection of emails based on the specified *mailIDs* collection.
 
 > The maximum number of IDs supported is 100. In order to get more than 100 mails, it's necessary to call the function multiple times; otherwise, the `Google.mail.getMails()` function returns null and throws an error.
 
-In *options*, you can pass several properties:
+In *param*, you can pass several properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -658,7 +884,7 @@ In *options*, you can pass several properties:
 
 
 
-### Returned value
+#### Returned value
 
 The method returns a collection of mails in one of the following formats, depending on the `mailType`:
 
@@ -669,18 +895,18 @@ The method returns a collection of mails in one of the following formats, depend
 
 
 
-## Google.mail.send()
+### Google.mail.send()
 
 **Google.mail.send**( *email* : Text ) : Object<br/>**Google.mail.send**( *email* : Object ) : Object<br/>**Google.mail.send**( *email* : Blob ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
 |Result|Object|<-| [Status object](#status-object-google-class) |
 
-### Description
+#### Description
 
 `Google.mail.send()` sends an email using the MIME or JMAP formats.
 
@@ -698,15 +924,15 @@ $status:=$Google.mail.send($email)
 
 > To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
 
-### Returned object
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
-## Google.mail.untrash()
+### Google.mail.untrash()
 
 **Google.mail.untrash**( *mailID* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -714,15 +940,15 @@ The method returns a standard [**status object**](#status-object-google-class).
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
 
-### Description
+#### Description
 
 `Google.mail.untrash()` removes the specified message from the trash.
 
-### Returned object
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
-### Permissions
+#### Permissions
 
 This method requires one of the following OAuth scopes:
 
@@ -731,27 +957,27 @@ https://mail.google.com/
 https://www.googleapis.com/auth/gmail.modify
 ```
 
-## Google.mail.update()
+### Google.mail.update()
 
-**Google.mail.update**( *mailIDs* : Collection ; *options* : Object) : Object
+**Google.mail.update**( *mailIDs* : Collection ; *param* : Object) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or collection of objects (each object contains an ID property)|
-|options|Object|->|Options|
+|param|Object|->|Options|
 |Result|Object|<-| [Status object](#status-object-google-class) |
 
 > There is a limit of 1000 IDs per request.
 
-### Description
+#### Description
 
 `Google.mail.update()` adds or removes labels on the specified messages to help categorizing emails. The label can be a system label (e.g., NBOX, SPAM, TRASH, UNREAD, STARRED, IMPORTANT) or a custom label. Multiple labels could be applied simultaneously.
 
 For more information check out the [label management documentation](https://developers.google.com/gmail/api/guides/labels).
 
-In *options*, you can pass the following two properties:
+In *param*, you can pass the following two properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -759,12 +985,12 @@ In *options*, you can pass the following two properties:
 |removeLabelIds|Collection|A collection of label IDs to remove from messages.|
 
 
-### Returned object
+#### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
 
 
-### Example
+#### Example
 
 To mark a collection of emails as "unread":
 
@@ -772,11 +998,11 @@ To mark a collection of emails as "unread":
 $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 ```
 
-## Google.mail.updateLabel()
+### Google.mail.updateLabel()
 
 **Google.mail.updateLabel**( *labelId* : Text ; *labelInfo* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -784,12 +1010,12 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 |[labelInfo](#labelinfo-object)|Object|->|Label information to update|
 |Result|Object|<-|[Status object](#status-object-google-class)|
 
-### Description
+#### Description
 
 `Google.mail.updateLabel()` updates the specified label.
 > This method is only available for labels with type="user".
 
-### Returned object
+#### Returned object
 
 The method returns a [**status object**](status-object-google-class) with an additional "label" property:
 
@@ -800,7 +1026,7 @@ The method returns a [**status object**](status-object-google-class) with an add
 |statusText|Text| [see Status object](#status-object-google-class)|
 |errors|Collection| [see Status object](#status-object-google-class)|
 
-### Example
+#### Example
 
 To update a previously created label  to 'Backup January':
 
@@ -809,13 +1035,110 @@ $status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
 
 ```
 
+### "Google" mail object properties
 
-## Google.user.get()
+When you send an email with the "Google" mail type, you must pass an object to `Google.mail.send()`. For a comprehensive list of properties supported by Gmail message objects, refer to the [Gmail API documentation](https://developers.google.com/gmail/api/reference/rest/v1/users.messages). The most common properties are listed below:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| attachments | attachment collection | The attachments for the email. |
+| bccRecipients | recipient collection | The Bcc: recipients for the message. |
+| ccRecipients | recipient collection | The Cc: recipients for the message. |
+| from | recipient object | The sender's email address. Must match the authenticated Gmail user. |
+| id | Text | Unique identifier for the message. |
+| important | Boolean | If true, marks the message as important (Gmail only). |
+| labelIds | Collection | List of label IDs to apply to the message. |
+| replyTo | recipient collection | Email addresses to use when replying. |
+| sender | recipient object | The account that generates the message. Same as `from` in most cases. |
+| subject | Text | The subject line of the message. |
+| toRecipients | recipient collection | The To: recipients for the message. |
+| threadId | Text | The ID of the thread to which the message belongs. |
+
+
+#### Attachment object (Google)
+
+| Property | Type | Description |
+|----------|------|-------------|
+| filename | Text | The name of the attached file. |
+| mailType | Text | Indicates the Mail type to use to send and receive email's attechement. |
+| content | Text | The base64-encoded content of the file. |
+| size | Number | The size of the file in bytes. |
+| isInline | Boolean | Set to true if the attachment is inline (e.g., embedded image). |
+| contentId | Text | Content ID for referencing the attachment inline via CID. |
+
+
+#### recipient object
+
+| Property | Type | Description |
+|----------|------|-------------|
+| emailAddress | Object | Contains the address and display name. |
+| emailAddress.address | Text | The email address of the recipient. |
+| emailAddress.name | Text | Display name of the recipient. |
+
+#### Example: Send an email with a file attachment (Google)
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $token; $param; $email; $status : Object
+
+// Set up authentication
+$param:=New object()
+$param.name:="Google"
+$param.permission:="signedIn"
+$param.clientId:="your-client-id" // Replace with your client ID
+$param.redirectURI:="http://127.0.0.1:50993/authorize/"
+$param.scope:="https://www.googleapis.com/auth/gmail.send"
+
+$oAuth2:=New OAuth2 provider($param)
+$token:=$oAuth2.getToken()
+
+// Create the email, specify the sender and the recipient
+$email:=New object()
+$email.from:=New object("emailAddress"; New object("address"; "sender@gmail.com"))
+$email.toRecipients:=New collection(New object("emailAddress"; New object("address"; "recipient@gmail.com")))
+$email.subject:="Hello from NetKit"
+$email.body:=New object("content"; "Hello, World!"; "contentType"; "html")
+
+// Create an attachment
+var $attachment : Object
+var $text : Text
+$text:="Simple text file"
+BASE64 ENCODE($text)
+$attachment:=New object
+$attachment.filename:="note.txt"
+$attachment.mimeType:="text/plain"
+$attachment.content:=$text
+$email.attachments:=New collection($attachment)
+
+// Send the email
+var $Google : Object
+$Google:=New Google($token)
+$status:=$Google.mail.send($email)
+```
+
+
+
+### labelInfo object
+
+Several Google.mail label management methods use a `labelInfo` object, containing the following properties:
+
+|Property|Type|Description|
+|---------|--- |------|
+|id|Text|The ID of the label.|
+|name|Text|The display name of the label. (mandatory)|
+|messageListVisibility|Text|The visibility of messages with this label in the message list.<br></br> Can be: <br/>- "show": Show the label in the message list. <<br/>- "hide": Do not show the label in the message list. |
+|labelListVisibility|Text|The visibility of the label in the label list. <br></br> Can be:<br/>- "labelShow": Show the label in the label list. <br/>- "labelShowIfUnread" : Show the label if there are any unread messages with that label. <br/>- "labelHide": Do not show the label in the label list. |
+|[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <br/>-  textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. <br/>- backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
+|type|Text|The owner type for the label. <br></br> Can be: <br/>- "system": Labels created by Gmail.<br/>- "user": Custom labels created by the user or application.<br/>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
+
+## User
+ 
+### Google.user.get()
 
 **Google.user.get**( *id* : Text {; *select* : Text } ) : Object<br/>
 **Google.user.get**( *id* : Text {; *select* : Collection } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -823,20 +1146,20 @@ $status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
 |select|Text \| Collection|->|Text: A comma-separated list of specific fields that you want to retrieve from each person (e.g., "names, phoneNumbers").  <br/>Collection: Collection of the specific fields.|
 |Result|Object|<-|Represents user's details, like names, emails, and phone numbers based on the selected fields.|
 
-### Description
+#### Description
 
 `Google.user.get()` provides information about a [user](https://developers.google.com/people/api/rest/v1/people#Person) based on the *resourceName* provided in `id` and fields optionally specified in `select`.
 
 Supported fields include *addresses*, *ageRanges*, *biographies*, *birthdays*, *calendarUrls*, *clientData*, *coverPhotos*, *emailAddresses*, *events*, *externalIds*, *genders*, *imClients*, *interests*, *locales*, *locations*, *memberships*, *metadata*, *miscKeywords*, *names*, *nicknames*, *occupations*, *organizations*, *phoneNumbers*, *photos*, *relations*, *sipAddresses*, *skills*, *urls*, *userDefined*.
 
 
-### Returned object
+#### Returned object
 
 The returned [user object](https://developers.google.com/people/api/rest/v1/people#Person) contains values for the specified field(s). 
 
 If no fields have been specified in `select`, `Google.user.get()` returns *emailAddresses* and *names*. Otherwise, it returns only the specified field(s).
 
-### Permissions
+#### Permissions
 
 No authorization required to access public data. For private data, one of the following OAuth scopes is required:
 
@@ -857,35 +1180,35 @@ https://www.googleapis.com/auth/userinfo.email <br/>
 https://www.googleapis.com/auth/userinfo.profile <br/>
 https://www.googleapis.com/auth/profile.language.read
 
-## Google.user.getCurrent()
+### Google.user.getCurrent()
 
 **Google.user.getCurrent**( { *select* : Text } ) : Object<br/>
 **Google.user.getCurrent**( { *select* : Collection } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |select|Text \| Collection|->|Text: A comma-separated list of specific fields that you want to retrieve from each person (e.g., "names, phoneNumbers"). <br/>Collection: Collection of the specific fields.|
 |Result|Object|<-|Represents user's details, like names, emails, and phone numbers based on the selected fields.|
 
-### Description
+#### Description
 
 `Google.user.getCurrent()` provides information about the authenticated [user](https://developers.google.com/people/api/rest/v1/people#Person) based on fields specified in `select`.
 
 Supported fields include *addresses*, *ageRanges*, *biographies*, *birthdays*, *calendarUrls*, *clientData*, *coverPhotos*, *emailAddresses*, *events*, *externalIds*, *genders*, *imClients*, *interests*, *locales*, *locations*, *memberships*, *metadata*, *miscKeywords*, *names*, *nicknames*, *occupations*, *organizations*, *phoneNumbers*, *photos*, *relations*, *sipAddresses*, *skills*, *urls*, *userDefined*.
 
-### Returned object
+#### Returned object
 
 The returned [user object](https://developers.google.com/people/api/rest/v1/people#Person) contains values for the specific field(s). 
 
 If no fields have been specified in `select`, `Google.user.getCurrent()` returns *emailAddresses* and *names*. Otherwise, it returns only the specified field(s).
 
-### Permissions
+#### Permissions
 
 Requires the same OAuth scope package as [Google.user.get()](#permissions-15).
 
-### Example
+#### Example
 
 To retrieve information from the current user:
 
@@ -929,24 +1252,24 @@ var $currentUser2:=$google.user.getCurrent("phoneNumbers")
 //returns the field "phoneNumbers" 
 ```
 
-## Google.user.list()
+### Google.user.list()
 
-**Google.user.list**( { *options* : Object } ) : Object
+**Google.user.list**( { *param* : Object } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|options|Object|->|A set of options defining how to retrieve and filter user data|
+|param|Object|->|A set of options defining how to retrieve and filter user data|
 |Result|Object|<-|An object containing a structured collection of [user](https://developers.google.com/people/api/rest/v1/people#Person) data organized into pages|
 
-### Description
+#### Description
 
 `Google.user.list()` provides a list of domain profiles or domain contacts in the authenticated user's domain directory. 
 
 > If the contact sharing or the External Directory sharing is not allowed in the Google admin, the returned `users` collection is empty.
 
-In *options*, you can pass the following properties:
+In *param*, you can pass the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -955,7 +1278,7 @@ In *options*, you can pass the following properties:
 |mergeSources|Text \| Collection|Adds related data if linked by verified join keys such as email addresses or phone numbers. <br/>-  DIRECTORY_MERGE_SOURCE_TYPE_UNSPECIFIED (Unspecified), <br/>- DIRECTORY_MERGE_SOURCE_TYPE_CONTACT (User owned contact).|
 |top|Integer|Sets the maximum number of people to retrieve per page, between 1 and 1000 (default is 100).|
 
-### Returned object
+#### Returned object
 
 The returned object holds a collection of [users objects](https://developers.google.com/people/api/rest/v1/people#Person) as well as [**status object**](status-object-google-class) properties and functions that allow you to navigate between different pages of results.
 
@@ -970,11 +1293,11 @@ The returned object holds a collection of [users objects](https://developers.goo
 |statusText|Text| [see Status object](#status-object-google-class)|
 |errors|Collection| [see Status object](#status-object-google-class)|
 
-### Permissions
+#### Permissions
 
 Requires the same OAuth scope package as [Google.user.get()](#permissions-15).
 
-### Example
+#### Example
 
 To retrieve user data in a structured collection organized into pages with a maximum of `top` users per page: 
 
@@ -1014,18 +1337,6 @@ var $userList:=$google.user.list({top:10})
 ```
 
 
-## labelInfo object
-
-Several Google.mail label management methods use a `labelInfo` object, containing the following properties:
-
-|Property|Type|Description|
-|---------|--- |------|
-|id|Text|The ID of the label.|
-|name|Text|The display name of the label. (mandatory)|
-|messageListVisibility|Text|The visibility of messages with this label in the message list.<br></br> Can be: <br/>- "show": Show the label in the message list. <<br/>- "hide": Do not show the label in the message list. |
-|labelListVisibility|Text|The visibility of the label in the label list. <br></br> Can be:<br/>- "labelShow": Show the label in the label list. <br/>- "labelShowIfUnread" : Show the label if there are any unread messages with that label. <br/>- "labelHide": Do not show the label in the label list. |
-|[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to user). <br></br> The color object has 2 attributes : <br/>-  textColor: text: The text color of the label, represented as hex string. This field is required in order to set the color of a label. <br/>- backgroundColor: text: The background color represented as hex string #RRGGBB (ex for black: #000000). This field is required in order to set the color of a label. </li></ul>|
-|type|Text|The owner type for the label. <br></br> Can be: <br/>- "system": Labels created by Gmail.<br/>- "user": Custom labels created by the user or application.<br/>System labels are internally created and cannot be added, modified, or deleted. They're may be able to be applied to or removed from messages and threads under some circumstances but this is not guaranteed. For example, users can apply and remove the INBOX and UNREAD labels from messages and threads, but cannot apply or remove the DRAFTS or SENT labels from messages or threads. </br>User labels are created by the user and can be modified and deleted by the user and can be applied to any message or thread. |
 
 
 ## Status object
