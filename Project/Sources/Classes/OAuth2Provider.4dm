@@ -496,7 +496,13 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			$options.enableDebugLog:=This.enableDebugLog
 			$options.useTLS:=(Position("https"; This.redirectURI)=1)
 			If ((Value type(This.authenticationPage)=Is object) || (Value type(This.authenticationErrorPage)=Is object))
-				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
+				var $file : Object:=Null
+				Case of 
+					: (Value type(This.authenticationPage)=Is object)
+						$file:=This.authenticationPage
+					: (Value type(This.authenticationErrorPage)=Is object)
+						$file:=This.authenticationErrorPage
+				End case 
 				If (OB Instance of($file; 4D.File))
 					$options.webFolder:=$file.parent
 				End if 
