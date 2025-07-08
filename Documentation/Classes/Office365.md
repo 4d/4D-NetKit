@@ -137,7 +137,7 @@ Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mod
 #### Example
 
 ```4d
-var $oAuth2 : cs.NetKit.OAuth2Provid 
+var $oAuth2 : cs.NetKit.OAuth2Provider 
 var $Office365 : cs.NetKit.Office365
 var $params; $calendarList; $calendarA : Object
 
@@ -356,7 +356,7 @@ One of the following permissions is required to create an event:
 Create a calendar event:
 
 ```4d
-var $oAuth2 : cs.NetKit.OAuth2Provid 
+var $oAuth2 : cs.NetKit.OAuth2Provider 
 var $Office365 : cs.NetKit.Office365
 var $event; $result : Object
 
@@ -420,7 +420,7 @@ Update an already existing event calendar:
 
 ```4d
 #DECLARE($eventId:Text)
-var $oAuth2 : cs.NetKit.OAuth2Provid 
+var $oAuth2 : cs.NetKit.OAuth2Provider 
 var $Office365 : cs.NetKit.Office365
 var $result : Object
 
@@ -477,7 +477,7 @@ One of the following permissions is required to delete an event:
 Delete a calendar event:
 
 ```4d
-var $oAuth2 : cs.NetKit.OAuth2Provid 
+var $oAuth2 : cs.NetKit.OAuth2Provider 
 var $Office365 : cs.NetKit.Office365
 
 $status:=$office365.calendar.deleteEvent({eventId: $event.event.id})
@@ -533,7 +533,7 @@ One of the following permissions is required:
 #### Example
 
 ```4d
-var $oAuth2 : cs.NetKit.OAuth2Provid
+var $oAuth2 : cs.NetKit.OAuth2Provider
 var $Office365 : cs.NetKit.Office365
 var $result : Object
 var $toDisplay : Collection
