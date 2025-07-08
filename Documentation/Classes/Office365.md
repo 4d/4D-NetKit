@@ -15,47 +15,64 @@ The `Office365` class can be instantiated in two ways:
 **Warning:** Shared objects are not supported by the 4D NetKit API.
 
 
-## Table of contents
+## Table of Contents 
 
-- [New Office365 provider](#new-office365-provider)
-- [Office365.calendar.getCalendar()](#office365calendargetcalendar)
-- [Office365.calendar.getCalendars()](#office365calendargetCalendars)
-- [Office365.calendar.getEvent()](#office365calendargetevent)
-- [Office365.calendar.getEvents()](#office365calendargetevents)
-- [Office365.mail.append()](#office365mailappend)
-- [Office365.mail.copy()](#office365mailcopy)
-- [Office365.mail.createFolder()](#office365mailcreatefolder)
-- [Office365.mail.delete()](#office365maildelete)
-- [Office365.mail.deleteFolder()](#office365maildeletefolder)
-- [Office365.mail.getFolder()](#office365mailgetfolder)
-- [Office365.mail.getFolderList()](#office365mailgetfolderlist)
-- [Office365.mail.getMail()](#office365mailgetmail)
-- [Office365.mail.getMails()](#office365mailgetmails)
-- [Office365.mail.move()](#office365mailmove)
-- [Office365.mail.renameFolder()](#office365mailrenameFolder)
-- [Office365.mail.reply()](#office365mailreply)
-- [Office365.mail.send()](#office365mailsend)
-- [Office365.mail.update()](#office365mailupdate)
-- [Well-known folder names](well-known-folder-names)
-- ["Microsoft" mail object properties](#microsoft-mail-object-properties)
-- [Status object (Office365 Class)](#status-object)
-- [Office365.user.get()](#office365userget)
-- [Office365.user.getCurrent()](#office365usergetcurrent)
-- [Office365.user.list()](#office365userlist)
+### [Initialization](##new-office365-provider) 
 
+* [New Office365 provider](#new-office365-provider)
 
+###  [Calendar](#calendar-1) 
+
+* [Office365.calendar.getCalendar()](#office365calendargetcalendar)
+* [Office365.calendar.getCalendars()](#office365calendargetcalendars)
+* [Office365.calendar.getEvent()](#office365calendargetevent)
+* [Office365.calendar.getEvents()](#office365calendargetevents)
+* [Office365.calendar.createEvent()](#office365calendarcreateevent)
+* [Office365.calendar.updateEvent()](#office365calendarupdateevent)
+* [Office365.calendar.deleteEvent()](#office365calendardeleteevent)
+* [Office365.category.list()](#office365categorylist)
+* [Event object](#event-object)
+
+###  [Mail](#mail-1) 
+
+* [Office365.mail.send()](#office365mailsend)
+* [Office365.mail.append()](#office365mailappend)
+* [Office365.mail.update()](#office365mailupdate)
+* [Office365.mail.reply()](#office365mailreply)
+* [Office365.mail.createFolder()](#office365mailcreatefolder)
+* [Office365.mail.renameFolder()](#office365mailrenamefolder)
+* [Office365.mail.deleteFolder()](#office365maildeletefolder)
+* [Office365.mail.getFolder()](#office365mailgetfolder)
+* [Office365.mail.getFolderList()](#office365mailgetfolderlist)
+* [Office365.mail.getMail()](#office365mailgetmail)
+* [Office365.mail.getMails()](#office365mailgetmails)
+* [Office365.mail.move()](#office365mailmove)
+* [Office365.mail.copy()](#office365mailcopy)
+* [Office365.mail.delete()](#office365maildelete)
+* [Well-known folder names](#well-known-folder-names)
+* ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+
+### [User](#user-1) 
+
+* [Office365.user.get()](#office365userget)
+* [Office365.user.getCurrent()](#office365usergetcurrent)
+* [Office365.user.list()](#office365userlist)
+
+### [Status](#status-object) 
+
+* [Status object (Office365 Class)](#status-object)
 
 
 ## **New Office365 provider**
 
-**New Office365 provider**( *paramObj* : Object { ; *options* : Object } ) : cs.NetKit.Office365
+**New Office365 provider**( *paramObj* : Object { ; *param* : Object } ) : cs.NetKit.Office365
 
 ### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |paramObj|cs.NetKit.OAuth2Provider|->| Object of the OAuth2Provider class  |
-|options|Object|->| Additional options |
+|param|Object|->| Additional options |
 |Result|cs.NetKit.Office365|<-| Object of the Office365 class|
 
 ### Description
@@ -64,7 +81,7 @@ The `Office365` class can be instantiated in two ways:
 
 In `paramObj`, pass an [OAuth2Provider object](#new-auth2-provider).
 
-In `options`, you can pass an object that specifies the following options:
+In `param`, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
@@ -98,6 +115,8 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 
 Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode.
 
+## Calendar
+
 ### Office365.calendar.getCalendar()
 
 **Office365.calendar.getCalendar**({*id*: Text}) : Object
@@ -118,7 +137,7 @@ Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mod
 #### Example
 
 ```4d
-var $oAuth2 : cs.NetKit.OAuth2Provider
+var $oAuth2 : cs.NetKit.OAuth2Provider 
 var $Office365 : cs.NetKit.Office365
 var $params; $calendarList; $calendarA : Object
 
@@ -294,11 +313,294 @@ var $myCaldendar:=$calendars.calendars[0]
 var $events:=$office365.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
 ```
 
-## Office365.mail.append()
+### Office365.calendar.createEvent()
+
+**Office365.calendar.createEvent**(*event*: Object ) : Object
+
+#### Parameters
+
+| Parameter | Type   |  | Description                                               |
+| --------- | ---- |---|------------------------- |
+| event | Object | -> | Object containing details of the calendar [event](#event-object) to create |
+| result| Object | <- | [Status object](#status-object-microsoft-class)|
+
+#### Description
+
+`Office365.calendar.createEvent()` creates a new calendar event.
+
+In *event*, pass the properties you want to set for the event.
+
+#### Returned Object
+
+The function returns a [**status object**](#status-object-microsoft-class) with an additional `event` property:
+
+| Property   | Type   | Description|                                         
+| -------- | ---------- | ----------------------------------- |
+| event| Object | [Event object](#event-object) returned by the server                 |
+| success | Boolean| See [Status object](#status-object-microsoft-class) |
+| statusText | Text| See [Status object](#status-object-microsoft-class) |
+| errors  | Collection | See [Status object](#status-object-microsoft-class) |
+
+#### Permissions 
+ 
+One of the following permissions is required to create an event:
+
+| Type                    | Permission            |
+| ----------------------- | --------------------- |
+| Delegated (Work/School) | `Calendars.ReadWrite` |
+| Delegated (Personal)    | `Calendars.ReadWrite` |
+| Application             | `Calendars.ReadWrite` |
+
+#### Example
+
+Create a calendar event:
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider 
+var $Office365 : cs.NetKit.Office365
+var $event; $result : Object
+
+$event:={}
+$event.subject:="Team Sync"
+$event.start:={date: Current date; time: Current time}
+$event.end:={date: Current date; time: Current time+3600}
+$event.attendees:=[{email: "first.lastname@gmail.com"}]
+
+$result:=$Office365.calendar.createEvent($event)
+If (Not($result.success))
+  ALERT($result.statusText)
+End if
+```
+### Office365.calendar.updateEvent()
+
+**Office365.calendar.updateEvent**(*event*: Object) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description|                                                                                                             
+| --------- | ------ | ---- | ----------------------------- |
+| event     | Object | ->| Object containing the complete updated [event](#event-object). |
+| Result| Object | <-| [Status object](#status-object-office365-class)|                                                                         
+
+#### Description
+
+`Office365.calendar.updateEvent()` updates an existing calendar event.
+
+In *event*, pass the event id (mandatory) and the properties you want to update. 
+
+To check the updatable properties, please refer to the [event object](#event-object) table below.
+
+> **Note**: 
+ When using `Office365.calendar.updateEvent()`, you only need to include the fields you want to update. Any property you leave out will keep its current value, unless it needs to be recalculated due to changes in related fields (e.g., updating recurrence may affect dates).
+
+#### Returned Object
+
+The method returns a [**status object**](#status-object-office365-class) with an additional `event` property:
+
+| Property   | Type       | Description                                         |
+| ---------- | ---------- | --------------------------------------------------- |
+| event      | Object     | Updated [event object](#event-object) returned by the server         |
+| success    | Boolean    | [see Status object](#status-object-office365-class) |
+| statusText | Text       | [see Status object](#status-object-office365-class) |
+| errors     | Collection | [see Status object](#status-object-office365-class) |
+
+#### Permissions 
+ 
+One of the following permissions is required to update an event:
+
+| Type                    | Permission            |
+| ----------------------- | --------------------- |
+| Delegated (Work/School) | `Calendars.ReadWrite` |
+| Delegated (Personal)    | `Calendars.ReadWrite` |
+| Application             | `Calendars.ReadWrite` |
+
+#### Example
+
+Update an already existing event calendar:
+
+```4d
+#DECLARE($eventId:Text)
+var $oAuth2 : cs.NetKit.OAuth2Provider 
+var $Office365 : cs.NetKit.Office365
+var $result : Object
+
+$event.id:=$eventId
+$event.subject:="Updated Meeting Title"
+$event.start:={date: Current date; time: Current time}
+$event.end:={date: Current date; time: Current time+3600}
+
+$result:=$Office365.calendar.updateEvent($event)
+If (Not($result.success))
+  ALERT($result.statusText)
+End if
+```
+
+### Office365.calendar.deleteEvent()
+
+**Office365.calendar.deleteEvent**(*param*: Object) : Object
+
+#### Parameters
+
+| Parameter | Type   | Direction | Description                                                                                                         |
+| --------- | ------ | --------- | ------------------------------------------------------------------------------------------------------------------- |
+| param     | Object | ->  | Object containing details for the calendar [event](#event-object) to delete|
+| Result    | Object | <-  | [Status object](#status-object-office365-class)                                                                     |
+
+#### Description
+
+`Office365.calendar.deleteEvent()` deletes a calendar event.
+
+In *param*, you can pass the following properties:
+
+| Property    | Type | Description                                                                                                                                                                      |
+| ----------- | ---- | ---------------------------------------- |
+| eventId     | Text | **Required.** ID of the event to delete.                                                                                                                                         |
+| calendarId  | Text | ID of the calendar. If not provided, the primary calendar of the currently logged-in user is used.                                                                                                     |
+
+
+#### Returned Object
+
+The method returns a [**status object**](#status-object-office365-class).
+
+#### Permissions
+
+One of the following permissions is required to delete an event:
+
+| Type                    | Permission            |
+| ----------------------- | --------------------- |
+| Delegated (Work/School) | `Calendars.ReadWrite` |
+| Delegated (Personal)    | `Calendars.ReadWrite` |
+| Application             | `Calendars.ReadWrite` | 
+
+#### Example
+
+Delete a calendar event:
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider 
+var $Office365 : cs.NetKit.Office365
+
+$status:=$office365.calendar.deleteEvent({eventId: $event.event.id})
+If ($result.success)
+  ALERT("Calendar event correctly deleted")
+Else
+  ALERT($result.statusText)
+End if
+
+```
+
+### Office365.category.list()
+
+**Office365.category.list**() : Object
+
+#### Parameters
+
+| Parameter | Type   |    | Description                                                        |
+| --------- | ------ | -- | ------------------------------------------------------------------ |
+| This method does not take any parameters.|  | | |
+| Result    | Object | <- | [Status object](#status-object) including a `categories` property. |
+
+#### Description
+
+`Office365.category.list()` retrieves the list of defined categories used to group and organize items such as messages and calendar events in a Microsoft account.
+
+Each category includes a display name and a color, which can be applied when creating or updating events.
+
+#### Returned Object
+
+The method returns a [**status object**](#status-object) with an additional `categories` property:
+
+| Property   | | Type       | Description                                                                                                                                                                                      |
+| --------- | --|-------- | ----------------------------- |
+| success    | | Boolean    | [See Status object](#status-object)                                                                                                                                                              |
+| statusText | | Text       | [See Status object](#status-object)                                                                                                                                                              |
+| errors     | | Collection | [See Status object](#status-object)                                                                                                                                                              |
+| categories | | Collection | Collection of category objects. |
+| | id         | Text | ID of the category.                                                                                                                                                                                                                                  |
+| | displayName | Text | A unique name that identifies the category in the user's mailbox. Once set, this name cannot be changed.                                                                                                                                                            |
+| | color      | Text | A pre-set color constant mapped to one of 25 predefined Outlook colors (e.g., `"Preset0"`, `"Preset12"`). See the list of [color constants](https://learn.microsoft.com/en-us/graph/api/resources/outlookcategory?view=graph-rest-1.0#properties) for more details. |
+
+#### Permissions
+
+One of the following permissions is required:
+
+| Type                    | Permission             |
+| ----------------------- | ---------------------- |
+| Delegated (Work/School) | `MailboxSettings.Read` |
+| Delegated (Personal)    | `MailboxSettings.Read` |
+| Application             | `MailboxSettings.Read` | 
+
+#### Example
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+var $Office365 : cs.NetKit.Office365
+var $result : Object
+var $toDisplay : Collection
+ 
+$result:=$o365.category.list()
+$toDisplay:=[]
+ 
+If (Not($result.success))
+	ALERT($result.statusText)
+Else 
+	// Process the category list
+	For each ($category; $result.categories)
+		$toDisplay.push($category.displayName)
+	End for each 
+End if
+```  
+### Event object
+
+The `event` object used with Microsoft Calendar methods includes the following main properties. For the full list, refer to the [official Microsoft documentation](https://learn.microsoft.com/en-us/graph/api/resources/event?view=graph-rest-1.0).
+
+| Property  |   | Type  | Description| Updatable |                                                                                                 
+| -------- | -- | ----- | ----------------------- |-----------|
+| id             |   | Text    | ID for the event. Case-sensitive and read-only. |         |
+| calendarId |    | Text  | Calendar ID. If not provided, the user's primary calendar is used.   |         |
+| attachments| | Collection | Event file [attachments](#attachment-object).|          |                                                                                    
+| attendees |   | Collection | List of attendees.|Yes|                                                                                          
+|  | emailAddress | Text       |  Required. Attendee’s email address.|         |                                                                     
+| | type         | Text       | Attendee role: `"required"`, `"optional"`, or `"resource"`.|         |                                                 
+| body | | Object |Body of the message associated with the event.| Yes |                                                                  
+| | content      | Text       | Content of the body|         |                                                                                     
+| | contentType  | Text       | Type of the content. <br> Possible values: `"text"` or `"html"`.|         |                                                                                       
+| categories | | Collection | List of categories associated with the event. Must match the `displayName` of categories returned by [`Office365.category.list()`](#office365categorylist). |Yes|
+| start   |  | Object  | Start time of the event.|Yes|                                                                                    
+|  | date  | Date  | Start time of the event. If provided as text, use the format `"yyyy-mm-dd"`.|         |                                                     
+| | time  | Time| Start time (not used for all-day events).|         |                                                                   
+|  | dateTime  | Text   | Combined start date and time (`"yyyy-mm-ddThh:mm:ss"` format). Overrides `date` and `time`.                 |         |
+|  | timeZone     | Text | Time zone for the `dateTime`, using IANA format (e.g., `"Europe/Zurich"`). Defaults to UTC if not provided.|          |                                                              
+| end   | | Object     | End time of the event.|Yes|                                                                                      
+| | date         | Date       | End date of the event. If provided as text, use the format `"yyyy-mm-dd"`.|         |                                                       
+| | time         | Time       | End time (not used for all-day events).|         |                                                                     
+| | dateTime     | Text       | Combined end date and time (`"yyyy-mm-ddThh:mm:ss"` format). Overrides `date` and `time`.|         |                   
+| | timeZone     | Text | Time zone for the `dateTime`, using IANA format (e.g., `"Europe/Zurich"`). Defaults to UTC if not provided.|         | 
+| isAllDay   | | Boolean    | (Default: false) Set to `true` if it's an all-day event.|Yes|
+| isDraft        |   | Boolean |(Default: false) Set to `true` if changes have been made to the meeting but not yet sent to attendees.|         |                                                                         
+| isCancelled | | Boolean    | (Default: false) Whether the event is canceled.|         |                                                                              
+| isReminderOn| | Boolean    | (Default: false) Whether a reminder is set for the event.| Yes |                                                                    
+| isOnlineMeeting | | Boolean    | (Default: false) Set to `true` to create an online meeting. Once set, the event stays online and further changes to this setting are ignored.|Yes|                                                               
+| onlineMeetingProvider | | Text | Provider used: `"teamsForBusiness"`, `"skypeForBusiness"`, `"skypeForConsumer"`, etc.|Yes |                                                                                           
+|location| | Object| Event [location object](https://learn.microsoft.com/en-us/graph/api/resources/location?view=graph-rest-1.0).|Yes |                                                                                                                                                                    
+| reminderMinutesBeforeStart | | Integer    | Time in minutes before start to trigger reminder.|Yes |                                                                   
+| responseRequested  | | Boolean    | Whether a response is requested from attendees. Default is `true`.|Yes |
+| recurrence  |  | Object     | [Recurrence pattern](https://learn.microsoft.com/en-us/graph/api/resources/recurrencepattern?view=graph-rest-1.0) (e.g., daily, weekly) .| Yes | 
+| seriesMasterId |   | Text    | ID of the recurring series master event, if this event is part of a recurring series. |         |
+| importance | | Text | Event importance: `"low"`, `"normal"`, or `"high"`.|Yes |                                                                                                   
+| sensitivity | | Text       | Event sensitivity: `"normal"`, `"personal"`, `"private"`, `"confidential"`.| Yes |                                        
+| showAs|  | Text | Availability status: `busy`, `free`, etc.| Yes |             
+| subject | | Text | Event title or subject line.| Yes |                                                                                     
+| allowNewTimeProposals | | Boolean    | (Default: true) Whether attendees can propose a new time.|         |                                                
+| hideAttendees  | | Boolean    | (Default: false) If `true`, attendees will only see themselves.|Yes|                                                             
+
+## Mail 
+ 
+### Office365.mail.append()
 
 **Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -306,18 +608,18 @@ var $events:=$office365.calendar.getEvents({calendarId: $myCalendar.id; top: 10}
 |folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.append()` creates a draft *email* in the *folderId* folder.
 
 In `email`, pass the email to create. It must be of the [Microsoft mail object](#microsoft-mail-object-properties) type.
 
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -328,18 +630,18 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Example
+#### Example
 
 ```4d
 $status:=$office365.mail.append($draft; $folder.id)
 ```
 
 
-## Office365.mail.copy()
+### Office365.mail.copy()
 
 **Office365.mail.copy**( *mailId* : Text ; *folderId* : Text) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -347,15 +649,15 @@ $status:=$office365.mail.append($draft; $folder.id)
 |folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.copy()` copies the *mailId* email to the *folderId* folder within the user's mailbox.
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -365,7 +667,7 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.ReadWrite|
 |Application|Mail.ReadWrite|
 
-### Example
+#### Example
 
 To copy an email from a folder to another:
 
@@ -374,11 +676,11 @@ $status:=$office365.mail.copy($mailId; $folderId)
 ```
 
 
-## Office365.mail.createFolder()
+### Office365.mail.createFolder()
 
 **Office365.mail.createFolder**( *name* : Text { ; *isHidden* : Boolean { ; *parentFolderId* : Text } }) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -393,7 +695,7 @@ By default, the new folder is not hidden. Pass `True` in the isHidden parameter 
 
 By default, the new folder is created at the root folder of the mailbox. If you want to create it within an existing folder, pass its id in the *parentFolderId* parameter.
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -404,11 +706,11 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-### Example
+#### Example
 
 You want to create a "Backup" mail folder at the root of your mailbox and move an email to this folder:
 
@@ -422,23 +724,23 @@ If($status.success=True)
 End if
 ```
 
-## Office365.mail.delete()
+### Office365.mail.delete()
 
 **Office365.mail.delete**( *mailId* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to delete|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.delete()` deletes the *mailId* email.
 
 
-### Permissions
+#### Permissions
 
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
@@ -450,7 +752,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
@@ -458,7 +760,7 @@ The method returns a [status object](#status-object).
 **Note:** You may not be able to delete items in the recoverable items deletions folder (for more information, see the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-delete?view=graph-rest-1.0&tabs=http)).
 
 
-### Example
+#### Example
 
 You want to delete all mails in the *$mails* collection:
 
@@ -468,22 +770,22 @@ For each($mail;$mails)
 End for each
 ```
 
-## Office365.mail.deleteFolder()
+### Office365.mail.deleteFolder()
 
 **Office365.mail.deleteFolder**( *folderId* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-name) if one exists.|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.deleteFolder()` deletes the *folderId* mail folder.
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -494,21 +796,21 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-### Example
+#### Example
 
 ```4d
 $status:=$office365.mail.deleteFolder($folderId)
 ```
 
-## Office365.mail.getFolder()
+### Office365.mail.getFolder()
 
 **Office365.mail.getFolder**( *folderId* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -517,7 +819,7 @@ $status:=$office365.mail.deleteFolder($folderId)
 
 `Office365.mail.getFolder()` allows you to get a **mailFolder** object from its *folderId*.
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -528,7 +830,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
 
-### mailFolder object
+#### mailFolder object
 
 The method returns a **mailFolder** object containing the following properties (additional information can be returned by the server):
 
@@ -543,20 +845,20 @@ The method returns a **mailFolder** object containing the following properties (
 |unreadItemCount|Integer|Number of items in the mailFolder marked as unread.|
 
 
-## Office365.mail.getFolderList()
+### Office365.mail.getFolderList()
 
-**Office365.mail.getFolderList**( *options* : Object ) : Object
+**Office365.mail.getFolderList**( *param* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|options|Object|->| Description of folders to get|
+|param|Object|->| Description of folders to get|
 |Result|Object|<-| Status object that contains folder list and other information|
 
 `Office365.mail.getFolderList()` allows you to get a mail folder collection of the signed-in user.
 
-In *options*, pass an object to define the folders to get. The available properties for that object are (all properties are optional):
+In *param*, pass an object to define the folders to get. The available properties for that object are (all properties are optional):
 
 | Property | Type | Description |
 |---|---|---|
@@ -569,7 +871,7 @@ In *options*, pass an object to define the folders to get. The available propert
 |includeHiddenFolders|boolean|True to include hidden folders in the response. False (default) to not return hidden folders. |
 
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -580,7 +882,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
 
-### Returned object
+#### Returned object
 
 The method returns a status object containing the following properties:
 
@@ -610,7 +912,7 @@ The method returns an empty collection in the `folders` property if:
 - no folders are found at the defined location
 - an error is thrown
 
-### Example
+#### Example
 
 You want to :
 
@@ -625,25 +927,25 @@ $subfolders:=$office365.mail.getFolderList($result.folders[8].id)
 ```
 
 
-## Office365.mail.getMail()
+### Office365.mail.getMail()
 
-**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *options* : Object } ) : Blob
+**Office365.mail.getMail**( *mailId* : Text { ; *param* : Object } ) : Object<br/>**Office365.mail.getMail**( *mailId* : Text { ; *param* : Object } ) : Blob
 
-### Parameters
+#### Parameters
 
 |Parameter||Type||Description|
 |-----|----|--- |:---:|------|
 |mailId||Text|->| Id of the mail to get|
-|options||Object|->|Format options for the returned mail object|
+|param||Object|->|Format options for the returned mail object|
 ||mailType|Text|| Type of the mail object to return. Available values: <br/>- "MIME"<br/>- "JMAP"<br/>- "Microsoft" (default)<br/>By default if omitted, the same format as the [`mail.type` property](#new-office365-provider) is used|
 ||contentType|Text|| Format of the `body` and `uniqueBody` properties to be returned. Available values: <br/>- "text"<br/>- "html" (default)|
 |Result||Blob &#124; Object|<-| Downloaded mail|
 
 `Office365.mail.getMail()` allows you to get a single mail from its *mailId*.
 
-By default, the mail is returned with its original format, as defined in the [`mail.type` property of the provider](#new-office365-provider). However, you can convert it to any type using the `mailType` property of the *options* parameter.   
+By default, the mail is returned with its original format, as defined in the [`mail.type` property of the provider](#new-office365-provider). However, you can convert it to any type using the `mailType` property of the *param* parameter.   
 
-You can also select the preferred format of the `body` and `uniqueBody` properties of the returned mail using the `contentType` property of the *options* parameter.
+You can also select the preferred format of the `body` and `uniqueBody` properties of the returned mail using the `contentType` property of the *param* parameter.
 
 The data type of the function result depends on the mail type:
 
@@ -657,7 +959,7 @@ If an error occurs, the function returns Null and an error is generated.
 
 See also [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/message-get?view=graph-rest-1.0&tabs=http).
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -668,7 +970,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadBasic.All, Mail.Read|
 
 
-### Example
+#### Example
 
 Download a specific email:
 
@@ -677,22 +979,22 @@ $mail:=$office.mail.getMail($mailId)
 ```
 
 
-## Office365.mail.getMails()
+### Office365.mail.getMails()
 
-**Office365.mail.getMails**( *options* : Object ) : Object
+**Office365.mail.getMails**( *param* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|options|Object|->| Description of mails to get|
+|param|Object|->| Description of mails to get|
 |Result|Object|<-| Status object that contains mail list and other information|
 
 `Office365.mail.getMails()` allows you to get messages in the signed-in user's mailbox (for detailed information, please refer to the [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/api/user-list-messages?view=graph-rest-1.0&tabs=http)).  
 
 This method returns mail bodies in HTML format only.
 
-In *options*, pass an object to define the mails to get. The available properties for that object are (all properties are optional):
+In *param*, pass an object to define the mails to get. The available properties for that object are (all properties are optional):
 
 | Property | Type | Description |
 |---|---|---|
@@ -704,7 +1006,7 @@ In *options*, pass an object to define the mails to get. The available propertie
 |orderBy|text|Defines how returned items are ordered. Default is ascending order. Syntax: "fieldname asc" or "fieldname desc" (replace "fieldname" with the name of the field to be arranged).|
 
 
-### Returned object
+#### Returned object
 
 The method returns a status object containing the following properties:
 
@@ -722,7 +1024,7 @@ The method returns a status object containing the following properties:
 | success | |  Boolean | `True` if the `Office365.mail.getFolderList()` call is successful, `False` otherwise |
 | mails ||  Collection | Collection of [Microsoft mail objects](#microsoft-mail-object-properties). If no mail is returned, the collection is empty|
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -732,7 +1034,7 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.ReadBasic, Mail.Read, Mail.ReadWrite|
 |Application|Mail.ReadBasic.All, Mail.Read, Mail.ReadWrite|
 
-### Example
+#### Example
 
 You want to retrieve *sender* and *subject* properties of all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
 
@@ -744,11 +1046,11 @@ $param.select:="sender,subject"
 $mails:=$office365.mail.getMails($param)
 ```
 
-## Office365.mail.move()
+### Office365.mail.move()
 
 **Office365.mail.move**( *mailId* : Text ; *folderId* : Text) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -756,16 +1058,16 @@ $mails:=$office365.mail.getMails($param)
 |folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.move()` moves the *mailId* email to the *folderId* folder. It actually creates a new copy of the email in the destination folder and removes the original email from its source folder.
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -776,7 +1078,7 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Example
+#### Example
 
 To move an email from a folder to another:
 
@@ -784,11 +1086,11 @@ To move an email from a folder to another:
 $status:=$office365.mail.move($mailId; $folderId)
 ```
 
-## Office365.mail.renameFolder()
+### Office365.mail.renameFolder()
 
 **Office365.mail.renameFolder**( *folderId* : Text ; *name* : Text ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -796,13 +1098,13 @@ $status:=$office365.mail.move($mailId; $folderId)
 |name|Text|->| New display name for the folder|
 |Result|Object|<-| [Status object](#status-object) |
 
-### Description
+#### Description
 
 `Office365.mail.renameFolder()` renames the *folderId* mail folder with the provided *name*.
 
 Note that the renamed folder ID is different from the *folderId*. You can get it in the returned [status object](#status-object).
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -813,11 +1115,11 @@ One of the following permissions is required to call this API. For more informat
 |Application|Mail.ReadWrite|
 
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-### Example
+#### Example
 
 You want to rename the the "Backup" folder to "Backup_old":
 
@@ -826,11 +1128,11 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 ```
 
 
-## Office365.mail.reply()
+### Office365.mail.reply()
 
 **Office365.mail.reply**( *reply* : Object ; *mailId* : Text { ; *replyAll* : Boolean } ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter||Type||Description|
 |----|-----|--- |:---:|------|
@@ -841,7 +1143,7 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 |replyAll||Boolean|->| True to reply to all recipients of the message. Default=False|
 |Result|Object|<-| [Status object](#status-object)  |
 
-### Description
+#### Description
 
 `Office365.mail.reply()` replies to the sender of *mailId* message and, optionnally, to all recipients of the message.
 
@@ -849,11 +1151,11 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 
 If you pass `False` in *replyAll* and if the original message specifies a recipient in the `replyTo` property, the reply is sent to the recipients in `replyTo` and not to the recipient in the `from` property.
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object)
 
-### Permissions
+#### Permissions
 
 One of the following permissions is required to call this API. For more information, including how to choose permissions, see the [Permissions section on the Microsoft documentation](https://docs.microsoft.com/en-us/graph/permissions-reference).
 
@@ -863,7 +1165,7 @@ One of the following permissions is required to call this API. For more informat
 |Delegated (personal Microsoft account)|Mail.Send|
 |Application|Mail.Send|
 
-### Example
+#### Example
 
 To reply to an email and create a conversation:
 
@@ -876,18 +1178,18 @@ $status:=$office365.mail.reply($reply; $mails.mailId)
 
 
 
-## Office365.mail.send()
+### Office365.mail.send()
 
 **Office365.mail.send**( *email* : Text ) : Object<br/>**Office365.mail.send**( *email* : Object ) : Object<br/>**Office365.mail.send**( *email* : Blob ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
 |Result|Object|<-| [Status object](#status-object) |
 
-### Description
+#### Description
 
 `Office365.mail.send()` sends an email using the MIME or JSON formats.
 
@@ -909,15 +1211,15 @@ $status:=$Office365.mail.send($email)
 
 > To avoid authentication errors, make sure your application asks for permission to send emails through the Microsoft Graph API. See [Permissions](https://docs.microsoft.com/en-us/graph/api/user-sendmail?view=graph-rest-1.0&tabs=http#permissions).
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-## Office365.mail.update()
+### Office365.mail.update()
 
 **Office365.mail.update**( *mailId* : Text ; *updatedFields* : Object ) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -925,7 +1227,7 @@ The method returns a [status object](#status-object).
 |updatedFields|Object|->|email fields to update|
 |Result|Object|<-| [Status object](#status-object) |
 
-### Description
+#### Description
 
 `Office365.mail.update()` allows you to update various properties of received or drafted emails.
 
@@ -955,17 +1257,17 @@ In *updatedFields*, you can pass several properties:
 * Existing properties that are not included in the *updatedFields* object will maintain their previous values or be recalculated based on changes to other property values.
 * Specific properties, such as the body or subject, can only be updated for emails in draft status (isDraft = true).
 
-### Returned object
+#### Returned object
 
 The method returns a [status object](#status-object).
 
-## Well-known folder names
+### Well-known folder names
 
 
 Outlook creates certain folders for users by default. Instead of using the corresponding `folder id` value, for convenience, you can use the well-known folder name when accessing these folders. Well-known names work regardless of the locale of the user's mailbox. For example, you can get the Drafts folder using its well-known name "draft". For more information, please refer to the [Microsoft Office documentation](https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0).
 
 
-## "Microsoft" mail object properties
+### "Microsoft" mail object properties
 
 When you send an email with the "Microsoft" mail type, you must pass an object to `Office365.mail.send()`. For a comprehensive list of properties supported by Microsoft mail objects, please refer to the [Microsoft Office documentation](https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0#properties). Most common properties are listed below:
 
@@ -987,7 +1289,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 | subject |Text| The subject of the message.|
 | toRecipients |[recipient](#recipient-object) collection | The To: recipients for the message. |
 
-### Attachment object
+#### Attachment object
 
 | Property |  Type | Description |
 |---|---|---|
@@ -1001,14 +1303,14 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 |size|Number|The size in bytes of the attachment.|
 |getContent()|Function|Returns the contents of the attachment object in a `4D.Blob` object.|
 
-### itemBody object
+#### itemBody object
 
 | Property |  Type | Description | Can be null of undefined |
 |---|---|---|---|
 |content|Text|The content of the item.|No|
 |contentType|Text| The type of the content. Possible values are `"text"` and `"html"` |No|
 
-### recipient object
+#### recipient object
 
 | Property ||  Type | Description | Can be null of undefined |
 |---|---|---|---|---|
@@ -1016,14 +1318,14 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 ||address|Text|The email address of the person or entity.|No|
 ||name|Text| The display name of the person or entity.|Yes|
 
-### internetMessageHeader object
+#### internetMessageHeader object
 
 | Property |  Type | Description | Can be null of undefined |
 |---|---|---|---|
 |name |	Text|Represents the key in a key-value pair.|No|
 |value|Text|The value in a key-value pair.|No|
 
-### followup flag object
+#### followup flag object
 
 | Property |  Type | Description |
 |---|---|---|
@@ -1031,7 +1333,7 @@ When you send an email with the "Microsoft" mail type, you must pass an object t
 |flagStatus|Text|The status for follow-up for an item. Possible values are `"notFlagged"`, `"complete"`, and `"flagged"`.|
 |startDateTime|[dateTime &#124; TimeZone](#datetime-and-timezone)| The date and time that the follow-up is to begin.|
 
-### dateTime and TimeZone
+#### dateTime and TimeZone
 
 |Property|Type|Description|
 |---|---|---|
@@ -1044,7 +1346,7 @@ In general, the timeZone property can be set to any of the time zones currently 
 
 
 
-### Example: Create an email with a file attachment and send it
+#### Example: Create an email with a file attachment and send it
 
 Send an email with an attachment, on behalf of a Microsoft 365 user:
 
@@ -1091,7 +1393,7 @@ $Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
 
-### Status object
+## Status object
 
 Several Office365.mail functions return a standard `**status object**`, containing the following properties:
 
@@ -1105,20 +1407,20 @@ Several Office365.mail functions return a standard `**status object**`, containi
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
 
-### Error handling
+#### Error handling
 
 When an error occurs during the execution of an Office365.mail function:
 
 - if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
 - if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
 
-
-
-## Office365.user.get()
+## User
+ 
+### Office365.user.get()
 
 **Office365.user.get**( *id* : Text { ; *select* : Text }) : Object<br/>**Office365.user.get**( *userPrincipalName* : Text { ; *select* : Text }) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
@@ -1127,7 +1429,7 @@ When an error occurs during the execution of an Office365.mail function:
 |select|Text|->| Set of properties to be returned|
 |Result|Object|<-| Object holding information on the user|
 
-### Description
+#### Description
 
 `Office365.user.get()` returns information on the user whose ID matches the *id* parameter, or whose User Principal Name (UPN) matches the *userPrincipalName* parameter.
 
@@ -1140,7 +1442,7 @@ In *select*, you can pass a string that contains a specific set of properties yo
 
 > The list of available properties is available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0).
 
-### Returned object
+#### Returned object
 
 By default, if the *select* parameter is omitted, the command returns an object with the following properties:
 
@@ -1162,11 +1464,11 @@ Otherwise, the object contains the properties specified in the `select` paramete
 
 For more details on user information, see [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0).
 
-## Office365.user.getCurrent()
+### Office365.user.getCurrent()
 
 **Office365.user.getCurrent**({*select* : Text}) : Object
 
-### Description
+#### Description
 
 `Office365.user.getCurrent()` returns information on the current user. In this case, it requires a [signed-in user](https://docs.microsoft.com/en-us/graph/auth-v2-user), and therefore a delegated permission.
 
@@ -1176,7 +1478,7 @@ In *select*, pass a string that contains a set of properties you want to retriev
 
 By default, if the *select* parameter is not defined, the command returns an object with a default set of properties (see the [property table](#returned-object)).
 
-### Example
+#### Example
 
 To retrieve information from the current user:
 
@@ -1202,22 +1504,22 @@ $userInfo:=$Office365.user.getCurrent("id,userPrincipalName,\
 principalName,displayName,givenName,mail")
 ```
 
-## Office365.user.list()
+### Office365.user.list()
 
-**Office365.user.list**({*options*: Object}) : Object
+**Office365.user.list**({*param*: Object}) : Object
 
-### Parameters
+#### Parameters
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|options|Object|->| Additional options for the search|
+|param|Object|->| Additional options for the search|
 |result|Object|<-| Object holding a collection of users and additional info on the request|
 
-### Description
+#### Description
 
 `Office365.user.list()` returns a list of Office365 users.
 
-In *options*, you can pass an object to specify additional search options. The following table groups the available search options:
+In *param*, you can pass an object to specify additional search options. The following table groups the available search options:
 
 | Property | Type | Description |
 |---|---|---|
@@ -1227,7 +1529,7 @@ In *options*, you can pass an object to specify additional search options. The f
 |top| Integer | Defines the page size for a request. Maximum value is 999. If `top` is not defined, the default value is applied (100). When a result set spans multiple pages, you can use the `.next()` function to ask for the next page. See [Microsoft's documentation on paging](https://docs.microsoft.com/en-us/graph/paging) for more information. |
 |orderBy| Text | Defines how the returned items are ordered. By default, they are arranged in ascending order. The syntax is "fieldname asc" or "fieldname desc". Replace "fieldname" with the name of the field to be arranged.  |
 
-### Returned object
+#### Returned object
 
 The returned object holds a collection of users as well as status properties and functions that allow you to navigate between different pages of results.
 
@@ -1245,7 +1547,7 @@ By default, each user object in the collection has the [default set of propertie
 | users | Collection | Collection of objects with information on users.|
 
 
-### Example
+#### Example
 
 ```4d
 var $oAuth2 : cs.NetKit.OAuth2Provider
