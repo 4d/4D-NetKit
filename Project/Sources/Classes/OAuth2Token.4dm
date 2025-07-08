@@ -49,9 +49,7 @@ Function _loadFromResponse($inResponseString : Text)
 	var $token : Object:=Try(JSON Parse($inResponseString))
 	
 	If (($token#Null) && (Not(OB Is empty($token))))
-		
 		This._loadFromObject({token: $token})
-		
 	End if 
 	
 	
@@ -61,7 +59,9 @@ Function _loadFromResponse($inResponseString : Text)
 Function _loadFromURLEncodedResponse($inResponseString : Text)
 	
 	var $token : Object:={}
-	var $params : Collection:=Split string($inResponseString; "&")
+	var $URL : cs.URL:=cs.URL.new()
+	$URL.parseQuery($inResponseString)
+	var $params : Collection:=$URL.queryParams
 	var $iter : Text
 	
 	For each ($iter; $params)
@@ -72,9 +72,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	End for each 
 	
 	If (Not(OB Is empty($token)))
-		
 		This._loadFromObject({token: $token})
-		
 	End if 
 	
 	
