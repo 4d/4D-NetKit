@@ -58,17 +58,13 @@ Function _loadFromResponse($inResponseString : Text)
 	
 Function _loadFromURLEncodedResponse($inResponseString : Text)
 	
-	var $token : Object:={}
 	var $URL : cs.URL:=cs.URL.new()
 	$URL.parseQuery($inResponseString)
-	var $params : Collection:=$URL.queryParams
-	var $iter : Text
+	var $token : Object:={}
+	var $iter : Object
 	
-	For each ($iter; $params)
-		var $pair : Collection:=Split string($iter; "=")
-		If ($pair.length>1)
-			$token[$pair[0]]:=$pair[1]
-		End if 
+	For each ($iter; $URL.queryParams)
+		$token[$iter.name]:=$iter.value
 	End for each 
 	
 	If (Not(OB Is empty($token)))
