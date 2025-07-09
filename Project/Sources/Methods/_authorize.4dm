@@ -20,7 +20,7 @@ If ($URL=$redirectURI)
     var $responseFile : 4D.File:=Null
     var $responseRedirectURI : Text:=""
     var $customPageObject : Object:=Null
-    var $pageTitle; $pageMessage; $pageDetails : Text
+    var $pageTitle; $pageMessage; $pageDetails; $status : Text
     
     If (OB Is defined(Storage.requests; $state))
         Use (Storage.requests[$state])
@@ -46,6 +46,7 @@ If ($URL=$redirectURI)
             $pageMessage+=("<br /><br />"+String($inOptions.result.error_uri))
         End if 
         $pageDetails:=Localized string("OAuth2_Response_Details")
+        $status:="error"
         
         If (Value type($authenticationErrorPage)=Is text)
             $responseRedirectURI:=String($authenticationErrorPage)
@@ -55,11 +56,13 @@ If ($URL=$redirectURI)
                 $responseFile:=$customPageObject
             End if 
         End if 
+        
     Else 
         
         $pageTitle:=Localized string("OAuth2_Response_Title")
         $pageMessage:=Localized string("OAuth2_Response_Message")
         $pageDetails:=Localized string("OAuth2_Response_Details")
+        $status:="success"
         
         If (Value type($authenticationPage)=Is text)
             $responseRedirectURI:=String($authenticationPage)
@@ -86,7 +89,7 @@ If ($URL=$redirectURI)
             var $responseFileContent : Text:=$responseFile.getText()
             var $outResponseBody : Text:=""
             
-            PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails)
+            PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails; $status)
             
             $outResponse.status:=200
             $outResponse.body:=$outResponseBody
@@ -95,7 +98,7 @@ If ($URL=$redirectURI)
             
             // If we don't have a redirect URI or a response file, we just send a 500 Internal Server Error response
             $outResponse.status:=500
-            $outResponse.body:=cs.Tools.me.buildPageFromTemplate($pageTitle; "500 Internal Server Error"; $pageMessage)
+            $outResponse.body:=cs.Tools.me.buildPageFromTemplate($pageTitle; "500 Internal Server Error"; $pageMessage; False)
             $outResponse.contentType:="text/html; charset=UTF-8"
     End case 
     

@@ -570,7 +570,7 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text) : Text
+Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inSuccess : Boolean) : Text
 /*
 		Builds a response page from the template file.
 		Parameters:
@@ -582,7 +582,8 @@ Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : 
 	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
 	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
 	var $responseBody : Text:=""
+	var $status : Text:=(Value type($inSuccess)=Is boolean) ? (Choose($inSuccess=True; "success"; "error")) : "success"
 	
-	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails)
+	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails; $status)
 	
 	return $responseBody

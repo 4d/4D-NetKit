@@ -43,6 +43,23 @@
         from { opacity: 0; transform: translateY(30px);}
         to   { opacity: 1; transform: translateY(0);}
     }
+    #icon {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+    }
+    .icon-success svg {
+        width: 54px; height: 54px;
+        background: linear-gradient(135deg, #2c4b79 0%, #4e7ad2 100%);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(67,233,123,0.13);
+    }
+    .icon-error svg {
+        width: 54px; height: 54px;
+        background: linear-gradient(135deg, #ff5858 0%, #f857a6 100%);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(255,88,88,0.13);
+    }
     #title {
         background: linear-gradient(90deg, #2c4b79 60%, #4e7ad2 100%);
         border-radius: 12px 12px 0 0;
@@ -95,6 +112,18 @@
     <div id="title"><h2><!--#4DTEXT $1--></h2></div>
     <div id="message"><p><!--#4DHTML $2--></p></div>
     <div id="details"><code><p><!--#4DTEXT $3--></p></code></div>
+    <div id="icon"></div>
 </div>
+<script>
+    var status = "<!--#4DTEXT $4-->"; // "success" ou "error"
+    var iconDiv = document.getElementById('icon');
+    if(status === "error") {
+        iconDiv.className = "icon-error";
+        iconDiv.innerHTML = `<svg viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="27" fill="#fff" opacity="0.18"/><path d="M18 18L36 36M36 18L18 36" stroke="#ff5858" stroke-width="4" stroke-linecap="round"/></svg>`;
+    } else {
+        iconDiv.className = "icon-success";
+        iconDiv.innerHTML = `<svg viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="27" fill="#fff" opacity="0.18"/><path d="M16 28.5L24.5 37L38 20" stroke="#2c4b79" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+</script>
 </body>
 </html>

@@ -31,7 +31,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
             // Send a 403 status line
             // This is not strictly necessary, but it makes it clear that the request was forbidden
             // and not just a 404 Not Found
-            $errorBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied.")
+            $errorBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied."; False)
             $outgoingResponse.setStatus(403)
             $outgoingResponse.setBody($errorBody)
             $outgoingResponse.setHeader("Content-Type"; "text/html")
@@ -40,7 +40,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     Else 
         var $error : Object:=cs.Tools.me.makeError(9; {which: "request (4D.IncomingMessage)"; function: "OAuth2Authorization.getResponse"})
         
-        $errorBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "500 Internal Server Error"; JSON Stringify($error; *))
+        $errorBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "500 Internal Server Error"; JSON Stringify($error; *); False)
         $outgoingResponse.setStatus(500)
         $outgoingResponse.setBody($errorBody)
         $outgoingResponse.setHeader("Content-Type"; "text/plain")

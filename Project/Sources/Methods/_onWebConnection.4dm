@@ -52,7 +52,7 @@ If ($URL=$redirectURI)
 		// Send a 403 status line
 		// This is not strictly necessary, but it makes it clear that the request was forbidden
 		// and not just a 404 Not Found
-		$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied.")
+		$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied."; False)
 		$statusLine:="X-STATUS: 403 Forbidden"
 		WEB SET HTTP HEADER($statusLine)
 		WEB SEND TEXT($responseBody; "text/html")
@@ -61,7 +61,7 @@ If ($URL=$redirectURI)
 Else 
 	
 	// Send a 404 status line
-	$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found.")
+	$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
 	$statusLine:="X-STATUS: 404 Not Found"
 	WEB SET HTTP HEADER($statusLine)
 	WEB SEND TEXT($responseBody; "text/html")
