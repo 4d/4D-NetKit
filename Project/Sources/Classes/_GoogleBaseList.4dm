@@ -35,7 +35,7 @@ Function _getList($inPageToken : Text) : Boolean
 	var $URL : cs.URL:=cs.URL.new(This._internals._URL)
 	
 	If (Length(String($inPageToken))>0)
-		$URL.addQueryParameter("pageToken"; inPageToken)
+		$URL.addQueryParameter("pageToken"; $inPageToken)
 	End if 
 	
 	Super._throwErrors(False)
