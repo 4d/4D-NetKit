@@ -36,7 +36,7 @@ Function generate() : Text
 	
 	// Parse Header for Algorithm Family
 	var $algorithm : Text:=This.header.alg
-	If ($algorithm="HS256" | $algorithm="HS512")
+	If (($algorithm="HS256") || ($algorithm="HS512"))
 		$algorithm:="HS"
 	Else 
 		$algorithm:="RS"
