@@ -484,7 +484,7 @@ Function urlDecode($inURL : Text) : Text
     See: https://github.com/4d/4D-SVG project
 */
 	var $i : Integer
-	var $hexValues : Text:="123456789ABCDEF"
+	var $hexValues : Text:="0123456789ABCDEF"
 	var $urlLength : Integer:=Length($inURL)
 	var $result : Text:=""
 	
@@ -577,7 +577,6 @@ Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : 
 			- $inTitle: Title of the page
 			- $inMessage: Main message to display
 			- $inDetails: Additional details to display
-			- $inButtonText: Text for the close button (optional)
 	*/
 	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
 	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
