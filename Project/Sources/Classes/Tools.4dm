@@ -484,7 +484,7 @@ Function urlDecode($inURL : Text) : Text
     See: https://github.com/4d/4D-SVG project
 */
 	var $i : Integer
-	var $hexValues : Text:="0123456789ABCDEF"
+	var $hexValues : Text:="123456789ABCDEF"
 	var $urlLength : Integer:=Length($inURL)
 	var $result : Text:=""
 	
