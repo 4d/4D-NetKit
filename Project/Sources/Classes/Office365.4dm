@@ -2,7 +2,7 @@ property _internals : Object
 
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
-	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _calendar: Null; _parameters: $inParameters}
+	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _calendar: Null; _category: Null; _parameters: $inParameters}
 	
 	
 	// Mark: - [Public]
@@ -37,3 +37,14 @@ Function get calendar : cs.Office365Calendar
 		This._internals._calendar:=cs.Office365Calendar.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
 	return This._internals._calendar
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get category : cs.Office365Category
+	
+	If (This._internals._category=Null)
+		This._internals._category:=cs.Office365Category.new(This._internals._oAuth2Provider; This._internals._parameters)
+	End if 
+	return This._internals._category

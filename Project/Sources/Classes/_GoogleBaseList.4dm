@@ -32,16 +32,14 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 Function _getList($inPageToken : Text) : Boolean
 	
-	var $URL : Text:=This._internals._URL
+	var $URL : cs.URL:=cs.URL.new(This._internals._URL)
 	
 	If (Length(String($inPageToken))>0)
-		
-		var $sep : Text:=((Position("?"; $URL)=0) ? "?" : "&")
-		$URL+=$sep+"pageToken="+$inPageToken
+		$URL.addQueryParameter("pageToken"; inPageToken)
 	End if 
 	
 	Super._throwErrors(False)
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL; This._internals._headers)
+	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); This._internals._headers)
 	Super._throwErrors(True)
 	
 	This.isLastPage:=False
@@ -104,7 +102,7 @@ Function next() : Boolean
 		
 	Else 
 		
-		This.statusText:=cs.Tools.me.localizedString("List_No_Next_Page")
+		This.statusText:=Localized string("List_No_Next_Page")
 		This.isLastPage:=True
 	End if 
 	
@@ -132,7 +130,7 @@ Function previous() : Boolean
 		
 	Else 
 		
-		This.statusText:=cs.Tools.me.localizedString("List_No_Previous_Page")
+		This.statusText:=Localized string("List_No_Previous_Page")
 		This.isLastPage:=True
 	End if 
 	

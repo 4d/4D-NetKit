@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!--
+ * Copyright(c) 4D SAS.  All rights reserved.
+ * 
+ * 4D (the "Software") and the corresponding source code remain
+ * the exclusive property of 4D and/or its licensors and are protected by national
+ * and/or international legislations.
+ * 
+ * This file is part of the source code of the Software provided under the relevant
+ * 4D License Agreement available on http://www.4D.com/license whose compliance
+ * constitutes a prerequisite to any use of this file and more generally of the
+ * Software and the corresponding source code.
+ -->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><!--#4DTEXT $1-->&nbsp;</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #2c4b79 0%, #4e7ad2 100%);
+        font-family: 'Roboto', Arial, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .container {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 6px 32px rgba(44,75,121,0.13), 0 2px 8px rgba(44,75,121,0.10);
+        max-width: 600px;
+        width: 95%;
+        padding: 40px 36px 28px 36px;
+        box-sizing: border-box;
+        text-align: center;
+        animation: fadeIn 0.7s;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px);}
+        to   { opacity: 1; transform: translateY(0);}
+    }
+    #icon {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+    }
+    .icon-success svg {
+        width: 54px; height: 54px;
+        background: linear-gradient(135deg, #2c4b79 0%, #4e7ad2 100%);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(67,233,123,0.13);
+    }
+    .icon-error svg {
+        width: 54px; height: 54px;
+        background: linear-gradient(135deg, #ff5858 0%, #f857a6 100%);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(255,88,88,0.13);
+    }
+    #title {
+        background: linear-gradient(90deg, #2c4b79 60%, #4e7ad2 100%);
+        border-radius: 12px 12px 0 0;
+        padding: 22px 0 14px 0;
+        margin: -40px -36px 28px -36px;
+    }
+    h2 {
+        color: #fff;
+        font-size: 2em;
+        margin: 0;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+    }
+    #message p {
+        color: #2c4b79;
+        font-size: 1.18em;
+        margin: 0 0 22px 0;
+        font-weight: 500;
+    }
+    #details {
+        background: #f4f6fa;
+        border-radius: 8px;
+        padding: 14px;
+        margin-top: 14px;
+        font-size: 1em;
+        color: #4e7ad2;
+        word-break: break-all;
+    }
+    #details code, #details p {
+        background: none;
+        color: inherit;
+        padding: 0;
+        margin: 0;
+        font-family: 'Roboto Mono', monospace, monospace;
+    }
+    @media (max-width: 700px) {
+        .container {
+            padding: 18px 6px 12px 6px;
+            max-width: 99vw;
+        }
+        #title {
+            margin: -18px -6px 18px -6px;
+            padding: 12px 0 8px 0;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div id="title"><h2><!--#4DTEXT $1--></h2></div>
+    <div id="message"><p><!--#4DHTML $2--></p></div>
+    <div id="details"><code><p><!--#4DTEXT $3--></p></code></div>
+    <div id="icon"></div>
+</div>
+<script>
+    var status = "<!--#4DTEXT $4-->"; // "success" ou "error"
+    var iconDiv = document.getElementById('icon');
+    if(status === "error") {
+        iconDiv.className = "icon-error";
+        iconDiv.innerHTML = `<svg viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="27" fill="#fff" opacity="0.18"/><path d="M18 18L36 36M36 18L18 36" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/></svg>`;
+    } else {
+        iconDiv.className = "icon-success";
+        iconDiv.innerHTML = `<svg viewBox="0 0 54 54" fill="none"><circle cx="27" cy="27" r="27" fill="#fff" opacity="0.18"/><path d="M16 28.5L24.5 37L38 20" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+</script>
+</body>
+</html>

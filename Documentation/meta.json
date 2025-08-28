@@ -1,0 +1,12 @@
+{
+    "filters": [
+        {
+            "from": "Documentation/(.*?)\\.md",
+            "to": "https://developer.4d.com/4D-NetKit/Documentation/$1.html"
+        },
+        {
+            "from": "LICENSE.md",
+            "to": "https://github.com/4d/4D-NetKit/blob/main/LICENSE.md"
+        }
+    ]
+}

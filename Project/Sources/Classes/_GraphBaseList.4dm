@@ -78,7 +78,7 @@ Function next() : Boolean
 		End if 
 		return $bIsOK
 	Else 
-		This.statusText:=cs.Tools.me.localizedString("List_No_Next_Page")
+		This.statusText:=Localized string("List_No_Next_Page")
 		return False
 	End if 
 	
@@ -100,6 +100,6 @@ Function previous() : Boolean
 			return $bIsOK
 		End if 
 	Else 
-		This.statusText:=cs.Tools.me.localizedString("List_No_Previous_Page")
+		This.statusText:=Localized string("List_No_Previous_Page")
 		return False
 	End if 

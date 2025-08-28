@@ -14,7 +14,7 @@ End if
 If ($URL=$redirectURI)
 	
 	var $options : Object:={redirectURI: $redirectURI; state: $state}
-
+	
 	ARRAY TEXT($names; 0)
 	ARRAY TEXT($values; 0)
 	WEB GET VARIABLES($names; $values)
@@ -31,14 +31,38 @@ If ($URL=$redirectURI)
 		$options.result:=$result
 	End if 
 	
-	var $responseBody : Blob
-	If (_authorize($options; ->$responseBody))
+	var $response : Object:={}
+	var $statusLine : Text
+	var $responseBody : Text
+	
+	If (_authorize($options; $response))
 		
-		var $contentType : Text:="Content-Type: text/html"
-		WEB SET HTTP HEADER($contentType)
-		WEB SEND RAW DATA($responseBody)
+		// If the response contains a redirect URL, we send a 302 Temporary Redirect
+		If ((Value type($response.redirectURL)=Is text) && (Length($response.redirectURL)>0))
+			var $responseHeader : Text:="X-STATUS: 302 Found"+Char(13)+Char(10)+"Location: "+String($response.redirectURL)
+			WEB SET HTTP HEADER($responseHeader)
+		Else 
+			
+			$responseBody:=$response.body
+			var $contentType : Text:=$response.contentType
+			WEB SEND TEXT($responseBody; $contentType)
+		End if 
+	Else 
+		
+		// Send a 403 status line
+		// This is not strictly necessary, but it makes it clear that the request was forbidden
+		// and not just a 404 Not Found
+		$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied."; False)
+		$statusLine:="X-STATUS: 403 Forbidden"
+		WEB SET HTTP HEADER($statusLine)
+		WEB SEND TEXT($responseBody; "text/html")
 	End if 
 	
+Else 
+	
+	// Send a 404 status line
+	$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
+	$statusLine:="X-STATUS: 404 Not Found"
+	WEB SET HTTP HEADER($statusLine)
+	WEB SEND TEXT($responseBody; "text/html")
 End if 
-
-// Nothing to do... 404 will be automatically sent

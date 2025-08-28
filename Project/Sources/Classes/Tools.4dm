@@ -236,100 +236,44 @@ Function getJMAPAttribute($inKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function getDomainFromURL($URL : Text) : Text
+Function getDomainFromURL($inURL : Text) : Text
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $result : Text
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://(.*)(:\\d*)(/?.*)"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		If (Size of array($pos)>2)
-			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
-		End if 
-		
-	End if 
-	
-	return $result
+	return $URL.host
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getPathFromURL($URL : Text) : Text
+Function getPathFromURL($inURL : Text) : Text
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $result : Text
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)(/?.*)"  //was "(?mi-s)^(?:https?:\\/\\/)?(?:[^?\\/\\s]+[?\\/])(.*)"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		If (Size of array($pos)>2)
-			$result:=Substring($URL; $pos{3}+1; $len{3}-1)
-		End if 
-		
-		$result:="/"+$result
-		
-	End if 
-	
-	return $result
+	return $URL.path
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getPortFromURL($URL : Text) : Integer
+Function getPortFromURL($inURL : Text) : Integer
 	
-	ARRAY LONGINT($pos; 0)
-	ARRAY LONGINT($len; 0)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
-	var $port : Integer
-	var $pattern : Text:="(?mi-s)^(https?|wss?)://.*(:\\d*)/?.*"
-	
-	If (Match regex($pattern; $URL; 1; $pos; $len))
-		
-		var $scheme : Text:=Substring($URL; $pos{1}; $len{1})
-		If (Size of array($pos)>1)
-			$port:=Num(Substring($URL; $pos{2}+1; $len{2}-1))
-		Else 
-			$port:=Choose((($scheme="http") | ($scheme="ws")); 80; 443)
-		End if 
-		
-	Else 
-		$port:=Choose((($URL="http:@") | ($URL="ws:@")); 80; 443)
-	End if 
-	
-	return $port
+	return $URL.port
 	
 	
 	// ----------------------------------------------------
 	
 	
-Function getURLParameterValue($URL : Text; $paramName : Text) : Text
+Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	
-	var $result : Text
-	var $posQuery : Integer:=Position("?"; $URL)
-	If ($posQuery>0)
-		
-		var $queryString : Text:=Substring($URL; $posQuery+1)
-		var $parameters : Collection:=Split string($queryString; "&"; sk ignore empty strings)
-		var $parameter : Text
-		
-		For each ($parameter; $parameters)
-			
-			var $values : Collection:=Split string($parameter; "=")
-			
-			If ($values.length=2)
-				If ($values[0]=$paramName)
-					$result:=$values[1]
-					break
-				End if 
-			End if 
-		End for each 
+	var $result : Text:=""
+	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $foundParam : Object:=$URL.queryParams.find(Formula($1.value.name=$2); $inParamName)
+	
+	If ((Value type($foundParam)=Is object) && (OB Is defined($foundParam; "value")))
+		$result:=$foundParam.value
 	End if 
 	
 	return $result
@@ -401,6 +345,16 @@ Function isValidEmail($inEmail : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isValidURL($inURL : Text) : Boolean
+	
+	var $URL : cs.URL:=cs.URL.new($inURL)
+	
+	return (((Length($URL.scheme)>0) && ($URL.scheme="http@")) && (Length($URL.host)>0))
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function quoteString($inString : Text) : Text
 	
 	var $result : Text:=$inString
@@ -431,9 +385,11 @@ Function retainFileObject($inParameter : Variant) : 4D.File
 		Else 
 			$platformPath:=String($inParameter)
 		End if 
-		var $file : 4D.File:=File($platformPath; fk platform path)
-		If ($file.exists)
-			return $file
+		If (Length($platformPath)>0)
+			var $file : 4D.File:=File($platformPath; fk platform path)
+			If ($file.exists)
+				return $file
+			End if 
 		End if 
 	End if 
 	
@@ -595,18 +551,9 @@ Function urlEncode($value : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function localizedString($inValue : Text) : Text
-	
-/* Temp to avoid compilation issues due to command renaming */
-	return Localized string($inValue)
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function makeError($inCode : Integer; $inParameters : Object) : Object
 	
-	var $description : Text:=cs.Tools.me.localizedString("ERR_4DNK_"+String($inCode))
+	var $description : Text:=Localized string("ERR_4DNK_"+String($inCode))
 	
 	If (Not(OB Is empty($inParameters)))
 		var $key : Text
@@ -618,3 +565,25 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
 	
 	return $error
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inSuccess : Boolean) : Text
+/*
+		Builds a response page from the template file.
+		Parameters:
+			- $inTitle: Title of the page
+			- $inMessage: Main message to display
+			- $inDetails: Additional details to display
+			- $inButtonText: Text for the close button (optional)
+	*/
+	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
+	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
+	var $responseBody : Text:=""
+	var $status : Text:=(Value type($inSuccess)=Is boolean) ? (Choose($inSuccess=True; "success"; "error")) : "success"
+	
+	PROCESS 4D TAGS($responseTemplateContent; $responseBody; $inTitle; $inMessage; $inDetails; $status)
+	
+	return $responseBody

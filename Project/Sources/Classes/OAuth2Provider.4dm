@@ -9,8 +9,8 @@ property clientSecret : Text  // The application secret that you created in the 
 property token : Object  // Any valid existing token
 property tokenExpiration : Text
 property timeout : Integer
-property authenticationPage : 4D.File
-property authenticationErrorPage : 4D.File
+property authenticationPage : Variant
+property authenticationErrorPage : Variant
 property accessType : Text
 property loginHint : Text
 property prompt : Text
@@ -125,15 +125,21 @@ Class constructor($inParams : Object)
 	is received correctly in signed in mode
 	If not present the default page is used
 */
-		This.authenticationPage:=cs.Tools.me.retainFileObject($inParams.authenticationPage)
-		
+		If ((Value type($inParams.authenticationPage)=Is text) && cs.Tools.me.isValidURL(String($inParams.authenticationPage)))
+			This.authenticationPage:=String($inParams.authenticationPage)
+		Else 
+			This.authenticationPage:=cs.Tools.me.retainFileObject($inParams.authenticationPage)
+		End if 
 /*
 	Path of the web page to display in the webbrowser when the authentication server
 	returns an error in signed in mode
 	If not present the default page is used
 */
-		This.authenticationErrorPage:=cs.Tools.me.retainFileObject($inParams.authenticationErrorPage)
-		
+		If ((Value type($inParams.authenticationErrorPage)=Is text) && cs.Tools.me.isValidURL(String($inParams.authenticationErrorPage)))
+			This.authenticationErrorPage:=String($inParams.authenticationErrorPage)
+		Else 
+			This.authenticationErrorPage:=cs.Tools.me.retainFileObject($inParams.authenticationErrorPage)
+		End if 
 /*
 	Indicates whether your application can refresh access tokens when the user is not
 	present at the browser. Valid parameter values are online, which is the default
@@ -489,8 +495,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			$options.port:=cs.Tools.me.getPortFromURL(This.redirectURI)
 			$options.enableDebugLog:=This.enableDebugLog
 			$options.useTLS:=(Position("https"; This.redirectURI)=1)
-			If ((This.authenticationPage#Null) || (This.authenticationErrorPage#Null))
-				var $file : Object:=(This.authenticationPage#Null) ? This.authenticationPage : This.authenticationErrorPage
+			If ((Value type(This.authenticationPage)=Is object) || (Value type(This.authenticationErrorPage)=Is object))
+				var $file : Object:=Null
+				Case of 
+					: (Value type(This.authenticationPage)=Is object)
+						$file:=This.authenticationPage
+					: (Value type(This.authenticationErrorPage)=Is object)
+						$file:=This.authenticationErrorPage
+				End case 
 				If (OB Instance of($file; 4D.File))
 					$options.webFolder:=$file.parent
 				End if 
@@ -498,7 +510,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			
 			var $bUseHostDatabaseServer : Boolean:=False
 			var $hostDatabaseServer : Object:=WEB Server(Web server host database)
-			If (($hostDatabaseServer#Null)&& $hostDatabaseServer.isRunning)
+			If (($hostDatabaseServer#Null) && $hostDatabaseServer.isRunning)
 				If ($options.useTLS)
 					$bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$options.port))
 				Else 
@@ -713,6 +725,13 @@ Function _sendTokenRequest($params : Text) : Object
 					$result:=Null
 					
 			End case 
+			
+			// If we already had a refresh token, we need to add it to result object in case it was not present in the response
+			If (Value type($result.token.refresh_token)=Is undefined)
+				If (OB Is defined(This.token; "refresh_token") && (Length(String(This.token.refresh_token))>0))
+					$result.token.refresh_token:=This.token.refresh_token
+				End if 
+			End if 
 			
 		Else 
 			

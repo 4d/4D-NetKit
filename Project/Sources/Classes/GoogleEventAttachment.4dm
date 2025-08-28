@@ -31,12 +31,14 @@ Function getContent() : 4D.Blob
     // ----------------------------------------------------
     
     
-Function getIcon() : 4D.Blob
+Function getIcon() : Picture
     
-    var $icon : 4D.Blob:=Null
+    var $icon : Picture:=Null
     var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.iconLink; {dataType: "blob"}).wait())
     If ($request#Null)
-        $icon:=4D.Blob.new($request.response.body)
+        var $blob : 4D.Blob:=Null
+        $blob:=4D.Blob.new($request.response.body)
+        BLOB TO PICTURE($blob; $icon)
     End if 
     
     return $icon

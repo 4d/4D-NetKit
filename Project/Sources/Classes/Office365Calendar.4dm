@@ -15,79 +15,82 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
-    var $URL : Text:=Super._getURLParamsFromObject($inParameters; $inCount)
-    var $delimiter : Text:=(Position("&"; $URL)>0) ? "&" : "?"
+    var $URL : cs.URL:=cs.URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
+    var $dateTime : cs.DateTime
     
     Case of 
         : (Value type($inParameters.startDateTime)=Is text)
-            $startDateTime:=$inParameters.startDateTime
+            $dateTime:=cs.DateTime.new($inParameters.startDateTime)
+            $startDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $startDateTime:=String(Date($inParameters.startDateTime.date); ISO date GMT; Time($inParameters.startDateTime.time))
-            $startDateTime:=Replace string($startDateTime; "Z"; ".0000000")
+            $dateTime:=cs.DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
+            $startDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     Case of 
         : (Value type($inParameters.endDateTime)=Is text)
-            $endDateTime:=$inParameters.endDateTime
+            $dateTime:=cs.DateTime.new($inParameters.endDateTime)
+            $endDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $endDateTime:=String(Date($inParameters.endDateTime.date); ISO date GMT; Time($inParameters.endDateTime.time))
-            $endDateTime:=Replace string($endDateTime; "Z"; ".0000000")
+            $dateTime:=cs.DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
+            $endDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     If (Length($startDateTime)>0)
-        $URL+=$delimiter+"startDateTime="+cs.Tools.me.urlEncode($startDateTime)
-        $delimiter:="&"
+        $URL.addQueryParameter("startDateTime"; cs.Tools.me.urlEncode($startDateTime))
     End if 
     If (Length($endDateTime)>0)
-        $URL+=$delimiter+"endDateTime="+cs.Tools.me.urlEncode($endDateTime)
-        $delimiter:="&"
+        $URL.addQueryParameter("endDateTime"; cs.Tools.me.urlEncode($endDateTime))
     End if 
     
-    return $URL
+    return $URL.toString()
     
     
-Function _deleteEvent($inParameters : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
+    // ----------------------------------------------------
     
-/*
-    DELETE /me/events/{id}
-    DELETE /users/{id | userPrincipalName}/events/{id}
-    DELETE /groups/{id}/events/{id}
     
-    DELETE /me/calendar/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendar/events/{id}
-    DELETE /groups/{id}/calendar/events/{id}/
+Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
-    DELETE /me/calendars/{id}/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+    var $dateTime : cs.DateTime
+    var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
+    Case of 
+        : (Value type($inObject[$inName].dateTime)=Is text)
+            $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            return $dateTime.getGraphDateTime()
+        : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
+            return $dateTime.getGraphDateTime()
+    End case 
     
-    DELETE /me/calendarGroups/{id}/calendars/{id}/events/{id}
-    DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
-*/
+    return $inObject[$inName]
     
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:=""
     
-    If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
-    Else 
-        $urlParams:="me"
-    End if 
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
-    Else 
-        $urlParams+="/calendar"
-    End if 
-    $urlParams+="/events"
-    If (Length(String($inParameters.eventId))>0)
-        $urlParams+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
+    // ----------------------------------------------------
+    
+    
+Function _conformEvent($inObject : Object) : Object
+    
+    var $event : Object:=$inObject
+    
+    If (OB Is defined($event; "end"))
+        $event.end:=This._conformEventDateTime($event; "end")
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Object:=Super._sendRequestAndWaitResponse("DELETE"; $URL; $headers)
+    If (OB Is defined($event; "start"))
+        $event.start:=This._conformEventDateTime($event; "start")
+    End if 
     
-    return This._returnStatus($response)
+    If (OB Is defined($event; "calendarId"))
+        OB REMOVE($event; "calendarId")
+    End if 
+    
+    If (OB Is defined($event; "id"))
+        OB REMOVE($event; "id")
+    End if 
+    
+    return $event
     
     
     // ----------------------------------------------------
@@ -114,95 +117,27 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
             
         Else 
             var $headers : Object:={Accept: "application/json"}
-            var $urlParams : Text:=""
+            var $URLString : Text:=This._getURL()
             
             If (Length(String(This.userId))>0)
-                $urlParams:="users/"+This.userId
+                $URLString+="users/"+This.userId
             Else 
-                $urlParams:="me"
+                $URLString+="me"
             End if 
             
             If (Length(String($inParameters.calendarId))>0)
-                $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+                $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
             Else 
-                $urlParams+="/calendar"
+                $URLString+="/calendar"
             End if 
-            $urlParams+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)+"/attachments"
+            $URLString+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)+"/attachments"
             
-            var $URL : Text:=This._getURL()+$urlParams
-            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $inAttachement)
+            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $inAttachement)
             
             return This._returnStatus($response)
     End case 
     
     return This._returnStatus()
-    
-    
-    // ----------------------------------------------------
-    
-    
-Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
-    
-/*
-    POST /me/events
-    POST /users/{id | userPrincipalName}/events
-    
-    POST /me/calendar/events
-    POST /users/{id | userPrincipalName}/calendar/events
-    
-    POST /me/calendars/{id}/events
-    POST /users/{id | userPrincipalName}/calendars/{id}/events
-*/
-    var $headers : Object:={Accept: "application/json"}
-    var $urlParams : Text:=""
-    
-    If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
-    Else 
-        $urlParams:="me"
-    End if 
-    
-    If (Length(String($inParameters.calendarId))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
-    Else 
-        $urlParams+="/calendar"
-    End if 
-    $urlParams+="/events"
-    
-    var $URL : Text:=This._getURL()+$urlParams
-    var $event : Object:=Super._cleanGraphObject($inEvent)
-    var $attachments : Collection:=Null
-    
-    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
-        $attachments:=$event.attachments
-        OB REMOVE($event; "attachments")
-    End if 
-    
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; $event)
-    
-    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
-        
-        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
-        var $attachment : Object
-        
-        $response.attachments:=[]
-        For each ($attachment; $attachments)
-            
-            var $result : Object:=This._insertAttachment($params; $attachment)
-            If ($result.success)
-                Try
-                    OB REMOVE($result; "success")
-                    OB REMOVE($result; "errors")
-                    OB REMOVE($result; "statusText")
-                End try
-                $response.attachments.push(This._cleanGraphObject($result))
-            Else 
-                return This._returnStatus($result)
-            End if 
-        End for each 
-    End if 
-    
-    return This._returnStatus(This._cleanGraphObject($response))
     
     
     // Mark: - [Public]
@@ -212,26 +147,25 @@ Function _insertEvent($inParameters : Object; $inEvent : Object) : Object  // Fo
     
 Function getCalendar($inID : Text; $inSelect : Text) : Object
     
-    var $urlParams : Text:=""
+    var $URLString : Text:=""
     
     If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
+        $URLString:="users/"+This.userId
     Else 
-        $urlParams:="me"
+        $URLString:="me"
     End if 
     
     If (Length(String($inID))>0)
-        $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inID)
+        $URLString+="/calendars/"+cs.Tools.me.urlEncode($inID)
     Else 
-        $urlParams+="/calendar"
+        $URLString+="/calendar"
     End if 
     
     If (Length(String($inSelect))>0)
-        $urlParams+=Super._getURLParamsFromObject({select: $inSelect})
+        $URLString+=Super._getURLParamsFromObject({select: $inSelect})
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL)
+    var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString)
     
     If (Value type($response)=Is object)
         return Super._cleanGraphObject($response)
@@ -249,21 +183,20 @@ Function getCalendars($inParameters : Object) : Object
     Super._throwErrors(False)
     
     var $headers : Object:={}
-    var $urlParams : Text:=""
+    var $URLString : Text:=""
     
     If (Length(String(This.userId))>0)
-        $urlParams:="users/"+This.userId
+        $URLString:="users/"+This.userId
     Else 
-        $urlParams:="me"
+        $URLString:="me"
     End if 
-    $urlParams+="/calendars"+Super._getURLParamsFromObject($inParameters)
+    $URLString+="/calendars"+Super._getURLParamsFromObject($inParameters)
     
     If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
         $headers.ConsistencyLevel:="eventual"
     End if 
     
-    var $URL : Text:=This._getURL()+$urlParams
-    var $result : cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); $URL; $headers)
+    var $result : cs.GraphCalendarList:=cs.GraphCalendarList.new(This._getOAuth2Provider(); This._getURL()+$URLString; $headers)
     
     Super._throwErrors(True)
     
@@ -303,22 +236,22 @@ Function getEvent($inParameters : Object) : Object
             
         Else 
             var $headers : Object:={}
-            var $urlParams : Text:=""
+            var $URLString : Text:=""
             
             If (Length(String(This.userId))>0)
-                $urlParams:="users/"+This.userId
+                $URLString:="users/"+This.userId
             Else 
-                $urlParams:="me"
+                $URLString:="me"
             End if 
             
             If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-                $urlParams+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+                $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
             Else 
-                $urlParams+="/calendar"
+                $URLString+="/calendar"
             End if 
-            $urlParams+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)
+            $URLString+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)
             
-            $urlParams+=This._getURLParamsFromObject($inParameters)
+            $URLString+=This._getURLParamsFromObject($inParameters)
             
             var $prefer : Text:=""
             If (Length(String($inParameters.timeZone))>0)
@@ -331,8 +264,7 @@ Function getEvent($inParameters : Object) : Object
                 $headers.Prefer:=$prefer
             End if 
             
-            var $URL : Text:=This._getURL()+$urlParams
-            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; $URL; $headers))
+            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString; $headers))
             
             If (Value type($result)=Is object)
                 var $options : Object:={userId: This.userId; calendarId: String($inParameters.calendarId); eventId: String($inParameters.eventId)}
@@ -372,22 +304,22 @@ Function getEvents($inParameters : Object) : Object
             
         Else 
             var $headers : Object:={}
-            var $urlParams : Text:=""
+            var $URLString : Text:=""
             If (Length(String(This.userId))>0)
-                $urlParams+="users/"+This.userId
+                $URLString+="users/"+This.userId
             Else 
-                $urlParams+="me"
+                $URLString+="me"
             End if 
             If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-                $urlParams+="/calendars/"+$inParameters.calendarId
+                $URLString+="/calendars/"+$inParameters.calendarId
                 This.id:=$inParameters.calendarId
             Else 
-                $urlParams+="/calendar"
+                $URLString+="/calendar"
             End if 
             If ((Value type($inParameters.startDateTime)#Is undefined) && (Value type($inParameters.endDateTime)#Is undefined))
-                $urlParams+="/calendarView"+This._getURLParamsFromObject($inParameters)
+                $URLString+="/calendarView"+This._getURLParamsFromObject($inParameters)
             Else 
-                $urlParams+="/events"+This._getURLParamsFromObject($inParameters)
+                $URLString+="/events"+This._getURLParamsFromObject($inParameters)
             End if 
             
             var $prefer : Text:=""
@@ -405,8 +337,7 @@ Function getEvents($inParameters : Object) : Object
                 $headers.ConsistencyLevel:="eventual"
             End if 
             
-            var $URL : Text:=This._getURL()+$urlParams
-            var $result : cs.GraphEventList:=cs.GraphEventList.new(This; $URL; $headers)
+            var $result : cs.GraphEventList:=cs.GraphEventList.new(This; This._getURL()+$URLString; $headers)
             
             If (Not(OB Is defined($result; "calendarId")) && (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
                 $result.calendarId:=$inParameters.calendarId
@@ -421,3 +352,225 @@ Function getEvents($inParameters : Object) : Object
     Super._throwErrors(True)
     
     return This._returnStatus()
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function createEvent($inEvent : Object; $inParameters : Object) : Object
+    
+/*
+        POST /me/events
+        POST /users/{id | userPrincipalName}/events
+        
+        POST /me/calendar/events
+        POST /users/{id | userPrincipalName}/calendar/events
+        
+        POST /me/calendars/{id}/events
+        POST /users/{id | userPrincipalName}/calendars/{id}/events
+    */
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $URLString : Text:=This._getURL()
+    var $calendarId : Text:=""
+    
+    Case of 
+        : (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0)
+            $calendarId:=$inParameters.calendarId
+        : (Value type($inEvent.calendarId)=Is text) && (Length(String($inEvent.calendarId))>0)
+            $calendarId:=$inEvent.calendarId
+    End case 
+    
+    If (Length(String(This.userId))>0)
+        $URLString+="users/"+This.userId
+    Else 
+        $URLString+="me"
+    End if 
+    
+    If (Length(String($calendarId))>0)
+        $URLString+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
+    Else 
+        $URLString+="/calendar"
+    End if 
+    $URLString+="/events"
+    
+    var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
+    var $attachments : Collection:=Null
+    
+    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
+        $attachments:=$event.attachments
+        OB REMOVE($event; "attachments")
+    End if 
+    
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $event)
+    
+    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
+        
+        var $params : Object:={eventId: $response.id; calendarId: String($calendarId)}
+        var $attachment : Object
+        
+        $response.attachments:=[]
+        For each ($attachment; $attachments)
+            
+            var $result : Object:=This._insertAttachment($params; $attachment)
+            If ($result.success)
+                Try
+                    OB REMOVE($result; "success")
+                    OB REMOVE($result; "errors")
+                    OB REMOVE($result; "statusText")
+                End try
+                $response.attachments.push(This._cleanGraphObject($result))
+            Else 
+                Super._throwErrors(True)
+                return This._returnStatus($result)
+            End if 
+        End for each 
+    End if 
+    
+    Super._throwErrors(True)
+    
+    return This._returnStatus({event: This._cleanGraphObject($response)})
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function deleteEvent($inParameters : Object) : Object
+    
+/*
+        DELETE /me/events/{id}
+        DELETE /users/{id | userPrincipalName}/events/{id}
+        DELETE /groups/{id}/events/{id}
+        
+        DELETE /me/calendar/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendar/events/{id}
+        DELETE /groups/{id}/calendar/events/{id}/
+        
+        DELETE /me/calendars/{id}/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+        
+        DELETE /me/calendarGroups/{id}/calendars/{id}/events/{id}
+        DELETE /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
+    */
+    
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $URLString : Text:=This._getURL()
+    
+    If (Length(String(This.userId))>0)
+        $URLString+="users/"+This.userId
+    Else 
+        $URLString+="me"
+    End if 
+    If (Length(String($inParameters.calendarId))>0)
+        $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+    Else 
+        $URLString+="/calendar"
+    End if 
+    $URLString+="/events"
+    If (Length(String($inParameters.eventId))>0)
+        $URLString+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
+    End if 
+    
+    Super._sendRequestAndWaitResponse("DELETE"; $URLString; $headers)
+    
+    Super._throwErrors(True)
+    
+    return This._returnStatus()
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function updateEvent($inEvent : Object; $inParameters : Object) : Object
+    
+/*
+    PATCH /me/events/{id}
+    PATCH /users/{id | userPrincipalName}/events/{id}
+    PATCH /groups/{id}/events/{id}
+    
+    PATCH /me/calendar/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendar/events/{id}
+    PATCH /groups/{id}/calendar/events/{id}
+    
+    PATCH /me/calendars/{id}/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendars/{id}/events/{id}
+    
+    PATCH /me/calendarGroups/{id}/calendars/{id}/events/{id}
+    PATCH /users/{id | userPrincipalName}/calendarGroups/{id}/calendars/{id}/events/{id}
+*/
+    Super._clearErrorStack()
+    Super._throwErrors(False)
+    
+    var $headers : Object:={Accept: "application/json"}
+    var $URLString : Text:=This._getURL()
+    var $calendarId : Text:=""
+    var $eventId : Text:=""
+    
+    Case of 
+        : (Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0)
+            $calendarId:=$inParameters.calendarId
+        : (Value type($inEvent.calendarId)=Is text) && (Length(String($inEvent.calendarId))>0)
+            $calendarId:=$inEvent.calendarId
+    End case 
+    
+    Case of 
+        : (Value type($inParameters.id)=Is text) && (Length(String($inParameters.id))>0)
+            $eventId:=$inParameters.id
+        : (Value type($inEvent.id)=Is text) && (Length(String($inEvent.id))>0)
+            $eventId:=$inEvent.id
+    End case 
+    
+    If (Length(String(This.userId))>0)
+        $URLString+="users/"+This.userId
+    Else 
+        $URLString+="me"
+    End if 
+    
+    If (Length(String($calendarId))>0)
+        $URLString+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
+    Else 
+        $URLString+="/calendar"
+    End if 
+    $URLString+="/events/"+cs.Tools.me.urlEncode($eventId)
+    
+    var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
+    var $attachments : Collection:=Null
+    
+    If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
+        $attachments:=$event.attachments
+        OB REMOVE($event; "attachments")
+    End if 
+    
+    var $response : Object:=Super._sendRequestAndWaitResponse("PATCH"; $URLString; $headers; $event)
+    
+    If ((Value type($attachments)=Is collection) && ($attachments.length>0))
+        
+        var $params : Object:={eventId: $response.id; calendarId: String($inParameters.calendarId)}
+        var $attachment : Object
+        
+        $response.attachments:=[]
+        For each ($attachment; $attachments)
+            
+            var $result : Object:=This._insertAttachment($params; $attachment)
+            If ($result.success)
+                Try
+                    OB REMOVE($result; "success")
+                    OB REMOVE($result; "errors")
+                    OB REMOVE($result; "statusText")
+                End try
+                $response.attachments.push(This._cleanGraphObject($result))
+            Else 
+                Super._throwErrors(True)
+                return This._returnStatus($result)
+            End if 
+        End for each 
+    End if 
+    
+    Super._throwErrors(True)
+    
+    return This._returnStatus({event: This._cleanGraphObject($response)})

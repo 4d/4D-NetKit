@@ -12,17 +12,7 @@ Class constructor()
 Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
-	var $description : Text:=cs.Tools.me.localizedString("ERR_4DNK_"+String($inCode))
-	
-	If (Not(OB Is empty($inParameters)))
-		var $key : Text
-		For each ($key; $inParameters)
-			$description:=Replace string($description; "{"+$key+"}"; String($inParameters[$key]))
-		End for each 
-	End if 
-	
-	// Push error into errorStack 
-	var $error : Object:={errCode: $inCode; componentSignature: "4DNK"; message: $description}
+	var $error : Object:=cs.Tools.me.makeError($inCode; $inParameters)
 	If (This._internals._errorStack=Null)
 		This._internals._errorStack:=[]
 	End if 
