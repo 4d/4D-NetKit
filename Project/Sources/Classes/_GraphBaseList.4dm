@@ -45,7 +45,7 @@ Function _getList($inURL : Text) : Boolean
 			This._internals._list.push(Super._cleanGraphObject($object))
 		End for each 
 		This.success:=True
-		var $nextLink : Text:=cs.Tools.me.urlDecode(String($response["@odata.nextLink"]))
+		var $nextLink : Text:=String($response["@odata.nextLink"])
 		var $count : Integer:=Num($response["@odata.count"])
 		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
 			$nextLink:=""

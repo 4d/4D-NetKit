@@ -87,12 +87,12 @@ If ($URL=$redirectURI)
             End if 
             
             var $responseFileContent : Text:=$responseFile.getText()
-            var $outResponseBody : Text:=""
+            var $responseBody : Text:=""
             
-            PROCESS 4D TAGS($responseFileContent; $outResponseBody; $pageTitle; $pageMessage; $pageDetails; $status)
+            PROCESS 4D TAGS($responseFileContent; $responseBody; $pageTitle; $pageMessage; $pageDetails; $status)
             
             $outResponse.status:=200
-            $outResponse.body:=$outResponseBody
+            $outResponse.body:=$responseBody
             $outResponse.contentType:="text/html; charset=UTF-8"
         Else 
             

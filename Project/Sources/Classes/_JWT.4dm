@@ -35,7 +35,12 @@ Function generate() : Text
 	BASE64 ENCODE(JSON Stringify(This.payload); $payload; *)
 	
 	// Parse Header for Algorithm Family
-	var $algorithm : Text:=Substring(This.header.alg; 1; 2)
+	var $algorithm : Text:=This.header.alg
+	If (($algorithm="HS256") || ($algorithm="HS512"))
+		$algorithm:="HS"
+	Else 
+		$algorithm:="RS"
+	End if
 	
 	// Generate Verify Signature Hash based on Algorithm
 	If ($algorithm="HS")
@@ -203,4 +208,5 @@ Function decode($inToken : Text) : Object
 	BASE64 DECODE($parts[0]; $header; *)
 	BASE64 DECODE($parts[1]; $payload; *)
 	
+	// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
 	return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}

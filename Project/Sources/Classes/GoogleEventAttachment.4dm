@@ -4,12 +4,12 @@ property mimeType : Text
 property iconLink : Text
 property contentBytes : 4D.Blob:=Null
 
-Class constructor($inAttachement : Object)
+Class constructor($inAttachment : Object)
     
-    This.fileUrl:=String($inAttachement.fileUrl)
-    This.title:=String($inAttachement.title)
-    This.mimeType:=String($inAttachement.mimeType)
-    This.iconLink:=String($inAttachement.iconLink)
+    This.fileUrl:=String($inAttachment.fileUrl)
+    This.title:=String($inAttachment.title)
+    This.mimeType:=String($inAttachment.mimeType)
+    This.iconLink:=String($inAttachment.iconLink)
     
     
     // Mark: - [Public]

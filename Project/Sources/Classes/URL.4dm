@@ -155,7 +155,7 @@ Function parseQuery($inQueryString : Text)
     // Example: ?query=param&anotherQuery=anotherParam
     // Result:
     // query: query=param&anotherQuery=anotherParam
-    // queryParams: [{name: "query"; value: "param"}, {name: "abotherQuery"; value: "anotherParam"}]
+    // queryParams: [{name: "query"; value: "param"}, {name: "anotherQuery"; value: "anotherParam"}]
     
     var $queryString : Text:=$inQueryString
     
@@ -167,9 +167,11 @@ Function parseQuery($inQueryString : Text)
         var $queryParams : Collection:=Split string($queryString; "&"; sk ignore empty strings)
         var $param; $name; $value : Text
         For each ($param; $queryParams)
-            $name:=Substring($param; 1; Position("="; $param)-1)
-            $value:=Substring($param; Position("="; $param)+1)
-            This.queryParams.push({name: $name; value: $value})
+            If (Position("="; $param)>0)
+                $name:=Substring($param; 1; Position("="; $param)-1)
+                $value:=Substring($param; Position("="; $param)+1)
+                This.queryParams.push({name: $name; value: $value})
+            End if 
         End for each 
     End if 
     
