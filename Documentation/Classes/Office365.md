@@ -1389,7 +1389,7 @@ $attachment.contentBytes:=$attachmentText
 $email.attachments:=New collection($attachment)
 
 // Send the email
-$Office365:=New Office365 provider($token; New object("mailType"; "Microsoft"))
+$Office365:=New Office365 provider($oAuth2; New object("mailType"; "Microsoft"))
 $status:=$Office365.mail.send($email)
 ```
 
