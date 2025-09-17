@@ -28,7 +28,9 @@ property _authenticateURI : Text
 property _tokenURI : Text
 property _grantType : Text
 property _codeVerifier : Text
-property _state : Text
+
+property state : Text
+property nonce : Text  // For OpenID Connect
 
 property enableDebugLog : Boolean  // Enable HTTP Server debug log for Debug purposes only
 
@@ -234,7 +236,10 @@ Class constructor($inParams : Object)
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
-		This._state:=Generate UUID
+		This.state:=Choose(((Value type($inParams.state)=Is text) && (Length($inParams.state)>0)); $inParams.state; Generate UUID)
+		If ((Value type($inParams.nonce)=Is text) && (Length($inParams.nonce)>0))
+			This.nonce:=$inParams.nonce
+		End if 
 		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
 		
 	End if 
@@ -426,7 +431,7 @@ Function _getAuthorizationCode() : Text
 			
 		Else 
 			
-			var $state : Text:=This._state
+			var $state : Text:=This.state
 			
 			Use (Storage)
 				If (Storage.requests=Null)
@@ -569,7 +574,7 @@ Function _getToken_Service() : Object
 	
 	var $result : Object:=Null
 	var $params : Text
-	var $jwt : cs._JWT
+	var $jwt : cs.JWT
 	var $options : Object
 	var $bearer : Text
 	
@@ -589,7 +594,7 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
+			$jwt:=cs.JWT.new($options)
 			$bearer:=$jwt.generate()
 			
 			$params:="grant_type="+cs.Tools.me.urlEncode(This.grantType)
@@ -609,7 +614,7 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
+			$jwt:=cs.JWT.new($options)
 			$bearer:=$jwt.generate()
 			
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
@@ -918,7 +923,7 @@ Function get authenticateURI() : Text
 	If (This._isSignedIn())
 		
 		var $scope : Text:=This.scope
-		var $state : Text:=This._state
+		var $state : Text:=This.state
 		var $redirectURI : Text:=This.redirectURI
 		var $urlParams : Text
 		
@@ -943,6 +948,9 @@ Function get authenticateURI() : Text
 			If (Length(String(This.prompt))>0)
 				$urlParams+="&prompt="+This.prompt
 			End if 
+		End if 
+		If (Length(String(This.nonce))>0)
+			$urlParams+="&nonce="+This.nonce
 		End if 
 		
 		$authenticateURI+=$urlParams
