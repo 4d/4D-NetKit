@@ -478,21 +478,21 @@ Function _getAuthorizationCode() : Text
 Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
 	var $result : Object:=Null
-	var $params : Text
+	var $params : cs.URL:=cs.URL.new()
 	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
-		
-		$params:="client_id="+This.clientId
+
+		$params.addQueryParameter("client_id"; This.clientId)
 		If (Length(This.scope)>0)
-			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-		End if 
-		$params+="&refresh_token="+This.token.refresh_token
-		$params+="&grant_type=refresh_token"
+			$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+		End if
+		$params.addQueryParameter("refresh_token"; This.token.refresh_token)
+		$params.addQueryParameter("grant_type"; "refresh_token")
 		If (Length(This.clientSecret)>0)
-			$params+="&client_secret="+This.clientSecret
-		End if 
-		
-	Else 
+			$params.addQueryParameter("client_secret"; This.clientSecret)
+		End if
+
+	Else
 		
 		If (Length(String(This.redirectURI))>0)
 			
@@ -528,19 +528,19 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
 				If (Length($authorizationCode)>0)
-					
-					$params:="client_id="+This.clientId
-					$params+="&grant_type=authorization_code"
-					$params+="&code="+$authorizationCode
-					$params+="&redirect_uri="+cs.Tools.me.urlEncode(This.redirectURI)
+
+					$params.addQueryParameter("client_id"; This.clientId)
+					$params.addQueryParameter("grant_type"; "authorization_code")
+					$params.addQueryParameter("code"; $authorizationCode)
+					$params.addQueryParameter("redirect_uri"; cs.Tools.me.urlEncode(This.redirectURI))
 					If (This.PKCEEnabled)
-						$params+="&code_verifier="+This.codeVerifier
+						$params.addQueryParameter("code_verifier"; This.codeVerifier)
 					End if 
 					If (Length(This.clientSecret)>0)
-						$params+="&client_secret="+This.clientSecret
+						$params.addQueryParameter("client_secret"; This.clientSecret)
 					End if 
-					$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-					
+					$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+
 				Else 
 					
 					$bSendRequest:=False
@@ -560,7 +560,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
 	If ($bSendRequest)
 		
-		$result:=This._sendTokenRequest($params)
+		$result:=This._sendTokenRequest($params.query)
 		
 	End if 
 	
@@ -573,7 +573,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 Function _getToken_Service() : Object
 	
 	var $result : Object:=Null
-	var $params : Text
+	var $params : cs.URL:=cs.URL.new()
 	var $jwt : cs.JWT
 	var $options : Object
 	var $bearer : Text
@@ -597,8 +597,8 @@ Function _getToken_Service() : Object
 			$jwt:=cs.JWT.new($options)
 			$bearer:=$jwt.generate()
 			
-			$params:="grant_type="+cs.Tools.me.urlEncode(This.grantType)
-			$params+="&assertion="+$bearer
+			$params.addQueryParameter("grant_type"; cs.Tools.me.urlEncode(This.grantType))
+			$params.addQueryParameter("assertion"; $bearer)
 			
 		: (This._useJWTBearerAssertionType())
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
@@ -618,24 +618,24 @@ Function _getToken_Service() : Object
 			$bearer:=$jwt.generate()
 			
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
-			$params:="grant_type="+This.grantType
-			$params+="&client_id="+This.clientId
-			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-			$params+="&client_assertion_type="+cs.Tools.me.urlEncode(This.clientAssertionType)
-			$params+="&client_assertion="+$bearer
+			$params.addQueryParameter("grant_type"; This.grantType)
+			$params.addQueryParameter("client_id"; This.clientId)
+			$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+			$params.addQueryParameter("client_assertion_type"; cs.Tools.me.urlEncode(This.clientAssertionType))
+			$params.addQueryParameter("client_assertion"; $bearer)
 			
 		Else 
-			
-			$params:="client_id="+This.clientId
+
+			$params.addQueryParameter("client_id"; This.clientId)
 			If (Length(This.scope)>0)
-				$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
+				$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
 			End if 
-			$params+="&client_secret="+This.clientSecret
-			$params+="&grant_type="+This.grantType
+			$params.addQueryParameter("client_secret"; This.clientSecret)
+			$params.addQueryParameter("grant_type"; This.grantType)
 			
 	End case 
 	
-	$result:=This._sendTokenRequest($params)
+	$result:=This._sendTokenRequest($params.query)
 	
 	return $result
 	
