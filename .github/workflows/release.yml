@@ -1,0 +1,87 @@
+name: Release
+on: 
+  release:
+    types: [published]
+jobs:
+  create:
+    name: "Create"
+    runs-on: macOS
+    env:
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v5
+
+      - name: ⬇️ Checkout postBuild
+        uses: actions/checkout@v5
+        with:
+          repository: 4d/${{secrets.POST_BUILD_REPO}}
+          token: ${{secrets.PAT_TOKEN}}
+          sparse-checkout: |
+            ${{ secrets.POST_BUILD_PATH }}
+          path: Components/${{ secrets.POST_BUILD_REPO }}
+
+      - name: BuildAndPackage
+        id: build-package
+        uses: 4d/build4d-action@main
+        with:
+          actions: "release"
+          product-line: vcs
+          version: vcs
+          build: official
+          token: ${{ secrets.DLTK }}
+          after-build: "./Components/${{ secrets.POST_BUILD_REPO }}/${{ secrets.POST_BUILD_SCRIPT }}"
+          sign-certificate: "${{ secrets.SIGN_CERTIFICATE }}"
+        env:
+          LOGIN_KEYCHAIN_PASSWORD: "${{ secrets.KEYCHAIN }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ github.event.repository.name }}.zip"
+          path: "build/${{ github.event.repository.name }}.zip"
+          retention-days: 1
+          if-no-files-found: error
+      
+  clear:
+    needs: create
+    if: failure()
+    name: "Clear on failure"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # for release deletion
+    steps:
+      - name: 📄 Checkout repository
+        uses: "actions/checkout@v5"
+        with:
+          fetch-depth: 0
+      - name: Remove release
+        run: |
+          echo "Build and package step failed. Checking for errors..."
+          echo "Removing release"
+          gh release delete ${{github.event.release.tag_name}} || echo "Release deletion failed"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+  publish:
+    needs: create
+    name: "Publish package"
+    runs-on: ubuntu-latest
+ 
+    permissions:
+      contents: write # for asset upload
+    steps:
+      - name: 📄 Checkout repository
+        uses: "actions/checkout@v5"
+        with:
+          fetch-depth: 0
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: "${{ github.event.repository.name }}.zip"
+          path: artifact
+      - name: 📦 release package
+        run: |
+          gh release upload ${{github.event.release.tag_name}} "${{github.workspace}}/artifact/${{ github.event.repository.name }}.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
