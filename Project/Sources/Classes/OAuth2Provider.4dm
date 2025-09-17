@@ -925,35 +925,35 @@ Function get authenticateURI() : Text
 		var $scope : Text:=This.scope
 		var $state : Text:=This.state
 		var $redirectURI : Text:=This.redirectURI
-		var $urlParams : Text
+		var $urlParams : cs.URL:=cs.URL.new()
 		
-		$urlParams:="?client_id="+This.clientId
-		$urlParams+="&response_type=code"
+		$urlParams.addQueryParameter("client_id"; This.clientId)
+		$urlParams.addQueryParameter("response_type"; "code")
 		If (Length(String($scope))>0)
-			$urlParams+="&scope="+cs.Tools.me.urlEncode($scope)
+			$urlParams.addQueryParameter("scope"; cs.Tools.me.urlEncode($scope))
 		End if 
-		$urlParams+="&state="+String($state)
-		$urlParams+="&response_mode=query"
-		$urlParams+="&redirect_uri="+cs.Tools.me.urlEncode($redirectURI)
+		$urlParams.addQueryParameter("state"; String($state))
+		$urlParams.addQueryParameter("response_mode"; "query")
+		$urlParams.addQueryParameter("redirect_uri"; cs.Tools.me.urlEncode($redirectURI))
 		If (This.PKCEEnabled)
-			$urlParams+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
-			$urlParams+="&code_challenge_method="+String(This.PKCEMethod)
+			$urlParams.addQueryParameter("code_challenge"; This._generateCodeChallenge(This.codeVerifier))
+			$urlParams.addQueryParameter("code_challenge_method"; String(This.PKCEMethod))
 		Else 
 			If (Length(String(This.accessType))>0)
-				$urlParams+="&access_type="+This.accessType
+				$urlParams.addQueryParameter("access_type"; This.accessType)
 			End if 
 			If (Length(String(This.loginHint))>0)
-				$urlParams+="&login_hint="+This.loginHint
+				$urlParams.addQueryParameter("login_hint"; This.loginHint)
 			End if 
 			If (Length(String(This.prompt))>0)
-				$urlParams+="&prompt="+This.prompt
+				$urlParams.addQueryParameter("prompt"; This.prompt)
 			End if 
 		End if 
 		If (Length(String(This.nonce))>0)
-			$urlParams+="&nonce="+This.nonce
+			$urlParams.addQueryParameter("nonce"; This.nonce)
 		End if 
 		
-		$authenticateURI+=$urlParams
+		$authenticateURI+=$urlParams.getQueryString()
 	End if 
 	
 	return $authenticateURI
