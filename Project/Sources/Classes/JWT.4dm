@@ -40,7 +40,7 @@ Function generate() : Text
 		$algorithm:="HS"
 	Else 
 		$algorithm:="RS"
-	End if
+	End if 
 	
 	// Generate Verify Signature Hash based on Algorithm
 	If ($algorithm="HS")
@@ -203,10 +203,16 @@ Function _hashSign($inJWT : Object) : Text
 Function decode($inToken : Text) : Object
 	
 	var $parts : Collection:=Split string($inToken; ".")
-	var $header; $payload : Text
 	
-	BASE64 DECODE($parts[0]; $header; *)
-	BASE64 DECODE($parts[1]; $payload; *)
-	
-	// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
-	return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}
+	If ($parts.length>2)
+		var $header; $payload; $signature : Text
+		BASE64 DECODE($parts[0]; $header; *)
+		BASE64 DECODE($parts[1]; $payload; *)
+		$signature:=$parts[2]
+		
+		// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
+		return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); signature: $signature}
+		
+	Else 
+		return {header: Null; payload: Null}
+	End if 
