@@ -7,26 +7,50 @@ property header : Object
 property payload : Object
 property privateKey : Text
 
-Class constructor($inParam : Object)
-	
-	var $alg : Text:=(Value type($inParam.header.alg)=Is text) ? $inParam.header.alg : "RS256"
-	var $typ : Text:=(Value type($inParam.header.typ)=Is text) ? $inParam.header.typ : "JWT"
-	var $x5t : Text:=(Value type($inParam.header.x5t)=Is text) ? $inParam.header.x5t : ""
-	
-	This.header:={alg: $alg; typ: $typ}
-	If (Length($x5t)>0)
-		This.header.x5t:=$x5t
-	End if 
-	
-	This.payload:=(Value type($inParam.payload)=Is object) ? $inParam.payload : {}
-	This.privateKey:=(Value type($inParam.privateKey)=Is text) ? $inParam.privateKey : ""
+Class constructor()
+	This.header:={}
+	This.payload:={}
+	This.privateKey:=""
 	
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
-Function generate() : Text
+Function decode($inToken : Text) : Object
+	
+	var $parts : Collection:=Split string($inToken; ".")
+	
+	If ($parts.length>2)
+		var $header; $payload; $signature : Text
+		BASE64 DECODE($parts[0]; $header; *)
+		BASE64 DECODE($parts[1]; $payload; *)
+		$signature:=$parts[2]
+		
+		// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
+		return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); signature: $signature}
+		
+	Else 
+		return {header: Null; payload: Null}
+	End if 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function generate($inParams : Object) : Text
+	
+	var $alg : Text:=(Value type($inParams.header.alg)=Is text) ? $inParams.header.alg : "RS256"
+	var $typ : Text:=(Value type($inParams.header.typ)=Is text) ? $inParams.header.typ : "JWT"
+	var $x5t : Text:=(Value type($inParams.header.x5t)=Is text) ? $inParams.header.x5t : ""
+	
+	This.header:={alg: $alg; typ: $typ}
+	If (Length($x5t)>0)
+		This.header.x5t:=$x5t
+	End if 
+	
+	This.payload:=(Value type($inParams.payload)=Is object) ? $inParams.payload : {}
+	This.privateKey:=((Value type($inParams.privateKey)=Is text) && (Length($inParams.privateKey)>0)) ? $inParams.privateKey : ""
 	
 	var $header; $payload; $signature : Text
 	
@@ -64,11 +88,12 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	If ($parts.length>2)
 		
 		var $header; $payload; $signature : Text
+		var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : This.privateKey
 		
 		// Decode Header and Payload into Objects
 		BASE64 DECODE($parts[0]; $header; *)
 		BASE64 DECODE($parts[1]; $payload; *)
-		var $jwt : Object:={header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); privateKey: String($inPrivateKey)}
+		var $jwt : Object:={header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); privateKey: String($privateKey)}
 		
 		// Parse Header for Algorithm Family
 		var $algorithm : Text:=Substring($jwt.header.alg; 1; 2)
@@ -80,8 +105,12 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 			$signature:=This._hashSign($jwt)
 		End if 
 		
-		This.header:=$jwt.header
-		This.payload:=$jwt.payload
+		If (OB Is empty(This.header))
+			This.header:=$jwt.header
+		End if 
+		If (OB Is empty(This.payload))
+			This.payload:=$jwt.payload
+		End if 
 		
 		//Compare Verify Signatures to return Result
 		return ($signature=$parts[2])
@@ -161,14 +190,14 @@ Function _hashSign($inJWT : Object) : Text
 	
 	var $hash; $encodedHead; $encodedPayload : Text
 	var $settings : Object
-	var $privateKey : Text:=(String($inJWT.privateKey)#"") ? String($inJWT.privateKey) : String(This.privateKey)
+	var $privateKey : Text:=((Value type($inJWT.privateKey)=Is text) && (Length($inJWT.privateKey)>0)) ? $inJWT.privateKey : ""
 	
 	// Encode Header and Payload to build Message
 	BASE64 ENCODE(JSON Stringify($inJWT.header); $encodedHead; *)
 	BASE64 ENCODE(JSON Stringify($inJWT.payload); $encodedPayload; *)
 	
 	// Prepare CryptoKey settings
-	If ($privateKey="")
+	If (Length($privateKey)=0)
 		$settings:={type: "RSA"}  // 4D will automatically create RSA key pair
 	Else 
 		$settings:={type: "PEM"; pem: $privateKey}  // Use specified PEM format Key
@@ -177,7 +206,7 @@ Function _hashSign($inJWT : Object) : Text
 	// Create new CryptoKey
 	var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
 	If ($cryptoKey#Null)
-		If (String(This.privateKey)="")
+		If (Length(This.privateKey)=0)
 			This.privateKey:=$cryptoKey.getPrivateKey()
 		End if 
 		
@@ -195,24 +224,3 @@ Function _hashSign($inJWT : Object) : Text
 	End if 
 	
 	return $hash
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function decode($inToken : Text) : Object
-	
-	var $parts : Collection:=Split string($inToken; ".")
-	
-	If ($parts.length>2)
-		var $header; $payload; $signature : Text
-		BASE64 DECODE($parts[0]; $header; *)
-		BASE64 DECODE($parts[1]; $payload; *)
-		$signature:=$parts[2]
-		
-		// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
-		return {header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload)); signature: $signature}
-		
-	Else 
-		return {header: Null; payload: Null}
-	End if 
