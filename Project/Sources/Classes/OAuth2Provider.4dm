@@ -574,7 +574,7 @@ Function _getToken_Service() : Object
 	
 	var $result : Object:=Null
 	var $params : cs.URL:=cs.URL.new()
-	var $jwt : cs.JWT
+	var $jwt : cs.JWT:=cs.JWT.new()
 	var $options : Object
 	var $bearer : Text
 	
@@ -594,8 +594,7 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs.JWT.new($options)
-			$bearer:=$jwt.generate()
+			$bearer:=$jwt.generate($options)
 			
 			$params.addQueryParameter("grant_type"; cs.Tools.me.urlEncode(This.grantType))
 			$params.addQueryParameter("assertion"; $bearer)
@@ -614,8 +613,7 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs.JWT.new($options)
-			$bearer:=$jwt.generate()
+			$bearer:=$jwt.generate($options)
 			
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
 			$params.addQueryParameter("grant_type"; This.grantType)
