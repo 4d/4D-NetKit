@@ -98,6 +98,8 @@ Function getGoogleDate() : Object  // returns Google Date Object
 	
 	
 	// ----------------------------------------------------
+
+	
 Function getDateTimeURLParameter()->$dateTimeString : Text  // returns Graph DateTime URL parameter
 	
 	$dateTimeString:=String(Date(This.date); ISO date GMT; Time(This.time))

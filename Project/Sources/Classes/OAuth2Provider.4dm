@@ -28,7 +28,9 @@ property _authenticateURI : Text
 property _tokenURI : Text
 property _grantType : Text
 property _codeVerifier : Text
-property _state : Text
+
+property state : Text
+property nonce : Text  // For OpenID Connect
 
 property enableDebugLog : Boolean  // Enable HTTP Server debug log for Debug purposes only
 
@@ -234,7 +236,10 @@ Class constructor($inParams : Object)
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
-		This._state:=Generate UUID
+		This.state:=Choose(((Value type($inParams.state)=Is text) && (Length($inParams.state)>0)); $inParams.state; Generate UUID)
+		If ((Value type($inParams.nonce)=Is text) && (Length($inParams.nonce)>0))
+			This.nonce:=$inParams.nonce
+		End if 
 		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
 		
 	End if 
@@ -426,7 +431,7 @@ Function _getAuthorizationCode() : Text
 			
 		Else 
 			
-			var $state : Text:=This._state
+			var $state : Text:=This.state
 			
 			Use (Storage)
 				If (Storage.requests=Null)
@@ -473,21 +478,21 @@ Function _getAuthorizationCode() : Text
 Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
 	var $result : Object:=Null
-	var $params : Text
+	var $params : cs.URL:=cs.URL.new()
 	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
-		
-		$params:="client_id="+This.clientId
+
+		$params.addQueryParameter("client_id"; This.clientId)
 		If (Length(This.scope)>0)
-			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-		End if 
-		$params+="&refresh_token="+This.token.refresh_token
-		$params+="&grant_type=refresh_token"
+			$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+		End if
+		$params.addQueryParameter("refresh_token"; This.token.refresh_token)
+		$params.addQueryParameter("grant_type"; "refresh_token")
 		If (Length(This.clientSecret)>0)
-			$params+="&client_secret="+This.clientSecret
-		End if 
-		
-	Else 
+			$params.addQueryParameter("client_secret"; This.clientSecret)
+		End if
+
+	Else
 		
 		If (Length(String(This.redirectURI))>0)
 			
@@ -523,19 +528,19 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
 				If (Length($authorizationCode)>0)
-					
-					$params:="client_id="+This.clientId
-					$params+="&grant_type=authorization_code"
-					$params+="&code="+$authorizationCode
-					$params+="&redirect_uri="+cs.Tools.me.urlEncode(This.redirectURI)
+
+					$params.addQueryParameter("client_id"; This.clientId)
+					$params.addQueryParameter("grant_type"; "authorization_code")
+					$params.addQueryParameter("code"; $authorizationCode)
+					$params.addQueryParameter("redirect_uri"; cs.Tools.me.urlEncode(This.redirectURI))
 					If (This.PKCEEnabled)
-						$params+="&code_verifier="+This.codeVerifier
+						$params.addQueryParameter("code_verifier"; This.codeVerifier)
 					End if 
 					If (Length(This.clientSecret)>0)
-						$params+="&client_secret="+This.clientSecret
+						$params.addQueryParameter("client_secret"; This.clientSecret)
 					End if 
-					$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-					
+					$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+
 				Else 
 					
 					$bSendRequest:=False
@@ -555,7 +560,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
 	If ($bSendRequest)
 		
-		$result:=This._sendTokenRequest($params)
+		$result:=This._sendTokenRequest($params.query)
 		
 	End if 
 	
@@ -568,8 +573,8 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 Function _getToken_Service() : Object
 	
 	var $result : Object:=Null
-	var $params : Text
-	var $jwt : cs._JWT
+	var $params : cs.URL:=cs.URL.new()
+	var $jwt : cs.JWT:=cs.JWT.new()
 	var $options : Object
 	var $bearer : Text
 	
@@ -589,11 +594,10 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
-			$bearer:=$jwt.generate()
+			$bearer:=$jwt.generate($options)
 			
-			$params:="grant_type="+cs.Tools.me.urlEncode(This.grantType)
-			$params+="&assertion="+$bearer
+			$params.addQueryParameter("grant_type"; cs.Tools.me.urlEncode(This.grantType))
+			$params.addQueryParameter("assertion"; $bearer)
 			
 		: (This._useJWTBearerAssertionType())
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
@@ -609,28 +613,27 @@ Function _getToken_Service() : Object
 			
 			$options.privateKey:=This.privateKey
 			
-			$jwt:=cs._JWT.new($options)
-			$bearer:=$jwt.generate()
+			$bearer:=$jwt.generate($options)
 			
 			// See documentation of https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#second-case-access-token-request-with-a-certificate
-			$params:="grant_type="+This.grantType
-			$params+="&client_id="+This.clientId
-			$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
-			$params+="&client_assertion_type="+cs.Tools.me.urlEncode(This.clientAssertionType)
-			$params+="&client_assertion="+$bearer
+			$params.addQueryParameter("grant_type"; This.grantType)
+			$params.addQueryParameter("client_id"; This.clientId)
+			$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
+			$params.addQueryParameter("client_assertion_type"; cs.Tools.me.urlEncode(This.clientAssertionType))
+			$params.addQueryParameter("client_assertion"; $bearer)
 			
 		Else 
-			
-			$params:="client_id="+This.clientId
+
+			$params.addQueryParameter("client_id"; This.clientId)
 			If (Length(This.scope)>0)
-				$params+="&scope="+cs.Tools.me.urlEncode(This.scope)
+				$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
 			End if 
-			$params+="&client_secret="+This.clientSecret
-			$params+="&grant_type="+This.grantType
+			$params.addQueryParameter("client_secret"; This.clientSecret)
+			$params.addQueryParameter("grant_type"; This.grantType)
 			
 	End case 
 	
-	$result:=This._sendTokenRequest($params)
+	$result:=This._sendTokenRequest($params.query)
 	
 	return $result
 	
@@ -918,34 +921,37 @@ Function get authenticateURI() : Text
 	If (This._isSignedIn())
 		
 		var $scope : Text:=This.scope
-		var $state : Text:=This._state
+		var $state : Text:=This.state
 		var $redirectURI : Text:=This.redirectURI
-		var $urlParams : Text
+		var $urlParams : cs.URL:=cs.URL.new()
 		
-		$urlParams:="?client_id="+This.clientId
-		$urlParams+="&response_type=code"
+		$urlParams.addQueryParameter("client_id"; This.clientId)
+		$urlParams.addQueryParameter("response_type"; "code")
 		If (Length(String($scope))>0)
-			$urlParams+="&scope="+cs.Tools.me.urlEncode($scope)
+			$urlParams.addQueryParameter("scope"; cs.Tools.me.urlEncode($scope))
 		End if 
-		$urlParams+="&state="+String($state)
-		$urlParams+="&response_mode=query"
-		$urlParams+="&redirect_uri="+cs.Tools.me.urlEncode($redirectURI)
+		$urlParams.addQueryParameter("state"; String($state))
+		$urlParams.addQueryParameter("response_mode"; "query")
+		$urlParams.addQueryParameter("redirect_uri"; cs.Tools.me.urlEncode($redirectURI))
 		If (This.PKCEEnabled)
-			$urlParams+="&code_challenge="+This._generateCodeChallenge(This.codeVerifier)
-			$urlParams+="&code_challenge_method="+String(This.PKCEMethod)
+			$urlParams.addQueryParameter("code_challenge"; This._generateCodeChallenge(This.codeVerifier))
+			$urlParams.addQueryParameter("code_challenge_method"; String(This.PKCEMethod))
 		Else 
 			If (Length(String(This.accessType))>0)
-				$urlParams+="&access_type="+This.accessType
+				$urlParams.addQueryParameter("access_type"; This.accessType)
 			End if 
 			If (Length(String(This.loginHint))>0)
-				$urlParams+="&login_hint="+This.loginHint
+				$urlParams.addQueryParameter("login_hint"; This.loginHint)
 			End if 
 			If (Length(String(This.prompt))>0)
-				$urlParams+="&prompt="+This.prompt
+				$urlParams.addQueryParameter("prompt"; This.prompt)
 			End if 
 		End if 
+		If (Length(String(This.nonce))>0)
+			$urlParams.addQueryParameter("nonce"; This.nonce)
+		End if 
 		
-		$authenticateURI+=$urlParams
+		$authenticateURI+=$urlParams.getQueryString()
 	End if 
 	
 	return $authenticateURI

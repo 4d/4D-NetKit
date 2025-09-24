@@ -1,0 +1,49 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_prefix:
+        description: 'Tag prefix to use instead of branch'
+        required: false
+        default: ''
+        type: string
+      tag_suffix:
+        description: 'Tag suffix'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  create-tag-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # for tag and release creation
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history and tags
+        ref: ${{ github.ref }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create Release Tag
+      id: create_tag
+      uses: e-marchand/auto-increment-tag-action@v2
+      with:
+        tag_prefix: "${{ inputs.tag_prefix }}"
+        tag_suffix: "${{ inputs.tag_suffix }}"
+        generate_commit_links: 'true'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create GitHub Release
+      if: steps.create_tag.outputs.tag_created == 'true'
+      id: create_release
+      uses: e-marchand/action-gh-release@v2.3.2
+      with:
+        tag_name: ${{ steps.create_tag.outputs.tag }}
+        name: ${{ steps.create_tag.outputs.tag }}
+        body: ${{ steps.create_tag.outputs.commit_links }}
+        draft: false
+        prerelease: ${{ contains(steps.create_tag.outputs.tag, 'main.') || contains(inputs.tag_suffix, '-') }}
+        token: ${{ secrets.PAT_TOKEN }}

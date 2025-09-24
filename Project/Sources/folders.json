@@ -25,8 +25,7 @@
 			"_GoogleBaseList",
 			"_GoogleBatchRequest",
 			"_GraphAPI",
-			"_GraphBaseList",
-			"_JWT"
+			"_GraphBaseList"
 		]
 	},
 	"Private Methods": {
@@ -63,6 +62,7 @@
 			"GraphMessageList",
 			"GraphRecipient",
 			"GraphUserList",
+			"JWT",
 			"OAuth2Authorization",
 			"OAuth2Provider",
 			"OAuth2Token",
