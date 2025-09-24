@@ -50,32 +50,37 @@ The available properties of `paramObj` are:
 
 |Parameter|Type|Description|Optional|
 |---------|--- |------|------|
-| name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes
-| permission | text |- "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).<br/>- service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-service)/Google (access without a user).|No
-| clientId | text | The client ID assigned to the app by the registration portal.|No
-| redirectURI | text | (Not used in service mode) The redirect_uri of your app, i.e. the location where the authorization server sends the user once the app has been successfully authorized. Depending on the port specified in this property, the authentication response goes to the [web server of the host or of the 4D NetKit](#web-server-for-redirect-uri) when you call the [`.getToken()`](#oauth2providerobjectgettoken) class function.  |No in signedIn mode, Yes in service mode
-| scope | text or collection | Text: A space-separated list of the Microsoft Graph permissions that you want the user to consent to.</br> Collection: Collection of Microsoft Graph permissions. |Yes
-| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: - "common" for both Microsoft accounts and work or school accounts (default value)<br/>- "organizations" for work or school accounts only <br/>- "consumers" for Microsoft accounts only<br/>- tenant identifiers such as tenant ID or domain name.<br/>Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes
-| authenticateURI | text | Uri used to do the Authorization request.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".<br/> Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes
-| tokenURI | text | Uri used to request an access token.<br/> Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".<br/> Default for Google: "https://accounts.google.com/o/oauth2/token".|Yes
-|tokenExpiration | text | Timestamp (ISO 8601 UTC) that indicates the expiration time of the token.| Yes
-| clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes
-| token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes
-| timeout|real| Waiting time in seconds (by default 120s).|Yes
-|    prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.<br/><br/>Possible values are:<br/>- none: Do not display any authentication or consent screens. Must not be specified with other values.<br/>- consent: Prompt the user for consent.<br/>- select_account: Prompt the user to select an account.<br/>(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
-|  loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.<br/> Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID.                                                                                       |Yes|
-|  accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.<br/> Valid parameter values are online (default) and offline.<br/> Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
+| accessType | text | (Recommended) Indicates whether your application can refresh access tokens when the user is not present at the browser.&lt;br/&gt; Valid parameter values are online (default) and offline.&lt;br/&gt; Set the value to offline if your application needs to update access tokens when the user is not present at the browser. This is how access tokens are refreshed. This value instructs the Google authorization server to return a refresh token and an access token the first time that your application exchanges an authorization code for tokens. |Yes|
+| authenticateURI | text | Uri used to do the Authorization request.&lt;br/&gt; Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize".&lt;br/&gt; Default for Google: "https://accounts.google.com/o/oauth2/auth". |Yes|
+| authenticationErrorPage |text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes|
+| authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes|
+| browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes|
+| clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"    |Yes|
 | clientEmail | text | (mandatory, Google / service mode only)  email address of the service account used |No|
-| authenticationPage|text or file object|Path of the web page to display in the web browser when the authentication code is received correctly in signed in mode (If not present the default page is used).|Yes
-| authenticationErrorPage	|text or file object| Path of the web page to display in the web browser when the authentication server returns an error in signed in mode (If not present the default page is used).|Yes
-| PKCEEnabled |boolean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only usable for permission=”SignIn”. |Yes
-| PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes
-| thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)
-| privateKey | text | Certificate private key. Only usable with permission="Service".<br/>(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)                                                                                         
-| clientAssertionType | text | The format of the assertion as defined by the authorization server. The value is an absolute URI. Default value: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer". Only usable with permission="Service"	|Yes
-| browserAutoOpen | boolean | True (default value), the web browser is open automatically. Pass false if you don't want the web browser to open automatically. |Yes
+| clientId | text | The client ID assigned to the app by the registration portal.|No|
+| clientSecret | text | The application secret that you created for your app in the app registration portal. Required for web apps. |Yes|
+| loginHint  | text | (Optional) This option can be used to inform the Google Authentication Server which user is attempting to authenticate if your application is aware of this information. By prefilling the email field in the sign-in form or by selecting the appropriate multi-login session, the server uses the hint to simplify the login flow either.&lt;br/&gt; Set the parameter value to a sub-identifier or email address that corresponds to the user's Google ID. |Yes|
+| name | text | Name of the provider. Available values: "Microsoft", "Google" or "" (if "" or undefined/null attribute, the authenticateURI and the tokenURI need to be filled by the 4D developer).|Yes|
+| nonce | text | Used for *openID* requests only. Value used to associate a client session with an `id_token`, to mitigate replay attacks. The value is passed through unmodified from the Authentication request to the `id_token`.|Yes|
+| permission | text |- "signedIn": Azure AD/Google will sign in the user and ensure they gave their consent for the permissions your app requests (opens a web browser).&lt;br/&gt;- service": the app calls [Microsoft Graph with its own identity](https://docs.microsoft.com/en-us/graph/auth-v2-servicean| false by default. If true, PKCE is used for OAuth 2.0 authentication and token requests and is only usable for permission="SignIn". |Yes|
+| PKCEMethod |text | "S256" by default. The only supported values for this parameter are "S256" or "plain". |Yes|
+| privateKey | text | Certificate private key. Only usable with permission="Service".&lt;br/&gt;(Google / service mode only)  Private key given by Google. Mandatory if .permission="service" and .name="Google" | Yes (No for certificate based authentication)|
+| prompt   | text |(Optional) A space-delimited, case-sensitive list of prompts to present the user.&lt;br/&gt;&lt;br/&gt;Possible values are:&lt;br/&gt;- none: Do not display any authentication or consent screens. Must not be specified with other values.&lt;br/&gt;- consent: Prompt the user for consent.&lt;br/&gt;- select_account: Prompt the user to select an account.&lt;br/&gt;(if you don't specify this parameter, the user will be prompted only the first time your project requests access. )|Yes|
+| redirectURI | text | (Not used in service mode) The redirect_uri of your app, i.e. the location where the authorization server sends the user once the app has been successfully authorized. Depending on the port specified in this property, the authentication response goes to the [web server of the host or of the 4DNetKit when you call the `.getToken()` class function.  |No in signedIn mode, Yes in service mode|
+| scope | text or collection | Text: A space-separated list of the Microsoft Graph or Google permissions that you want the user to consent to.&lt;/br&gt; Collection: Collection of Microsoft Graph or Google permissions. |Yes|
+| state | text | Opaque value used to maintain state between the request and the callback. If not present, automatically generated by 4D Netkit. |Yes|
+| tenant | text | Microsoft: The {tenant} value in the path of the request can be used to control who can sign into the application. The allowed values are: - "common" for both Microsoft accounts and work or school accounts (default value)&lt;br/&gt;- "organizations" for work or school accounts only &lt;br/&gt;- "consumers" for Microsoft accounts only&lt;br/&gt;- tenant identifiers such as tenant ID or domain name.&lt;br/&gt;Google (service mode only): Email address to be considered as the email address of the user for which the application is requesting delegated access. |Yes|
+| thumbprint |text | Certificate thumbprint. Only usable with permission="Service" | Yes (No for certificate based authentication)|
+| timeout|real| Waiting time in seconds (by default 120s).|Yes|
+| token | object | If this property exists, the `getToken()` function uses this token object to calculate which request must be sent. It is automatically updated with the token received by the `getToken()` function.   |Yes|
+| tokenExpiration | text | Timestamp (ISO 8601 UTC) that indicates the expiration time of the token.| Yes|
+| tokenURI | text | Uri used to request an access token.&lt;br/&gt; Default for Microsoft: "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token".&lt;br/&gt; Default for Google: "https://accounts.google.com/o/oauth2/token".|Yes|
+
+
 
 If you want the .getToken() function to use the Assertion Framework described in the RFC 7521 to connect to the server, make sure to pass the `thumbprint` and `privateKey` properties. If `clientSecret`,  `thumbprint` and `privateKey` are present, the `thumbprint` is used by default and the RFC 7521 is used to connect. For more information, please refer to the [OAuth2.0 authentication using a certificate](#https://blog.4d.com/) blog post.
+
+
 
 **Note:**  The `authenticationPage` and `authenticationErrorPage` and all the resources associated must be in the same folder.
 
@@ -240,6 +245,37 @@ $myCurrentToken:=$OAuth.getToken()
 
 **Note**: Some servers, like Google, do not always return the refresh token during subsequent token requests. In such cases, you should remember to include the refresh token in the token object before saving it for future use.
 
+### Example 4
+
+This example shows how to handle an "id_token" for an openID authentication. 
+
+```4d
+
+var $provider:={}
+$provider.name:="Microsoft"
+$provider.permission:="signedIn"
+$provider.clientId:="xxxx"
+$provider.redirectURI:="http://127.0.0.1:80/authorize/"
+$provider.scope:="openid profile email" // request identity and profile info
+$provider.nonce:="randomNonce456" // optional custom nonce value 
+
+var $oauth:=cs.NetKit.OAuth2Provider.new($provider)
+var $token:=$oauth.getToken()
+
+// Access the id_token
+If ($token.token.id_token#Null)
+
+  // Deserialize the JWT result with cs.NetKit.JWT class
+  var $openID:=cs.NetKit.JWT.new().decode($token.token.id_token)
+  
+  If ($openID.payload.nonce=$param.nonce)
+     ALERT("Hello "+$openID.payload.name)
+  End if 
+
+End if 
+```
+
+
 ## OAuth2ProviderObject.getToken()
 
 **OAuth2ProviderObject.getToken()** : Object
@@ -257,10 +293,11 @@ Property|Object properties|Type|Description |
 |--- |---------| --- |------|
 |token||Object| Token returned |
 || expires_in | Text | How long the access token is valid (in seconds). |
-|| access_token |Ttext | The requested access token. |
+|| access_token |Text | The requested access token. |
 || refresh_token | Text | Your app can use this token to acquire additional access tokens after the current access token expires. Refresh tokens are long-lived, and can be used to retain access to resources for extended periods of time. Available only if the value of the `permission` property is "signedIn". |
 || token_type | Text | Indicates the token type value. The only token type that Azure AD supports is "Bearer". |
-||scope|Text| A space separated list of the Microsoft Graph permissions that the access_token is valid for.|
+||id_token|text|`id_token` value associated with the authenticated session. Present only for *openID* requests.|
+||scope|Text| A space separated list of permissions that the access_token is valid for.|
 |tokenExpiration || Text | Timestamp (ISO 8601 UTC) that indicates the expiration time of the token|
 
 If the value of `token` is empty, the command sends a request for a new token.
@@ -277,4 +314,5 @@ In "signedIn" mode, when `.getToken()` is called, a web server included in 4D Ne
 ## See also
 
 [Google Class](./Google.md)<br/>
-[Office365 Class](./Office365.md)
+[Office365 Class](./Office365.md)<br/>
+[Secure OpenID Authentication with nonce attribute (blog post)](https://blog.4d.com/4d-netkit-secure-openid-authentication-with-nonce-attribute)
