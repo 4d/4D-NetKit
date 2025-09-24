@@ -5,13 +5,11 @@ See: https://kb.4d.com/assetid=79100
 
 property _header : Object
 property _payload : Object
-property _privateKey : Text
 
 Class constructor()
 	
 	This._header:={}
 	This._payload:={}
-	This._privateKey:=""
 	
 	
 	// Mark: - [Public]
@@ -43,41 +41,54 @@ Function decode($inToken : Text) : Object
 	
 Function generate($inParams : Object) : Text
 	
+	var result : Text:=""
 	var $alg : Text:=(Value type($inParams.header.alg)=Is text) ? $inParams.header.alg : "RS256"
 	var $typ : Text:=(Value type($inParams.header.typ)=Is text) ? $inParams.header.typ : "JWT"
 	var $x5t : Text:=(Value type($inParams.header.x5t)=Is text) ? $inParams.header.x5t : ""
+	var $privateKey : Text:=((Value type($inParams.privateKey)=Is text) && (Length($inParams.privateKey)>0)) ? $inParams.privateKey : ""
 	
-	This._header:={alg: $alg; typ: $typ}
-	If (Length($x5t)>0)
-		This._header.x5t:=$x5t
-	End if 
+	Case of 
+		: ((Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
+			This._throwError(9; {which: "\"$inParams.payload\""; function: "JWT.generate"})
+			
+		: ((Value type($privateKey)#Is text) || (Length(String($privateKey))=0))
+			This._throwError(9; {which: "\"$inParams.privateKey\""; function: "JWT.generate"})
+			
+		Else 
+			This._header:={alg: $alg; typ: $typ}
+			If (Length($x5t)>0)
+				This._header.x5t:=$x5t
+			End if 
+			
+			This._payload:=(Value type($inParams.payload)=Is object) ? $inParams.payload : {}
+			
+			var $header; $payload; $signature : Text
+			
+			// Encode the Header and Payload
+			BASE64 ENCODE(JSON Stringify(This._header); $header; *)
+			BASE64 ENCODE(JSON Stringify(This._payload); $payload; *)
+			
+			// Parse Header for Algorithm Family
+			var $algorithm : Text:=This._header.alg
+			If (($algorithm="HS256") || ($algorithm="HS512"))
+				$algorithm:="HS"
+			Else 
+				$algorithm:="RS"
+			End if 
+			
+			// Generate Verify Signature Hash based on Algorithm
+			If ($algorithm="HS")
+				$signature:=This._hashHS(This; $privateKey)  // HMAC Hash
+			Else 
+				$signature:=This._hashSign(This; $privateKey)  // All other Hashes
+			End if 
+			
+			// Combine Encoded Header and Payload with Hashed Signature for the Token
+			result:=$header+"."+$payload+"."+$signature
+			
+	End case 
 	
-	This._payload:=(Value type($inParams.payload)=Is object) ? $inParams.payload : {}
-	This._privateKey:=((Value type($inParams.privateKey)=Is text) && (Length($inParams.privateKey)>0)) ? $inParams.privateKey : ""
-	
-	var $header; $payload; $signature : Text
-	
-	// Encode the Header and Payload
-	BASE64 ENCODE(JSON Stringify(This._header); $header; *)
-	BASE64 ENCODE(JSON Stringify(This._payload); $payload; *)
-	
-	// Parse Header for Algorithm Family
-	var $algorithm : Text:=This._header.alg
-	If (($algorithm="HS256") || ($algorithm="HS512"))
-		$algorithm:="HS"
-	Else 
-		$algorithm:="RS"
-	End if 
-	
-	// Generate Verify Signature Hash based on Algorithm
-	If ($algorithm="HS")
-		$signature:=This._hashHS(This)  // HMAC Hash
-	Else 
-		$signature:=This._hashSign(This)  // All other Hashes
-	End if 
-	
-	// Combine Encoded Header and Payload with Hashed Signature for the Token
-	return ($header+"."+$payload+"."+$signature)
+	return result
 	
 	
 	// ----------------------------------------------------
@@ -85,40 +96,49 @@ Function generate($inParams : Object) : Text
 	
 Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	
-	// Split Token into the three parts: Header, Payload, Verify Signature
-	var $parts : Collection:=Split string($inJWT; ".")
-	
-	If ($parts.length>2)
-		
-		var $header; $payload; $signature : Text
-		var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : This._privateKey
-		
-		// Decode Header and Payload into Objects
-		BASE64 DECODE($parts[0]; $header; *)
-		BASE64 DECODE($parts[1]; $payload; *)
-		var $jwt : Object:={_header: Try(JSON Parse($header)); _payload: Try(JSON Parse($payload)); _privateKey: String($privateKey)}
-		
-		// Parse Header for Algorithm Family
-		var $algorithm : Text:=Substring($jwt._header.alg; 1; 2)
-		
-		// Generate Hashed Verify Signature
-		If ($algorithm="HS")
-			$signature:=This._hashHS($jwt)
+	Case of 
+		: ((Value type($inJWT)#Is text) || (Length(String($inJWT))=0))
+			This._throwError(9; {which: "\"$inJWT\""; function: "JWT.validate"})
+			
+		: ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0))
+			This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.validate"})
+			
 		Else 
-			$signature:=This._hashSign($jwt)
-		End if 
-		
-		If (OB Is empty(This._header))
-			This._header:=$jwt._header
-		End if 
-		If (OB Is empty(This._payload))
-			This._payload:=$jwt._payload
-		End if 
-		
-		//Compare Verify Signatures to return Result
-		return ($signature=$parts[2])
-		
-	End if 
+			// Split Token into the three parts: Header, Payload, Verify Signature
+			var $parts : Collection:=Split string($inJWT; ".")
+			
+			If ($parts.length>2)
+				
+				var $header; $payload; $signature : Text
+				var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : ""
+				
+				// Decode Header and Payload into Objects
+				BASE64 DECODE($parts[0]; $header; *)
+				BASE64 DECODE($parts[1]; $payload; *)
+				var $jwt : Object:={_header: Try(JSON Parse($header)); _payload: Try(JSON Parse($payload))}
+				
+				// Parse Header for Algorithm Family
+				var $algorithm : Text:=Substring($jwt._header.alg; 1; 2)
+				
+				// Generate Hashed Verify Signature
+				If ($algorithm="HS")
+					$signature:=This._hashHS($jwt; $privateKey)
+				Else 
+					$signature:=This._hashSign($jwt; $privateKey)
+				End if 
+				
+				If (OB Is empty(This._header))
+					This._header:=$jwt._header
+				End if 
+				If (OB Is empty(This._payload))
+					This._payload:=$jwt._payload
+				End if 
+				
+				//Compare Verify Signatures to return Result
+				return ($signature=$parts[2])
+				
+			End if 
+	End case 
 	
 	return False
 	
@@ -127,7 +147,7 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
-Function _hashHS($inJWT : cs.NetKit.JWT) : Text
+Function _hashHS($inJWT : cs.NetKit.JWT; $inPrivateKey : Text) : Text
 	
 	var $encodedHeader; $encodedPayload : Text
 	var $headerBlob; $payloadBlob; $intermediateBlob; $privateBlob; $dataBlob : Blob
@@ -149,7 +169,7 @@ Function _hashHS($inJWT : cs.NetKit.JWT) : Text
 	End if 
 	
 	// Format Secret Key as Blob
-	TEXT TO BLOB($inJWT._privateKey; $privateBlob; UTF8 text without length)
+	TEXT TO BLOB($inPrivateKey; $privateBlob; UTF8 text without length)
 	
 	// If Key is larger than Block, Hash the Key to reduce size
 	If (BLOB size($privateBlob)>$blockSize)
@@ -189,11 +209,11 @@ Function _hashHS($inJWT : cs.NetKit.JWT) : Text
 	// ----------------------------------------------------
 	
 	
-Function _hashSign($inJWT : cs.NetKit.JWT) : Text
+Function _hashSign($inJWT : cs.NetKit.JWT; $inPrivateKey : Text) : Text
 	
 	var $hash; $encodedHead; $encodedPayload : Text
 	var $settings : Object
-	var $privateKey : Text:=((Value type($inJWT._privateKey)=Is text) && (Length($inJWT._privateKey)>0)) ? $inJWT._privateKey : ""
+	var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : ""
 	
 	// Encode Header and Payload to build Message
 	BASE64 ENCODE(JSON Stringify($inJWT._header); $encodedHead; *)
@@ -209,9 +229,6 @@ Function _hashSign($inJWT : cs.NetKit.JWT) : Text
 	// Create new CryptoKey
 	var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
 	If ($cryptoKey#Null)
-		If (Length(This._privateKey)=0)
-			This._privateKey:=$cryptoKey.getPrivateKey()
-		End if 
 		
 		// Parse Header for Algorithm Family
 		var $algorithm : Text:=Substring($inJWT._header.alg; 3)
@@ -227,3 +244,15 @@ Function _hashSign($inJWT : cs.NetKit.JWT) : Text
 	End if 
 	
 	return $hash
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _throwError($inCode : Integer; $inParameters : Object)
+	
+	// Push error into errorStack and throw it
+	var $error : Object:=cs.Tools.me.makeError($inCode; $inParameters)
+	$error.deferred:=True
+	throw($error)
+	
