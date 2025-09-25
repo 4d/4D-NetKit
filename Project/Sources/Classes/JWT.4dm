@@ -39,22 +39,22 @@ Function decode($inToken : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function generate($inParams : Object) : Text
+Function generate($inParams : Object; $inPrivateKey : Text) : Text
 	
-	var result : Text:=""
-	var $alg : Text:=(Value type($inParams.header.alg)=Is text) ? $inParams.header.alg : "RS256"
-	var $typ : Text:=(Value type($inParams.header.typ)=Is text) ? $inParams.header.typ : "JWT"
-	var $x5t : Text:=(Value type($inParams.header.x5t)=Is text) ? $inParams.header.x5t : ""
-	var $privateKey : Text:=((Value type($inParams.privateKey)=Is text) && (Length($inParams.privateKey)>0)) ? $inParams.privateKey : ""
-	
+	var $result : Text:=""
+
 	Case of 
 		: ((Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
 			This._throwError(9; {which: "\"$inParams.payload\""; function: "JWT.generate"})
 			
-		: ((Value type($privateKey)#Is text) || (Length(String($privateKey))=0))
-			This._throwError(9; {which: "\"$inParams.privateKey\""; function: "JWT.generate"})
+		: ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0))
+			This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.generate"})
 			
 		Else 
+			var $alg : Text:=(Value type($inParams.header.alg)=Is text) ? $inParams.header.alg : "RS256"
+			var $typ : Text:=(Value type($inParams.header.typ)=Is text) ? $inParams.header.typ : "JWT"
+			var $x5t : Text:=(Value type($inParams.header.x5t)=Is text) ? $inParams.header.x5t : ""
+			
 			This._header:={alg: $alg; typ: $typ}
 			If (Length($x5t)>0)
 				This._header.x5t:=$x5t
@@ -78,17 +78,17 @@ Function generate($inParams : Object) : Text
 			
 			// Generate Verify Signature Hash based on Algorithm
 			If ($algorithm="HS")
-				$signature:=This._hashHS(This; $privateKey)  // HMAC Hash
+				$signature:=This._hashHS(This; $inPrivateKey)  // HMAC Hash
 			Else 
-				$signature:=This._hashSign(This; $privateKey)  // All other Hashes
+				$signature:=This._hashSign(This; $inPrivateKey)  // All other Hashes
 			End if 
 			
 			// Combine Encoded Header and Payload with Hashed Signature for the Token
-			result:=$header+"."+$payload+"."+$signature
+			$result:=$header+"."+$payload+"."+$signature
 			
 	End case 
 	
-	return result
+	return $result
 	
 	
 	// ----------------------------------------------------
