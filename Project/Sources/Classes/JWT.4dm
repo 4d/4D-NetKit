@@ -42,7 +42,7 @@ Function decode($inToken : Text) : Object
 Function generate($inParams : Object; $inPrivateKey : Text) : Text
 	
 	var $result : Text:=""
-
+	
 	Case of 
 		: ((Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
 			This._throwError(9; {which: "\"$inParams.payload\""; function: "JWT.generate"})
@@ -94,14 +94,14 @@ Function generate($inParams : Object; $inPrivateKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
+Function validate($inJWT : Text; $inKey : Text) : Boolean
 	
 	Case of 
 		: ((Value type($inJWT)#Is text) || (Length(String($inJWT))=0))
 			This._throwError(9; {which: "\"$inJWT\""; function: "JWT.validate"})
 			
-		: ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0))
-			This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.validate"})
+		: ((Value type($inKey)#Is text) || (Length(String($inKey))=0))
+			This._throwError(9; {which: "\"$inKey\""; function: "JWT.validate"})
 			
 		Else 
 			// Split Token into the three parts: Header, Payload, Verify Signature
@@ -110,22 +110,12 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 			If ($parts.length>2)
 				
 				var $header; $payload; $signature : Text
-				var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : ""
+				var $key : Text:=((Value type($inKey)=Is text) && (Length($inKey)>0)) ? $inKey : ""
 				
 				// Decode Header and Payload into Objects
 				BASE64 DECODE($parts[0]; $header; *)
 				BASE64 DECODE($parts[1]; $payload; *)
 				var $jwt : Object:={_header: Try(JSON Parse($header)); _payload: Try(JSON Parse($payload))}
-				
-				// Parse Header for Algorithm Family
-				var $algorithm : Text:=Substring($jwt._header.alg; 1; 2)
-				
-				// Generate Hashed Verify Signature
-				If ($algorithm="HS")
-					$signature:=This._hashHS($jwt; $privateKey)
-				Else 
-					$signature:=This._hashSign($jwt; $privateKey)
-				End if 
 				
 				If (OB Is empty(This._header))
 					This._header:=$jwt._header
@@ -134,8 +124,13 @@ Function validate($inJWT : Text; $inPrivateKey : Text) : Boolean
 					This._payload:=$jwt._payload
 				End if 
 				
-				//Compare Verify Signatures to return Result
-				return ($signature=$parts[2])
+				// Prepare CryptoKey settings
+				var $settings : Object:={type: "PEM"; pem: $key}  // Use specified PEM format Key
+				var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
+				If ($cryptoKey#Null)
+					var $result : Object:=$cryptoKey.verify(String($parts[0]+"."+$parts[1]); $parts[2]; {hash: (Substring($jwt._header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($jwt._header.alg="PS@"); encoding: "Base64URL"})
+					return Bool($result.success)
+				End if 
 				
 			End if 
 	End case 
