@@ -930,7 +930,7 @@ Function get authenticateURI() : Text
 		If (Length(String($scope))>0)
 			$urlParams.addQueryParameter("scope"; cs.Tools.me.urlEncode($scope))
 		End if 
-		$urlParams.addQueryParameter("state"; String($state))
+		$urlParams.addQueryParameter("state"; cs.Tools.me.urlEncode(String($state)))
 		$urlParams.addQueryParameter("response_mode"; "query")
 		$urlParams.addQueryParameter("redirect_uri"; cs.Tools.me.urlEncode($redirectURI))
 		If (This.PKCEEnabled)
@@ -948,7 +948,7 @@ Function get authenticateURI() : Text
 			End if 
 		End if 
 		If (Length(String(This.nonce))>0)
-			$urlParams.addQueryParameter("nonce"; This.nonce)
+			$urlParams.addQueryParameter("nonce"; cs.Tools.me.urlEncode(This.nonce))
 		End if 
 		
 		$authenticateURI+=$urlParams.getQueryString()
