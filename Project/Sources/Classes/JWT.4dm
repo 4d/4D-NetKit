@@ -1,5 +1,5 @@
 /*
-Largely inspired by Tech Note: "JSON Web Tokens in 4D" from Thomas Maul
+Largely inspired by Tech Note: "JSON Web Tokens in 4D"
 See: https://kb.4d.com/assetid=79100
 */
 
@@ -70,14 +70,9 @@ Function generate($inParams : Object; $inPrivateKey : Text) : Text
 			
 			// Parse Header for Algorithm Family
 			var $algorithm : Text:=This._header.alg
-			If (($algorithm="HS256") || ($algorithm="HS512"))
-				$algorithm:="HS"
-			Else 
-				$algorithm:="RS"
-			End if 
 			
 			// Generate Verify Signature Hash based on Algorithm
-			If ($algorithm="HS")
+			If ($algorithm="HS@")
 				$signature:=This._hashHS(This; $inPrivateKey)  // HMAC Hash
 			Else 
 				$signature:=This._hashSign(This; $inPrivateKey)  // All other Hashes
@@ -124,14 +119,20 @@ Function validate($inJWT : Text; $inKey : Text) : Boolean
 					This._payload:=$jwt._payload
 				End if 
 				
-				// Prepare CryptoKey settings
-				var $settings : Object:={type: "PEM"; pem: $key}  // Use specified PEM format Key
-				var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
-				If ($cryptoKey#Null)
-					var $result : Object:=$cryptoKey.verify(String($parts[0]+"."+$parts[1]); $parts[2]; {hash: (Substring($jwt._header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($jwt._header.alg="PS@"); encoding: "Base64URL"})
-					return Bool($result.success)
+				var $algorithm : Text:=This._header.alg
+				If ($algorithm="HS@")
+					$signature:=This._hashHS($jwt; $key)  // HMAC Hash
+					return ($signature=$parts[2])
+				Else 
+					// Prepare CryptoKey settings
+					var $settings : Object:={type: "PEM"; pem: $key}  // Use specified PEM format Key
+					var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
+					If ($cryptoKey#Null)
+						var $result : Object:=$cryptoKey.verify(String($parts[0]+"."+$parts[1]); $parts[2]; {hash: (Substring($jwt._header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($jwt._header.alg="PS@"); encoding: "Base64URL"})
+						return Bool($result.success)
+					End if 
 				End if 
-				
+
 			End if 
 	End case 
 	
