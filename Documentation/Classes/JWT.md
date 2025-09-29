@@ -96,10 +96,10 @@ In *params*, you can pass several properties:
 
 ```4d
 
-var $claims:={header: {alg: "HS256"; typ: "JWT"}}
-$claims.payload:={sub: "123456789"; name: "John"; exp : 50}
+var $params:={header: {alg: "HS256"; typ: "JWT"}}
+$params.payload:={sub: "123456789"; name: "John"; exp : 50}
 
-var $token := cs.NetKit.JWT.new().generate($claims; $privateKey)
+var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 
 ```
 
