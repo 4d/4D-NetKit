@@ -10,16 +10,16 @@ This class is typically used in three scenarios:
 * **Token decoding**: Read and inspect a JWT received from an authentication provider.
 * **Token validation**: Verify the JWT’s signature and expiration before granting access to protected resources.
 
-This class can be instantiated using the `cs.NetKit.JWT.new()` function.
+This class is instantiated using the `cs.NetKit.JWT.new()` function.
 
 **Note:** Shared objects are not supported by the 4D NetKit API.
 
 ## Table of contents
 
 * [Initialization](#csnetkitjwtnew)
-* [JWT.encode()](#jwtencode)
 * [JWT.decode()](#jwtdecode)
-* [JWT.isValid()](#jwtisvalid)
+* [JWT.generate()](#jwtgenerate)
+* [JWT.validate()](#jwtvalidate)
 
 
 ## **cs.NetKit.JWT.new()**
