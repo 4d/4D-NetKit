@@ -16,13 +16,13 @@ This class is instantiated using the `cs.NetKit.JWT.new()` function.
 
 ## Table of contents
 
-* [Initialization](#csnetkitjwtnew)
+* [cs.NetKit.JWT.new()](#csnetkitjwtnew)
 * [JWT.decode()](#jwtdecode)
 * [JWT.generate()](#jwtgenerate)
 * [JWT.validate()](#jwtvalidate)
 
 
-## **cs.NetKit.JWT.new()**
+## cs.NetKit.JWT.new()
 
 **cs.NetKit.JWT.new()** : `cs.NetKit.JWT`
 
