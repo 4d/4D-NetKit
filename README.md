@@ -9,6 +9,7 @@
 ## Table of contents
 
 * [OAuth2Provider class](Documentation/Classes/OAuth2Provider.md)
+* [JWT class](Documentation/Classes/JWT.md)
 * [Office365 class](Documentation/Classes/Office365.md)
 * [Google class](Documentation/Classes/Google.md)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](Documentation/Tutorial.md)
