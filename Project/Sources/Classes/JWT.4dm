@@ -18,22 +18,27 @@ Class constructor()
 	
 Function decode($inToken : Text) : Object
 	
-	var $parts : Collection:=Split string($inToken; ".")
+	Case of 
+		: ((Value type(inToken)#Is text) || (Length(String(inToken))=0))
+			This._throwError(9; {which: "\"$inToken\""; function: "JWT.decode"})
+			
+		Else 
+			var $parts : Collection:=Split string($inToken; ".")
+			
+			If ($parts.length>2)
+				var $header; $payload; $signature : Text
+				BASE64 DECODE($parts[0]; $header; *)
+				BASE64 DECODE($parts[1]; $payload; *)
+				$signature:=$parts[2]
+				
+				// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
+				This._header:=Try(JSON Parse($header))
+				This._payload:=Try(JSON Parse($payload))
+				return {header: This._header; payload: This._payload; signature: $signature}
+			End if 
+	End case 
 	
-	If ($parts.length>2)
-		var $header; $payload; $signature : Text
-		BASE64 DECODE($parts[0]; $header; *)
-		BASE64 DECODE($parts[1]; $payload; *)
-		$signature:=$parts[2]
-		
-		// Note: If JSON parsing fails, Try(JSON Parse(...)) will return Null for header or payload.
-		This._header:=Try(JSON Parse($header))
-		This._payload:=Try(JSON Parse($payload))
-		return {header: This._header; payload: This._payload; signature: $signature}
-		
-	Else 
-		return {header: Null; payload: Null}
-	End if 
+	return {header: Null; payload: Null}
 	
 	
 	// ----------------------------------------------------
