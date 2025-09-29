@@ -51,16 +51,22 @@ Function generate($inParams : Object; $inPrivateKey : Text) : Text
 			This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.generate"})
 			
 		Else 
-			var $alg : Text:=(Value type($inParams.header.alg)=Is text) ? $inParams.header.alg : "RS256"
-			var $typ : Text:=(Value type($inParams.header.typ)=Is text) ? $inParams.header.typ : "JWT"
+			var $alg : Text:=((Value type($inParams.header.alg)=Is text) && (Length($inParams.header.alg)>0)) ? $inParams.header.alg : "RS256"
+			var $typ : Text:=((Value type($inParams.header.typ)=Is text) && (Length($inParams.header.typ)>0)) ? $inParams.header.typ : "JWT"
 			var $x5t : Text:=(Value type($inParams.header.x5t)=Is text) ? $inParams.header.x5t : ""
 			
-			This._header:={alg: $alg; typ: $typ}
-			If (Length($x5t)>0)
+			This._header:=((Value type($inParams.header)=Is object) && Not(OB Is empty($inParams.header))) ? $inParams.header : {}
+			This._payload:=((Value type($inParams.payload)=Is object) && Not(OB Is empty($inParams.payload))) ? $inParams.payload : {}
+			
+			If (Value type(This._header.alg)=Is undefined)
+				This._header.alg:=$alg
+			End if 
+			If (Value type(This._header.typ)=Is undefined)
+				This._header.typ:=$typ
+			End if 
+			If ((Value type(This._header.x5t)=Is undefined) && (Length($x5t)>0))
 				This._header.x5t:=$x5t
 			End if 
-			
-			This._payload:=(Value type($inParams.payload)=Is object) ? $inParams.payload : {}
 			
 			var $header; $payload; $signature : Text
 			
@@ -132,7 +138,7 @@ Function validate($inJWT : Text; $inKey : Text) : Boolean
 						return Bool($result.success)
 					End if 
 				End if 
-
+				
 			End if 
 	End case 
 	
