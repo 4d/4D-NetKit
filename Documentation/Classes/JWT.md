@@ -112,7 +112,7 @@ var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 | Parameter | Type | | Description |
 |-----------|------|--:|-------------------------------------------------------------|
 | token | Text | ->| JWT token to validate |
-| key | Text | ->| Public key or shared secret used to verify the signature |
+| key | Text | ->| Used to verify the signature. Can either be a public key (used with asymmetric algorithms like RS256) or a shared secret (used with symmetric algorithms like HS256), depending on how the JWT was signed.|
 | Result | Boolean | <-| `True` if the token is valid, `False` otherwise |
 
 ### Description
