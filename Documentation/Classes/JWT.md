@@ -131,6 +131,5 @@ var $isValid:= cs.NetKit.JWT.new().validate($token; $key)
 * [OAuth2Provider Class](./OAuth2Provider.md)
 * [Google Class](./Google.md)
 * [Office365 Class](./Office365.md)
-* [Interactive JWT Debugger](https://jwt.io/)
 
 
