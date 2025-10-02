@@ -1,16 +1,22 @@
-/*
-Largely inspired by Tech Note: "JSON Web Tokens in 4D"
-See: https://kb.4d.com/assetid=79100
-*/
-
 property _header : Object
 property _payload : Object
+property _cryptoKey : 4D.CryptoKey
 
-Class constructor()
+Class constructor($inParam : Variant)
 	
 	This._header:={}
 	This._payload:={}
 	
+	Case of 
+		: ((Value type($inParam)=Is object) && OB Instance of($inParam; 4D.CryptoKey))
+			This._cryptoKey:=$inParam
+			
+		: ((Value type($inParam)=Is text) && (Length(String($inParam))>0))
+			This._cryptoKey:=Try(4D.CryptoKey.new({type: "PEM"; pem: $inParam}))  // Use specified PEM format Key
+			
+		Else 
+			This._cryptoKey:=Null
+	End case 
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
@@ -19,7 +25,7 @@ Class constructor()
 Function decode($inToken : Text) : Object
 	
 	Case of 
-		: ((Value type(inToken)#Is text) || (Length(String(inToken))=0))
+		: ((Value type($inToken)#Is text) || (Length(String($inToken))=0))
 			This._throwError(9; {which: "\"$inToken\""; function: "JWT.decode"})
 			
 		Else 
@@ -52,9 +58,6 @@ Function generate($inParams : Object; $inPrivateKey : Text) : Text
 		: ((Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
 			This._throwError(9; {which: "\"$inParams.payload\""; function: "JWT.generate"})
 			
-		: ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0))
-			This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.generate"})
-			
 		Else 
 			var $alg : Text:=((Value type($inParams.header.alg)=Is text) && (Length($inParams.header.alg)>0)) ? $inParams.header.alg : "RS256"
 			var $typ : Text:=((Value type($inParams.header.typ)=Is text) && (Length($inParams.header.typ)>0)) ? $inParams.header.typ : "JWT"
@@ -84,9 +87,17 @@ Function generate($inParams : Object; $inPrivateKey : Text) : Text
 			
 			// Generate Verify Signature Hash based on Algorithm
 			If ($algorithm="HS@")
-				$signature:=This._hashHS(This; $inPrivateKey)  // HMAC Hash
+				If ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0))
+					This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.generate"})
+				Else 
+					$signature:=This._hashHS(This; $inPrivateKey)  // HMAC Hash
+				End if 
 			Else 
-				$signature:=This._hashSign(This; $inPrivateKey)  // All other Hashes
+				If ((This._cryptoKey=Null) && ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0)))
+					This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.generate"})
+				Else 
+					$signature:=This._hashSign(This; $inPrivateKey)  // All other Hashes
+				End if 
 			End if 
 			
 			// Combine Encoded Header and Payload with Hashed Signature for the Token
@@ -105,9 +116,6 @@ Function validate($inJWT : Text; $inKey : Text) : Boolean
 	Case of 
 		: ((Value type($inJWT)#Is text) || (Length(String($inJWT))=0))
 			This._throwError(9; {which: "\"$inJWT\""; function: "JWT.validate"})
-			
-		: ((Value type($inKey)#Is text) || (Length(String($inKey))=0))
-			This._throwError(9; {which: "\"$inKey\""; function: "JWT.validate"})
 			
 		Else 
 			// Split Token into the three parts: Header, Payload, Verify Signature
@@ -132,15 +140,26 @@ Function validate($inJWT : Text; $inKey : Text) : Boolean
 				
 				var $algorithm : Text:=This._header.alg
 				If ($algorithm="HS@")
-					$signature:=This._hashHS($jwt; $key)  // HMAC Hash
-					return ($signature=$parts[2])
+					If ((Value type($inKey)#Is text) || (Length(String($inKey))=0))
+						This._throwError(9; {which: "\"$inKey\""; function: "JWT.validate"})
+					Else 
+						$signature:=This._hashHS($jwt; $key)  // HMAC Hash
+						return ($signature=$parts[2])
+					End if 
 				Else 
-					// Prepare CryptoKey settings
-					var $settings : Object:={type: "PEM"; pem: $key}  // Use specified PEM format Key
-					var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
-					If ($cryptoKey#Null)
-						var $result : Object:=$cryptoKey.verify(String($parts[0]+"."+$parts[1]); $parts[2]; {hash: (Substring($jwt._header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($jwt._header.alg="PS@"); encoding: "Base64URL"})
-						return Bool($result.success)
+					If ((This._cryptoKey=Null) && ((Value type($inKey)#Is text) || (Length(String($inKey))=0)))
+						This._throwError(9; {which: "\"$inKey\""; function: "JWT.validate"})
+					Else 
+						// Prepare CryptoKey settings
+						If ((Value type($inKey)=Is text) && (Length(String($inKey))>0))
+							This._cryptoKey:=Try(4D.CryptoKey.new({type: "PEM"; pem: $key}))  // Use specified PEM format Key
+						End if 
+						If (This._cryptoKey=Null)
+							This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
+						Else 
+							var $result : Object:=This._cryptoKey.verify(String($parts[0]+"."+$parts[1]); $parts[2]; {hash: (Substring($jwt._header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($jwt._header.alg="PS@"); encoding: "Base64URL"})
+							return Bool($result.success)
+						End if 
 					End if 
 				End if 
 				
@@ -218,36 +237,38 @@ Function _hashHS($inJWT : cs.NetKit.JWT; $inPrivateKey : Text) : Text
 	
 Function _hashSign($inJWT : cs.NetKit.JWT; $inPrivateKey : Text) : Text
 	
-	var $hash; $encodedHead; $encodedPayload : Text
-	var $settings : Object
-	var $privateKey : Text:=((Value type($inPrivateKey)=Is text) && (Length($inPrivateKey)>0)) ? $inPrivateKey : ""
+	var $hash : Text
 	
-	// Encode Header and Payload to build Message
-	BASE64 ENCODE(JSON Stringify($inJWT._header); $encodedHead; *)
-	BASE64 ENCODE(JSON Stringify($inJWT._payload); $encodedPayload; *)
-	
-	// Prepare CryptoKey settings
-	If (Length($privateKey)=0)
-		$settings:={type: "RSA"}  // 4D will automatically create RSA key pair
+	If ((This._cryptoKey=Null) && ((Value type($inPrivateKey)#Is text) || (Length(String($inPrivateKey))=0)))
+		This._throwError(9; {which: "\"$inPrivateKey\""; function: "JWT.validate"})
 	Else 
-		$settings:={type: "PEM"; pem: $privateKey}  // Use specified PEM format Key
-	End if 
-	
-	// Create new CryptoKey
-	var $cryptoKey : 4D.CryptoKey:=4D.CryptoKey.new($settings)
-	If ($cryptoKey#Null)
-		
-		// Parse Header for Algorithm Family
-		var $algorithm : Text:=Substring($inJWT._header.alg; 3)
-		var $hashAlgorithm : Integer
-		If ($algorithm="256")
-			$hashAlgorithm:=SHA256 digest
-		Else 
-			$hashAlgorithm:=SHA512 digest
+		// Prepare CryptoKey settings
+		If ((Value type($inPrivateKey)=Is text) && (Length(String($inPrivateKey))>0))
+			This._cryptoKey:=4D.CryptoKey.new({type: "PEM"; pem: $inPrivateKey})  // Use specified PEM format Key
 		End if 
 		
-		// Sign Message with CryptoKey to generate hashed verify signature
-		$hash:=$cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT._header.alg="PS@"); encoding: "Base64URL"})
+		If (This._cryptoKey#Null)
+			var $encodedHead; $encodedPayload : Text
+			
+			// Encode Header and Payload to build Message
+			BASE64 ENCODE(JSON Stringify($inJWT._header); $encodedHead; *)
+			BASE64 ENCODE(JSON Stringify($inJWT._payload); $encodedPayload; *)
+			
+			// Parse Header for Algorithm Family
+			var $algorithm : Text:=Substring($inJWT._header.alg; 3)
+			var $hashAlgorithm : Integer
+			If ($algorithm="256")
+				$hashAlgorithm:=SHA256 digest
+			Else 
+				$hashAlgorithm:=SHA512 digest
+			End if 
+			
+			// Sign Message with CryptoKey to generate hashed verify signature
+			$hash:=This._cryptoKey.sign(String($encodedHead+"."+$encodedPayload); {hash: $hashAlgorithm; pss: Bool($inJWT._header.alg="PS@"); encoding: "Base64URL"})
+		Else 
+			This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
+		End if 
+		
 	End if 
 	
 	return $hash
