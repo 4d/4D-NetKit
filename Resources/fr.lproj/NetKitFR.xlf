@@ -73,6 +73,10 @@
           <source>The '{which}' parameter in function {function} is not of type {type}.</source>
           <target>Le paramètre '{which}' dans la fonction {function} n'est pas du type {type}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_15">
+          <source>The private or public key doesn't seem to be valid PEM.</source>
+          <target>La clé privée ou publique ne semble pas être une clé PEM valide.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <source>4D NetKit Component</source>
           <target>Composant 4D NetKit</target>
