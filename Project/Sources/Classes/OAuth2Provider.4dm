@@ -236,7 +236,14 @@ Class constructor($inParams : Object)
 			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 		End if 
 		
-		This.state:=Choose(((Value type($inParams.state)=Is text) && (Length($inParams.state)>0)); $inParams.state; Generate UUID)
+		If ((Value type($inParams.state)=Is text) && (Length($inParams.state)>0))
+			This.state:=This._cleanString($inParams.state)  // Keep only letters, digits, - and _
+			If (Length(This.state)=0)
+				This.state:=Generate UUID
+			End if 
+		Else 
+			This.state:=Generate UUID
+		End if 
 		If ((Value type($inParams.nonce)=Is text) && (Length($inParams.nonce)>0))
 			This.nonce:=$inParams.nonce
 		End if 
@@ -246,7 +253,34 @@ Class constructor($inParams : Object)
 	
 	This._finally()
 	
+	
 	// Mark: - [Private]
+	// ----------------------------------------------------
+	
+	
+Function _cleanString($inString : Text) : Text
+	
+	var $string : Text:=""
+	var $i; $code : Integer
+	var $len : Integer:=Length($inString)
+	var $c : Text
+	
+	For ($i; 1; $len)
+		$c:=Substring($inString; $i; 1)
+		$code:=Character code($c)
+		
+		// Keep only letter (A-Z, a-z), numbers (0-9), and '-', '_'
+		If ((($code>=48) && ($code<=57)) || \
+			(($code>=65) && ($code<=90)) || \
+			(($code>=97) && ($code<=122)) || \
+			(($c="-") || ($c="_")))
+			$string+=$c
+		End if 
+	End for 
+	
+	return $string
+	
+	
 	// ----------------------------------------------------
 	
 	
@@ -481,18 +515,18 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	var $params : cs.URL:=cs.URL.new()
 	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
-
+		
 		$params.addQueryParameter("client_id"; This.clientId)
 		If (Length(This.scope)>0)
 			$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
-		End if
+		End if 
 		$params.addQueryParameter("refresh_token"; This.token.refresh_token)
 		$params.addQueryParameter("grant_type"; "refresh_token")
 		If (Length(This.clientSecret)>0)
 			$params.addQueryParameter("client_secret"; This.clientSecret)
-		End if
-
-	Else
+		End if 
+		
+	Else 
 		
 		If (Length(String(This.redirectURI))>0)
 			
@@ -528,7 +562,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
 				If (Length($authorizationCode)>0)
-
+					
 					$params.addQueryParameter("client_id"; This.clientId)
 					$params.addQueryParameter("grant_type"; "authorization_code")
 					$params.addQueryParameter("code"; $authorizationCode)
@@ -540,7 +574,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 						$params.addQueryParameter("client_secret"; This.clientSecret)
 					End if 
 					$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
-
+					
 				Else 
 					
 					$bSendRequest:=False
@@ -623,7 +657,7 @@ Function _getToken_Service() : Object
 			$params.addQueryParameter("client_assertion"; $bearer)
 			
 		Else 
-
+			
 			$params.addQueryParameter("client_id"; This.clientId)
 			If (Length(This.scope)>0)
 				$params.addQueryParameter("scope"; cs.Tools.me.urlEncode(This.scope))
