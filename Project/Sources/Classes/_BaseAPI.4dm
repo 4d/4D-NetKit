@@ -120,7 +120,8 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 					
 				: ($contentType="multipart/@")
 					var $headers : Text:="HTTP/1.1 "+This._internals._statusLine+"\r\n"
-					$keys:=OB Keys($request.response.headers)
+					var $keys : Collection:=OB Keys($request.response.headers)
+					var $key : Text
 					For each ($key; $keys)
 						$headers+=$key+": "+$request.response.headers[$key]+"\r\n"
 					End for each 
