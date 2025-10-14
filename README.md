@@ -1,5 +1,5 @@
 <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-black">
-        Version: 20 R10
+        Version: 21
       </div>
       
 # 4D NetKit
