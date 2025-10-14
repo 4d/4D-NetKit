@@ -24,14 +24,21 @@ This class is instantiated using the `cs.NetKit.JWT.new()` function.
 
 ## cs.NetKit.JWT.new()
 
-**cs.NetKit.JWT.new()** : `cs.NetKit.JWT`
+**cs.NetKit.JWT.new** ( *key* : Text or Object ) : `cs.NetKit.JWT`
 
 Creates a new instance of the JWT class.
+
+### Parameters
+
+| Parameter | Type         | Description |
+|-----------|--------------|-------------|
+| key       | Text/Object  | *Optional.* If text → Key in PEM format.<br>- If object → Must be an object returned by `4D.CryptoKey`.<br>If it's a private key, the public key will be inferred. |
 
 ### Example
 
 ```4d
-var $jwt := cs.NetKit.JWT.new()
+var $jwt := cs.NetKit.JWT.new($key)
+
 ```
 
 ## JWT.decode()
@@ -69,19 +76,19 @@ var $result := cs.NetKit.JWT.new().decode($token)
 
 ## JWT.generate()
 
-**JWT.generate** ( *params* : Object ; *privateKey* : Text ) : Text
+**JWT.generate** ( *params* : Object { ; *privateKey* : Text or Object } ) : Text
 
 ### Parameters
 
 | Parameter | Type | | Description |
 |------------|--------|:--:|--------------------------------------------------------------|
 | params | Object | ->| Options for the JWT content|
-| privateKey | Text | ->| Private key used to sign the JWT |
+| privateKey | Text/Object | ->| *Optional.* If text → Private key in PEM format.<br>- If object → Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
 | Result | Text | <-| The generated JWT token |
 
 ### Description
 
-Generates a signed JWT based on the provided parameters and private key.
+Generates a signed JWT based on the provided parameters and optional private key.
 
 In *params*, you can pass several properties:
 
@@ -105,19 +112,19 @@ var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 
 ## JWT.validate()
 
-**JWT.validate** ( *token* : Text ; *key* : Text ) : Boolean
+**JWT.validate** ( *token* : Text { ; *key* : Text or Object } ) : Boolean
 
 ### Parameters
 
 | Parameter | Type | | Description |
 |-----------|------|--:|-------------------------------------------------------------|
 | token | Text | ->| JWT token to validate |
-| key | Text | ->| Used to verify the signature. Can either be a public key (used with asymmetric algorithms like RS256) or a shared secret (used with symmetric algorithms like HS256), depending on how the JWT was signed.|
+| key | Text | ->| *Optional.* If text → Private or public key in PEM format.<br>- If object → Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
 | Result | Boolean | <-| `True` if the token is valid, `False` otherwise |
 
 ### Description
 
-Validates a JWT token using the provided public key or shared secret.
+Validates a JWT token using the provided public key or the key passed to the constructor.
 
 ### Example
 
