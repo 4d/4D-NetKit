@@ -1,5 +1,5 @@
 <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-black">
-        Version: 20 R10
+        Version: 21
       </div>
       
 # 4D NetKit
@@ -9,6 +9,7 @@
 ## Table of contents
 
 * [OAuth2Provider class](Documentation/Classes/OAuth2Provider.md)
+* [JWT class](Documentation/Classes/JWT.md)
 * [Office365 class](Documentation/Classes/Office365.md)
 * [Google class](Documentation/Classes/Google.md)
 * [Tutorial : Authenticate to the Microsoft Graph API in service mode](Documentation/Tutorial.md)
