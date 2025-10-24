@@ -12,10 +12,10 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
-	var $URLParams : cs.URL:=cs.URL.new()
+	var $URLParams : cs._URL:=cs._URL.new()
 	
 	If (Length(String($inParameters.search))>0)
-		$URLParams.addQueryParameter("q"; cs.Tools.me.urlEncode($inParameters.search))
+		$URLParams.addQueryParameter("q"; cs._Tools.me.urlEncode($inParameters.search))
 	End if 
 	If (Value type($inParameters.top)#Is undefined)
 		$URLParams.addQueryParameter("maxResults"; String($inParameters.top))
@@ -56,10 +56,10 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $result : Object:={}
 	var $keys : Collection:=OB Keys($inMail)
 	var $key; $name; $string : Text
-	var $email : cs.EmailAddress
+	var $email : cs._EmailAddress
 	
 	For each ($key; $keys)
-		$name:=cs.Tools.me.getJMAPAttribute($key)
+		$name:=cs._Tools.me.getJMAPAttribute($key)
 		If (Length($name)>0)
 			If ($key="labelIds")
 				If (Num($inMail.labelIds.length)>0)
@@ -78,7 +78,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 			If ($key="headers")
 				var $header : Object
 				For each ($header; $inMail.payload.headers)
-					$name:=cs.Tools.me.getJMAPAttribute($header.name)
+					$name:=cs._Tools.me.getJMAPAttribute($header.name)
 					If (Length($name)>0)
 						Case of 
 							: ($header.name="Keywords")
@@ -86,9 +86,9 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 									$string:=$header.value.join("=true,"; ck ignore null or empty)+"=true"
 									$result[$name]:=Split string($string; ","; sk trim spaces)
 								End if 
-							: (cs.Tools.me.isEmailAddressHeader($header.name))
+							: (cs._Tools.me.isEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
-									$email:=cs.EmailAddress.new($header.value)
+									$email:=cs._EmailAddress.new($header.value)
 									$result[$name]:=$email
 								End if 
 							Else 
@@ -116,7 +116,7 @@ Function _extractRawMessage($result : Object; $format : Text; $mailType : Text) 
 			: (($format="raw") && (($mailType="MIME") || ($mailType="JMAP")))
 				If (Value type($result.raw)=Is text)
 					
-					var $rawMessage : Text:=cs.Tools.me.base64UrlSafeDecode($result.raw)
+					var $rawMessage : Text:=cs._Tools.me.base64UrlSafeDecode($result.raw)
 					If ($mailType="JMAP")
 						
 						var $copy : Object:=$result

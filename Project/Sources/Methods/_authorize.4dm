@@ -9,7 +9,7 @@ var $state : Text:=String($inOptions.state)
 If (OB Is defined(Storage.requests; $state))
     $redirectURI:=String(Storage.requests[$state].redirectURI)
     If (Length($redirectURI)>0)
-        $redirectURI:=cs.Tools.me.getPathFromURL($redirectURI)+"@"
+        $redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"
     End if 
     $authenticationPage:=(Value type(Storage.requests[$state].authenticationPage)#Is undefined) ? Storage.requests[$state].authenticationPage : Null
     $authenticationErrorPage:=(Value type(Storage.requests[$state].authenticationErrorPage)#Is undefined) ? Storage.requests[$state].authenticationErrorPage : Null
@@ -98,7 +98,7 @@ If ($URL=$redirectURI)
             
             // If we don't have a redirect URI or a response file, we just send a 500 Internal Server Error response
             $outResponse.status:=500
-            $outResponse.body:=cs.Tools.me.buildPageFromTemplate($pageTitle; "500 Internal Server Error"; $pageMessage; False)
+            $outResponse.body:=cs._Tools.me.buildPageFromTemplate($pageTitle; "500 Internal Server Error"; $pageMessage; False)
             $outResponse.contentType:="text/html; charset=UTF-8"
     End case 
     

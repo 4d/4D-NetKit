@@ -5,6 +5,6 @@ Case of
 		var $webServer : Object
 		$webServer:=WEB Server
 		If (Is Windows || Is macOS)
-			cs.Tools.me.init()  // Check Licences
+			cs._Tools.me.init()  // Check Licences
 		End if 
 End case 

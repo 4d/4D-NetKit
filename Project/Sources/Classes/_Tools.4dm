@@ -15,9 +15,9 @@ singleton Class constructor()
 Function init()
 	
 	If (Application type=4D Remote mode)
-		cs.Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
+		cs._Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
 	Else 
-		cs.Tools.me.webLicenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
+		cs._Tools.me.webLicenseAvailable:=(Is license available(4D Web license) | Is license available(4D Web local license) | Is license available(4D Web one connection license))
 	End if 
 	
 	
@@ -238,7 +238,7 @@ Function getJMAPAttribute($inKey : Text) : Text
 	
 Function getDomainFromURL($inURL : Text) : Text
 	
-	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $URL : cs._URL:=cs._URL.new($inURL)
 	
 	return $URL.host
 	
@@ -248,7 +248,7 @@ Function getDomainFromURL($inURL : Text) : Text
 	
 Function getPathFromURL($inURL : Text) : Text
 	
-	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $URL : cs._URL:=cs._URL.new($inURL)
 	
 	return $URL.path
 	
@@ -258,7 +258,7 @@ Function getPathFromURL($inURL : Text) : Text
 	
 Function getPortFromURL($inURL : Text) : Integer
 	
-	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $URL : cs._URL:=cs._URL.new($inURL)
 	
 	return $URL.port
 	
@@ -269,7 +269,7 @@ Function getPortFromURL($inURL : Text) : Integer
 Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	
 	var $result : Text:=""
-	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $URL : cs._URL:=cs._URL.new($inURL)
 	var $foundParam : Object:=$URL.queryParams.find(Formula($1.value.name=$2); $inParamName)
 	
 	If ((Value type($foundParam)=Is object) && (OB Is defined($foundParam; "value")))
@@ -347,7 +347,7 @@ Function isValidEmail($inEmail : Text) : Boolean
 	
 Function isValidURL($inURL : Text) : Boolean
 	
-	var $URL : cs.URL:=cs.URL.new($inURL)
+	var $URL : cs._URL:=cs._URL.new($inURL)
 	
 	return (((Length($URL.scheme)>0) && ($URL.scheme="http@")) && (Length($URL.host)>0))
 	

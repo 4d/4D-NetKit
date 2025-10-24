@@ -15,34 +15,34 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
-    var $URL : cs.URL:=cs.URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
+    var $URL : cs._URL:=cs._URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
-    var $dateTime : cs.DateTime
+    var $dateTime : cs._DateTime
     
     Case of 
         : (Value type($inParameters.startDateTime)=Is text)
-            $dateTime:=cs.DateTime.new($inParameters.startDateTime)
+            $dateTime:=cs._DateTime.new($inParameters.startDateTime)
             $startDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $dateTime:=cs.DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
+            $dateTime:=cs._DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
             $startDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     Case of 
         : (Value type($inParameters.endDateTime)=Is text)
-            $dateTime:=cs.DateTime.new($inParameters.endDateTime)
+            $dateTime:=cs._DateTime.new($inParameters.endDateTime)
             $endDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $dateTime:=cs.DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
+            $dateTime:=cs._DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
             $endDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     If (Length($startDateTime)>0)
-        $URL.addQueryParameter("startDateTime"; cs.Tools.me.urlEncode($startDateTime))
+        $URL.addQueryParameter("startDateTime"; cs._Tools.me.urlEncode($startDateTime))
     End if 
     If (Length($endDateTime)>0)
-        $URL.addQueryParameter("endDateTime"; cs.Tools.me.urlEncode($endDateTime))
+        $URL.addQueryParameter("endDateTime"; cs._Tools.me.urlEncode($endDateTime))
     End if 
     
     return $URL.toString()
@@ -53,14 +53,14 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     
 Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
-    var $dateTime : cs.DateTime
+    var $dateTime : cs._DateTime
     var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
     Case of 
         : (Value type($inObject[$inName].dateTime)=Is text)
-            $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            $dateTime:=cs._DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
             return $dateTime.getGraphDateTime()
         : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
-            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
+            $dateTime:=cs._DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
             return $dateTime.getGraphDateTime()
     End case 
     
@@ -126,11 +126,11 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
             End if 
             
             If (Length(String($inParameters.calendarId))>0)
-                $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+                $URLString+="/calendars/"+cs._Tools.me.urlEncode($inParameters.calendarId)
             Else 
                 $URLString+="/calendar"
             End if 
-            $URLString+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)+"/attachments"
+            $URLString+="/events/"+cs._Tools.me.urlEncode($inParameters.eventId)+"/attachments"
             
             var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URLString; $headers; $inAttachement)
             
@@ -156,7 +156,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     End if 
     
     If (Length(String($inID))>0)
-        $URLString+="/calendars/"+cs.Tools.me.urlEncode($inID)
+        $URLString+="/calendars/"+cs._Tools.me.urlEncode($inID)
     Else 
         $URLString+="/calendar"
     End if 
@@ -245,20 +245,20 @@ Function getEvent($inParameters : Object) : Object
             End if 
             
             If ((Value type($inParameters.calendarId)=Is text) && (Length(String($inParameters.calendarId))>0))
-                $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+                $URLString+="/calendars/"+cs._Tools.me.urlEncode($inParameters.calendarId)
             Else 
                 $URLString+="/calendar"
             End if 
-            $URLString+="/events/"+cs.Tools.me.urlEncode($inParameters.eventId)
+            $URLString+="/events/"+cs._Tools.me.urlEncode($inParameters.eventId)
             
             $URLString+=This._getURLParamsFromObject($inParameters)
             
             var $prefer : Text:=""
             If (Length(String($inParameters.timeZone))>0)
-                $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)+" "
+                $prefer+="outlook.timezone="+cs._Tools.me.quoteString($inParameters.timeZone)+" "
             End if 
             If (Length(String($inParameters.bodyContentType))>0)
-                $prefer+="outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
+                $prefer+="outlook.body-content-type="+cs._Tools.me.quoteString($inParameters.bodyContentType)+" "
             End if 
             If (Length($prefer)>0)
                 $headers.Prefer:=$prefer
@@ -324,10 +324,10 @@ Function getEvents($inParameters : Object) : Object
             
             var $prefer : Text:=""
             If ((Value type($inParameters.timeZone)=Is text) && (Length(String($inParameters.timeZone))>0))
-                $prefer+="outlook.timezone="+cs.Tools.me.quoteString($inParameters.timeZone)
+                $prefer+="outlook.timezone="+cs._Tools.me.quoteString($inParameters.timeZone)
             End if 
             If ((Value type($inParameters.bodyContentType)=Is text) && (Length(String($inParameters.bodyContentType))>0))
-                $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+cs.Tools.me.quoteString($inParameters.bodyContentType)+" "
+                $prefer+=((Length($prefer)>0) ? "; " : "")+"outlook.body-content-type="+cs._Tools.me.quoteString($inParameters.bodyContentType)+" "
             End if 
             If (Length($prefer)>0)
                 $headers.Prefer:=$prefer
@@ -390,7 +390,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     
     If (Length(String($calendarId))>0)
-        $URLString+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
+        $URLString+="/calendars/"+cs._Tools.me.urlEncode($calendarId)
     Else 
         $URLString+="/calendar"
     End if 
@@ -467,13 +467,13 @@ Function deleteEvent($inParameters : Object) : Object
         $URLString+="me"
     End if 
     If (Length(String($inParameters.calendarId))>0)
-        $URLString+="/calendars/"+cs.Tools.me.urlEncode($inParameters.calendarId)
+        $URLString+="/calendars/"+cs._Tools.me.urlEncode($inParameters.calendarId)
     Else 
         $URLString+="/calendar"
     End if 
     $URLString+="/events"
     If (Length(String($inParameters.eventId))>0)
-        $URLString+="/"+cs.Tools.me.urlEncode($inParameters.eventId)
+        $URLString+="/"+cs._Tools.me.urlEncode($inParameters.eventId)
     End if 
     
     Super._sendRequestAndWaitResponse("DELETE"; $URLString; $headers)
@@ -532,11 +532,11 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     End if 
     
     If (Length(String($calendarId))>0)
-        $URLString+="/calendars/"+cs.Tools.me.urlEncode($calendarId)
+        $URLString+="/calendars/"+cs._Tools.me.urlEncode($calendarId)
     Else 
         $URLString+="/calendar"
     End if 
-    $URLString+="/events/"+cs.Tools.me.urlEncode($eventId)
+    $URLString+="/events/"+cs._Tools.me.urlEncode($eventId)
     
     var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
     var $attachments : Collection:=Null

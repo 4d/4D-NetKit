@@ -289,6 +289,6 @@ Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
-	var $error : Object:=cs.Tools.me.makeError($inCode; $inParameters)
+	var $error : Object:=cs._Tools.me.makeError($inCode; $inParameters)
 	$error.deferred:=True
 	throw($error)

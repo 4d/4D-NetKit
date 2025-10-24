@@ -12,8 +12,8 @@ Class constructor($inName : Text; $inAddress : Text)
 			This.fromString($inName)
 		Else 
 			
-			This.name:=cs.Tools.me.trimSpaces($inName)
-			This.email:=cs.Tools.me.trimSpaces($inAddress)
+			This.name:=cs._Tools.me.trimSpaces($inName)
+			This.email:=cs._Tools.me.trimSpaces($inAddress)
 	End case 
 	
 	
@@ -28,12 +28,12 @@ Function fromString($inValue : Text)
 	
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
-		This.name:=cs.Tools.me.trimSpaces(Substring($inValue; 1; $startMailPos-1))
-		This.email:=cs.Tools.me.trimSpaces(Substring($inValue; $startMailPos+1; $endMailPos-$startMailPos-1))
+		This.name:=cs._Tools.me.trimSpaces(Substring($inValue; 1; $startMailPos-1))
+		This.email:=cs._Tools.me.trimSpaces(Substring($inValue; $startMailPos+1; $endMailPos-$startMailPos-1))
 	Else 
 		
-		var $email : Text:=cs.Tools.me.trimSpaces($inValue)
-		If (cs.Tools.me.isValidEmail($email))
+		var $email : Text:=cs._Tools.me.trimSpaces($inValue)
+		If (cs._Tools.me.isValidEmail($email))
 			This.email:=$email
 		End if 
 	End if 
@@ -56,4 +56,4 @@ Function toString() : Text
 	
 Function isValid() : Boolean
 	
-	return cs.Tools.me.isValidEmail(This.email)
+	return cs._Tools.me.isValidEmail(This.email)
