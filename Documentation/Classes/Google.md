@@ -1112,7 +1112,7 @@ $email.attachments:=New collection($attachment)
 
 // Send the email
 var $Google : Object
-$Google:=New Google($token)
+$Google:=cs.NetKit.Google.new($token)
 $status:=$Google.mail.send($email)
 ```
 
