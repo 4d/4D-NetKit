@@ -2,12 +2,12 @@
 #DECLARE($URL : Text; $header : Text; $peerIP : Text; $localIP : Text; $username : Text; $password : Text)
 
 var $redirectURI : Text
-var $state : Text:=cs.Tools.me.getURLParameterValue($1; "state")
+var $state : Text:=cs._Tools.me.getURLParameterValue($1; "state")
 
 If (OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
 	If (Length($redirectURI)>0)
-		$redirectURI:=cs.Tools.me.getPathFromURL($redirectURI)+"@"
+		$redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"
 	End if 
 End if 
 
@@ -52,7 +52,7 @@ If ($URL=$redirectURI)
 		// Send a 403 status line
 		// This is not strictly necessary, but it makes it clear that the request was forbidden
 		// and not just a 404 Not Found
-		$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied."; False)
+		$responseBody:=cs._Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "403 Forbidden"; "Access denied."; False)
 		$statusLine:="X-STATUS: 403 Forbidden"
 		WEB SET HTTP HEADER($statusLine)
 		WEB SEND TEXT($responseBody; "text/html")
@@ -61,7 +61,7 @@ If ($URL=$redirectURI)
 Else 
 	
 	// Send a 404 status line
-	$responseBody:=cs.Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
+	$responseBody:=cs._Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
 	$statusLine:="X-STATUS: 404 Not Found"
 	WEB SET HTTP HEADER($statusLine)
 	WEB SEND TEXT($responseBody; "text/html")

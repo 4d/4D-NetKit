@@ -32,7 +32,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 Function _getList($inPageToken : Text) : Boolean
 	
-	var $URL : cs.URL:=cs.URL.new(This._internals._URL)
+	var $URL : cs._URL:=cs._URL.new(This._internals._URL)
 	
 	If (Length(String($inPageToken))>0)
 		$URL.addQueryParameter("pageToken"; $inPageToken)

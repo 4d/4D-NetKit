@@ -66,7 +66,7 @@ Function get($inID : Text; $inSelect : Text) : Object
 Function list($inParameters : Object) : Object
 	
 	var $headers : Object
-	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
+	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")
 	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)
@@ -96,7 +96,7 @@ Function list($inParameters : Object) : Object
 Function count($inParameters : Object) : Object
 	
 	var $headers : Object
-	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
+	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")
 	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)

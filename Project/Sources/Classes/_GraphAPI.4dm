@@ -48,7 +48,7 @@ Function _copyGraphMessage($inMessage : Object) : Object
 				: ($key="attachments")
 					var $iter : Object
 					For each ($iter; $message.attachments)
-						var $attachment : Object:=cs.Tools.me.convertToGraphAttachment($iter)
+						var $attachment : Object:=cs._Tools.me.convertToGraphAttachment($iter)
 						$result.attachments.push($attachment)
 					End for each 
 					
@@ -89,7 +89,7 @@ Function _loadFromObject($inObject : Object)
 	
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
-	var $URLParams : cs.URL:=cs.URL.new()
+	var $URLParams : cs._URL:=cs._URL.new()
 	
 	If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
 		$URLParams.addQueryParameter("$search"; $inParameters.search)
