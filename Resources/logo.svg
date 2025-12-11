@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 64 64">
+  <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #a2c2dd;
+        opacity: .57;
+      }
+
+      .st1 {
+        fill: none;
+        stroke: #7fa6c6;
+        stroke-miterlimit: 10;
+        stroke-width: .52px;
+      }
+
+      .st2 {
+        fill: url(#Dégradé_sans_nom_147);
+      }
+
+      .st3 {
+        fill: #fff;
+      }
+    </style>
+    <linearGradient id="Dégradé_sans_nom_147" data-name="Dégradé sans nom 147" x1="32" y1="63.32" x2="32" y2=".06" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#749ec1"/>
+      <stop offset="1" stop-color="#88aed2"/>
+    </linearGradient>
+  </defs>
+  <rect class="st1" x=".37" y=".36" width="63.26" height="63.26" rx="3.97" ry="3.97"/>
+  <rect class="st2" x=".37" y=".38" width="63.26" height="63.26" rx="3.97" ry="3.97"/>
+  <path class="st3" d="M32,11.68c-11.21,0-20.33,9.12-20.33,20.33s9.12,20.33,20.33,20.33,20.33-9.12,20.33-20.33-9.12-20.33-20.33-20.33ZM49.01,30.45h-8.67c-.17-6.65-1.43-11.59-3.18-14.72,6.43,2.04,11.21,7.79,11.84,14.72ZM32.27,49.09c-.09,0-.18,0-.27,0s-.18,0-.27,0c-1.98-.51-4.61-6.4-4.88-15.51h10.31c-.27,9.12-2.9,15.01-4.88,15.51ZM26.85,30.45c.27-9.12,2.9-15,4.88-15.51.09,0,.18,0,.27,0s.18,0,.27,0c1.98.51,4.61,6.4,4.88,15.51h-10.31ZM26.84,15.73c-1.75,3.13-3.01,8.07-3.18,14.72h-8.66c.63-6.93,5.42-12.68,11.84-14.72ZM14.99,33.57h8.66c.17,6.65,1.43,11.59,3.18,14.72-6.43-2.04-11.21-7.79-11.84-14.72ZM37.16,48.3c1.75-3.13,3.01-8.07,3.18-14.72h8.67c-.63,6.93-5.42,12.68-11.84,14.72Z"/>
+  <path class="st0" d="M63.58,3.68s-1.31-2.57-3.46-2.55c-1.35.01-55.89-.04-55.89-.04,0,0-3.04.32-3.86,2.65C.94,1.41,2.86.4,4.34.38s55.58.03,55.58.03c0,0,3.17.17,3.65,3.27Z"/>
+</svg>
