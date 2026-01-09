@@ -29,7 +29,7 @@ jobs:
     
     - name: Create Release Tag
       id: create_tag
-      uses: e-marchand/auto-increment-tag-action@v2
+      uses: 4d/auto-increment-tag-action@v2
       with:
         tag_prefix: "${{ inputs.tag_prefix }}"
         tag_suffix: "${{ inputs.tag_suffix }}"
@@ -39,7 +39,7 @@ jobs:
     - name: Create GitHub Release
       if: steps.create_tag.outputs.tag_created == 'true'
       id: create_release
-      uses: e-marchand/action-gh-release@v2.3.2
+      uses: 4d/action-gh-release@v2.3.2
       with:
         tag_name: ${{ steps.create_tag.outputs.tag }}
         name: ${{ steps.create_tag.outputs.tag }}
