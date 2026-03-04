@@ -616,3 +616,43 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	Super._throwErrors(True)
 	
 	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
+	
+	
+	// Mark: - Notifications
+	// ----------------------------------------------------
+	
+	
+Function notification($inParameters : Object; $inFolderId : Text) : cs._GraphNotification
+	
+/*
+	Creates a notification object for mail change notifications.
+	
+	The notification object can be started and stopped. When started, it creates
+	a Microsoft Graph subscription and dispatches callbacks when changes are detected.
+	The subscription is automatically renewed before expiration.
+	
+	Parameters:
+	    $inParameters.onCreate : 4D.Function - Called when a mail is created. Receives the mailId.
+	    $inParameters.onDelete : 4D.Function - Called when a mail is deleted. Receives the mailId.
+	    $inParameters.onModify : 4D.Function - Called when a mail is modified. Receives the mailId.
+	    $inFolderId : Text - Optional. Folder ID to subscribe to. If omitted, subscribes to all folders.
+	
+	Returns:
+	    cs._GraphNotification object with start(), stop(), expiration and isStarted.
+	
+	See: https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions
+*/
+	
+	// Build the resource path for the subscription
+	var $resource : Text
+	If (Length(String(This.userId))>0)
+		$resource:="users/"+This.userId
+	Else 
+		$resource:="me"
+	End if 
+	If (Length(String($inFolderId))>0)
+		$resource+="/mailFolders/"+$inFolderId
+	End if 
+	$resource+="/messages"
+	
+	return cs._GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)

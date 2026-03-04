@@ -20,7 +20,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	This.boundary:=(OB Is defined($inParam; "boundary")) ? String($inParam.boundary) : "batch_"+Generate UUID
 	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
-
+	
 	This._requestes:=[]
 	
 	If (OB Is defined($inParam; "mailType"))

@@ -574,3 +574,43 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     Super._throwErrors(True)
     
     return This._returnStatus({event: This._cleanGraphObject($response)})
+    
+    
+    // Mark: - Notifications
+    // ----------------------------------------------------
+    
+    
+Function notification($inParameters : Object; $inCalendarId : Text) : cs._GraphNotification
+    
+/*
+    Creates a notification object for calendar event change notifications.
+    
+    The notification object can be started and stopped. When started, it creates
+    a Microsoft Graph subscription and dispatches callbacks when changes are detected.
+    The subscription is automatically renewed before expiration.
+    
+    Parameters:
+        $inParameters.onCreate : 4D.Function - Called when an event is created. Receives the eventId.
+        $inParameters.onDelete : 4D.Function - Called when an event is deleted. Receives the eventId.
+        $inParameters.onModify : 4D.Function - Called when an event is modified. Receives the eventId.
+        $inCalendarId : Text - Optional. Calendar ID to subscribe to. If omitted, subscribes to the default calendar.
+    
+    Returns:
+        cs._GraphNotification object with start(), stop(), expiration and isStarted.
+    
+    See: https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions
+*/
+    
+    // Build the resource path for the subscription
+    var $resource : Text
+    If (Length(String(This.userId))>0)
+        $resource:="users/"+This.userId
+    Else 
+        $resource:="me"
+    End if 
+    If (Length(String($inCalendarId))>0)
+        $resource+="/calendars/"+cs._Tools.me.urlEncode($inCalendarId)
+    End if 
+    $resource+="/events"
+    
+    return cs._GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)

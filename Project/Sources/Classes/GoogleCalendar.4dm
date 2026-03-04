@@ -50,11 +50,11 @@ Function _conformEvent($inObject : Object) : Object
     If (OB Is defined($event; "id"))
         OB REMOVE($event; "id")
     End if 
-
+    
     If (OB Is defined($event; "_internals"))
         OB REMOVE($event; "_internals")
     End if 
-
+    
     return $event
     
     

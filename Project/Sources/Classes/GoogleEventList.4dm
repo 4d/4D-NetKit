@@ -14,8 +14,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider; $inParameters)
     
-    This._internals._events:=null
-    This._internals._update:=true
+    This._internals._events:=Null
+    This._internals._update:=True
     
     // Mark: - [Public]
     // ----------------------------------------------------

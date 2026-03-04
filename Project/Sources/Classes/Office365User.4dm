@@ -118,6 +118,6 @@ Function count($inParameters : Object) : Object
 	$URL.addQueryParameter("$count"; "true")
 	$headers:={ConsistencyLevel: "eventual"}
 	$URLString:=$URL.toString()
-
+	
 	return cs.GraphUserList.new(This._getOAuth2Provider(); $URLString; $headers)
 	
