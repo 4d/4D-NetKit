@@ -98,7 +98,7 @@ Function getGoogleDate() : Object  // returns Google Date Object
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function getDateTimeURLParameter()->$dateTimeString : Text  // returns Graph DateTime URL parameter
 	

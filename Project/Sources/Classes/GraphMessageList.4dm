@@ -15,7 +15,7 @@ Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $
 Function get mails() : Collection
 	
 	If (This._internals._update)
-
+		
 		var $iter : Object
 		var $provider : cs.OAuth2Provider:=This._internals._oAuth2Provider
 		
@@ -47,4 +47,4 @@ Function previous() : Boolean
 	
 	This._internals._update:=Super.previous()
 	return This._internals._update
-
+	

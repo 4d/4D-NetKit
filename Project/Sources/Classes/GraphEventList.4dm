@@ -20,13 +20,13 @@ Function get events() : Collection
 		
 		var $iter : Object
 		var $provider : cs.OAuth2Provider:=This._internals._oAuth2Provider
-
+		
 		This._internals._events:=[]
 		For each ($iter; This._internals._list)
 			var $event : cs.GraphEvent:=cs.GraphEvent.new($provider; {userId: This._internals._calendar.userId; calendarId: This._internals._calendar.id}; $iter)
 			This._internals._events.push($event)
 		End for each 
-
+		
 		This._internals._update:=False
 	End if 
 	
