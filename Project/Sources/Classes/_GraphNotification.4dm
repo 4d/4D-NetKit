@@ -76,6 +76,9 @@ Function start() : Object
     // Build the notification URL from the OAuth provider's redirect URI
     var $notificationUrl : Text:=This._buildNotificationUrl($state)
     
+    // Start the web server to receive notifications (if not already running)
+    This._startWebServer($notificationUrl)
+    
     // Compute change types from provided callbacks
     var $changeType : Text:=This._computeChangeType()
     
@@ -199,7 +202,14 @@ Function stop() : Object
     
 Function _buildNotificationUrl($inState : Text) : Text
     
-    var $redirectURI : Text:=This._getOAuth2Provider().redirectURI
+    var $provider : cs.OAuth2Provider:=This._getOAuth2Provider()
+    var $redirectURI : Text:=$provider.redirectURI
+    
+    // Default redirectURI when none is provided (e.g. service mode)
+    If (Length($redirectURI)=0)
+        $redirectURI:="https://127.0.0.1:50993"
+    End if 
+    
     var $url : cs._URL:=cs._URL.new($redirectURI)
     var $notificationUrl : Text:=$url.scheme+"://"+$url.host
     
@@ -403,3 +413,57 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         End if 
         
     End if 
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _startWebServer($notificationUrl : Text) : Boolean
+    
+    // Start the component web server on the redirectURI port (same as OAuth2 authentication)
+    var $url : cs._URL:=cs._URL.new($notificationUrl)
+    var $options : Object:={}
+    $options.port:=$url.port
+    $options.useTLS:=($url.scheme="https")
+    
+    If ($options.useTLS)
+        $options.certificateFolder:=This._createCertAndKeyIfNeeded("/PACKAGE/")
+    End if 
+    
+    var $bUseHostDatabaseServer : Boolean:=False
+    var $hostDatabaseServer : Object:=WEB Server(Web server host database)
+    If (($hostDatabaseServer#Null) && $hostDatabaseServer.isRunning)
+        If ($options.useTLS)
+            $bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$options.port))
+        Else 
+            $bUseHostDatabaseServer:=($hostDatabaseServer.HTTPEnabled && ($hostDatabaseServer.HTTPPort=$options.port))
+        End if 
+    End if 
+    
+    If (Not($bUseHostDatabaseServer))
+        return cs._Tools.me.startWebServer($options)
+    End if 
+    
+    return False
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _createCertAndKeyIfNeeded($inCertFolderPath : Text) : Text
+    
+    var $certFolder : 4D.Folder:=Folder($inCertFolderPath)
+    If ($certFolder.file("cert.pem").exists && $certFolder.file("key.pem").exists)
+        return $certFolder.platformPath
+    End if 
+
+    var $certBuffer; $keyBuffer : Blob
+    var $params : Object:={CN: "www.4d.com"; O: "4D"; OU: "4D Engineering"; C: "FR"; ST: "Yvelines"; L: "Le Pecq"}
+    
+    If (_4D GENERATE CERTIFICATE AND PRIVATE KEY($certBuffer; $keyBuffer; $params))
+        $certFolder.file("cert.pem").setContent($certBuffer)
+        $certFolder.file("key.pem").setContent($keyBuffer)
+    End if 
+    
+    return ($certFolder#Null) ? $certFolder.platformPath : ""
+    
