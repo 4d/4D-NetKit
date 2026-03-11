@@ -6,7 +6,7 @@ The `Office365` class allows you to call the [Microsoft Graph API](https://docs.
 * get information from Office365 applications, such as user information
 * create, move or send emails
 
-This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
+This can be done after a valid token request, (see [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class)).
 
 The `Office365` class can be instantiated in two ways:
 * by calling the `New Office365 provider` method
@@ -79,7 +79,7 @@ The `Office365` class can be instantiated in two ways:
 
 `New Office365 provider` instantiates an object of the `Office365` class.
 
-In `paramObj`, pass an [OAuth2Provider object](#new-auth2-provider).
+In `paramObj`, pass an [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class).
 
 In `param`, you can pass an object that specifies the following options:
 
@@ -113,7 +113,7 @@ $office365:=New Office365 provider($oAuth2;New object("mailType"; "Microsoft"))
 
 ### Example 2
 
-Refer to [this tutorial](#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode.
+Refer to [this tutorial](../Tutorial.md#authenticate-to-the-microsoft-graph-api-in-service-mode) for an example of connection in Service mode.
 
 ## Calendar
 
@@ -322,7 +322,7 @@ var $events:=$office365.calendar.getEvents({calendarId: $myCalendar.id; top: 10}
 | Parameter | Type   |  | Description                                               |
 | --------- | ---- |---|------------------------- |
 | event | Object | -> | Object containing details of the calendar [event](#event-object) to create |
-| result| Object | <- | [Status object](#status-object-microsoft-class)|
+| result| Object | <- | [Status object](#status-object)|
 
 #### Description
 
@@ -332,14 +332,14 @@ In *event*, pass the properties you want to set for the event.
 
 #### Returned Object
 
-The function returns a [**status object**](#status-object-microsoft-class) with an additional `event` property:
+The function returns a [**status object**](#status-object) with an additional `event` property:
 
 | Property   | Type   | Description|                                         
 | -------- | ---------- | ----------------------------------- |
 | event| Object | [Event object](#event-object) returned by the server                 |
-| success | Boolean| See [Status object](#status-object-microsoft-class) |
-| statusText | Text| See [Status object](#status-object-microsoft-class) |
-| errors  | Collection | See [Status object](#status-object-microsoft-class) |
+| success | Boolean| See [Status object](#status-object) |
+| statusText | Text| See [Status object](#status-object) |
+| errors  | Collection | See [Status object](#status-object) |
 
 #### Permissions 
  
@@ -380,7 +380,7 @@ End if
 | Parameter | Type | | Description|                                                                                                             
 | --------- | ------ | ---- | ----------------------------- |
 | event     | Object | ->| Object containing the complete updated [event](#event-object). |
-| Result| Object | <-| [Status object](#status-object-office365-class)|                                                                         
+| Result| Object | <-| [Status object](#status-object)|                                                                         
 
 #### Description
 
@@ -395,14 +395,14 @@ To check the updatable properties, please refer to the [event object](#event-obj
 
 #### Returned Object
 
-The method returns a [**status object**](#status-object-office365-class) with an additional `event` property:
+The method returns a [**status object**](#status-object) with an additional `event` property:
 
 | Property   | Type       | Description                                         |
 | ---------- | ---------- | --------------------------------------------------- |
 | event      | Object     | Updated [event object](#event-object) returned by the server         |
-| success    | Boolean    | [see Status object](#status-object-office365-class) |
-| statusText | Text       | [see Status object](#status-object-office365-class) |
-| errors     | Collection | [see Status object](#status-object-office365-class) |
+| success    | Boolean    | [see Status object](#status-object) |
+| statusText | Text       | [see Status object](#status-object) |
+| errors     | Collection | [see Status object](#status-object) |
 
 #### Permissions 
  
@@ -444,7 +444,7 @@ End if
 | Parameter | Type   | Direction | Description                                                                                                         |
 | --------- | ------ | --------- | ------------------------------------------------------------------------------------------------------------------- |
 | param     | Object | ->  | Object containing details for the calendar [event](#event-object) to delete|
-| Result    | Object | <-  | [Status object](#status-object-office365-class)                                                                     |
+| Result    | Object | <-  | [Status object](#status-object)                                                                     |
 
 #### Description
 
@@ -460,7 +460,7 @@ In *param*, you can pass the following properties:
 
 #### Returned Object
 
-The method returns a [**status object**](#status-object-office365-class).
+The method returns a [**status object**](#status-object).
 
 #### Permissions
 

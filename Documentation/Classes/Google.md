@@ -4,7 +4,7 @@
 
 The `Google` class allows you to send emails through the [Google REST API](https://developers.google.com/gmail/api/reference/rest/v1/users.messages).
 
-This can be done after a valid token request, (see [OAuth2Provider object](#oauth2provider)).
+This can be done after a valid token request, (see [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class)).
 
 The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` function.
 
@@ -71,7 +71,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 
 `cs.NetKit.Google.new()` instantiates an object of the `Google` class.
 
-In `oAuth2`, pass an [OAuth2Provider object](#oauth2provider).
+In `oAuth2`, pass an [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class).
 
 In `param`, you can pass an object that specifies the following options:
 
@@ -296,7 +296,7 @@ In *param*, you can pass the following optional properties:
 
 #### Returned object
 
-The method returns a [**status object**](#status-object-google-class) in addition to the following properties:
+The method returns a [**status object**](#status-object) in addition to the following properties:
 
 | Property |  Type | Description |
 |---| ---|---|
@@ -341,7 +341,7 @@ var $events:=$google.calendar.getEvents({calendarId: $myCalendar.id; top: 10})
 | -------- | ------ | --- |--------------------------- |
 |event | Object | ->|Object containing details of the calendar [event](#event-object) to create |
 |param | Object | -> | Object containing additional creation options | 
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 #### Description
 
@@ -358,14 +358,14 @@ In *param*, you can pass the following additional optional properties:
 
 #### Returned Object
 
-The method returns a [**status object**](status-object-google-class) with an additional "event" property:
+The method returns a [**status object**](#status-object) with an additional "event" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |event|Object|[Event object](#event-object) returned by the server|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Example
 
@@ -398,7 +398,7 @@ End if
 | -------- | ----- | -------- | --------------- |
 |event |Object|->| Object containing details of the calendar [event](#event-object) to update. |
 |param |Object|->| Object containing additional update options. | 
-|Result | Object | <-| [Status object](#status-object-google-class) |
+|Result | Object | <-| [Status object](#status-object) |
 
 #### Description
 
@@ -416,14 +416,14 @@ And in *param*, you can pass the following additional optional properties:
 
 #### Returned Object
 
-The method returns a [**status object**](status-object-google-class) with an additional "event" property:
+The method returns a [**status object**](#status-object) with an additional "event" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |event|Object|Updated [event object](#event-object) returned by the server|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Example
 
@@ -456,7 +456,7 @@ End if
 | Parameter | Type   | | Description                                                                                                                                                                                                                                                                   |
 | -------- | ----- | --- | -------------------- |
 | param | Object | -> | Object containing details of the calendar [event](#event-object) to delete | 
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 #### Description
 
@@ -472,7 +472,7 @@ In *param*, you can pass the following properties:
 
 #### Returned Object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 #### Example
 
@@ -550,7 +550,7 @@ The `event` object used with Google Calendar methods includes the following main
 |---------|--- |:---:|------|
 |mail|Text &#124; Blob &#124; Object|->|Email to be append |
 |labelIds|Collection|->|Collection of label IDs to add to messages. By default the DRAFT label is applied|
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 
 #### Description
@@ -561,14 +561,14 @@ The `event` object used with Google Calendar methods includes the following main
 
 #### Returned object
 
-The method returns a [**status object**](status-object-google-class) with an additional "id" property:
+The method returns a [**status object**](#status-object) with an additional "id" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |id|Text|id of the email created on the server|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Example
 
@@ -593,7 +593,7 @@ $status:=$google.mail.append($mail;["INBOX"])
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |[labelInfo](#labelinfo-object)|Object|->|Label information.|
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 #### Description
 
@@ -601,14 +601,14 @@ $status:=$google.mail.append($mail;["INBOX"])
 
 #### Returned object
 
-The method returns a [**status object**](status-object-google-class) with an additional "label" property:
+The method returns a [**status object**](#status-object) with an additional "label" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |label|Object|contains a newly created instance of Label (see [labelInfo](#labelinfo-object))|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Example
 
@@ -629,7 +629,7 @@ $labelId:=$status.label.id
 |---------|--- |:---:|------|
 |mailID|Text|->|ID of the mail to delete |
 |permanently|Boolean|->|if permanently is true, deletes a message permanently. Otherwise, moves the specified message to the trash |
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 
 #### Description
@@ -638,7 +638,7 @@ $labelId:=$status.label.id
 
 #### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 #### Permissions
 
@@ -666,7 +666,7 @@ $status:=$google.mail.delete($mailId; True)
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 #### Description
 
@@ -676,7 +676,7 @@ $status:=$google.mail.delete($mailId; True)
 
 #### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 #### Example
 
@@ -742,14 +742,14 @@ $unread:=$info.messagesUnread
 
 #### Returned object
 
-The method returns a [**status object**](status-object-google-class) with an additional "labels" property:
+The method returns a [**status object**](#status-object) with an additional "labels" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |labels|Collection|Collection of [`mailLabel` objects](#maillabel-objects)|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 
 #### mailLabel object
@@ -831,7 +831,7 @@ In *param*, you can pass several properties:
 
 #### Returned object
 
-The method returns a [**status object**](status-object-google-class) with additional properties:
+The method returns a [**status object**](#status-object) with additional properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -840,9 +840,9 @@ The method returns a [**status object**](status-object-google-class) with additi
 |next()|`4D.Function` object|Function that updates the mail collection with the next mail information page and increases the `page` property by 1. Returns a boolean value:<br/>- If a next page is successfully loaded, returns True<br/>- If no next page is returned, the mail collection is not updated and False is returned.|
 |previous()|`4D.Function` object|Function that updates the mail collection with the previous mail information page and decreases the `page` property by 1. Returns a boolean value:<br/>- If a previous page is successfully loaded, returns True<br/>- If no previous page is returned, the mail collection is not updated and False is returned.|
 |mailIds|Collection| Collection of objects, where each object contains:<br/>- *id* : Text : The id of the email<br/>- *threadId* : Text : The id of the thread to which this Email belongs<br/>- If no mail is returned, the collection is empty.|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 
 #### Permissions
@@ -904,7 +904,7 @@ The method returns a collection of mails in one of the following formats, depend
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Text &#124; Blob &#124; Object|->| Email to be sent|
-|Result|Object|<-| [Status object](#status-object-google-class) |
+|Result|Object|<-| [Status object](#status-object) |
 
 #### Description
 
@@ -926,7 +926,7 @@ $status:=$Google.mail.send($email)
 
 #### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 ### Google.mail.untrash()
 
@@ -937,7 +937,7 @@ The method returns a standard [**status object**](#status-object-google-class).
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailID|Text|->|The ID of the message to remove from Trash |
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 
 #### Description
@@ -946,7 +946,7 @@ The method returns a standard [**status object**](#status-object-google-class).
 
 #### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 #### Permissions
 
@@ -967,7 +967,7 @@ https://www.googleapis.com/auth/gmail.modify
 |---------|--- |:---:|------|
 |mailIDs|Collection|->|Collection of strings (mail IDs), or collection of objects (each object contains an ID property)|
 |param|Object|->|Options|
-|Result|Object|<-| [Status object](#status-object-google-class) |
+|Result|Object|<-| [Status object](#status-object) |
 
 > There is a limit of 1000 IDs per request.
 
@@ -987,7 +987,7 @@ In *param*, you can pass the following two properties:
 
 #### Returned object
 
-The method returns a standard [**status object**](#status-object-google-class).
+The method returns a standard [**status object**](#status-object).
 
 
 #### Example
@@ -1008,7 +1008,7 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 |---------|--- |:---:|------|
 |labelId|Text|->|The ID of the label|
 |[labelInfo](#labelinfo-object)|Object|->|Label information to update|
-|Result|Object|<-|[Status object](#status-object-google-class)|
+|Result|Object|<-|[Status object](#status-object)|
 
 #### Description
 
@@ -1017,14 +1017,14 @@ $result:=$google.mail.update($mailIds; {addLabelIds: ["UNREAD"]})
 
 #### Returned object
 
-The method returns a [**status object**](status-object-google-class) with an additional "label" property:
+The method returns a [**status object**](#status-object) with an additional "label" property:
 
 |Property|Type|Description|
 |---------|--- |------|
 |label|Object|contains an instance of Label (see [labelInfo](#labelinfo-object))|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Example
 
@@ -1280,7 +1280,7 @@ In *param*, you can pass the following properties:
 
 #### Returned object
 
-The returned object holds a collection of [users objects](https://developers.google.com/people/api/rest/v1/people#Person) as well as [**status object**](status-object-google-class) properties and functions that allow you to navigate between different pages of results.
+The returned object holds a collection of [users objects](https://developers.google.com/people/api/rest/v1/people#Person) as well as [**status object**](#status-object) properties and functions that allow you to navigate between different pages of results.
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -1289,9 +1289,9 @@ The returned object holds a collection of [users objects](https://developers.goo
 |page|Integer|Represents the current page number of user information, starting from 1. By default, each page contains 100 results, but the page size limit can be adjusted using the *top* option.|
 |next()|Function|A function that retrieves the next page of user information. Returns True if successful; otherwise, returns False if there is no next page and the users collection is not updated.|
 |previous()|Function|A function that retrieves the previous page of user information. Returns True if successful; otherwise, returns False if there is no previous page and the users collection is not updated.|
-|success|Boolean| [see Status object](#status-object-google-class)|
-|statusText|Text| [see Status object](#status-object-google-class)|
-|errors|Collection| [see Status object](#status-object-google-class)|
+|success|Boolean| [see Status object](#status-object)|
+|statusText|Text| [see Status object](#status-object)|
+|errors|Collection| [see Status object](#status-object)|
 
 #### Permissions
 
