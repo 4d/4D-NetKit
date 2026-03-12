@@ -65,16 +65,20 @@ Function start() : Object
         return This._returnStatus()
     End if 
     
+    // Build the notification URL from the OAuth provider's redirect URI
+    var $state : Text:=Generate UUID
+    var $notificationUrl : Text:=This._buildNotificationUrl($state)
+    if(length($notificationUrl)=0)
+        This._throwError(2; {attribute: "endPoint"})
+        return This._returnStatus()
+    end if
+
     Super._clearErrorStack()
     Super._throwErrors(False)
     
     // Generate a unique state identifier for this subscription
-    var $state : Text:=Generate UUID
     This._internals._state:=$state
     This._internals._workerName:=Current process name
-    
-    // Build the notification URL from the OAuth provider's redirect URI
-    var $notificationUrl : Text:=This._buildNotificationUrl($state)
     
     // Start the web server to receive notifications (if not already running)
     This._startWebServer($notificationUrl)
@@ -203,20 +207,21 @@ Function stop() : Object
 Function _buildNotificationUrl($inState : Text) : Text
     
     var $provider : cs.OAuth2Provider:=This._getOAuth2Provider()
-    var $redirectURI : Text:=$provider.redirectURI
+    var $notificationUrl : Text:=""
     
-    // Default redirectURI when none is provided (e.g. service mode)
-    If (Length($redirectURI)=0)
-        $redirectURI:="https://127.0.0.1:50993"
+    If (Length(String($provider.endPoint))>0)
+        var $url : cs._URL:=cs._URL.new($provider.endPoint)
+        
+        $notificationUrl:=$url.scheme+"://"+$url.host
+        
+        If ($url.port>0)
+            $notificationUrl+=":"+String($url.port)
+        End if 
+        $notificationUrl+="/$4dk-notification?state="+$inState
+    Else 
+        This._throwError(2; {attribute: "endPoint"})
     End if 
     
-    var $url : cs._URL:=cs._URL.new($redirectURI)
-    var $notificationUrl : Text:=$url.scheme+"://"+$url.host
-    
-    If ($url.port>0)
-        $notificationUrl+=":"+String($url.port)
-    End if 
-    $notificationUrl+="/$4dk-notification?state="+$inState
     
     return $notificationUrl
     
@@ -456,7 +461,7 @@ Function _createCertAndKeyIfNeeded($inCertFolderPath : Text) : Text
     If ($certFolder.file("cert.pem").exists && $certFolder.file("key.pem").exists)
         return $certFolder.platformPath
     End if 
-
+    
     var $certBuffer; $keyBuffer : Blob
     var $params : Object:={CN: "www.4d.com"; O: "4D"; OU: "4D Engineering"; C: "FR"; ST: "Yvelines"; L: "Le Pecq"}
     
@@ -466,4 +471,3 @@ Function _createCertAndKeyIfNeeded($inCertFolderPath : Text) : Text
     End if 
     
     return ($certFolder#Null) ? $certFolder.platformPath : ""
-    

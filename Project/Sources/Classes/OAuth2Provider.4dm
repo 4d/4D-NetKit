@@ -32,6 +32,8 @@ property _codeVerifier : Text
 property state : Text
 property nonce : Text  // For OpenID Connect
 
+property endPoint : Text  // Optional endpoint property that can be used by notification class to determine where to listen for notifications reception 
+
 property enableDebugLog : Boolean  // Enable HTTP Server debug log for Debug purposes only
 
 Class constructor($inParams : Object)
@@ -248,6 +250,12 @@ Class constructor($inParams : Object)
 			This.nonce:=$inParams.nonce
 		End if 
 		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
+		
+/*
+	Optional endpoint property that can be used by notification class to determine where to listen for notifications reception.
+	If not provided, notification class will throw an error as the notification reception requires an endpoint to listen to.
+*/
+		This.endPoint:=String($inParams.endPoint)
 		
 	End if 
 	

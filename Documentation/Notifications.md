@@ -143,6 +143,29 @@ Storage.notifications : Shared Object
 
 ---
 
+## HTTP Handler Configuration
+
+When the **host database's web server** is used (i.e. the `endPoint` port matches the host web server port), you must register an HTTP handler so the webhook requests reach the notification handler.
+
+Add the following entry in the `Project/Sources/HTTPHandlers.json` file of the **host project**:
+
+```json
+[
+  {
+    "class": "4D.NetKit._GraphNotificationHandler",
+    "method": "getResponse",
+    "regexPattern": "/\\$4dk-notification",
+    "verbs": "post"
+  }
+]
+```
+
+> **Note:** If the component's own web server is used (different port), the handler is already preconfigured inside the component.
+
+For more information, please refer to [HTTP Handlers](https://developer.4d.com/docs/WebServer/http-request-handler).
+
+---
+
 ## Usage Examples
 
 ### Mail Notifications
