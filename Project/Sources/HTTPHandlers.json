@@ -1,0 +1,8 @@
+[
+	{
+		"class": "_GraphNotificationHandler",
+		"method": "getResponse",
+		"regexPattern": "/\\$4dk-notification",
+		"verbs": "post"
+	}
+]

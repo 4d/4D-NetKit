@@ -418,7 +418,15 @@ Function startWebServer($inParameters : Object) : Boolean
 		$settings.HTTPSEnabled:=$bIsSSL
 		If ($bIsSSL)
 			$settings.HTTPSPort:=$port
-			$settings.certificateFolder:=Folder("/PACKAGE/"; *)
+			If (Not(OB Is defined($inParameters; "certificateFolder")))
+				$settings.certificateFolder:=Folder("/PACKAGE/"; *)
+			Else 
+				If (OB Instance of($inParameters.certificateFolder; 4D.Folder))
+					$settings.certificateFolder:=$inParameters.certificateFolder
+				Else 
+					$settings.certificateFolder:=Folder($inParameters.certificateFolder; fk platform path)
+				End if 
+			End if 
 		Else 
 			$settings.HTTPPort:=$port
 		End if 
