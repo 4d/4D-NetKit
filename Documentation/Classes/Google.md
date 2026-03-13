@@ -915,18 +915,51 @@ In `email`, pass the email to be sent. Possible types:
 * Text or Blob: the email is sent using the MIME format
 * Object: the email is sent using the JSON format, in accordance with the [4D email object format](https://developer.4d.com/docs/API/EmailObjectClass.html#email-object), which follows the JMAP specification.
 
-The data type passed in `email` must be compatible with the [`Google.mail.type` property](#returned-object-2). In the following example, since the mail type is `JMAP`, `$email` must be an object:
-
-```4d
-$Google:=cs.NetKit.Google.new($token;{mailType:"JMAP"})
-$status:=$Google.mail.send($email)
-```
+The data type passed in `email` must be compatible with the mail type.
 
 > To avoid authentication errors, make sure your application has appropriate authorizations to send emails. One of the following OAuth scopes is required: [modify](https://www.googleapis.com/auth/gmail.modify), [compose](https://www.googleapis.com/auth/gmail.compose), or [send](https://www.googleapis.com/auth/gmail.send). For more information, see the [Authorization guide](https://developers.google.com/workspace/guides/configure-oauth-consent).
 
 #### Returned object
 
 The method returns a standard [**status object**](#status-object-google-class).
+
+
+#### Example
+
+```4d
+var $oAuth2 : cs.NetKit.OAuth2Provider
+
+// Set up authentication
+var $credential:={}
+$credential.name:="Google"
+$credential.permission:="signedIn"
+$credential.clientId:="your-client-id"  // Replace with your client ID
+$credential.clientSecret:="your-client-secret"
+$credential.redirectURI:="http://127.0.0.1:50993/authorize/"
+$credential.scope:="https://www.googleapis.com/auth/gmail.send"
+
+$oAuth2:=cs.NetKit.OAuth2Provider.new($credential)
+
+// Create the email, specify the sender and the recipient
+var $email:={}
+$email.from:="noreply.mail@gmail.com"
+//Originating addresses
+$email.to:="address1@mail.com,address2@mail.com"
+// Carbon Copy
+$email.cc:={name: "Stephen"; email: "address3@mail.com"}
+// Subject
+$email.subject:="Hello world"
+// Body
+$email.textBody:="Test mail \r\n This is just a test e-mail \r\n Please ignore it"
+// Attachments
+$email.attachments:=[MAIL New attachment($filePath)]
+
+// Send the email
+var $Google:=cs.NetKit.Google.new($oAuth2; {mailType: "JMAP"})
+var $status:=$Google.mail.send($email)
+```
+
+
 
 ### Google.mail.untrash()
 
@@ -1033,87 +1066,6 @@ To update a previously created label  to 'Backup January':
 ```4d
 $status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
 
-```
-
-### "Google" mail object properties
-
-When you send an email with the "Google" mail type, you must pass an object to `Google.mail.send()`. For a comprehensive list of properties supported by Gmail message objects, refer to the [Gmail API documentation](https://developers.google.com/gmail/api/reference/rest/v1/users.messages). The most common properties are listed below:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| attachments | attachment collection | The attachments for the email. |
-| bccRecipients | recipient collection | The Bcc: recipients for the message. |
-| ccRecipients | recipient collection | The Cc: recipients for the message. |
-| from | recipient object | The sender's email address. Must match the authenticated Gmail user. |
-| id | Text | Unique identifier for the message. |
-| important | Boolean | If true, marks the message as important (Gmail only). |
-| labelIds | Collection | List of label IDs to apply to the message. |
-| replyTo | recipient collection | Email addresses to use when replying. |
-| sender | recipient object | The account that generates the message. Same as `from` in most cases. |
-| subject | Text | The subject line of the message. |
-| toRecipients | recipient collection | The To: recipients for the message. |
-| threadId | Text | The ID of the thread to which the message belongs. |
-
-
-#### Attachment object (Google)
-
-| Property | Type | Description |
-|----------|------|-------------|
-| filename | Text | The name of the attached file. |
-| mailType | Text | Indicates the Mail type to use to send and receive email's attechement. |
-| content | Text | The base64-encoded content of the file. |
-| size | Number | The size of the file in bytes. |
-| isInline | Boolean | Set to true if the attachment is inline (e.g., embedded image). |
-| contentId | Text | Content ID for referencing the attachment inline via CID. |
-
-
-#### recipient object
-
-| Property | Type | Description |
-|----------|------|-------------|
-| emailAddress | Object | Contains the address and display name. |
-| emailAddress.address | Text | The email address of the recipient. |
-| emailAddress.name | Text | Display name of the recipient. |
-
-#### Example: Send an email with a file attachment (Google)
-
-```4d
-var $oAuth2 : cs.NetKit.OAuth2Provider
-var $token; $param; $email; $status : Object
-
-// Set up authentication
-$param:=New object()
-$param.name:="Google"
-$param.permission:="signedIn"
-$param.clientId:="your-client-id" // Replace with your client ID
-$param.redirectURI:="http://127.0.0.1:50993/authorize/"
-$param.scope:="https://www.googleapis.com/auth/gmail.send"
-
-$oAuth2:=New OAuth2 provider($param)
-$token:=$oAuth2.getToken()
-
-// Create the email, specify the sender and the recipient
-$email:=New object()
-$email.from:=New object("emailAddress"; New object("address"; "sender@gmail.com"))
-$email.toRecipients:=New collection(New object("emailAddress"; New object("address"; "recipient@gmail.com")))
-$email.subject:="Hello from NetKit"
-$email.body:=New object("content"; "Hello, World!"; "contentType"; "html")
-
-// Create an attachment
-var $attachment : Object
-var $text : Text
-$text:="Simple text file"
-BASE64 ENCODE($text)
-$attachment:=New object
-$attachment.filename:="note.txt"
-$attachment.mimeType:="text/plain"
-$attachment.content:=$text
-$email.attachments:=New collection($attachment)
-
-// Send the email
-var $Google : Object
-$Google:=cs.NetKit.Google.new($token)
-$status:=$Google.mail.send($email)
 ```
 
 
