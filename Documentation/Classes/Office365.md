@@ -862,7 +862,7 @@ In *param*, pass an object to define the folders to get. The available propertie
 
 | Property | Type | Description |
 |---|---|---|
-|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <br/>- If it is a parent folder id, get the folder collection under the specified folder (children folders<br/>- If the property is omitted or its value is "", get the mail folder collection directly under the root folder.|
+|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <br/>- If it is a parent folder id, get the folder collection under the specified folder (children folders)<br/>- If the property is omitted or its value is "", get the mail folder collection directly under the root folder.|
 |search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
 |filter|text|Allows retrieving just a subset of folders. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
 |select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
@@ -1141,7 +1141,7 @@ $status:=$office365.mail.renameFolder($folderId; "Backup_old")
 ||comment|Text|->| (only available with Microsoft message object or no message) Message used as body to reply to the email when present. You must specify either a *comment* or the [body property](#microsoft-mail-object-properties) of the message parameter; specifying both will return an HTTP 400 Bad Request error.|
 |mailId||Text|->| Id of the mail to which you reply|
 |replyAll||Boolean|->| True to reply to all recipients of the message. Default=False|
-|Result|Object|<-| [Status object](#status-object)  |
+|Result||Object|<-| [Status object](#status-object)  |
 
 #### Description
 
@@ -1402,7 +1402,7 @@ Several Office365.mail functions return a standard `**status object**`, containi
 |success|Boolean| True if the operation was successful|
 |statusText|Text| Status message returned by the server or last error returned by the 4D error stack|
 |errors|Collection| Collection of errors. Not returned if the server returns a `statusText`|
-|id|Text|<br/>- [`copy()`](#office365-mail-copy) and [`move()`](#office365-mail-move): returned id of the mail.<br/>- [`createFolder()`](#office365-mail-createFolder) and [`renameFolder()`](#office365-mail-renameFolder): returned id of the folder|
+|id|Text|<br/>- [`copy()`](#office365mailcopy) and [`move()`](#office365mailmove): returned id of the mail.<br/>- [`createFolder()`](#office365mailcreatefolder) and [`renameFolder()`](#office365mailrenamefolder): returned id of the folder|
 
 
 Basically, you can test the `success` and `statusText` properties of this object to know if the function was correctly executed.
@@ -1411,8 +1411,8 @@ Basically, you can test the `success` and `statusText` properties of this object
 
 When an error occurs during the execution of an Office365.mail function:
 
-- if the function returns a [`**status object**`](#status-object), the error is handled by the status object and no error is thrown,
-- if the function does not return a **status object**, an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
+- if the function returns a [`status object`](#status-object), the error is handled by the status object and no error is thrown,
+- if the function does not return a [`status object`](#status-object), an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
 
 ## User
  
