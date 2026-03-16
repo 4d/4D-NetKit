@@ -605,7 +605,7 @@ The `event` object used with Microsoft Calendar methods includes the following m
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |email|Object|->| Microsoft message object to append|
-|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-names).|
 |Result|Object|<-| [Status object](#status-object)  |
 
 #### Description
@@ -646,7 +646,7 @@ $status:=$office365.mail.append($draft; $folder.id)
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to copy|
-|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-names).|
 |Result|Object|<-| [Status object](#status-object)  |
 
 #### Description
@@ -686,7 +686,7 @@ $status:=$office365.mail.copy($mailId; $folderId)
 |---------|--- |:---:|------|
 |name|Text|->|Display name of the new folder|
 |isHidden|Boolean|->|True to create a hidden folder (Default is False)|
-|parentFolderId|Text|->|ID of the parent folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|parentFolderId|Text|->|ID of the parent folder to get. Can be a folder id or a [Well-known folder name](#well-known-folder-names).|
 |Result|Object|<-| [Status object](#status-object)  |
 
 `Office365.mail.getFolder()` creates a new folder named *name* and returns its ID in the [status object](#status-object).
@@ -778,7 +778,7 @@ End for each
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-name) if one exists.|
+|folderId|Text|->| ID of the folder to delete. Can be a folder id or a [Well-known folder name](#well-known-folder-names) if one exists.|
 |Result|Object|<-| [Status object](#status-object)  |
 
 #### Description
@@ -814,7 +814,7 @@ $status:=$office365.mail.deleteFolder($folderId)
 
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
-|folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-name).|
+|folderId|Text|->|ID of the folder to get. Can be a folder ID or a [Well-known folder name](#well-known-folder-names).|
 |Result|Object|<-|mailFolder object|
 
 `Office365.mail.getFolder()` allows you to get a **mailFolder** object from its *folderId*.
@@ -862,7 +862,7 @@ In *param*, pass an object to define the folders to get. The available propertie
 
 | Property | Type | Description |
 |---|---|---|
-|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-name). <br/>- If it is a parent folder id, get the folder collection under the specified folder (children folders)<br/>- If the property is omitted or its value is "", get the mail folder collection directly under the root folder.|
+|folderId|text|Can be a folder id or a [Well-known folder name](#well-known-folder-names). <br/>- If it is a parent folder id, get the folder collection under the specified folder (children folders)<br/>- If the property is omitted or its value is "", get the mail folder collection directly under the root folder.|
 |search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://docs.microsoft.com/en-us/graph/search-query-parameter#using-search-on-directory-object-collections).|
 |filter|text|Allows retrieving just a subset of folders. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
 |select|text|Set of properties to retrieve. Each property must be separated by a comma (,). |
@@ -998,7 +998,7 @@ In *param*, pass an object to define the mails to get. The available properties 
 
 | Property | Type | Description |
 |---|---|---|
-|folderId|text|To get messages in a specific folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name). If the destination folder is not present or empty, get all the messages in a user's mailbox.|
+|folderId|text|To get messages in a specific folder. Can be a folder id or a [Well-known folder name](#well-known-folder-names). If the destination folder is not present or empty, get all the messages in a user's mailbox.|
 |search|text|Restricts the results of a request to match a search criterion. The search syntax rules are available on [Microsoft's documentation website](https://learn.microsoft.com/en-us/graph/search-query-parameter?tabs=http#using-search-on-message-collections).|
 |filter|text|Allows retrieving just a subset of mails. See [Microsoft's documentation on filter parameter](https://docs.microsoft.com/en-us/graph/query-parameters#filter-parameter).|
 |select|text|Set of [properties of the Microsoft Mail object](#microsoft-mail-object-properties) to retrieve. Each property must be separated by a comma (,). |
@@ -1036,7 +1036,7 @@ One of the following permissions is required to call this API. For more informat
 
 #### Example
 
-You want to retrieve *sender* and *subject* properties of all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-name):
+You want to retrieve *sender* and *subject* properties of all the mails present in the Inbox folder, using its [well-known folder name](#well-known-folder-names):
 
 ```4d
 $param:=New object
@@ -1055,7 +1055,7 @@ $mails:=$office365.mail.getMails($param)
 |Parameter|Type||Description|
 |---------|--- |:---:|------|
 |mailId|Text|->| Id of the mail to move|
-|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-name).|
+|folderId|Text|->| Id of the destination folder. Can be a folder id or a [Well-known folder name](#well-known-folder-names).|
 |Result|Object|<-| [Status object](#status-object)  |
 
 #### Description
