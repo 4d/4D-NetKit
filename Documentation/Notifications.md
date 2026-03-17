@@ -53,7 +53,7 @@ Creates a notification object for **calendar event** change notifications.
 _BaseClass
   └─ _BaseAPI
        └─ _GraphAPI
-            ├─ _GraphNotification      (NEW — notification lifecycle)
+            ├─ GraphNotification       (NEW — notification lifecycle)
             ├─ Office365Mail           (MODIFIED — added notification())
             └─ Office365Calendar       (MODIFIED — added notification())
 
@@ -130,15 +130,15 @@ Storage.notifications : Shared Object
 
 | File | Description |
 |---|---|
-| `Project/Sources/Classes/_GraphNotification.4dm` | Core notification class. Manages the full lifecycle: `start()` creates the subscription + launches the monitor worker; `stop()` deletes the subscription and kills the worker. Handles auto-renewal and callback dispatch. |
+| `Project/Sources/Classes/GraphNotification.4dm` | Core notification class. Manages the full lifecycle: `start()` creates the subscription + launches the monitor worker; `stop()` deletes the subscription and kills the worker. Handles auto-renewal and callback dispatch. |
 | `Project/Sources/Classes/_GraphNotificationHandler.4dm` | Shared singleton that handles incoming webhook HTTP requests (validation + notification body parsing → `Storage`). Follows the same pattern as `OAuth2Authorization`. |
 
 ### Modified Files
 
 | File | Change |
 |---|---|
-| `Project/Sources/Classes/Office365Mail.4dm` | Added `notification($inParameters; $inFolderId)` function returning `cs._GraphNotification`. |
-| `Project/Sources/Classes/Office365Calendar.4dm` | Added `notification($inParameters; $inCalendarId)` function returning `cs._GraphNotification`. |
+| `Project/Sources/Classes/Office365Mail.4dm` | Added `notification($inParameters; $inFolderId)` function returning `cs.GraphNotification`. |
+| `Project/Sources/Classes/Office365Calendar.4dm` | Added `notification($inParameters; $inCalendarId)` function returning `cs.GraphNotification`. |
 | `Project/Sources/Methods/_onWebConnection.4dm` | Added routing for `/$4dk-notification@` (webhook handling for the legacy web server model). |
 
 ---

@@ -218,6 +218,9 @@ Function _stopPush($inState : Text)
         End if 
     End if 
     
+    // Kill the monitor worker
+    KILL WORKER("4DNK_Monitor_"+$inState)
+    
     // Delete the subscription from Microsoft Graph
     If (Length(This._internals._subscriptionId)>0)
         Super._sendRequestAndWaitResponse("DELETE"; Super._getURL()+"subscriptions/"+This._internals._subscriptionId)
@@ -249,8 +252,7 @@ Function _startPull($inState : Text) : Object
             Storage.notifications:=New shared object()
         End if 
         Use (Storage.notifications)
-            Storage.notifications[$inState]:=New shared object(\
-             "isStarted"; True)
+            Storage.notifications[$inState]:=New shared object("isStarted"; True)
         End use 
     End use 
     
@@ -274,6 +276,9 @@ Function _stopPull($inState : Text)
         End if 
     End if 
     
+    // Kill the monitor worker
+    KILL WORKER("4DNK_Monitor_"+$inState)
+    
     // Clean up Storage
     If (Length($inState)>0)
         Use (Storage)
@@ -294,43 +299,38 @@ Function _stopPull($inState : Text)
 Function _initialDeltaSync() : Text
     
 /*
-	Performs the initial delta sync to get the current state.
-	Iterates through all pages without dispatching callbacks,
-	collecting known IDs and returning the final deltaLink.
+	Performs initial delta sync to obtain a deltaLink for tracking future changes.
+	
+	The Graph API requires a full initial round-trip through all existing items
+	before returning a @odata.deltaLink. We use $select=id and 
+	Prefer: odata.maxpagesize=999 to minimize both payload size and the number 
+	of HTTP requests (e.g. 5000 messages = ~5 pages instead of 500+).
+	
+	Existing items are ignored — only the final deltaLink matters.
+	After this call, only future changes will be reported via _pollDelta().
 	
 	See: https://learn.microsoft.com/en-us/graph/delta-query-messages
 */
     
-    var $url : Text:=Super._getURL()+This._internals._resource+"/delta"
+    var $url : Text:=Super._getURL()+This._internals._resource+"/delta?$select=id"
     var $deltaLink : Text:=""
+    var $headers : Object:={Prefer: "odata.maxpagesize=999"}
     
     Super._throwErrors(False)
     
-    While (Length($url)>0)
-        var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
+    var $response : Object
+    
+    Repeat 
+        $response:=Super._sendRequestAndWaitResponse("GET"; $url; $headers)
         
         If ($response#Null)
-            // Collect existing IDs for created vs updated detection
-            If (Value type($response["value"])=Is collection)
-                var $entry : Object
-                For each ($entry; $response["value"])
-                    If (Length(String($entry.id))>0)
-                        This._internals._knownIds.push(String($entry.id))
-                    End if 
-                End for each 
-            End if 
-            
-            // Follow pagination
-            If (Length(String($response["@odata.nextLink"]))>0)
-                $url:=String($response["@odata.nextLink"])
-            Else 
+            If (Length(String($response["@odata.deltaLink"]))>0)
                 $deltaLink:=String($response["@odata.deltaLink"])
-                $url:=""
+            Else 
+                $url:=String($response["@odata.nextLink"])
             End if 
-        Else 
-            $url:=""
         End if 
-    End while 
+    Until (($deltaLink#"") | ($response=Null) | ($url=""))
     
     Super._throwErrors(True)
     
@@ -491,7 +491,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
 	
 	In both modes, dispatches callbacks to the original worker via CALL WORKER.
 */
-    
+    //TRACE
     If (This._internals._mode="pull")
         // Delta query: perform the initial sync to get the first deltaLink
         This._internals._deltaLink:=This._initialDeltaSync()
