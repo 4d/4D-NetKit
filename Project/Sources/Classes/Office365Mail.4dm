@@ -622,7 +622,7 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function notification($inParameters : Object; $inFolderId : Text) : cs._GraphNotification
+Function notification($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
 	
 /*
 	Creates a notification object for mail change notifications.
@@ -638,7 +638,7 @@ Function notification($inParameters : Object; $inFolderId : Text) : cs._GraphNot
 	    $inFolderId : Text - Optional. Folder ID to subscribe to. If omitted, subscribes to all folders.
 	
 	Returns:
-	    cs._GraphNotification object with start(), stop(), expiration and isStarted.
+	    cs.GraphNotification object with start(), stop(), expiration and isStarted.
 	
 	See: https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions
 */
@@ -655,4 +655,4 @@ Function notification($inParameters : Object; $inFolderId : Text) : cs._GraphNot
 	End if 
 	$resource+="/messages"
 	
-	return cs._GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+	return cs.GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)
