@@ -63,6 +63,35 @@ Else
 	// Check if this is a notification webhook request
 	If ($URL="/$4dk-notification@")
 		
+		TRACE
+//		If (OB Is defined(Storage.notifications; $state))
+//			$redirectURI:=String(Storage.requests[$state].redirectURI)
+//			If (Length($redirectURI)>0)
+//				$redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"
+//			End if 
+//		End if 
+
+		If (WEB Get body part count>0)
+    		WEB GET BODY PART($i;$vPartContentBlob;$vPartName;$vPartMimeType;$vPartFileName)
+			TRACE
+			If ($vPartName="validationToken")
+				$statusLine:="X-STATUS: 200 OK"
+				WEB SET HTTP HEADER($statusLine)
+				WEB SEND TEXT($vPartContentBlob; "text/plain")
+			Else 
+				// Process the notification body
+				var $notifJson : Object:=Try(JSON Parse($vPartContentBlob))
+				If ($notifJson#Null)
+					cs._GraphNotificationHandler.me._processNotificationBody($notifJson)
+				End if 
+				
+				$statusLine:="X-STATUS: 202 Accepted"
+				WEB SET HTTP HEADER($statusLine)
+				WEB SEND TEXT(""; "text/plain")
+			End if
+				
+		end if
+/*
 		// Handle notification webhook (validation or notification delivery)
 		ARRAY TEXT($wvNames; 0)
 		ARRAY TEXT($wvValues; 0)
@@ -97,6 +126,7 @@ Else
 			WEB SET HTTP HEADER($statusLine)
 			WEB SEND TEXT(""; "text/plain")
 		End if 
+*/
 		
 	Else 
 		
