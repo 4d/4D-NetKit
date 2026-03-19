@@ -1,24 +1,25 @@
 Class extends _GraphAPI
 
 
-Class constructor($inProvider : cs.OAuth2Provider; $inCallbacks : Object; $inResource : Text; $inUserId : Text)
+Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text)
     
     Super($inProvider)
     
     This._internals._callbacks:={onCreate: Null; onDelete: Null; onModify: Null}
     
-    If (($inCallbacks#Null) && (Value type($inCallbacks)=Is object))
-        If (Value type($inCallbacks.onCreate)#Is undefined)
-            This._internals._callbacks.onCreate:=$inCallbacks.onCreate
+    If (($inParameters#Null) && (Value type($inParameters)=Is object))
+        If (Value type($inParameters.onCreate)#Is undefined)
+            This._internals._callbacks.onCreate:=$inParameters.onCreate
         End if 
-        If (Value type($inCallbacks.onDelete)#Is undefined)
-            This._internals._callbacks.onDelete:=$inCallbacks.onDelete
+        If (Value type($inParameters.onDelete)#Is undefined)
+            This._internals._callbacks.onDelete:=$inParameters.onDelete
         End if 
-        If (Value type($inCallbacks.onModify)#Is undefined)
-            This._internals._callbacks.onModify:=$inCallbacks.onModify
+        If (Value type($inParameters.onModify)#Is undefined)
+            This._internals._callbacks.onModify:=$inParameters.onModify
         End if 
     End if 
     
+    This._internals._type:=$inType  // "mail" or "event", used for callback eventType like "mailCreated" or "eventModified"
     This._internals._resource:=$inResource
     This._internals._userId:=$inUserId
     This._internals._subscriptionId:=""
@@ -27,8 +28,16 @@ Class constructor($inProvider : cs.OAuth2Provider; $inCallbacks : Object; $inRes
     This._internals._isStarted:=False
     This._internals._expiration:=""
     
-    // Mode: "push" (webhook) if endPoint is available, "pull" (delta query) otherwise
-    This._internals._mode:=(Length(String($inProvider.endPoint))>0) ? "push" : "pull"
+    // endPoint for push mode (webhook)
+    This._internals._endPoint:=""
+    If (($inParameters#Null) && (Value type($inParameters)=Is object))
+        If (Length(String($inParameters.endPoint))>0)
+            This._internals._endPoint:=String($inParameters.endPoint)
+        End if 
+    End if 
+    
+    // Mode: "push" (webhook) if endPoint is provided, "pull" (delta query) otherwise
+    This._internals._mode:=(Length(This._internals._endPoint)>0) ? "push" : "pull"
     
     // Delta query internals
     This._internals._deltaLink:=""
@@ -36,10 +45,10 @@ Class constructor($inProvider : cs.OAuth2Provider; $inCallbacks : Object; $inRes
     
     // Pull interval in seconds (default: 30 seconds)
     This._internals._pullInterval:=30
-    If (($inCallbacks#Null) && (Value type($inCallbacks)=Is object))
-        If ((Value type($inCallbacks.pullInterval)=Is real) || (Value type($inCallbacks.pullInterval)=Is longint))
-            If (Num($inCallbacks.pullInterval)>0)
-                This._internals._pullInterval:=Num($inCallbacks.pullInterval)
+    If (($inParameters#Null) && (Value type($inParameters)=Is object))
+        If ((Value type($inParameters.timer)=Is real) || (Value type($inParameters.timer)=Is longint))
+            If (Num($inParameters.timer)>0)
+                This._internals._pullInterval:=Num($inParameters.timer)
             End if 
         End if 
     End if 
@@ -71,7 +80,7 @@ Function start() : Object
 	Starts change notifications.
 	
 	Two modes:
-	- Push (webhook): if the OAuth2 provider has an endPoint property, creates a
+	- Push (webhook): if endPoint is provided in the notification parameters, creates a
 	  Microsoft Graph subscription and receives real-time notifications via webhook.
 	- Pull (delta query): if no endPoint, polls the delta endpoint periodically
 	  to detect changes. The polling interval is configurable via pullInterval (seconds).
@@ -415,11 +424,10 @@ Function _pollDelta() : Collection
     
 Function _buildNotificationUrl($inState : Text) : Text
     
-    var $provider : cs.OAuth2Provider:=This._getOAuth2Provider()
     var $notificationUrl : Text:=""
     
-    If (Length(String($provider.endPoint))>0)
-        var $url : cs._URL:=cs._URL.new($provider.endPoint)
+    If (Length(This._internals._endPoint)>0)
+        var $url : cs._URL:=cs._URL.new(This._internals._endPoint)
         
         $notificationUrl:=$url.scheme+"://"+$url.host
         
@@ -491,7 +499,6 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
 	
 	In both modes, dispatches callbacks to the original worker via CALL WORKER.
 */
-    //TRACE
     If (This._internals._mode="pull")
         // Delta query: perform the initial sync to get the first deltaLink
         This._internals._deltaLink:=This._initialDeltaSync()
@@ -572,28 +579,34 @@ Function _drainPendingItems($inState : Text) : Collection
     
 Function _dispatchCallbacks($inItems : Collection)
     
-    var $item : Object
+    // Group resource IDs by event type to call each callback only once
+    var $created : Collection:=[]
+    var $updated : Collection:=[]
+    var $deleted : Collection:=[]
     
+    var $item : Object
     For each ($item; $inItems)
-        
         Case of 
             : ($item.changeType="created")
-                If (This._internals._callbacks.onCreate#Null)
-                    This._internals._callbacks.onCreate.call(Null; $item.resourceId)
-                End if 
-                
+                $created.push($item.resourceId)
             : ($item.changeType="updated")
-                If (This._internals._callbacks.onModify#Null)
-                    This._internals._callbacks.onModify.call(Null; $item.resourceId)
-                End if 
-                
+                $updated.push($item.resourceId)
             : ($item.changeType="deleted")
-                If (This._internals._callbacks.onDelete#Null)
-                    This._internals._callbacks.onDelete.call(Null; $item.resourceId)
-                End if 
+                $deleted.push($item.resourceId)
         End case 
-        
     End for each 
+    
+    If (($created.length>0) && (This._internals._callbacks.onCreate#Null))
+        This._internals._callbacks.onCreate.call(Null; {eventType: This._internals._type+"Created"; IDs: $created})
+    End if 
+    
+    If (($updated.length>0) && (This._internals._callbacks.onModify#Null))
+        This._internals._callbacks.onModify.call(Null; {eventType: This._internals._type+"Modified"; IDs: $updated})
+    End if 
+    
+    If (($deleted.length>0) && (This._internals._callbacks.onDelete#Null))
+        This._internals._callbacks.onDelete.call(Null; {eventType: This._internals._type+"Deleted"; IDs: $deleted})
+    End if 
     
     
     // ----------------------------------------------------
@@ -629,4 +642,4 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         End if 
         
     End if 
-
+    
