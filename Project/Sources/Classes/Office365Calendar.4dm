@@ -593,6 +593,7 @@ Function notification($inParameters : Object; $inCalendarId : Text) : cs.GraphNo
         $inParameters.onCreate : 4D.Function - Called when an event is created. Receives the eventId.
         $inParameters.onDelete : 4D.Function - Called when an event is deleted. Receives the eventId.
         $inParameters.onModify : 4D.Function - Called when an event is modified. Receives the eventId.
+        $inParameters.endPoint : Text - Optional. Webhook URL for push mode. If omitted, uses pull (delta query) mode.
         $inCalendarId : Text - Optional. Calendar ID to subscribe to. If omitted, subscribes to the default calendar.
     
     Returns:
@@ -613,4 +614,4 @@ Function notification($inParameters : Object; $inCalendarId : Text) : cs.GraphNo
     End if 
     $resource+="/events"
     
-    return cs.GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+    return cs.GraphNotification.new("event"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)

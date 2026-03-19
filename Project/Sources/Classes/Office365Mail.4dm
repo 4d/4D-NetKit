@@ -635,6 +635,7 @@ Function notification($inParameters : Object; $inFolderId : Text) : cs.GraphNoti
 	    $inParameters.onCreate : 4D.Function - Called when a mail is created. Receives the mailId.
 	    $inParameters.onDelete : 4D.Function - Called when a mail is deleted. Receives the mailId.
 	    $inParameters.onModify : 4D.Function - Called when a mail is modified. Receives the mailId.
+	    $inParameters.endPoint : Text - Optional. Webhook URL for push mode. If omitted, uses pull (delta query) mode.
 	    $inFolderId : Text - Optional. Folder ID to subscribe to. If omitted, subscribes to all folders.
 	
 	Returns:
@@ -655,4 +656,4 @@ Function notification($inParameters : Object; $inFolderId : Text) : cs.GraphNoti
 	End if 
 	$resource+="/messages"
 	
-	return cs.GraphNotification.new(This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+	return cs.GraphNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)
