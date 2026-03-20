@@ -4,5 +4,11 @@
 		"method": "getResponse",
 		"regexPattern": "/\\$4dk-notification",
 		"verbs": "post"
+	},
+	{
+		"class": "_GoogleNotificationHandler",
+		"method": "getResponse",
+		"regexPattern": "/\\$4dk-google-notification",
+		"verbs": "post"
 	}
 ]

@@ -560,3 +560,39 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	Super._throwErrors(True)
 	
 	return This._returnStatus(($response#Null) ? {label: $response} : Null)
+	
+	
+	// Mark: - Notifications
+	// ----------------------------------------------------
+	
+	
+Function notification($inParameters : Object) : cs.GoogleNotification
+	
+/*
+	Creates a notification object for mail change notifications.
+	
+	The notification object can be started and stopped. When started, it monitors
+	Gmail for changes and dispatches callbacks when messages are created, deleted, or modified.
+	
+	Two modes:
+	- Push: Requires a Google Cloud Pub/Sub topic. Set topicName parameter.
+	  The user must configure a Pub/Sub push subscription pointing to {serverUrl}/$4dk-google-notification.
+	- Pull: If no topicName is provided, polls the Gmail history API at a configurable interval.
+	
+	Parameters:
+	    $inParameters.onCreate : 4D.Function - Called when a mail is created. Receives {eventType; IDs}.
+	    $inParameters.onDelete : 4D.Function - Called when a mail is deleted. Receives {eventType; IDs}.
+	    $inParameters.onModify : 4D.Function - Called when a mail is modified. Receives {eventType; IDs}.
+	    $inParameters.topicName : Text - Google Cloud Pub/Sub topic name for push mode.
+	    $inParameters.labelIds : Collection - Optional. Label IDs to filter notifications.
+	    $inParameters.timer : Integer - Optional. Polling interval in seconds for pull mode (default: 30).
+	
+	Returns:
+	    cs.GoogleNotification object with start(), stop(), expiration and isStarted.
+	
+	See: https://developers.google.com/gmail/api/guides/push
+*/
+	
+	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
+	
+	return cs.GoogleNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $userId)
