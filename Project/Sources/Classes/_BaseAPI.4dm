@@ -10,7 +10,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	If (OB Class($inProvider)=cs.OAuth2Provider)
 		This._internals._oAuth2Provider:=$inProvider
 	Else 
-		This._throwError(14; {which: "\"$inProvider\""; function: "\"_BaseClass:constructor\""; type: "\"cs.OAuth2Provider\""})
+		This._throwError(14; {which: "\"$inProvider\""; function: "\"_BaseAPI:constructor\""; type: "\"cs.OAuth2Provider\""})
 	End if 
 	
 	
