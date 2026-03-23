@@ -5,19 +5,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     
     Super($inProvider)
     
-    This._internals._callbacks:={onCreate: Null; onDelete: Null; onModify: Null}
-    
-    If (($inParameters#Null) && (Value type($inParameters)=Is object))
-        If (Value type($inParameters.onCreate)#Is undefined)
-            This._internals._callbacks.onCreate:=$inParameters.onCreate
-        End if 
-        If (Value type($inParameters.onDelete)#Is undefined)
-            This._internals._callbacks.onDelete:=$inParameters.onDelete
-        End if 
-        If (Value type($inParameters.onModify)#Is undefined)
-            This._internals._callbacks.onModify:=$inParameters.onModify
-        End if 
-    End if 
+    This._internals._callbacks:=cs._NotificationHelper.me.parseCallbacks($inParameters)
     
     This._internals._type:=$inType  // "mail" or "event", used for callback eventType like "mailCreated" or "eventModified"
     This._internals._resource:=$inResource
@@ -44,14 +32,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._knownIds:=[]
     
     // Pull interval in seconds (default: 30 seconds)
-    This._internals._pullInterval:=30
-    If (($inParameters#Null) && (Value type($inParameters)=Is object))
-        If ((Value type($inParameters.timer)=Is real) || (Value type($inParameters.timer)=Is longint))
-            If (Num($inParameters.timer)>0)
-                This._internals._pullInterval:=Num($inParameters.timer)
-            End if 
-        End if 
-    End if 
+    This._internals._pullInterval:=cs._NotificationHelper.me.parsePullInterval($inParameters)
     
     
     // Mark: - [Public]
@@ -96,19 +77,19 @@ Function start() : Object
     Super._clearErrorStack()
     Super._throwErrors(False)
     
+    var $result : Object
     var $state : Text:=Generate UUID
     This._internals._state:=$state
     This._internals._workerName:=Current process name
     
     If (This._internals._mode="push")
-        var $result : Object:=This._startPush($state)
-        Super._throwErrors(True)
-        return $result
+        $result:=This._startPush($state)
     Else 
-        var $result2 : Object:=This._startPull($state)
-        Super._throwErrors(True)
-        return $result2
+        $result:=This._startPull($state)
     End if 
+    
+    Super._throwErrors(True)
+    return $result
     
     
     // ----------------------------------------------------
@@ -155,7 +136,7 @@ Function stop() : Object
     
 Function _startPush($inState : Text) : Object
     
-    var $notificationUrl : Text:=This._buildNotificationUrl($inState)
+    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-graph-notification"; $inState)
     If (Length($notificationUrl)=0)
         This._throwError(2; {attribute: "endPoint"})
         return This._returnStatus()
@@ -165,17 +146,7 @@ Function _startPush($inState : Text) : Object
     var $expirationDateTime : Text:=This._computeExpiration(4200)
     
     // Register in Storage so the webhook handler can find pending notifications
-    Use (Storage)
-        If (Storage.notifications=Null)
-            Storage.notifications:=New shared object()
-        End if 
-        Use (Storage.notifications)
-            Storage.notifications[$inState]:=New shared object(\
-             "subscriptionId"; ""; \
-             "isStarted"; True; \
-             "pending"; New shared collection())
-        End use 
-    End use 
+    cs._NotificationHelper.me.registerInStorage("graphNotifications"; $inState; {subscriptionId: ""; pending: []})
     
     // Create the subscription via POST /subscriptions
     var $body : Object:={}
@@ -204,11 +175,7 @@ Function _startPush($inState : Text) : Object
     End if 
     
     // Clean up Storage if subscription creation failed
-    Use (Storage)
-        Use (Storage.notifications)
-            OB REMOVE(Storage.notifications; $inState)
-        End use 
-    End use 
+    cs._NotificationHelper.me.cleanupStorage("graphNotifications"; $inState)
     
     return This._returnStatus()
     
@@ -218,14 +185,9 @@ Function _startPush($inState : Text) : Object
     
 Function _stopPush($inState : Text)
     
+    
     // Signal the monitor to stop via Storage
-    If (Length($inState)>0)
-        If ((Storage.notifications#Null) && OB Is defined(Storage.notifications; $inState))
-            Use (Storage.notifications[$inState])
-                Storage.notifications[$inState].isStarted:=False
-            End use 
-        End if 
-    End if 
+    cs._NotificationHelper.me.signalStop("graphNotifications"; $inState)
     
     // Kill the monitor worker
     KILL WORKER("4DNK_Monitor_"+$inState)
@@ -236,17 +198,7 @@ Function _stopPush($inState : Text)
     End if 
     
     // Clean up Storage
-    If (Length($inState)>0)
-        Use (Storage)
-            If (Storage.notifications#Null)
-                Use (Storage.notifications)
-                    If (OB Is defined(Storage.notifications; $inState))
-                        OB REMOVE(Storage.notifications; $inState)
-                    End if 
-                End use 
-            End if 
-        End use 
-    End if 
+    cs._NotificationHelper.me.cleanupStorage("graphNotifications"; $inState)
     
     
     // Mark: - [Private] Pull mode (delta query)
@@ -256,14 +208,7 @@ Function _stopPush($inState : Text)
 Function _startPull($inState : Text) : Object
     
     // Register in Storage for the monitor active flag
-    Use (Storage)
-        If (Storage.notifications=Null)
-            Storage.notifications:=New shared object()
-        End if 
-        Use (Storage.notifications)
-            Storage.notifications[$inState]:=New shared object("isStarted"; True)
-        End use 
-    End use 
+    cs._NotificationHelper.me.registerInStorage("graphNotifications"; $inState; Null)
     
     This._internals._isStarted:=True
     This._startMonitoring()
@@ -276,30 +221,15 @@ Function _startPull($inState : Text) : Object
     
 Function _stopPull($inState : Text)
     
+    
     // Signal the monitor to stop
-    If (Length($inState)>0)
-        If ((Storage.notifications#Null) && OB Is defined(Storage.notifications; $inState))
-            Use (Storage.notifications[$inState])
-                Storage.notifications[$inState].isStarted:=False
-            End use 
-        End if 
-    End if 
+    cs._NotificationHelper.me.signalStop("graphNotifications"; $inState)
     
     // Kill the monitor worker
     KILL WORKER("4DNK_Monitor_"+$inState)
     
     // Clean up Storage
-    If (Length($inState)>0)
-        Use (Storage)
-            If (Storage.notifications#Null)
-                Use (Storage.notifications)
-                    If (OB Is defined(Storage.notifications; $inState))
-                        OB REMOVE(Storage.notifications; $inState)
-                    End if 
-                End use 
-            End if 
-        End use 
-    End if 
+    cs._NotificationHelper.me.cleanupStorage("graphNotifications"; $inState)
     
     
     // ----------------------------------------------------
@@ -422,27 +352,6 @@ Function _pollDelta() : Collection
     // ----------------------------------------------------
     
     
-Function _buildNotificationUrl($inState : Text) : Text
-    
-    var $notificationUrl : Text:=""
-    
-    If (Length(This._internals._endPoint)>0)
-        var $url : cs._URL:=cs._URL.new(This._internals._endPoint)
-        
-        $notificationUrl:=$url.scheme+"://"+$url.host
-        
-        If ($url.port>0)
-            $notificationUrl+=":"+String($url.port)
-        End if 
-        $notificationUrl+="/$4dk-notification?state="+$inState
-    End if 
-    
-    return $notificationUrl
-    
-    
-    // ----------------------------------------------------
-    
-    
 Function _computeChangeType() : Text
     
     var $types : Collection:=[]
@@ -544,11 +453,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
     
 Function _isMonitorActive($inState : Text) : Boolean
     
-    If ((Storage.notifications#Null) && OB Is defined(Storage.notifications; $inState))
-        return Bool(Storage.notifications[$inState].isStarted)
-    End if 
-    
-    return False
+    return cs._NotificationHelper.me.isMonitorActive("graphNotifications"; $inState)
     
     
     // ----------------------------------------------------
@@ -556,22 +461,7 @@ Function _isMonitorActive($inState : Text) : Boolean
     
 Function _drainPendingItems($inState : Text) : Collection
     
-    var $items : Collection:=[]
-    
-    If ((Storage.notifications#Null) && OB Is defined(Storage.notifications; $inState))
-        Use (Storage.notifications[$inState])
-            var $pending : Object:=Storage.notifications[$inState].pending
-            If ($pending#Null)
-                var $i : Integer
-                For ($i; 0; $pending.length-1)
-                    $items.push({changeType: String($pending[$i].changeType); resourceId: String($pending[$i].resourceId)})
-                End for 
-                $pending.clear()
-            End if 
-        End use 
-    End if 
-    
-    return $items
+    return cs._NotificationHelper.me.drainPendingItems("graphNotifications"; $inState)
     
     
     // ----------------------------------------------------
@@ -579,34 +469,7 @@ Function _drainPendingItems($inState : Text) : Collection
     
 Function _dispatchCallbacks($inItems : Collection)
     
-    // Group resource IDs by event type to call each callback only once
-    var $created : Collection:=[]
-    var $updated : Collection:=[]
-    var $deleted : Collection:=[]
-    
-    var $item : Object
-    For each ($item; $inItems)
-        Case of 
-            : ($item.changeType="created")
-                $created.push($item.resourceId)
-            : ($item.changeType="updated")
-                $updated.push($item.resourceId)
-            : ($item.changeType="deleted")
-                $deleted.push($item.resourceId)
-        End case 
-    End for each 
-    
-    If (($created.length>0) && (This._internals._callbacks.onCreate#Null))
-        This._internals._callbacks.onCreate.call(Null; {eventType: This._internals._type+"Created"; IDs: $created})
-    End if 
-    
-    If (($updated.length>0) && (This._internals._callbacks.onModify#Null))
-        This._internals._callbacks.onModify.call(Null; {eventType: This._internals._type+"Modified"; IDs: $updated})
-    End if 
-    
-    If (($deleted.length>0) && (This._internals._callbacks.onDelete#Null))
-        This._internals._callbacks.onDelete.call(Null; {eventType: This._internals._type+"Deleted"; IDs: $deleted})
-    End if 
+    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks)
     
     
     // ----------------------------------------------------

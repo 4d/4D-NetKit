@@ -61,79 +61,79 @@ If ($URL=$redirectURI)
 Else 
 	
 	// Check if this is a notification webhook request
-	If ($URL="/$4dk-notification@")
-		
-		TRACE
-//		If (OB Is defined(Storage.notifications; $state))
-//			$redirectURI:=String(Storage.requests[$state].redirectURI)
-//			If (Length($redirectURI)>0)
-//				$redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"
-//			End if 
-//		End if 
-
-		If (WEB Get body part count>0)
-    		WEB GET BODY PART($i;$vPartContentBlob;$vPartName;$vPartMimeType;$vPartFileName)
-			TRACE
-			If ($vPartName="validationToken")
-				$statusLine:="X-STATUS: 200 OK"
-				WEB SET HTTP HEADER($statusLine)
-				WEB SEND TEXT($vPartContentBlob; "text/plain")
+	Case of 
+		: ($URL="/$4dk-graph-notification@")
+			
+			// --- Microsoft Graph notification ---
+			// Validation: Microsoft sends ?validationToken=<token> as a query parameter
+			// Notification: Microsoft sends a JSON body with change data
+			
+			var $validationToken : Text:=cs._Tools.me.getURLParameterValue($1; "validationToken")
+			
+			If (Length($validationToken)>0)
+				// Respond with the validation token as plain text
+				WEB SET HTTP HEADER("X-STATUS: 200 OK")
+				WEB SEND TEXT($validationToken; "text/plain")
 			Else 
 				// Process the notification body
-				var $notifJson : Object:=Try(JSON Parse($vPartContentBlob))
-				If ($notifJson#Null)
-					cs._GraphNotificationHandler.me._processNotificationBody($notifJson)
+				var $graphBody : Text
+				WEB GET HTTP BODY($graphBody)
+				If (Length($graphBody)>0)
+					cs._GraphNotificationHandler.me._processNotificationBody($graphBody)
 				End if 
 				
-				$statusLine:="X-STATUS: 202 Accepted"
-				WEB SET HTTP HEADER($statusLine)
+				WEB SET HTTP HEADER("X-STATUS: 202 Accepted")
 				WEB SEND TEXT(""; "text/plain")
-			End if
-				
-		end if
-/*
-		// Handle notification webhook (validation or notification delivery)
-		ARRAY TEXT($wvNames; 0)
-		ARRAY TEXT($wvValues; 0)
-		WEB GET VARIABLES($wvNames; $wvValues)
-		
-		// Check for validation token (subscription validation request)
-		var $validationToken : Text:=""
-		var $vi : Integer
-		For ($vi; 1; Size of array($wvNames))
-			If ($wvNames{$vi}="validationToken")
-				$validationToken:=$wvValues{$vi}
 			End if 
-		End for 
-		
-		If (Length($validationToken)>0)
-			// Respond with the validation token as plain text
-			$statusLine:="X-STATUS: 200 OK"
-			WEB SET HTTP HEADER($statusLine)
-			WEB SEND TEXT($validationToken; "text/plain")
-		Else 
-			// Process the notification body
-			var $notifBody : Text
-			WEB GET HTTP BODY($notifBody)
-			If (Length($notifBody)>0)
-				var $notifJson : Object:=Try(JSON Parse($notifBody))
-				If ($notifJson#Null)
-					cs._GraphNotificationHandler.me._processNotificationBody($notifJson)
+			
+			
+		: ($URL="/$4dk-google-notification@")
+			
+			// --- Google notification ---
+			// Calendar push: Google sends X-Goog-Channel-Token header with state identifier
+			// Gmail Pub/Sub push: Google sends JSON body with message.data (base64)
+			
+			// Extract X-Goog-Channel-Token from headers
+			var $channelToken : Text:=""
+			var $resourceState : Text:=""
+			
+			ARRAY TEXT($headerNames; 0)
+			ARRAY TEXT($headerValues; 0)
+			WEB GET HTTP HEADER($headerNames; $headerValues)
+			
+			var $hi : Integer
+			For ($hi; 1; Size of array($headerNames))
+				If ($headerNames{$hi}="X-Goog-Channel-Token")
+					$channelToken:=$headerValues{$hi}
+				End if 
+				If ($headerNames{$hi}="X-Goog-Resource-State")
+					$resourceState:=$headerValues{$hi}
+				End if 
+			End for 
+			
+			If (Length($channelToken)>0)
+				// Calendar push notification
+				If ($resourceState#"sync")
+					cs._GoogleNotificationHandler.me._processCalendarNotification($channelToken)
+				End if 
+			Else 
+				// Gmail Pub/Sub push notification
+				var $googleBody : Text
+				WEB GET HTTP BODY($googleBody)
+				If (Length($googleBody)>0)
+					cs._GoogleNotificationHandler.me._processGmailNotification($googleBody)
 				End if 
 			End if 
 			
-			$statusLine:="X-STATUS: 202 Accepted"
-			WEB SET HTTP HEADER($statusLine)
+			WEB SET HTTP HEADER("X-STATUS: 200 OK")
 			WEB SEND TEXT(""; "text/plain")
-		End if 
-*/
-		
-	Else 
-		
-		// Send a 404 status line
-		$responseBody:=cs._Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
-		$statusLine:="X-STATUS: 404 Not Found"
-		WEB SET HTTP HEADER($statusLine)
-		WEB SEND TEXT($responseBody; "text/html")
-	End if 
+			
+		Else 
+			
+			// Send a 404 status line
+			$responseBody:=cs._Tools.me.buildPageFromTemplate(Localized string("OAuth2_Response_Title"); "404 Not Found"; "The requested resource could not be found."; False)
+			$statusLine:="X-STATUS: 404 Not Found"
+			WEB SET HTTP HEADER($statusLine)
+			WEB SEND TEXT($responseBody; "text/html")
+	End case 
 End if 

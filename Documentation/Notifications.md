@@ -1,69 +1,58 @@
-# Office 365 Change Notifications
+# Change Notifications
 
 ## Overview
 
-The notification system allows subscribing to real-time change notifications on **mails** and **calendar events** via the [Microsoft Graph subscriptions API](https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions). When a resource changes on Microsoft's side, a webhook is called, and user-defined callbacks are dispatched in the 4D worker where `start()` was originally called.
+The notification system allows subscribing to change notifications on **mails** and **calendar events** for both **Office 365** (Microsoft Graph) and **Google** (Gmail / Google Calendar).
+
+Two modes are available:
+- **Push** (webhook): Real-time notifications via HTTP callbacks. Requires a publicly accessible endpoint.
+- **Pull** (polling): Periodic polling of change APIs. No external endpoint needed.
+
+When a resource changes, user-defined callbacks are dispatched in the 4D worker where `start()` was originally called.
 
 ---
 
-## API
+## Office 365 (Microsoft Graph)
 
-### `Office365.mail.notification(param{; folderId}) → notificationObj`
+### API
+
+#### `Office365.mail.notification(param{; folderId}) → notificationObj`
 
 Creates a notification object for **mail** change notifications.
 
 | Parameter | Type | Description |
 |---|---|---|
-| `param` | Object | Callback definitions (see below) |
-| `folderId` | Text | *(optional)* If provided, subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
+| `param` | Object | Callback and mode definitions (see below) |
+| `folderId` | Text | *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
 
-### `Office365.calendar.notification(param{; calendarId}) → notificationObj`
+#### `Office365.calendar.notification(param{; calendarId}) → notificationObj`
 
 Creates a notification object for **calendar event** change notifications.
 
 | Parameter | Type | Description |
 |---|---|---|
-| `param` | Object | Callback definitions (see below) |
-| `calendarId` | Text | *(optional)* If provided, subscribe to changes in that specific calendar. If omitted, subscribe to the default calendar. |
+| `param` | Object | Callback and mode definitions (see below) |
+| `calendarId` | Text | *(optional)* Subscribe to changes in that specific calendar. If omitted, subscribe to the default calendar. |
 
-### `param` attributes
+#### `param` attributes (Office 365)
 
 | Attribute | Type | Description |
 |---|---|---|
-| `onCreate` | `4D.Function` | Called when a resource is **created**. Receives the resource ID (mailId or eventId) as first parameter. *(optional)* |
-| `onDelete` | `4D.Function` | Called when a resource is **deleted**. Receives the resource ID as first parameter. *(optional)* |
-| `onModify` | `4D.Function` | Called when a resource is **modified**. Receives the resource ID as first parameter. *(optional)* |
+| `onCreate` | `4D.Function` | Called when a resource is **created**. *(optional)* |
+| `onDelete` | `4D.Function` | Called when a resource is **deleted**. *(optional)* |
+| `onModify` | `4D.Function` | Called when a resource is **modified**. *(optional)* |
+| `endPoint` | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). *(optional)* |
+| `timer` | Integer | Polling interval in seconds for pull mode (default: 30). *(optional)* |
 
-### `notificationObj` — The returned notification object
+### Modes
 
-| Property / Method | Type | Description |
-|---|---|---|
-| `expiration` | Text | Expiration date/time of the subscription (ISO 8601 timestamp). Read only. |
-| `isStarted` | Boolean | `True` if the notification is currently active. Read only. |
-| `start()` | Function → Object | Starts the subscription. Returns `{success: Boolean; statusText: Text; errors: Collection}`. |
-| `stop()` | Function → Object | Stops the subscription and cleans up. Returns `{success: Boolean; statusText: Text; errors: Collection}`. |
+- **Push**: If `endPoint` is provided, creates a [Microsoft Graph subscription](https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions). The webhook URL is derived as `{endPoint}/$4dk-graph-notification?state={uuid}`.
+- **Pull**: If no `endPoint`, polls the [delta query API](https://learn.microsoft.com/en-us/graph/delta-query-messages) at the configured interval.
 
----
-
-## Internal Architecture
-
-### Class Hierarchy
+### Data Flow (Push mode)
 
 ```
-_BaseClass
-  └─ _BaseAPI
-       └─ _GraphAPI
-            ├─ GraphNotification       (NEW — notification lifecycle)
-            ├─ Office365Mail           (MODIFIED — added notification())
-            └─ Office365Calendar       (MODIFIED — added notification())
-
-_GraphNotificationHandler              (NEW — shared singleton, webhook handler)
-```
-
-### Data Flow
-
-```
-┌──────────────┐     POST /subscriptions     ┌─────────────────────┐
+┌──────────────┐     POST /subscriptions      ┌─────────────────────┐
 │   4D App     │ ──────────────────────────►  │  Microsoft Graph    │
 │              │                              │                     │
 │  start()     │     Webhook POST             │  Detects changes    │
@@ -79,8 +68,7 @@ _GraphNotificationHandler              (NEW — shared singleton, webhook handle
 │                      ▼
 │  ┌───────────────────────────────────────────────────────┐
 │  │  4DNK_Monitor_{state} (background worker)             │
-│  │  - Polls Storage.notifications[state].pending (2s)    │
-│  │  - Drains pending items                               │
+│  │  - Drains pending items from Storage (2s interval)    │
 │  │  - Dispatches via CALL WORKER to original worker      │
 │  │  - Auto-renews subscription before expiration         │
 │  └───────────────────┬───────────────────────────────────┘
@@ -88,151 +76,172 @@ _GraphNotificationHandler              (NEW — shared singleton, webhook handle
 │                      ▼
 │  ┌───────────────────────────────────────────────────────┐
 │  │  Original Worker (where start() was called)           │
-│  │  - onCreate(resourceId)                               │
-│  │  - onModify(resourceId)                               │
-│  │  - onDelete(resourceId)                               │
+│  │  - onCreate({eventType; IDs})                         │
+│  │  - onModify({eventType; IDs})                         │
+│  │  - onDelete({eventType; IDs})                         │
 │  └───────────────────────────────────────────────────────┘
 └──────────────┘
 ```
 
-### Storage Model
-
-All inter-process communication uses `Storage` (shared objects), following the same pattern as `Storage.requests` used by OAuth2:
-
-```
-Storage.notifications : Shared Object
-    └─ [state] : Shared Object          // keyed by UUID generated at start()
-         ├─ subscriptionId : Text       // Microsoft Graph subscription ID
-         ├─ isStarted : Boolean         // flag to stop the monitor loop
-         └─ pending : Shared Collection // queue of incoming notifications
-              └─ { changeType: Text; resourceId: Text }
-```
-
-### Key Design Decisions
-
-1. **Webhook URL**: Derived automatically from the OAuth2 provider's `redirectURI` — same host/port, path `/$4dk-notification?state=<uuid>`.
-
-2. **Dual web server support**:
-   - **Modern model** (`4D.HTTPServer` / `HTTPRequestHandler`): Handled by `_GraphNotificationHandler.getResponse()` (shared singleton with `4D.IncomingMessage` / `4D.OutgoingMessage`).
-   - **Legacy model** (`On Web Connection`): Handled by `_onWebConnection.4dm` which routes `/$4dk-notification@` requests.
-
-3. **Callback dispatch**: Callbacks are always executed in the worker where `start()` was called, via `CALL WORKER`. This ensures the user code runs in the expected execution context.
-
-4. **Auto-renewal**: The monitoring worker automatically renews the subscription 1 hour before expiration (subscriptions have a max lifetime of ~4230 minutes for mail/events). Renewal is done via `PATCH /subscriptions/{id}`.
-
-5. **Cleanup**: Calling `stop()` deletes the Graph subscription, signals the monitor to stop, and cleans up `Storage.notifications`.
-
----
-
-## Files Modified / Created
-
-### New Files
-
-| File | Description |
-|---|---|
-| `Project/Sources/Classes/GraphNotification.4dm` | Core notification class. Manages the full lifecycle: `start()` creates the subscription + launches the monitor worker; `stop()` deletes the subscription and kills the worker. Handles auto-renewal and callback dispatch. |
-| `Project/Sources/Classes/_GraphNotificationHandler.4dm` | Shared singleton that handles incoming webhook HTTP requests (validation + notification body parsing → `Storage`). Follows the same pattern as `OAuth2Authorization`. |
-
-### Modified Files
-
-| File | Change |
-|---|---|
-| `Project/Sources/Classes/Office365Mail.4dm` | Added `notification($inParameters; $inFolderId)` function returning `cs.GraphNotification`. |
-| `Project/Sources/Classes/Office365Calendar.4dm` | Added `notification($inParameters; $inCalendarId)` function returning `cs.GraphNotification`. |
-| `Project/Sources/Methods/_onWebConnection.4dm` | Added routing for `/$4dk-notification@` (webhook handling for the legacy web server model). |
-
----
-
-## HTTP Handler Configuration
-
-When the **host database's web server** is used (i.e. the `endPoint` port matches the host web server port), you must register an HTTP handler so the webhook requests reach the notification handler.
-
-Add the following entry in the `Project/Sources/HTTPHandlers.json` file of the **host project**:
-
-```json
-[
-  {
-    "class": "4D.NetKit._GraphNotificationHandler",
-    "method": "getResponse",
-    "regexPattern": "/\\$4dk-notification",
-    "verbs": "post"
-  }
-]
-```
-
-> **Note:** If the component's own web server is used (different port), the handler is already preconfigured inside the component.
-
-For more information, please refer to [HTTP Handlers](https://developer.4d.com/docs/WebServer/http-request-handler).
-
----
-
-## Usage Examples
-
-### Mail Notifications
+### Usage Examples (Office 365)
 
 ```4d
-// Create a notification object for all mail changes
+// Push mode — Mail notifications via webhook
 $notif:=$office365.mail.notification({ \
-    onCreate: Formula(ALERT("New mail: "+$1)); \
-    onDelete: Formula(ALERT("Mail deleted: "+$1)); \
-    onModify: Formula(ALERT("Mail modified: "+$1)) \
+    endPoint: "https://myserver.com"; \
+    onCreate: Formula(ALERT("New mail: "+String($1.IDs))); \
+    onDelete: Formula(ALERT("Mail deleted: "+String($1.IDs))) \
 })
-
-// Start listening
 $status:=$notif.start()
-// $status.success → True
-// $notif.isStarted → True
-// $notif.expiration → "2026-03-07T14:30:00.0000000Z"
 
-// ... later, stop listening
-$status:=$notif.stop()
-// $notif.isStarted → False
-// $notif.expiration → ""
-```
-
-### Mail Notifications on a Specific Folder
-
-```4d
-// Subscribe only to changes in the Inbox folder
-$notif:=$office365.mail.notification({ \
-    onCreate: Formula(handleNewMail($1)) \
-}; "inbox")
-
-$status:=$notif.start()
-```
-
-### Calendar Event Notifications
-
-```4d
-// Subscribe to event changes on the default calendar
+// Pull mode — Calendar notifications via delta polling (every 60 seconds)
 $calNotif:=$office365.calendar.notification({ \
+    timer: 60; \
+    onCreate: Formula(handleNewEvent($1)); \
+    onModify: Formula(handleEventUpdate($1)) \
+})
+$status:=$calNotif.start()
+
+// Stop
+$status:=$notif.stop()
+```
+
+---
+
+## Google (Gmail / Google Calendar)
+
+### API
+
+#### `Google.mail.notification(param) → notificationObj`
+
+Creates a notification object for **Gmail** change notifications.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `param` | Object | Callback and mode definitions (see below) |
+
+#### `Google.calendar.notification(param{; calendarId}) → notificationObj`
+
+Creates a notification object for **Google Calendar** event change notifications.
+
+| Parameter | Type | Description |
+|---|---|---|
+| `param` | Object | Callback and mode definitions (see below) |
+| `calendarId` | Text | *(optional)* Calendar ID to watch. If omitted, watches the primary calendar. |
+
+#### `param` attributes (Google)
+
+| Attribute | Type | Description |
+|---|---|---|
+| `onCreate` | `4D.Function` | Called when a resource is **created**. *(optional)* |
+| `onDelete` | `4D.Function` | Called when a resource is **deleted**. *(optional)* |
+| `onModify` | `4D.Function` | Called when a resource is **modified**. *(optional)* |
+| `topicName` | Text | Google Cloud Pub/Sub topic name for **Gmail push** mode. *(optional, mail only)* |
+| `labelIds` | Collection | Label IDs to filter Gmail notifications. *(optional, mail only)* |
+| `endPoint` | Text | Webhook URL for **Calendar push** mode. *(optional, calendar only)* |
+| `timer` | Integer | Polling interval in seconds for pull mode (default: 30). *(optional)* |
+
+### Modes
+
+Google notifications have different push mechanisms depending on the resource type:
+
+| Resource | Push mechanism | Push requirement | Pull mechanism |
+|---|---|---|---|
+| **Gmail** | [Google Pub/Sub](https://developers.google.com/gmail/api/guides/push) | `topicName` parameter | [History API](https://developers.google.com/gmail/api/reference/rest/v1/users.history/list) |
+| **Calendar** | [Watch channel](https://developers.google.com/calendar/api/guides/push) (direct webhook) | `endPoint` parameter | [Incremental sync](https://developers.google.com/calendar/api/guides/sync) with `syncToken` |
+
+#### Gmail Push Setup
+
+For Gmail push notifications, you must:
+1. Create a Google Cloud Pub/Sub **topic** with Gmail publish permissions.
+2. Create a **push subscription** on that topic pointing to `{serverUrl}/$4dk-google-notification`.
+3. Pass the topic name as `topicName` in the notification parameters.
+
+See: [Gmail Push Notifications Guide](https://developers.google.com/gmail/api/guides/push)
+
+#### Calendar Push Setup
+
+For Calendar push notifications, pass the `endPoint` parameter. The webhook URL is derived as `{endPoint}/$4dk-google-notification`. Google sends state identification via the `X-Goog-Channel-Token` HTTP header (not via the URL).
+
+### Data Flow (Google — Push mode)
+
+```
+┌──────────────┐     POST /watch or Pub/Sub   ┌─────────────────────┐
+│   4D App     │ ──────────────────────────►  │  Google APIs        │
+│              │                              │                     │
+│  start()     │     Webhook POST or          │  Detects changes    │
+│              │     Pub/Sub push             │  on resource        │
+│              │ ◄──────────────────────────  │                     │
+│              │                              └─────────────────────┘
+│              │
+│  ┌───────────────────────────────────────────────────────┐
+│  │  _GoogleNotificationHandler (shared singleton)        │
+│  │  - Calendar: reads X-Goog-Channel-Token header        │
+│  │  - Gmail: decodes Pub/Sub message (base64 data)       │
+│  │  - Pushes signal → Storage.googleNotifications        │
+│  └───────────────────┬───────────────────────────────────┘
+│                      │  writes to Storage.googleNotifications[state].pending
+│                      ▼
+│  ┌───────────────────────────────────────────────────────┐
+│  │  4DNK_GMonitor_{state} (background worker)            │
+│  │  - Drains pending signals from Storage (2s interval)  │
+│  │  - Queries Google API for actual changes              │
+│  │    (Gmail: history.list / Calendar: events with sync) │
+│  │  - Dispatches via CALL WORKER to original worker      │
+│  │  - Auto-renews watch before expiration                │
+│  └───────────────────┬───────────────────────────────────┘
+│                      │  CALL WORKER(originalWorker, callbacks)
+│                      ▼
+│  ┌───────────────────────────────────────────────────────┐
+│  │  Original Worker (where start() was called)           │
+│  │  - onCreate({eventType; IDs})                         │
+│  │  - onModify({eventType; IDs})                         │
+│  │  - onDelete({eventType; IDs})                         │
+│  └───────────────────────────────────────────────────────┘
+└──────────────┘
+```
+
+> **Note:** Unlike Microsoft Graph (which sends change details directly in the webhook body), Google push notifications are *signals only*. The monitoring worker then queries the API to determine what actually changed.
+
+### Usage Examples (Google)
+
+```4d
+// Pull mode — Gmail notifications (polling every 30 seconds, default)
+$notif:=$google.mail.notification({ \
+    onCreate: Formula(handleNewMail($1)); \
+    onDelete: Formula(handleDeletedMail($1)); \
+    onModify: Formula(handleModifiedMail($1)) \
+})
+$status:=$notif.start()
+
+// Push mode — Gmail notifications via Pub/Sub
+$notif:=$google.mail.notification({ \
+    topicName: "projects/my-project/topics/gmail-notifications"; \
+    labelIds: ["INBOX"]; \
+    onCreate: Formula(handleNewMail($1)) \
+})
+$status:=$notif.start()
+
+// Pull mode — Calendar notifications (polling every 60 seconds)
+$calNotif:=$google.calendar.notification({ \
+    timer: 60; \
     onCreate: Formula(handleNewEvent($1)); \
     onModify: Formula(handleEventUpdate($1)); \
     onDelete: Formula(handleEventDeletion($1)) \
 })
-
 $status:=$calNotif.start()
-```
 
-### Calendar Notifications on a Specific Calendar
-
-```4d
-// Subscribe to event changes on a specific calendar
-$calNotif:=$office365.calendar.notification({ \
+// Push mode — Calendar notifications via webhook
+$calNotif:=$google.calendar.notification({ \
+    endPoint: "https://myserver.com"; \
     onCreate: Formula(handleNewEvent($1)) \
-}; $calendarId)
-
+}; "primary")
 $status:=$calNotif.start()
+
+// Stop
+$status:=$notif.stop()
 ```
 
-### Using Methods Instead of Formulas
+---
 
-```4d
-// You can also pass 4D.Function references
-$notif:=$office365.mail.notification({ \
-    onCreate: Formula(myMailCreatedMethod($1)); \
-    onDelete: Formula(myMailDeletedMethod($1)) \
-})
-
-$status:=$notif.start()
-```
+## Common

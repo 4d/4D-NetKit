@@ -12,19 +12,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     
     Super($inProvider; $baseURL)
     
-    This._internals._callbacks:={onCreate: Null; onDelete: Null; onModify: Null}
-    
-    If (($inParameters#Null) && (Value type($inParameters)=Is object))
-        If (Value type($inParameters.onCreate)#Is undefined)
-            This._internals._callbacks.onCreate:=$inParameters.onCreate
-        End if 
-        If (Value type($inParameters.onDelete)#Is undefined)
-            This._internals._callbacks.onDelete:=$inParameters.onDelete
-        End if 
-        If (Value type($inParameters.onModify)#Is undefined)
-            This._internals._callbacks.onModify:=$inParameters.onModify
-        End if 
-    End if 
+    This._internals._callbacks:=cs._NotificationHelper.me.parseCallbacks($inParameters)
     
     This._internals._type:=$inType  // "mail" or "event", used for callback eventType
     This._internals._resource:=$inResource  // userId for mail, calendarId for calendar
@@ -67,14 +55,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._knownIds:=[]  // For Calendar (distinguish created vs updated)
     
     // Pull interval in seconds (default: 30 seconds)
-    This._internals._pullInterval:=30
-    If (($inParameters#Null) && (Value type($inParameters)=Is object))
-        If ((Value type($inParameters.timer)=Is real) || (Value type($inParameters.timer)=Is longint))
-            If (Num($inParameters.timer)>0)
-                This._internals._pullInterval:=Num($inParameters.timer)
-            End if 
-        End if 
-    End if 
+    This._internals._pullInterval:=cs._NotificationHelper.me.parsePullInterval($inParameters)
     
     
     // Mark: - [Public]
@@ -122,19 +103,19 @@ Function start() : Object
     Super._clearErrorStack()
     Super._throwErrors(False)
     
+    var $result : Object
     var $state : Text:=Generate UUID
     This._internals._state:=$state
     This._internals._workerName:=Current process name
     
     If (This._internals._mode="push")
-        var $result : Object:=This._startPush($state)
-        Super._throwErrors(True)
-        return $result
+        $result:=This._startPush($state)
     Else 
-        var $result2 : Object:=This._startPull($state)
-        Super._throwErrors(True)
-        return $result2
+        $result:=This._startPull($state)
     End if 
+    
+    Super._throwErrors(True)
+    return $result
     
     
     // ----------------------------------------------------
@@ -184,16 +165,7 @@ Function stop() : Object
 Function _startPush($inState : Text) : Object
     
     // Register in Storage for monitoring
-    Use (Storage)
-        If (Storage.googleNotifications=Null)
-            Storage.googleNotifications:=New shared object()
-        End if 
-        Use (Storage.googleNotifications)
-            Storage.googleNotifications[$inState]:=New shared object(\
-             "isStarted"; True; \
-             "pending"; New shared collection())
-        End use 
-    End use 
+    cs._NotificationHelper.me.registerInStorage("googleNotifications"; $inState; {pending: []})
     
     If (This._internals._type="mail")
         return This._startMailPush($inState)
@@ -253,11 +225,7 @@ Function _startMailPush($inState : Text) : Object
     End if 
     
     // Clean up Storage if watch creation failed
-    Use (Storage)
-        Use (Storage.googleNotifications)
-            OB REMOVE(Storage.googleNotifications; $inState)
-        End use 
-    End use 
+    cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
     
     return This._returnStatus()
     
@@ -282,16 +250,12 @@ Function _startCalendarPush($inState : Text) : Object
     This._internals._syncToken:=This._initialCalendarSync()
     
     // Build notification URL
-    var $notificationUrl : Text:=This._buildNotificationUrl($inState)
+    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-google-notification"; "")
     If (Length($notificationUrl)=0)
         This._throwError(2; {attribute: "endPoint"})
         
         // Clean up Storage
-        Use (Storage)
-            Use (Storage.googleNotifications)
-                OB REMOVE(Storage.googleNotifications; $inState)
-            End use 
-        End use 
+        cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
         
         return This._returnStatus()
     End if 
@@ -327,11 +291,7 @@ Function _startCalendarPush($inState : Text) : Object
     End if 
     
     // Clean up Storage if channel creation failed
-    Use (Storage)
-        Use (Storage.googleNotifications)
-            OB REMOVE(Storage.googleNotifications; $inState)
-        End use 
-    End use 
+    cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
     
     return This._returnStatus()
     
@@ -341,14 +301,9 @@ Function _startCalendarPush($inState : Text) : Object
     
 Function _stopPush($inState : Text)
     
+    
     // Signal the monitor to stop via Storage
-    If (Length($inState)>0)
-        If ((Storage.googleNotifications#Null) && OB Is defined(Storage.googleNotifications; $inState))
-            Use (Storage.googleNotifications[$inState])
-                Storage.googleNotifications[$inState].isStarted:=False
-            End use 
-        End if 
-    End if 
+    cs._NotificationHelper.me.signalStop("googleNotifications"; $inState)
     
     // Kill the monitor worker
     KILL WORKER("4DNK_GMonitor_"+$inState)
@@ -368,17 +323,7 @@ Function _stopPush($inState : Text)
     End if 
     
     // Clean up Storage
-    If (Length($inState)>0)
-        Use (Storage)
-            If (Storage.googleNotifications#Null)
-                Use (Storage.googleNotifications)
-                    If (OB Is defined(Storage.googleNotifications; $inState))
-                        OB REMOVE(Storage.googleNotifications; $inState)
-                    End if 
-                End use 
-            End if 
-        End use 
-    End if 
+    cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
     
     
     // Mark: - [Private] Pull mode
@@ -388,14 +333,7 @@ Function _stopPush($inState : Text)
 Function _startPull($inState : Text) : Object
     
     // Register in Storage for the monitor active flag
-    Use (Storage)
-        If (Storage.googleNotifications=Null)
-            Storage.googleNotifications:=New shared object()
-        End if 
-        Use (Storage.googleNotifications)
-            Storage.googleNotifications[$inState]:=New shared object("isStarted"; True)
-        End use 
-    End use 
+    cs._NotificationHelper.me.registerInStorage("googleNotifications"; $inState; Null)
     
     This._internals._isStarted:=True
     This._startMonitoring()
@@ -408,30 +346,15 @@ Function _startPull($inState : Text) : Object
     
 Function _stopPull($inState : Text)
     
+    
     // Signal the monitor to stop
-    If (Length($inState)>0)
-        If ((Storage.googleNotifications#Null) && OB Is defined(Storage.googleNotifications; $inState))
-            Use (Storage.googleNotifications[$inState])
-                Storage.googleNotifications[$inState].isStarted:=False
-            End use 
-        End if 
-    End if 
+    cs._NotificationHelper.me.signalStop("googleNotifications"; $inState)
     
     // Kill the monitor worker
     KILL WORKER("4DNK_GMonitor_"+$inState)
     
     // Clean up Storage
-    If (Length($inState)>0)
-        Use (Storage)
-            If (Storage.googleNotifications#Null)
-                Use (Storage.googleNotifications)
-                    If (OB Is defined(Storage.googleNotifications; $inState))
-                        OB REMOVE(Storage.googleNotifications; $inState)
-                    End if 
-                End use 
-            End if 
-        End use 
-    End if 
+    cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
     
     
     // Mark: - [Private] Gmail-specific
@@ -702,20 +625,7 @@ Function _pollCalendarChanges() : Collection
     
 Function _buildNotificationUrl($inState : Text) : Text
     
-    var $notificationUrl : Text:=""
-    
-    If (Length(This._internals._endPoint)>0)
-        var $url : cs._URL:=cs._URL.new(This._internals._endPoint)
-        
-        $notificationUrl:=$url.scheme+"://"+$url.host
-        
-        If ($url.port>0)
-            $notificationUrl+=":"+String($url.port)
-        End if 
-        $notificationUrl+="/$4dk-google-notification"
-    End if 
-    
-    return $notificationUrl
+    return cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-google-notification"; "")
     
     
     // ----------------------------------------------------
@@ -806,11 +716,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
     
 Function _isMonitorActive($inState : Text) : Boolean
     
-    If ((Storage.googleNotifications#Null) && OB Is defined(Storage.googleNotifications; $inState))
-        return Bool(Storage.googleNotifications[$inState].isStarted)
-    End if 
-    
-    return False
+    return cs._NotificationHelper.me.isMonitorActive("googleNotifications"; $inState)
     
     
     // ----------------------------------------------------
@@ -818,22 +724,7 @@ Function _isMonitorActive($inState : Text) : Boolean
     
 Function _drainPendingItems($inState : Text) : Collection
     
-    var $items : Collection:=[]
-    
-    If ((Storage.googleNotifications#Null) && OB Is defined(Storage.googleNotifications; $inState))
-        Use (Storage.googleNotifications[$inState])
-            var $pending : Object:=Storage.googleNotifications[$inState].pending
-            If ($pending#Null)
-                var $i : Integer
-                For ($i; 0; $pending.length-1)
-                    $items.push({signal: True})
-                End for 
-                $pending.clear()
-            End if 
-        End use 
-    End if 
-    
-    return $items
+    return cs._NotificationHelper.me.drainPendingItems("googleNotifications"; $inState)
     
     
     // ----------------------------------------------------
@@ -841,34 +732,7 @@ Function _drainPendingItems($inState : Text) : Collection
     
 Function _dispatchCallbacks($inItems : Collection)
     
-    // Group resource IDs by event type to call each callback only once
-    var $created : Collection:=[]
-    var $updated : Collection:=[]
-    var $deleted : Collection:=[]
-    
-    var $item : Object
-    For each ($item; $inItems)
-        Case of 
-            : ($item.changeType="created")
-                $created.push($item.resourceId)
-            : ($item.changeType="updated")
-                $updated.push($item.resourceId)
-            : ($item.changeType="deleted")
-                $deleted.push($item.resourceId)
-        End case 
-    End for each 
-    
-    If (($created.length>0) && (This._internals._callbacks.onCreate#Null))
-        This._internals._callbacks.onCreate.call(Null; {eventType: This._internals._type+"Created"; IDs: $created})
-    End if 
-    
-    If (($updated.length>0) && (This._internals._callbacks.onModify#Null))
-        This._internals._callbacks.onModify.call(Null; {eventType: This._internals._type+"Modified"; IDs: $updated})
-    End if 
-    
-    If (($deleted.length>0) && (This._internals._callbacks.onDelete#Null))
-        This._internals._callbacks.onDelete.call(Null; {eventType: This._internals._type+"Deleted"; IDs: $deleted})
-    End if 
+    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks)
     
     
     // ----------------------------------------------------
