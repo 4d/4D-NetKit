@@ -3,6 +3,7 @@
 
 var $redirectURI : Text
 var $state : Text:=cs._Tools.me.getURLParameterValue($1; "state")
+var $statusLine : Text
 
 If (OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
@@ -32,7 +33,6 @@ If ($URL=$redirectURI)
 	End if 
 	
 	var $response : Object:={}
-	var $statusLine : Text
 	var $responseBody : Text
 	
 	If (_authorize($options; $response))
@@ -72,7 +72,8 @@ Else
 			
 			If (Length($validationToken)>0)
 				// Respond with the validation token as plain text
-				WEB SET HTTP HEADER("X-STATUS: 200 OK")
+				$statusLine:="X-STATUS: 200 OK"
+				WEB SET HTTP HEADER($statusLine)
 				WEB SEND TEXT($validationToken; "text/plain")
 			Else 
 				// Process the notification body
@@ -82,7 +83,8 @@ Else
 					cs._GraphNotificationHandler.me._processNotificationBody($graphBody)
 				End if 
 				
-				WEB SET HTTP HEADER("X-STATUS: 202 Accepted")
+				$statusLine:="X-STATUS: 202 Accepted"
+				WEB SET HTTP HEADER($statusLine)
 				WEB SEND TEXT(""; "text/plain")
 			End if 
 			
@@ -125,7 +127,8 @@ Else
 				End if 
 			End if 
 			
-			WEB SET HTTP HEADER("X-STATUS: 200 OK")
+			$statusLine:="X-STATUS: 200 OK"
+			WEB SET HTTP HEADER($statusLine)
 			WEB SEND TEXT(""; "text/plain")
 			
 		Else 
