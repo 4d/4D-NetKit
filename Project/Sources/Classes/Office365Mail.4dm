@@ -653,6 +653,8 @@ Function notification($inParameters : Object; $inFolderId : Text) : cs.GraphNoti
 	End if 
 	If (Length(String($inFolderId))>0)
 		$resource+="/mailFolders/"+$inFolderId
+	else
+		$resource+="/mailFolders/inbox"
 	End if 
 	$resource+="/messages"
 	

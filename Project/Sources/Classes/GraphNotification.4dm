@@ -251,7 +251,7 @@ Function _initialDeltaSync() : Text
 	See: https://learn.microsoft.com/en-us/graph/delta-query-messages
 */
     
-    var $url : Text:=Super._getURL()+This._internals._resource+"/delta?$select=id"
+    var $url : Text:=Super._getURL()+This._internals._resource+"/delta?$select=id&$deltatoken=latest"
     var $deltaLink : Text:=""
     var $headers : Object:={Prefer: "odata.maxpagesize=999"}
     

@@ -7,7 +7,7 @@ singleton Class constructor()
     
 Function parseCallbacks($inParameters : Object) : Object
     
-    var $callbacks : Object:={onCreate: Null; onDelete: Null; onModify: Null}
+    var $callbacks : Object:={onCreate: Null; onDelete: Null; onModify: Null; thisObj: Null}
     
     If (($inParameters#Null) && (Value type($inParameters)=Is object))
         If (Value type($inParameters.onCreate)#Is undefined)
@@ -19,6 +19,7 @@ Function parseCallbacks($inParameters : Object) : Object
         If (Value type($inParameters.onModify)#Is undefined)
             $callbacks.onModify:=$inParameters.onModify
         End if 
+        $callbacks.thisObj:=$inParameters
     End if 
     
     return $callbacks
@@ -169,15 +170,15 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
     End for each 
     
     If (($created.length>0) && ($inCallbacks.onCreate#Null))
-        $inCallbacks.onCreate.call(Null; {eventType: $inType+"Created"; IDs: $created})
+        $inCallbacks.onCreate.call($inCallbacks.thisObj; {eventType: $inType+"Created"; IDs: $created})
     End if 
     
     If (($updated.length>0) && ($inCallbacks.onModify#Null))
-        $inCallbacks.onModify.call(Null; {eventType: $inType+"Modified"; IDs: $updated})
+        $inCallbacks.onModify.call($inCallbacks.thisObj; {eventType: $inType+"Modified"; IDs: $updated})
     End if 
     
     If (($deleted.length>0) && ($inCallbacks.onDelete#Null))
-        $inCallbacks.onDelete.call(Null; {eventType: $inType+"Deleted"; IDs: $deleted})
+        $inCallbacks.onDelete.call($inCallbacks.thisObj; {eventType: $inType+"Deleted"; IDs: $deleted})
     End if 
     
     
