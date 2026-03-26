@@ -28,6 +28,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._mode:=(Length(This._internals._endPoint)>0) ? "push" : "pull"
     
     // Delta query internals
+    This._internals._deltaResource:=""  // Separate resource path for delta queries (e.g. calendarView instead of events)
     This._internals._deltaLink:=""
     This._internals._knownIds:=[]
     
@@ -251,7 +252,16 @@ Function _initialDeltaSync() : Text
 	See: https://learn.microsoft.com/en-us/graph/delta-query-messages
 */
     
-    var $url : Text:=Super._getURL()+This._internals._resource+"/delta?$select=id&$deltatoken=latest"
+    var $deltaResource : Text:=(Length(This._internals._deltaResource)>0) ? This._internals._deltaResource : This._internals._resource
+    var $url : Text:=Super._getURL()+$deltaResource+"/delta?$select=id&$deltatoken=latest"
+    
+    // calendarView/delta requires startDateTime and endDateTime
+    If (This._internals._type="event")
+        var $now : cs._DateTime:=cs._DateTime.new()
+        var $end : cs._DateTime:=cs._DateTime.new()
+        $end.addTime(365*86400)  // 1 year window
+        $url+="&startDateTime="+String($now.date; ISO date GMT; $now.time)+"&endDateTime="+String($end.date; ISO date GMT; $end.time)
+    End if 
     var $deltaLink : Text:=""
     var $headers : Object:={Prefer: "odata.maxpagesize=999"}
     

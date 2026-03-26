@@ -604,14 +604,21 @@ Function notification($inParameters : Object; $inCalendarId : Text) : cs.GraphNo
     
     // Build the resource path for the subscription
     var $resource : Text
+    var $deltaResource : Text
     If (Length(String(This.userId))>0)
         $resource:="users/"+This.userId
     Else 
         $resource:="me"
     End if 
+    $deltaResource:=$resource
     If (Length(String($inCalendarId))>0)
-        $resource+="/calendars/"+cs._Tools.me.urlEncode($inCalendarId)
+        $resource+="/calendars/"+cs._Tools.me.urlEncode($inCalendarId)+"/events"
+        $deltaResource+="/calendars/"+cs._Tools.me.urlEncode($inCalendarId)+"/calendarView"
+    Else 
+        $resource+="/events"
+        $deltaResource+="/calendarView"
     End if 
-    $resource+="/events"
     
-    return cs.GraphNotification.new("event"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+    var $notif : cs.GraphNotification:=cs.GraphNotification.new("event"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+    $notif._internals._deltaResource:=$deltaResource
+    return $notif
