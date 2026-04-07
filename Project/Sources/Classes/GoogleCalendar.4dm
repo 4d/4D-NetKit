@@ -378,7 +378,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function notification($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
+Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
     
 /*
     Creates a notification object for calendar event change notifications.

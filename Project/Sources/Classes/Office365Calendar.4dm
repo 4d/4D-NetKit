@@ -580,7 +580,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function notification($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification
+Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification
     
 /*
     Creates a notification object for calendar event change notifications.

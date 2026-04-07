@@ -16,7 +16,7 @@ When a resource changes, user-defined callbacks are dispatched in the 4D worker 
 
 ### API
 
-#### `Office365.mail.notification(param{; folderId}) → notificationObj`
+#### `Office365.mail.notifier(param{; folderId}) → notificationObj`
 
 Creates a notification object for **mail** change notifications.
 
@@ -25,7 +25,7 @@ Creates a notification object for **mail** change notifications.
 | `param` | Object | Callback and mode definitions (see below) |
 | `folderId` | Text | *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
 
-#### `Office365.calendar.notification(param{; calendarId}) → notificationObj`
+#### `Office365.calendar.notifier(param{; calendarId}) → notificationObj`
 
 Creates a notification object for **calendar event** change notifications.
 
@@ -87,7 +87,7 @@ Creates a notification object for **calendar event** change notifications.
 
 ```4d
 // Push mode — Mail notifications via webhook
-$notif:=$office365.mail.notification({ \
+$notif:=$office365.mail.notifier({ \
     endPoint: "https://myserver.com"; \
     onCreate: Formula(ALERT("New mail: "+String($1.IDs))); \
     onDelete: Formula(ALERT("Mail deleted: "+String($1.IDs))) \
@@ -95,7 +95,7 @@ $notif:=$office365.mail.notification({ \
 $status:=$notif.start()
 
 // Pull mode — Calendar notifications via delta polling (every 60 seconds)
-$calNotif:=$office365.calendar.notification({ \
+$calNotif:=$office365.calendar.notifier({ \
     timer: 60; \
     onCreate: Formula(handleNewEvent($1)); \
     onModify: Formula(handleEventUpdate($1)) \
@@ -112,7 +112,7 @@ $status:=$notif.stop()
 
 ### API
 
-#### `Google.mail.notification(param) → notificationObj`
+#### `Google.mail.notifier(param) → notificationObj`
 
 Creates a notification object for **Gmail** change notifications.
 
@@ -120,7 +120,7 @@ Creates a notification object for **Gmail** change notifications.
 |---|---|---|
 | `param` | Object | Callback and mode definitions (see below) |
 
-#### `Google.calendar.notification(param{; calendarId}) → notificationObj`
+#### `Google.calendar.notifier(param{; calendarId}) → notificationObj`
 
 Creates a notification object for **Google Calendar** event change notifications.
 
@@ -207,7 +207,7 @@ For Calendar push notifications, pass the `endPoint` parameter. The webhook URL 
 
 ```4d
 // Pull mode — Gmail notifications (polling every 30 seconds, default)
-$notif:=$google.mail.notification({ \
+$notif:=$google.mail.notifier({ \
     onCreate: Formula(handleNewMail($1)); \
     onDelete: Formula(handleDeletedMail($1)); \
     onModify: Formula(handleModifiedMail($1)) \
@@ -215,7 +215,7 @@ $notif:=$google.mail.notification({ \
 $status:=$notif.start()
 
 // Push mode — Gmail notifications via Pub/Sub
-$notif:=$google.mail.notification({ \
+$notif:=$google.mail.notifier({ \
     topicName: "projects/my-project/topics/gmail-notifications"; \
     labelIds: ["INBOX"]; \
     onCreate: Formula(handleNewMail($1)) \
@@ -223,7 +223,7 @@ $notif:=$google.mail.notification({ \
 $status:=$notif.start()
 
 // Pull mode — Calendar notifications (polling every 60 seconds)
-$calNotif:=$google.calendar.notification({ \
+$calNotif:=$google.calendar.notifier({ \
     timer: 60; \
     onCreate: Formula(handleNewEvent($1)); \
     onModify: Formula(handleEventUpdate($1)); \
@@ -232,7 +232,7 @@ $calNotif:=$google.calendar.notification({ \
 $status:=$calNotif.start()
 
 // Push mode — Calendar notifications via webhook
-$calNotif:=$google.calendar.notification({ \
+$calNotif:=$google.calendar.notifier({ \
     endPoint: "https://myserver.com"; \
     onCreate: Formula(handleNewEvent($1)) \
 }; "primary")

@@ -566,7 +566,7 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function notification($inParameters : Object) : cs.GoogleNotification
+Function notifier($inParameters : Object) : cs.GoogleNotification
 	
 /*
 	Creates a notification object for mail change notifications.

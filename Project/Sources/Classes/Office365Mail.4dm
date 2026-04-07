@@ -622,7 +622,7 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function notification($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
+Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
 	
 /*
 	Creates a notification object for mail change notifications.
