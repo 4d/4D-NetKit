@@ -21,12 +21,18 @@
 		"classes": [
 			"_BaseAPI",
 			"_BaseClass",
+			"_DateTime",
+			"_EmailAddress",
 			"_GoogleAPI",
 			"_GoogleBaseList",
 			"_GoogleBatchRequest",
 			"_GoogleNotificationHandler",
 			"_GraphAPI",
-			"_GraphBaseList"
+			"_GraphBaseList",
+			"_GraphNotificationHandler",
+			"_NotificationHelper",
+			"_Tools",
+			"_URL"
 		]
 	},
 	"Private Methods": {
@@ -41,8 +47,6 @@
 	},
 	"Public Classes": {
 		"classes": [
-			"DateTime",
-			"EmailAddress",
 			"Google",
 			"GoogleCalendar",
 			"GoogleCalendarList",
@@ -62,6 +66,7 @@
 			"GraphFolderList",
 			"GraphMessage",
 			"GraphMessageList",
+			"GraphNotification",
 			"GraphRecipient",
 			"GraphUserList",
 			"JWT",
@@ -72,9 +77,7 @@
 			"Office365Calendar",
 			"Office365Category",
 			"Office365Mail",
-			"Office365User",
-			"Tools",
-			"URL"
+			"Office365User"
 		]
 	},
 	"Public Methods": {
