@@ -167,8 +167,8 @@ Function _startPush($inState : Text) : Object
         This._internals._expiration:=String($response.expirationDateTime)
         This._internals._isStarted:=True
         
-        Use (Storage.notifications[$inState])
-            Storage.notifications[$inState].subscriptionId:=$response.id
+        Use (Storage.graphNotifications[$inState])
+            Storage.graphNotifications[$inState].subscriptionId:=$response.id
         End use 
         
         This._startMonitoring()

@@ -54,27 +54,20 @@ Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields
             Storage[$inStorageKey]:=New shared object()
         End if 
         Use (Storage[$inStorageKey])
-            var $entry : Object:=New shared object("isStarted"; True)
+            Storage[$inStorageKey][$inState]:=New shared object("isStarted"; True)
             If (($inExtraFields#Null) && (Value type($inExtraFields)=Is object))
                 var $key : Text
                 For each ($key; $inExtraFields)
                     Case of 
                         : (Value type($inExtraFields[$key])=Is text)
-                            Use ($entry)
-                                $entry[$key]:=String($inExtraFields[$key])
-                            End use 
+                            Storage[$inStorageKey][$inState][$key]:=String($inExtraFields[$key])
                         : (Value type($inExtraFields[$key])=Is boolean)
-                            Use ($entry)
-                                $entry[$key]:=Bool($inExtraFields[$key])
-                            End use 
+                            Storage[$inStorageKey][$inState][$key]:=Bool($inExtraFields[$key])
                         : (Value type($inExtraFields[$key])=Is collection)
-                            Use ($entry)
-                                $entry[$key]:=New shared collection()
-                            End use 
+                            Storage[$inStorageKey][$inState][$key]:=New shared collection()
                     End case 
                 End for each 
             End if 
-            Storage[$inStorageKey][$inState]:=$entry
         End use 
     End use 
     
@@ -133,7 +126,7 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     
     If ((Storage[$inStorageKey]#Null) && OB Is defined(Storage[$inStorageKey]; $inState))
         Use (Storage[$inStorageKey][$inState])
-            var $pending : Object:=Storage[$inStorageKey][$inState].pending
+            var $pending : Collection:=Storage[$inStorageKey][$inState].pending
             If ($pending#Null)
                 var $i : Integer
                 For ($i; 0; $pending.length-1)

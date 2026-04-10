@@ -25,6 +25,8 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
         var $validationToken : Text:=""
         If (Value type($request.urlQuery)=Is object)
             $validationToken:=String($request.urlQuery.validationToken)
+            // urlQuery does not decode '+' as spaces — we must do it manually
+            $validationToken:=Replace string($validationToken; "+"; " ")
         End if 
         
         If (Length($validationToken)>0)
@@ -36,7 +38,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
         
         // --- Notification request ---
         // The body contains a JSON object with a "value" array of notifications.
-        This._processNotificationBody($request.body)
+        This._processNotificationBody($request.getJSON())
         
         $outgoingResponse.setStatus(202)
         $outgoingResponse.setBody("")
@@ -97,7 +99,7 @@ Function _processNotificationBody($inBody : Variant)
         return 
     End if 
     
-    If ((Storage.notifications=Null) || (OB Is empty(Storage.notifications)))
+    If ((Storage.graphNotifications=Null) || (OB Is empty(Storage.graphNotifications)))
         return 
     End if 
     
@@ -125,9 +127,9 @@ Function _processNotificationBody($inBody : Variant)
         
         If (Length($state)>0)
             // Push the notification to the pending queue
-            Use (Storage.notifications[$state])
-                Use (Storage.notifications[$state].pending)
-                    Storage.notifications[$state].pending.push(New shared object(\
+            Use (Storage.graphNotifications[$state])
+                Use (Storage.graphNotifications[$state].pending)
+                    Storage.graphNotifications[$state].pending.push(New shared object(\
                      "changeType"; $changeType; \
                      "resourceId"; $resourceId))
                 End use 
@@ -144,15 +146,15 @@ Function _findStateBySubscriptionId($inSubscriptionId : Text) : Text
     
     // Look up the state key in Storage.notifications by subscription ID
     
-    If ((Storage.notifications=Null) || (Length($inSubscriptionId)=0))
+    If ((Storage.graphNotifications=Null) || (Length($inSubscriptionId)=0))
         return ""
     End if 
     
-    var $keys : Collection:=OB Keys(Storage.notifications)
+    var $keys : Collection:=OB Keys(Storage.graphNotifications)
     var $key : Text
     
     For each ($key; $keys)
-        If (String(Storage.notifications[$key].subscriptionId)=$inSubscriptionId)
+        If (String(Storage.graphNotifications[$key].subscriptionId)=$inSubscriptionId)
             return $key
         End if 
     End for each 
