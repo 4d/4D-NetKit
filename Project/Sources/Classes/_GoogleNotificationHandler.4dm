@@ -31,17 +31,11 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	If ($request#Null)
 		
 		// Check if this is a Calendar channel notification (has X-Goog-Channel-Token header)
-		var $channelToken : Text:=""
-		If (Value type($request.headers)=Is object)
-			$channelToken:=String($request.headers["x-goog-channel-token"])
-		End if 
+		var $channelToken : Text:=$request.getHeader("X-Goog-Channel-Token")
 		
 		If (Length($channelToken)>0)
 			// --- Calendar push notification ---
-			var $resourceState : Text:=""
-			If (Value type($request.headers)=Is object)
-				$resourceState:=String($request.headers["x-goog-resource-state"])
-			End if 
+			var $resourceState : Text:=$request.getHeader("X-Goog-Resource-State")
 			
 			If ($resourceState="sync")
 				// Initial sync validation - respond 200
@@ -56,7 +50,10 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 			
 		Else 
 			// --- Gmail Pub/Sub push notification ---
-			This._processGmailNotification($request.getJSON())
+			var $text : Text:=$request.getText()
+			If (Length($text)>0)
+				This._processGmailNotification($text)
+			End if 
 			$outgoingResponse.setStatus(200)
 			$outgoingResponse.setBody("")
 		End if 

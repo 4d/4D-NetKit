@@ -203,7 +203,7 @@ Function _startMailPush($inState : Text) : Object
     var $headers : Object:={}
     $headers["Content-Type"]:="application/json"
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; $body)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
     
     If (($response#Null) && (Length(String($response.historyId))>0))
         
@@ -273,7 +273,7 @@ Function _startCalendarPush($inState : Text) : Object
     var $headers : Object:={}
     $headers["Content-Type"]:="application/json"
     
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; $body)
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
     
     If (($response#Null) && (Length(String($response.id))>0))
         
@@ -756,6 +756,10 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
     
     If ($remainingSeconds<$inThresholdSeconds)
         
+        var $response : Object:={}
+        var $body : Object:={}
+            var $headers : Object:={}
+
         Super._throwErrors(False)
         
         If (This._internals._type="mail")
@@ -763,17 +767,15 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
             var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
             var $url : Text:=Super._getURL()+"users/"+$userId+"/watch"
             
-            var $body : Object:={}
             $body.topicName:=This._internals._topicName
             If (This._internals._labelIds.length>0)
                 $body.labelIds:=This._internals._labelIds
                 $body.labelFilterBehavior:="include"
             End if 
             
-            var $headers : Object:={}
             $headers["Content-Type"]:="application/json"
             
-            var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; $body)
+            $response:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
             
             If (($response#Null) && (Length(String($response.expiration))>0))
                 This._internals._expiration:=String($response.expiration)
@@ -788,21 +790,19 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
             var $newChannelId : Text:=Generate UUID
             var $url2 : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events/watch"
             
-            var $body2 : Object:={}
-            $body2.id:=$newChannelId
-            $body2.type:="web_hook"
-            $body2.address:=This._buildNotificationUrl(This._internals._state)
-            $body2.token:=This._internals._state
+            $body.id:=$newChannelId
+            $body.type:="web_hook"
+            $body.address:=This._buildNotificationUrl(This._internals._state)
+            $body.token:=This._internals._state
             
-            var $headers2 : Object:={}
-            $headers2["Content-Type"]:="application/json"
+            $headers["Content-Type"]:="application/json"
             
-            var $response2 : Object:=Super._sendRequestAndWaitResponse("POST"; $url2; $headers2; $body2)
+            $response:=Super._sendRequestAndWaitResponse("POST"; $url2; $headers; JSON Stringify($body))
             
-            If (($response2#Null) && (Length(String($response2.id))>0))
-                This._internals._channelId:=String($response2.id)
-                This._internals._googleResourceId:=String($response2.resourceId)
-                If (Length(String($response2.expiration))>0)
+            If (($response#Null) && (Length(String($response.id))>0))
+                This._internals._channelId:=String($response.id)
+                This._internals._googleResourceId:=String($response.resourceId)
+                If (Length(String($response.expiration))>0)
                     This._internals._expiration:=String($response2.expiration)
                 End if 
                 
@@ -811,7 +811,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
                     var $stopHeaders : Object:={}
                     $stopHeaders["Content-Type"]:="application/json"
                     var $stopBody : Object:={id: $oldChannelId; resourceId: $oldResourceId}
-                    Super._sendRequestAndWaitResponse("POST"; Super._getURL()+"channels/stop"; $stopHeaders; $stopBody)
+                    Super._sendRequestAndWaitResponse("POST"; Super._getURL()+"channels/stop"; $stopHeaders; JSON Stringify($stopBody))
                 End if 
             End if 
         End if 
