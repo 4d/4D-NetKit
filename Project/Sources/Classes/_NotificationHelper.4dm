@@ -144,7 +144,7 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     // ----------------------------------------------------
     
     
-Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object)
+Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)
     
     var $created : Collection:=[]
     var $updated : Collection:=[]
@@ -163,15 +163,15 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
     End for each 
     
     If (($created.length>0) && ($inCallbacks.onCreate#Null))
-        $inCallbacks.onCreate.call($inCallbacks.thisObj; {eventType: $inType+"Created"; IDs: $created})
+        $inCallbacks.onCreate.call($inCallbacks.thisObj; $inOwner; {type: $inType+"Created"; ids: $created})
     End if 
     
     If (($updated.length>0) && ($inCallbacks.onModify#Null))
-        $inCallbacks.onModify.call($inCallbacks.thisObj; {eventType: $inType+"Modified"; IDs: $updated})
+        $inCallbacks.onModify.call($inCallbacks.thisObj; $inOwner; {type: $inType+"Modified"; ids: $updated})
     End if 
     
     If (($deleted.length>0) && ($inCallbacks.onDelete#Null))
-        $inCallbacks.onDelete.call($inCallbacks.thisObj; {eventType: $inType+"Deleted"; IDs: $deleted})
+        $inCallbacks.onDelete.call($inCallbacks.thisObj; $inOwner; {type: $inType+"Deleted"; ids: $deleted})
     End if 
     
     

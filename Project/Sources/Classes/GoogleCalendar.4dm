@@ -408,4 +408,4 @@ Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotif
     
     var $calendarId : Text:=(Length(String($inCalendarId))>0) ? $inCalendarId : "primary"
     
-    return cs.GoogleNotification.new("event"; This._getOAuth2Provider(); $inParameters; $calendarId)
+    return cs.GoogleNotification.new("event"; This._getOAuth2Provider(); $inParameters; $calendarId; This)

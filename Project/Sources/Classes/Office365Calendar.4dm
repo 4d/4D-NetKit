@@ -619,6 +619,6 @@ Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotifi
         $deltaResource+="/calendarView"
     End if 
     
-    var $notif : cs.GraphNotification:=cs.GraphNotification.new("event"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+    var $notif : cs.GraphNotification:=cs.GraphNotification.new("event"; This._getOAuth2Provider(); $inParameters; $resource; This.userId; This)
     $notif._internals._deltaResource:=$deltaResource
     return $notif

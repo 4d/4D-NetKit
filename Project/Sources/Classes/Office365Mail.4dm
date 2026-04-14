@@ -658,4 +658,4 @@ Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotifica
 	End if 
 	$resource+="/messages"
 	
-	return cs.GraphNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $resource; This.userId)
+	return cs.GraphNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $resource; This.userId; This)

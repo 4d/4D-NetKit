@@ -595,4 +595,4 @@ Function notifier($inParameters : Object) : cs.GoogleNotification
 	
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	
-	return cs.GoogleNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $userId)
+	return cs.GoogleNotification.new("mail"; This._getOAuth2Provider(); $inParameters; $userId; This)

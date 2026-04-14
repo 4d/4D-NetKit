@@ -1,7 +1,7 @@
 Class extends _GraphAPI
 
 
-Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text)
+Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text; $inOwner : Object)
     
     Super($inProvider)
     
@@ -10,6 +10,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._type:=$inType  // "mail" or "event", used for callback eventType like "mailCreated" or "eventModified"
     This._internals._resource:=$inResource
     This._internals._userId:=$inUserId
+    This._internals._owner:=$inOwner
     This._internals._subscriptionId:=""
     This._internals._state:=""
     This._internals._workerName:=""
@@ -498,7 +499,7 @@ Function _drainPendingItems($inState : Text) : Collection
     
 Function _dispatchCallbacks($inItems : Collection)
     
-    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks)
+    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks; This._internals._owner)
     
     
     // ----------------------------------------------------

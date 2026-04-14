@@ -1,7 +1,7 @@
 Class extends _GoogleAPI
 
 
-Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text)
+Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inOwner : Object)
     
     var $baseURL : Text
     If ($inType="mail")
@@ -16,6 +16,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     
     This._internals._type:=$inType  // "mail" or "event", used for callback eventType
     This._internals._resource:=$inResource  // userId for mail, calendarId for calendar
+    This._internals._owner:=$inOwner
     This._internals._state:=""
     This._internals._workerName:=""
     This._internals._formWindow:=0
@@ -751,7 +752,7 @@ Function _drainPendingItems($inState : Text) : Collection
     
 Function _dispatchCallbacks($inItems : Collection)
     
-    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks)
+    cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks; This._internals._owner)
     
     
     // ----------------------------------------------------
