@@ -195,5 +195,24 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
     End if 
     
     return $url.toString()
+    
+    
+    // Mark: - [Caller context dispatch]
+    // ----------------------------------------------------
+    
+    
+Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)
+    
+/*
+	Dispatches callback execution in the original caller's context:
+	- If a form window was captured at start(), uses CALL FORM to execute
+	  in the form process (preserving Form, This, etc.)
+	- Otherwise, falls back to CALL WORKER using the original process name.
+*/
+    If ($inFormWindow>0)
+        CALL FORM($inFormWindow; $inFormula; $inSelf; $inItems)
+    Else 
+        CALL WORKER($inWorkerName; $inFormula; $inSelf; $inItems)
+    End if 
 
     

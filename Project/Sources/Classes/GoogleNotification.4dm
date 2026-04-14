@@ -18,6 +18,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._resource:=$inResource  // userId for mail, calendarId for calendar
     This._internals._state:=""
     This._internals._workerName:=""
+    This._internals._formWindow:=0
     This._internals._isStarted:=False
     This._internals._expiration:=""
     
@@ -107,6 +108,7 @@ Function start() : Object
     var $state : Text:=Generate UUID
     This._internals._state:=$state
     This._internals._workerName:=Current process name
+    This._internals._formWindow:=Current form window
     
     If (This._internals._mode="push")
         $result:=This._startPush($state)
@@ -636,14 +638,15 @@ Function _startMonitoring()
     var $self : cs.GoogleNotification:=This
     var $workerName : Text:=This._internals._workerName
     var $state : Text:=This._internals._state
+    var $formWindow : Integer:=This._internals._formWindow
     
-    CALL WORKER("4DNK_GMonitor_"+$state; Formula($1._monitorLoop($2; $3)); $self; $workerName; $state)
+    CALL WORKER("4DNK_GMonitor_"+$state; Formula($1._monitorLoop($2; $3; $4)); $self; $workerName; $state; $formWindow)
     
     
     // ----------------------------------------------------
     
     
-Function _monitorLoop($inWorkerName : Text; $inState : Text)
+Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)
     
 /*
 	Main monitoring loop, runs in a dedicated background worker.
@@ -652,7 +655,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
 	then queries the appropriate Google API for actual changes.
 	Pull mode: polls the Google API at a configurable interval.
 	
-	In both modes, dispatches callbacks to the original worker via CALL WORKER.
+	In both modes, dispatches callbacks to the original caller context via CALL FORM or CALL WORKER.
 */
     
     // Perform initial sync if needed
@@ -703,7 +706,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text)
         End if 
         
         If ($items.length>0)
-            CALL WORKER($inWorkerName; Formula($1._dispatchCallbacks($2)); This; $items)
+            cs._NotificationHelper.me.callbackInCallerContext($inFormWindow; $inWorkerName; Formula($1._dispatchCallbacks($2)); This; $items)
         End if 
         
     End while 
