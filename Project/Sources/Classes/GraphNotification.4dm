@@ -41,6 +41,14 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     // ----------------------------------------------------
     
     
+Function get endPoint : Text
+    
+    return This._internals._endPoint
+    
+    
+    // ----------------------------------------------------
+    
+    
 Function get expiration : Text
     
     return This._internals._expiration
@@ -52,6 +60,14 @@ Function get expiration : Text
 Function get isStarted : Boolean
     
     return This._internals._isStarted
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function get timer : Integer
+    
+    return This._internals._pullInterval
     
     
     // ----------------------------------------------------
