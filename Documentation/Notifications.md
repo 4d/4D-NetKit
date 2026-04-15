@@ -76,9 +76,9 @@ Creates a notification object for **calendar event** change notifications.
 │                      ▼
 │  ┌───────────────────────────────────────────────────────┐
 │  │  Original Worker (where start() was called)           │
-│  │  - onCreate({eventType; IDs})                         │
-│  │  - onModify({eventType; IDs})                         │
-│  │  - onDelete({eventType; IDs})                         │
+│  │  - onCreate($owner; {type; ids})                      │
+│  │  - onModify($owner; {type; ids})                      │
+│  │  - onDelete($owner; {type; ids})                      │
 │  └───────────────────────────────────────────────────────┘
 └──────────────┘
 ```
@@ -89,16 +89,16 @@ Creates a notification object for **calendar event** change notifications.
 // Push mode — Mail notifications via webhook
 $notif:=$office365.mail.notifier({ \
     endPoint: "https://myserver.com"; \
-    onCreate: Formula(ALERT("New mail: "+String($1.IDs))); \
-    onDelete: Formula(ALERT("Mail deleted: "+String($1.IDs))) \
+    onCreate: Formula(ALERT("New mail: "+String($2.ids))); \
+    onDelete: Formula(ALERT("Mail deleted: "+String($2.ids))) \
 })
 $status:=$notif.start()
 
 // Pull mode — Calendar notifications via delta polling (every 60 seconds)
 $calNotif:=$office365.calendar.notifier({ \
     timer: 60; \
-    onCreate: Formula(handleNewEvent($1)); \
-    onModify: Formula(handleEventUpdate($1)) \
+    onCreate: Formula(handleNewEvent($1; $2)); \
+    onModify: Formula(handleEventUpdate($1; $2)) \
 })
 $status:=$calNotif.start()
 
@@ -194,9 +194,9 @@ For Calendar push notifications, pass the `endPoint` parameter. The webhook URL 
 │                      ▼
 │  ┌───────────────────────────────────────────────────────┐
 │  │  Original Worker (where start() was called)           │
-│  │  - onCreate({eventType; IDs})                         │
-│  │  - onModify({eventType; IDs})                         │
-│  │  - onDelete({eventType; IDs})                         │
+│  │  - onCreate($owner; {type; ids})                      │
+│  │  - onModify($owner; {type; ids})                      │
+│  │  - onDelete($owner; {type; ids})                      │
 │  └───────────────────────────────────────────────────────┘
 └──────────────┘
 ```
@@ -208,9 +208,9 @@ For Calendar push notifications, pass the `endPoint` parameter. The webhook URL 
 ```4d
 // Pull mode — Gmail notifications (polling every 30 seconds, default)
 $notif:=$google.mail.notifier({ \
-    onCreate: Formula(handleNewMail($1)); \
-    onDelete: Formula(handleDeletedMail($1)); \
-    onModify: Formula(handleModifiedMail($1)) \
+    onCreate: Formula(handleNewMail($1; $2)); \
+    onDelete: Formula(handleDeletedMail($1; $2)); \
+    onModify: Formula(handleModifiedMail($1; $2)) \
 })
 $status:=$notif.start()
 
@@ -218,23 +218,23 @@ $status:=$notif.start()
 $notif:=$google.mail.notifier({ \
     topicName: "projects/my-project/topics/gmail-notifications"; \
     labelIds: ["INBOX"]; \
-    onCreate: Formula(handleNewMail($1)) \
+    onCreate: Formula(handleNewMail($1; $2)) \
 })
 $status:=$notif.start()
 
 // Pull mode — Calendar notifications (polling every 60 seconds)
 $calNotif:=$google.calendar.notifier({ \
     timer: 60; \
-    onCreate: Formula(handleNewEvent($1)); \
-    onModify: Formula(handleEventUpdate($1)); \
-    onDelete: Formula(handleEventDeletion($1)) \
+    onCreate: Formula(handleNewEvent($1; $2)); \
+    onModify: Formula(handleEventUpdate($1; $2)); \
+    onDelete: Formula(handleEventDeletion($1; $2)) \
 })
 $status:=$calNotif.start()
 
 // Push mode — Calendar notifications via webhook
 $calNotif:=$google.calendar.notifier({ \
     endPoint: "https://myserver.com"; \
-    onCreate: Formula(handleNewEvent($1)) \
+    onCreate: Formula(handleNewEvent($1; $2)) \
 }; "primary")
 $status:=$calNotif.start()
 
