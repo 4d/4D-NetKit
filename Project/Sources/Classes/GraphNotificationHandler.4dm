@@ -29,6 +29,11 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
             $validationToken:=Replace string($validationToken; "+"; " ")
         End if 
         
+        // Fallback: try to extract validationToken from the raw URL
+        If (Length($validationToken)=0)
+            $validationToken:=cs._Tools.me.getURLParameterValue($request.url; "validationToken")
+        End if 
+        
         If (Length($validationToken)>0)
             $outgoingResponse.setStatus(200)
             $outgoingResponse.setBody($validationToken)
@@ -38,7 +43,10 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
         
         // --- Notification request ---
         // The body contains a JSON object with a "value" array of notifications.
-        This._processNotificationBody($request.getJSON())
+        var $json : Variant:=$request.getJSON()
+        If (Value type($json)=Is object)
+            This._processNotificationBody($json)
+        End if 
         
         $outgoingResponse.setStatus(202)
         $outgoingResponse.setBody("")

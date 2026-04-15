@@ -5,7 +5,7 @@ var $redirectURI : Text
 var $state : Text:=cs._Tools.me.getURLParameterValue($1; "state")
 var $statusLine : Text
 
-If (OB Is defined(Storage.requests; $state))
+If ((Storage.requests#Null) && OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
 	If (Length($redirectURI)>0)
 		$redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"
@@ -69,6 +69,8 @@ Else
 			// Notification: Microsoft sends a JSON body with change data
 			
 			var $validationToken : Text:=cs._Tools.me.getURLParameterValue($1; "validationToken")
+			// URL query does not decode '+' as spaces — we must do it manually
+			$validationToken:=Replace string($validationToken; "+"; " ")
 			
 			If (Length($validationToken)>0)
 				// Respond with the validation token as plain text

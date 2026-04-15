@@ -197,6 +197,38 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
     return $url.toString()
     
     
+    // ----------------------------------------------------
+    
+    
+Function ensureWebServer($inEndPoint : Text) : Object
+    
+/*
+	Ensures a web server is available to receive push notifications.
+	If the host database web server is already running on the endpoint port, reuses it.
+	Otherwise, starts the component web server.
+	Returns {success: Boolean; port: Integer}.
+*/
+    
+    var $port : Integer:=cs._Tools.me.getPortFromURL($inEndPoint)
+    var $useTLS : Boolean:=(Position("https"; $inEndPoint)=1)
+    
+    var $bUseHostDatabaseServer : Boolean:=False
+    var $hostDatabaseServer : Object:=WEB Server(Web server host database)
+    If (($hostDatabaseServer#Null) && $hostDatabaseServer.isRunning)
+        If ($useTLS)
+            $bUseHostDatabaseServer:=($hostDatabaseServer.HTTPSEnabled && ($hostDatabaseServer.HTTPSPort=$port))
+        Else 
+            $bUseHostDatabaseServer:=($hostDatabaseServer.HTTPEnabled && ($hostDatabaseServer.HTTPPort=$port))
+        End if 
+    End if 
+    
+    If ($bUseHostDatabaseServer)
+        return {success: True; port: $port}
+    End if 
+    
+    return {success: cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True}); port: $port}
+    
+    
     // Mark: - [Caller context dispatch]
     // ----------------------------------------------------
     

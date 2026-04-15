@@ -162,6 +162,13 @@ Function _startPush($inState : Text) : Object
         return This._returnStatus()
     End if 
     
+    // Ensure a web server is available for receiving notifications
+    var $wsResult : Object:=cs._NotificationHelper.me.ensureWebServer(This._internals._endPoint)
+    If (Not($wsResult.success))
+        This._throwError(7; {port: $wsResult.port})
+        return This._returnStatus()
+    End if 
+    
     var $changeType : Text:=This._computeChangeType()
     var $expirationDateTime : Text:=This._computeExpiration(4200)
     

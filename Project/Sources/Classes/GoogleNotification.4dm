@@ -279,6 +279,17 @@ Function _startCalendarPush($inState : Text) : Object
         return This._returnStatus()
     End if 
     
+    // Ensure a web server is available for receiving notifications
+    var $wsResult : Object:=cs._NotificationHelper.me.ensureWebServer(This._internals._endPoint)
+    If (Not($wsResult.success))
+        This._throwError(7; {port: $wsResult.port})
+        
+        // Clean up Storage
+        cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
+        
+        return This._returnStatus()
+    End if 
+    
     // Create watch channel
     var $channelId : Text:=Generate UUID
     var $url : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events/watch"

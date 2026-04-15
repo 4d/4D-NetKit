@@ -418,8 +418,23 @@ Function startWebServer($inParameters : Object) : Boolean
 		$settings.HTTPSEnabled:=$bIsSSL
 		If ($bIsSSL)
 			$settings.HTTPSPort:=$port
+			// Force TLSv1.2 as minimum: observed that Microsoft Graph webhook callbacks fail to connect over TLSv1.3 only
+			$settings.minTLSVersion:=TLSv1_2
 			If (Not(OB Is defined($inParameters; "certificateFolder")))
-				$settings.certificateFolder:=Folder("/PACKAGE/"; *)
+				// Check component's own PACKAGE folder first
+				var $componentFolder : 4D.Folder:=Folder("/PACKAGE/")
+				If ($componentFolder.file("cert.pem").exists && $componentFolder.file("key.pem").exists)
+					$settings.certificateFolder:=$componentFolder
+				Else 
+					// Fall back to host database's PACKAGE folder
+					var $hostFolder : 4D.Folder:=Folder("/PACKAGE/"; *)
+					If ($hostFolder.file("cert.pem").exists && $hostFolder.file("key.pem").exists)
+						$settings.certificateFolder:=$hostFolder
+					Else 
+						// Default to component folder (original behavior)
+						$settings.certificateFolder:=$componentFolder
+					End if 
+				End if 
 			Else 
 				If (OB Instance of($inParameters.certificateFolder; 4D.Folder))
 					$settings.certificateFolder:=$inParameters.certificateFolder
