@@ -1,14 +1,14 @@
 [
 	{
-		"class": "_GraphNotificationHandler",
+		"class": "GraphNotificationHandler",
 		"method": "getResponse",
-		"regexPattern": "/\\$4dk-graph-notification",
+		"regexPattern": "/\\$4dnk-graph-notification",
 		"verbs": "post"
 	},
 	{
-		"class": "_GoogleNotificationHandler",
+		"class": "GoogleNotificationHandler",
 		"method": "getResponse",
-		"regexPattern": "/\\$4dk-google-notification",
+		"regexPattern": "/\\$4dnk-google-notification",
 		"verbs": "post"
 	}
 ]

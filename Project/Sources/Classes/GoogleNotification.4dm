@@ -104,7 +104,7 @@ Function start() : Object
 	Two modes:
 	- Push:
 	    Mail: Creates a Gmail watch via Google Pub/Sub. Requires topicName parameter.
-	      The user must have a Pub/Sub push subscription pointing to {serverUrl}/$4dk-google-notification.
+	      The user must have a Pub/Sub push subscription pointing to {serverUrl}/$4dnk-google-notification.
 	    Calendar: Creates a Google Calendar watch channel via webhook. Requires endPoint parameter.
 	- Pull:
 	    Mail: Polls Gmail history API at a configurable interval to detect changes.
@@ -204,7 +204,7 @@ Function _startMailPush($inState : Text) : Object
 	
 	The user must have:
 	1. A Google Cloud Pub/Sub topic with Gmail publish permissions
-	2. A push subscription on that topic pointing to {serverUrl}/$4dk-google-notification
+	2. A push subscription on that topic pointing to {serverUrl}/$4dnk-google-notification
 	
 	See: https://developers.google.com/gmail/api/guides/push
 */
@@ -269,7 +269,7 @@ Function _startCalendarPush($inState : Text) : Object
     This._internals._syncToken:=This._initialCalendarSync()
     
     // Build notification URL
-    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-google-notification"; "")
+    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dnk-google-notification"; "")
     If (Length($notificationUrl)=0)
         This._throwError(2; {attribute: "endPoint"})
         
@@ -644,7 +644,7 @@ Function _pollCalendarChanges() : Collection
     
 Function _buildNotificationUrl($inState : Text) : Text
     
-    return cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-google-notification"; "")
+    return cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dnk-google-notification"; "")
     
     
     // ----------------------------------------------------

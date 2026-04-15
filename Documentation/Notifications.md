@@ -46,7 +46,7 @@ Creates a notification object for **calendar event** change notifications.
 
 ### Modes
 
-- **Push**: If `endPoint` is provided, creates a [Microsoft Graph subscription](https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions). The webhook URL is derived as `{endPoint}/$4dk-graph-notification?state={uuid}`.
+- **Push**: If `endPoint` is provided, creates a [Microsoft Graph subscription](https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions). The webhook URL is derived as `{endPoint}/$4dnk-graph-notification?state={uuid}`.
 - **Pull**: If no `endPoint`, polls the [delta query API](https://learn.microsoft.com/en-us/graph/delta-query-messages) at the configured interval.
 
 ### Data Flow (Push mode)
@@ -60,7 +60,7 @@ Creates a notification object for **calendar event** change notifications.
 │              │                              └─────────────────────┘
 │              │
 │  ┌───────────────────────────────────────────────────────┐
-│  │  _GraphNotificationHandler (shared singleton)         │
+│  │  GraphNotificationHandler (shared singleton)          │
 │  │  - Validates webhook (validationToken → 200)          │
 │  │  - Receives notifications → Storage.notifications     │
 │  └───────────────────┬───────────────────────────────────┘
@@ -154,14 +154,14 @@ Google notifications have different push mechanisms depending on the resource ty
 
 For Gmail push notifications, you must:
 1. Create a Google Cloud Pub/Sub **topic** with Gmail publish permissions.
-2. Create a **push subscription** on that topic pointing to `{serverUrl}/$4dk-google-notification`.
+2. Create a **push subscription** on that topic pointing to `{serverUrl}/$4dnk-google-notification`.
 3. Pass the topic name as `topicName` in the notification parameters.
 
 See: [Gmail Push Notifications Guide](https://developers.google.com/gmail/api/guides/push)
 
 #### Calendar Push Setup
 
-For Calendar push notifications, pass the `endPoint` parameter. The webhook URL is derived as `{endPoint}/$4dk-google-notification`. Google sends state identification via the `X-Goog-Channel-Token` HTTP header (not via the URL).
+For Calendar push notifications, pass the `endPoint` parameter. The webhook URL is derived as `{endPoint}/$4dnk-google-notification`. Google sends state identification via the `X-Goog-Channel-Token` HTTP header (not via the URL).
 
 ### Data Flow (Google — Push mode)
 
@@ -175,7 +175,7 @@ For Calendar push notifications, pass the `endPoint` parameter. The webhook URL 
 │              │                              └─────────────────────┘
 │              │
 │  ┌───────────────────────────────────────────────────────┐
-│  │  _GoogleNotificationHandler (shared singleton)        │
+│  │  GoogleNotificationHandler (shared singleton)         │
 │  │  - Calendar: reads X-Goog-Channel-Token header        │
 │  │  - Gmail: decodes Pub/Sub message (base64 data)       │
 │  │  - Pushes signal → Storage.googleNotifications        │

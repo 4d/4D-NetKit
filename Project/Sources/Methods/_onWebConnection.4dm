@@ -62,7 +62,7 @@ Else
 	
 	// Check if this is a notification webhook request
 	Case of 
-		: ($URL="/$4dk-graph-notification@")
+		: ($URL="/$4dnk-graph-notification@")
 			
 			// --- Microsoft Graph notification ---
 			// Validation: Microsoft sends ?validationToken=<token> as a query parameter
@@ -80,7 +80,7 @@ Else
 				var $graphBody : Text
 				WEB GET HTTP BODY($graphBody)
 				If (Length($graphBody)>0)
-					cs._GraphNotificationHandler.me._processNotificationBody($graphBody)
+					cs.GraphNotificationHandler.me._processNotificationBody($graphBody)
 				End if 
 				
 				$statusLine:="X-STATUS: 202 Accepted"
@@ -89,7 +89,7 @@ Else
 			End if 
 			
 			
-		: ($URL="/$4dk-google-notification@")
+		: ($URL="/$4dnk-google-notification@")
 			
 			// --- Google notification ---
 			// Calendar push: Google sends X-Goog-Channel-Token header with state identifier
@@ -116,14 +116,14 @@ Else
 			If (Length($channelToken)>0)
 				// Calendar push notification
 				If ($resourceState#"sync")
-					cs._GoogleNotificationHandler.me._processCalendarNotification($channelToken)
+					cs.GoogleNotificationHandler.me._processCalendarNotification($channelToken)
 				End if 
 			Else 
 				// Gmail Pub/Sub push notification
 				var $googleBody : Text
 				WEB GET HTTP BODY($googleBody)
 				If (Length($googleBody)>0)
-					cs._GoogleNotificationHandler.me._processGmailNotification($googleBody)
+					cs.GoogleNotificationHandler.me._processGmailNotification($googleBody)
 				End if 
 			End if 
 			

@@ -576,7 +576,7 @@ Function notifier($inParameters : Object) : cs.GoogleNotification
 	
 	Two modes:
 	- Push: Requires a Google Cloud Pub/Sub topic. Set topicName parameter.
-	  The user must configure a Pub/Sub push subscription pointing to {serverUrl}/$4dk-google-notification.
+	  The user must configure a Pub/Sub push subscription pointing to {serverUrl}/$4dnk-google-notification.
 	- Pull: If no topicName is provided, polls the Gmail history API at a configurable interval.
 	
 	Parameters:

@@ -156,7 +156,7 @@ Function stop() : Object
     
 Function _startPush($inState : Text) : Object
     
-    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dk-graph-notification"; $inState)
+    var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/$4dnk-graph-notification"; $inState)
     If (Length($notificationUrl)=0)
         This._throwError(2; {attribute: "endPoint"})
         return This._returnStatus()
