@@ -1,5 +1,11 @@
 [
 	{
+		"class": "OAuth2Authorization",
+		"method": "getResponse",
+		"regexPattern": "/authorize",
+		"verbs": "get"
+	},
+	{
 		"class": "GraphNotificationHandler",
 		"method": "getResponse",
 		"regexPattern": "/\\$4dnk-graph-notification",
