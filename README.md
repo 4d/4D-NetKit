@@ -1,7 +1,7 @@
       
 # 4D NetKit
 
-**Version: 21**
+**Version: 21 R2**
 
 4D NetKit is a built-in 4D component that allows you to interact with third-party web services and their APIs, such as [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview) and the [Google REST API](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages).
 
