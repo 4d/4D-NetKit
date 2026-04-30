@@ -41,6 +41,8 @@ Function getCurrent($inSelect : Text) : Object
 	
 Function get($inID : Text; $inSelect : Text) : Object
 	
+	Super._clearErrorStack()
+	
 	If (Length($inID)>0)
 		
 		var $urlParams : Text:=String($inID)
@@ -53,9 +55,11 @@ Function get($inID : Text; $inSelect : Text) : Object
 		
 		return This._getUserInfo($URL)
 	Else 
-		This._try()
-		This._throwError(9; {which: 1; function: "office365.user.get"})
-		This._finally()
+		Try
+			This._throwError(9; {which: 1; function: "office365.user.get"})
+		Catch
+			// Errors are already in _errorStack via _throwError
+		End try
 		return Null
 	End if 
 	

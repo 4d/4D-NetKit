@@ -94,7 +94,6 @@ Function start() : Object
     End if 
     
     Super._clearErrorStack()
-    Super._throwErrors(False)
     
     var $result : Object
     var $state : Text:=Generate UUID
@@ -102,13 +101,15 @@ Function start() : Object
     This._internals._workerName:=Current process name
     This._internals._formWindow:=Current form window
     
-    If (This._internals._mode="push")
-        $result:=This._startPush($state)
-    Else 
-        $result:=This._startPull($state)
-    End if 
-    
-    Super._throwErrors(True)
+    Try
+        If (This._internals._mode="push")
+            $result:=This._startPush($state)
+        Else 
+            $result:=This._startPull($state)
+        End if 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     return $result
     
     
@@ -129,24 +130,26 @@ Function stop() : Object
     End if 
     
     Super._clearErrorStack()
-    Super._throwErrors(False)
     
     This._internals._isStarted:=False
     
     var $state : Text:=This._internals._state
     
-    If (This._internals._mode="push")
-        This._stopPush($state)
-    Else 
-        This._stopPull($state)
-    End if 
+    Try
+        If (This._internals._mode="push")
+            This._stopPush($state)
+        Else 
+            This._stopPull($state)
+        End if 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     This._internals._subscriptionId:=""
     This._internals._expiration:=""
     This._internals._state:=""
     This._internals._deltaLink:=""
     
-    Super._throwErrors(True)
     return This._returnStatus()
     
     
@@ -291,23 +294,24 @@ Function _initialDeltaSync() : Text
     var $deltaLink : Text:=""
     var $headers : Object:={Prefer: "odata.maxpagesize=999"}
     
-    Super._throwErrors(False)
-    
-    var $response : Object
-    
-    Repeat 
-        $response:=Super._sendRequestAndWaitResponse("GET"; $url; $headers)
+    Try
         
-        If ($response#Null)
-            If (Length(String($response["@odata.deltaLink"]))>0)
-                $deltaLink:=String($response["@odata.deltaLink"])
-            Else 
-                $url:=String($response["@odata.nextLink"])
+        var $response : Object
+        
+        Repeat 
+            $response:=Super._sendRequestAndWaitResponse("GET"; $url; $headers)
+            
+            If ($response#Null)
+                If (Length(String($response["@odata.deltaLink"]))>0)
+                    $deltaLink:=String($response["@odata.deltaLink"])
+                Else 
+                    $url:=String($response["@odata.nextLink"])
+                End if 
             End if 
-        End if 
-    Until (($deltaLink#"") | ($response=Null) | ($url=""))
-    
-    Super._throwErrors(True)
+        Until (($deltaLink#"") | ($response=Null) | ($url=""))
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     return $deltaLink
     
@@ -332,54 +336,55 @@ Function _pollDelta() : Collection
         return $items
     End if 
     
-    Super._throwErrors(False)
-    
-    While (Length($url)>0)
-        var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
+    Try
         
-        If ($response#Null)
-            If (Value type($response["value"])=Is collection)
-                var $entry : Object
-                For each ($entry; $response["value"])
-                    var $item : Object:={}
-                    $item.resourceId:=String($entry.id)
-                    
-                    If (Value type($entry["@removed"])=Is object)
-                        // Deleted resource
-                        $item.changeType:="deleted"
-                        var $removeIdx : Integer:=This._internals._knownIds.indexOf($item.resourceId)
-                        If ($removeIdx>=0)
-                            This._internals._knownIds.remove($removeIdx)
-                        End if 
-                    Else 
-                        // Distinguish created vs updated using known IDs cache
-                        If (This._internals._knownIds.indexOf($item.resourceId)<0)
-                            $item.changeType:="created"
-                            This._internals._knownIds.push($item.resourceId)
-                        Else 
-                            $item.changeType:="updated"
-                        End if 
-                    End if 
-                    
-                    $items.push($item)
-                End for each 
-            End if 
+        While (Length($url)>0)
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
             
-            // Follow pagination or get new deltaLink
-            If (Length(String($response["@odata.nextLink"]))>0)
-                $url:=String($response["@odata.nextLink"])
-            Else 
-                If (Length(String($response["@odata.deltaLink"]))>0)
-                    This._internals._deltaLink:=String($response["@odata.deltaLink"])
+            If ($response#Null)
+                If (Value type($response["value"])=Is collection)
+                    var $entry : Object
+                    For each ($entry; $response["value"])
+                        var $item : Object:={}
+                        $item.resourceId:=String($entry.id)
+                        
+                        If (Value type($entry["@removed"])=Is object)
+                            // Deleted resource
+                            $item.changeType:="deleted"
+                            var $removeIdx : Integer:=This._internals._knownIds.indexOf($item.resourceId)
+                            If ($removeIdx>=0)
+                                This._internals._knownIds.remove($removeIdx)
+                            End if 
+                        Else 
+                            // Distinguish created vs updated using known IDs cache
+                            If (This._internals._knownIds.indexOf($item.resourceId)<0)
+                                $item.changeType:="created"
+                                This._internals._knownIds.push($item.resourceId)
+                            Else 
+                                $item.changeType:="updated"
+                            End if 
+                        End if 
+                        
+                        $items.push($item)
+                    End for each 
                 End if 
+                
+                // Follow pagination or get new deltaLink
+                If (Length(String($response["@odata.nextLink"]))>0)
+                    $url:=String($response["@odata.nextLink"])
+                Else 
+                    If (Length(String($response["@odata.deltaLink"]))>0)
+                        This._internals._deltaLink:=String($response["@odata.deltaLink"])
+                    End if 
+                    $url:=""
+                End if 
+            Else 
                 $url:=""
             End if 
-        Else 
-            $url:=""
-        End if 
-    End while 
-    
-    Super._throwErrors(True)
+        End while 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     return $items
     
@@ -533,9 +538,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         var $headers : Object:={}
         $headers["Content-Type"]:="application/json"
         
-        Super._throwErrors(False)
-        var $response : Object:=Super._sendRequestAndWaitResponse("PATCH"; Super._getURL()+"subscriptions/"+This._internals._subscriptionId; $headers; JSON Stringify($body))
-        Super._throwErrors(True)
+        var $response : Object:=Try(Super._sendRequestAndWaitResponse("PATCH"; Super._getURL()+"subscriptions/"+This._internals._subscriptionId; $headers; JSON Stringify($body)))
         
         If (($response#Null) && (Length(String($response.expirationDateTime))>0))
             This._internals._expiration:=String($response.expirationDateTime)

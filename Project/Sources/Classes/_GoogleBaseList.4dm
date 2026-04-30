@@ -18,7 +18,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	This._internals._attributes:=(Value type($inParameters.attributes)=Is collection) ? $inParameters.attributes : Null
 	This._internals._nextPageToken:=""
 	This._internals._history:=[]
-	This._internals._throwErrors:=False
 	
 	This.page:=1
 	This.isLastPage:=False
@@ -38,9 +37,12 @@ Function _getList($inPageToken : Text) : Boolean
 		$URL.addQueryParameter("pageToken"; $inPageToken)
 	End if 
 	
-	Super._throwErrors(False)
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); This._internals._headers)
-	Super._throwErrors(True)
+	var $response : Object
+	Try
+		$response:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); This._internals._headers)
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()

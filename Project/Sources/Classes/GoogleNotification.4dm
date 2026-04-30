@@ -119,7 +119,6 @@ Function start() : Object
     End if 
     
     Super._clearErrorStack()
-    Super._throwErrors(False)
     
     var $result : Object
     var $state : Text:=Generate UUID
@@ -127,13 +126,15 @@ Function start() : Object
     This._internals._workerName:=Current process name
     This._internals._formWindow:=Current form window
     
-    If (This._internals._mode="push")
-        $result:=This._startPush($state)
-    Else 
-        $result:=This._startPull($state)
-    End if 
-    
-    Super._throwErrors(True)
+    Try
+        If (This._internals._mode="push")
+            $result:=This._startPush($state)
+        Else 
+            $result:=This._startPull($state)
+        End if 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     return $result
     
     
@@ -154,17 +155,20 @@ Function stop() : Object
     End if 
     
     Super._clearErrorStack()
-    Super._throwErrors(False)
     
     This._internals._isStarted:=False
     
     var $state : Text:=This._internals._state
     
-    If (This._internals._mode="push")
-        This._stopPush($state)
-    Else 
-        This._stopPull($state)
-    End if 
+    Try
+        If (This._internals._mode="push")
+            This._stopPush($state)
+        Else 
+            This._stopPull($state)
+        End if 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     This._internals._state:=""
     This._internals._expiration:=""
@@ -173,7 +177,6 @@ Function stop() : Object
     This._internals._channelId:=""
     This._internals._googleResourceId:=""
     
-    Super._throwErrors(True)
     return This._returnStatus()
     
     
@@ -403,9 +406,7 @@ Function _initialMailSync() : Text
     var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
     var $url : Text:=Super._getURL()+"users/"+$userId+"/profile"
     
-    Super._throwErrors(False)
-    var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
-    Super._throwErrors(True)
+    var $response : Object:=Try(Super._sendRequestAndWaitResponse("GET"; $url))
     
     If (($response#Null) && (Length(String($response.historyId))>0))
         return String($response.historyId)
@@ -439,79 +440,80 @@ Function _pollMailHistory() : Collection
         return $items
     End if 
     
-    Super._throwErrors(False)
-    
-    var $baseUrl : Text:=Super._getURL()+"users/"+$userId+"/history"
-    var $url : Text:=$baseUrl+"?startHistoryId="+$historyId
-    
-    While (Length($url)>0)
-        var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
+    Try
         
-        If ($response#Null)
-            If (Value type($response.history)=Is collection)
-                var $entry : Object
-                For each ($entry; $response.history)
-                    
-                    // messagesAdded -> created
-                    If (Value type($entry.messagesAdded)=Is collection)
-                        var $added : Object
-                        For each ($added; $entry.messagesAdded)
-                            If ((Value type($added.message)=Is object) && (Length(String($added.message.id))>0))
-                                $items.push({changeType: "created"; resourceId: String($added.message.id)})
-                            End if 
-                        End for each 
-                    End if 
-                    
-                    // messagesDeleted -> deleted
-                    If (Value type($entry.messagesDeleted)=Is collection)
-                        var $deleted : Object
-                        For each ($deleted; $entry.messagesDeleted)
-                            If ((Value type($deleted.message)=Is object) && (Length(String($deleted.message.id))>0))
-                                $items.push({changeType: "deleted"; resourceId: String($deleted.message.id)})
-                            End if 
-                        End for each 
-                    End if 
-                    
-                    // labelsAdded -> updated
-                    If (Value type($entry.labelsAdded)=Is collection)
-                        var $labelAdded : Object
-                        For each ($labelAdded; $entry.labelsAdded)
-                            If ((Value type($labelAdded.message)=Is object) && (Length(String($labelAdded.message.id))>0))
-                                $items.push({changeType: "updated"; resourceId: String($labelAdded.message.id)})
-                            End if 
-                        End for each 
-                    End if 
-                    
-                    // labelsRemoved -> updated
-                    If (Value type($entry.labelsRemoved)=Is collection)
-                        var $labelRemoved : Object
-                        For each ($labelRemoved; $entry.labelsRemoved)
-                            If ((Value type($labelRemoved.message)=Is object) && (Length(String($labelRemoved.message.id))>0))
-                                $items.push({changeType: "updated"; resourceId: String($labelRemoved.message.id)})
-                            End if 
-                        End for each 
-                    End if 
-                    
-                End for each 
-            End if 
+        var $baseUrl : Text:=Super._getURL()+"users/"+$userId+"/history"
+        var $url : Text:=$baseUrl+"?startHistoryId="+$historyId
+        
+        While (Length($url)>0)
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
             
-            // Update historyId
-            If (Length(String($response.historyId))>0)
-                This._internals._historyId:=String($response.historyId)
-            End if 
-            
-            // Pagination
-            If (Length(String($response.nextPageToken))>0)
-                $url:=$baseUrl+"?startHistoryId="+$historyId+"&pageToken="+$response.nextPageToken
+            If ($response#Null)
+                If (Value type($response.history)=Is collection)
+                    var $entry : Object
+                    For each ($entry; $response.history)
+                        
+                        // messagesAdded -> created
+                        If (Value type($entry.messagesAdded)=Is collection)
+                            var $added : Object
+                            For each ($added; $entry.messagesAdded)
+                                If ((Value type($added.message)=Is object) && (Length(String($added.message.id))>0))
+                                    $items.push({changeType: "created"; resourceId: String($added.message.id)})
+                                End if 
+                            End for each 
+                        End if 
+                        
+                        // messagesDeleted -> deleted
+                        If (Value type($entry.messagesDeleted)=Is collection)
+                            var $deleted : Object
+                            For each ($deleted; $entry.messagesDeleted)
+                                If ((Value type($deleted.message)=Is object) && (Length(String($deleted.message.id))>0))
+                                    $items.push({changeType: "deleted"; resourceId: String($deleted.message.id)})
+                                End if 
+                            End for each 
+                        End if 
+                        
+                        // labelsAdded -> updated
+                        If (Value type($entry.labelsAdded)=Is collection)
+                            var $labelAdded : Object
+                            For each ($labelAdded; $entry.labelsAdded)
+                                If ((Value type($labelAdded.message)=Is object) && (Length(String($labelAdded.message.id))>0))
+                                    $items.push({changeType: "updated"; resourceId: String($labelAdded.message.id)})
+                                End if 
+                            End for each 
+                        End if 
+                        
+                        // labelsRemoved -> updated
+                        If (Value type($entry.labelsRemoved)=Is collection)
+                            var $labelRemoved : Object
+                            For each ($labelRemoved; $entry.labelsRemoved)
+                                If ((Value type($labelRemoved.message)=Is object) && (Length(String($labelRemoved.message.id))>0))
+                                    $items.push({changeType: "updated"; resourceId: String($labelRemoved.message.id)})
+                                End if 
+                            End for each 
+                        End if 
+                        
+                    End for each 
+                End if 
+                
+                // Update historyId
+                If (Length(String($response.historyId))>0)
+                    This._internals._historyId:=String($response.historyId)
+                End if 
+                
+                // Pagination
+                If (Length(String($response.nextPageToken))>0)
+                    $url:=$baseUrl+"?startHistoryId="+$historyId+"&pageToken="+$response.nextPageToken
+                Else 
+                    $url:=""
+                End if 
             Else 
                 $url:=""
             End if 
-        Else 
-            $url:=""
-        End if 
-    End while 
-    
-    Super._throwErrors(True)
+        End while 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     // Deduplicate: keep only the last change for each resource ID
     var $seen : Object:={}
@@ -547,27 +549,28 @@ Function _initialCalendarSync() : Text
     var $url : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?maxResults=2500&fields=nextSyncToken%2CnextPageToken%2Citems%2Fid"
     var $syncToken : Text:=""
     
-    Super._throwErrors(False)
-    
-    var $response : Object
-    
-    Repeat 
-        $response:=Super._sendRequestAndWaitResponse("GET"; $url)
+    Try
         
-        If ($response#Null)
-            If (Length(String($response.nextSyncToken))>0)
-                $syncToken:=String($response.nextSyncToken)
-            Else 
-                If (Length(String($response.nextPageToken))>0)
-                    $url:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?maxResults=2500&fields=nextSyncToken%2CnextPageToken%2Citems%2Fid&pageToken="+$response.nextPageToken
+        var $response : Object
+        
+        Repeat 
+            $response:=Super._sendRequestAndWaitResponse("GET"; $url)
+            
+            If ($response#Null)
+                If (Length(String($response.nextSyncToken))>0)
+                    $syncToken:=String($response.nextSyncToken)
                 Else 
-                    $url:=""
+                    If (Length(String($response.nextPageToken))>0)
+                        $url:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?maxResults=2500&fields=nextSyncToken%2CnextPageToken%2Citems%2Fid&pageToken="+$response.nextPageToken
+                    Else 
+                        $url:=""
+                    End if 
                 End if 
             End if 
-        End if 
-    Until (($syncToken#"") || ($response=Null) || ($url=""))
-    
-    Super._throwErrors(True)
+        Until (($syncToken#"") || ($response=Null) || ($url=""))
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     return $syncToken
     
@@ -595,56 +598,57 @@ Function _pollCalendarChanges() : Collection
         return $items
     End if 
     
-    Super._throwErrors(False)
-    
-    var $url : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?syncToken="+cs._Tools.me.urlEncode($syncToken)
-    
-    While (Length($url)>0)
-        var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
+    Try
         
-        If ($response#Null)
-            If (Value type($response.items)=Is collection)
-                var $event : Object
-                For each ($event; $response.items)
-                    var $item : Object:={}
-                    $item.resourceId:=String($event.id)
-                    
-                    If (String($event.status)="cancelled")
-                        // Deleted event
-                        $item.changeType:="deleted"
-                        var $removeIdx : Integer:=This._internals._knownIds.indexOf($item.resourceId)
-                        If ($removeIdx>=0)
-                            This._internals._knownIds.remove($removeIdx)
-                        End if 
-                    Else 
-                        // Distinguish created vs updated using known IDs cache
-                        If (This._internals._knownIds.indexOf($item.resourceId)<0)
-                            $item.changeType:="created"
-                            This._internals._knownIds.push($item.resourceId)
-                        Else 
-                            $item.changeType:="updated"
-                        End if 
-                    End if 
-                    
-                    $items.push($item)
-                End for each 
-            End if 
+        var $url : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?syncToken="+cs._Tools.me.urlEncode($syncToken)
+        
+        While (Length($url)>0)
+            var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $url)
             
-            // Pagination or new syncToken
-            If (Length(String($response.nextPageToken))>0)
-                $url:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?syncToken="+cs._Tools.me.urlEncode($syncToken)+"&pageToken="+$response.nextPageToken
-            Else 
-                If (Length(String($response.nextSyncToken))>0)
-                    This._internals._syncToken:=String($response.nextSyncToken)
+            If ($response#Null)
+                If (Value type($response.items)=Is collection)
+                    var $event : Object
+                    For each ($event; $response.items)
+                        var $item : Object:={}
+                        $item.resourceId:=String($event.id)
+                        
+                        If (String($event.status)="cancelled")
+                            // Deleted event
+                            $item.changeType:="deleted"
+                            var $removeIdx : Integer:=This._internals._knownIds.indexOf($item.resourceId)
+                            If ($removeIdx>=0)
+                                This._internals._knownIds.remove($removeIdx)
+                            End if 
+                        Else 
+                            // Distinguish created vs updated using known IDs cache
+                            If (This._internals._knownIds.indexOf($item.resourceId)<0)
+                                $item.changeType:="created"
+                                This._internals._knownIds.push($item.resourceId)
+                            Else 
+                                $item.changeType:="updated"
+                            End if 
+                        End if 
+                        
+                        $items.push($item)
+                    End for each 
                 End if 
+                
+                // Pagination or new syncToken
+                If (Length(String($response.nextPageToken))>0)
+                    $url:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events?syncToken="+cs._Tools.me.urlEncode($syncToken)+"&pageToken="+$response.nextPageToken
+                Else 
+                    If (Length(String($response.nextSyncToken))>0)
+                        This._internals._syncToken:=String($response.nextSyncToken)
+                    End if 
+                    $url:=""
+                End if 
+            Else 
                 $url:=""
             End if 
-        Else 
-            $url:=""
-        End if 
-    End while 
-    
-    Super._throwErrors(True)
+        End while 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
     
     return $items
     
@@ -789,64 +793,65 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         
         var $response : Object:={}
         var $body : Object:={}
-            var $headers : Object:={}
-
-        Super._throwErrors(False)
+        var $headers : Object:={}
         
-        If (This._internals._type="mail")
-            // Renew Gmail watch by calling watch() again
-            var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
-            var $url : Text:=Super._getURL()+"users/"+$userId+"/watch"
+        Try
             
-            $body.topicName:=This._internals._topicName
-            If (This._internals._labelIds.length>0)
-                $body.labelIds:=This._internals._labelIds
-                $body.labelFilterBehavior:="include"
-            End if 
-            
-            $headers["Content-Type"]:="application/json"
-            
-            $response:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
-            
-            If (($response#Null) && (Length(String($response.expiration))>0))
-                This._internals._expiration:=String($response.expiration)
-            End if 
-            
-        Else 
-            // Renew Calendar channel: create new channel, then stop old one
-            var $calendarId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "primary"
-            var $oldChannelId : Text:=This._internals._channelId
-            var $oldResourceId : Text:=This._internals._googleResourceId
-            
-            var $newChannelId : Text:=Generate UUID
-            var $url2 : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events/watch"
-            
-            $body.id:=$newChannelId
-            $body.type:="web_hook"
-            $body.address:=This._buildNotificationUrl(This._internals._state)
-            $body.token:=This._internals._state
-            
-            $headers["Content-Type"]:="application/json"
-            
-            $response:=Super._sendRequestAndWaitResponse("POST"; $url2; $headers; JSON Stringify($body))
-            
-            If (($response#Null) && (Length(String($response.id))>0))
-                This._internals._channelId:=String($response.id)
-                This._internals._googleResourceId:=String($response.resourceId)
-                If (Length(String($response.expiration))>0)
-                    This._internals._expiration:=String($response2.expiration)
+            If (This._internals._type="mail")
+                // Renew Gmail watch by calling watch() again
+                var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
+                var $url : Text:=Super._getURL()+"users/"+$userId+"/watch"
+                
+                $body.topicName:=This._internals._topicName
+                If (This._internals._labelIds.length>0)
+                    $body.labelIds:=This._internals._labelIds
+                    $body.labelFilterBehavior:="include"
                 End if 
                 
-                // Stop old channel
-                If ((Length($oldChannelId)>0) && (Length($oldResourceId)>0))
-                    var $stopHeaders : Object:={}
-                    $stopHeaders["Content-Type"]:="application/json"
-                    var $stopBody : Object:={id: $oldChannelId; resourceId: $oldResourceId}
-                    Super._sendRequestAndWaitResponse("POST"; Super._getURL()+"channels/stop"; $stopHeaders; JSON Stringify($stopBody))
+                $headers["Content-Type"]:="application/json"
+                
+                $response:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
+                
+                If (($response#Null) && (Length(String($response.expiration))>0))
+                    This._internals._expiration:=String($response.expiration)
+                End if 
+                
+            Else 
+                // Renew Calendar channel: create new channel, then stop old one
+                var $calendarId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "primary"
+                var $oldChannelId : Text:=This._internals._channelId
+                var $oldResourceId : Text:=This._internals._googleResourceId
+                
+                var $newChannelId : Text:=Generate UUID
+                var $url2 : Text:=Super._getURL()+"calendars/"+cs._Tools.me.urlEncode($calendarId)+"/events/watch"
+                
+                $body.id:=$newChannelId
+                $body.type:="web_hook"
+                $body.address:=This._buildNotificationUrl(This._internals._state)
+                $body.token:=This._internals._state
+                
+                $headers["Content-Type"]:="application/json"
+                
+                $response:=Super._sendRequestAndWaitResponse("POST"; $url2; $headers; JSON Stringify($body))
+                
+                If (($response#Null) && (Length(String($response.id))>0))
+                    This._internals._channelId:=String($response.id)
+                    This._internals._googleResourceId:=String($response.resourceId)
+                    If (Length(String($response.expiration))>0)
+                        This._internals._expiration:=String($response2.expiration)
+                    End if 
+                    
+                    // Stop old channel
+                    If ((Length($oldChannelId)>0) && (Length($oldResourceId)>0))
+                        var $stopHeaders : Object:={}
+                        $stopHeaders["Content-Type"]:="application/json"
+                        var $stopBody : Object:={id: $oldChannelId; resourceId: $oldResourceId}
+                        Super._sendRequestAndWaitResponse("POST"; Super._getURL()+"channels/stop"; $stopHeaders; JSON Stringify($stopBody))
+                    End if 
                 End if 
             End if 
-        End if 
-        
-        Super._throwErrors(True)
+        Catch
+            // Errors are already in _errorStack via _throwError
+        End try
         
     End if 

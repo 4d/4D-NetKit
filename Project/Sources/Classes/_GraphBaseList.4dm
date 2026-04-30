@@ -25,11 +25,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	
 Function _getList($inURL : Text) : Boolean
 	
-	Super._throwErrors(False)
-	var $throwErrors : Boolean:=This._internals._oAuth2Provider._throwErrors(False)
-	var $response : Object:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
-	This._internals._oAuth2Provider._throwErrors($throwErrors)
-	Super._throwErrors(True)
+	var $response : Object
+	Try
+		$response:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()

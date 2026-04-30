@@ -38,110 +38,110 @@ Class constructor($inParams : Object)
 	
 	Super()
 	
-	This._try()
-	
-	// Sanity check
-	If (This._checkPrerequisites($inParams))
+	Try
 		
+		// Sanity check
+		If (This._checkPrerequisites($inParams))
+			
 /*
 	Name of OAuth2 provider.
 */
-		This.name:=String($inParams.name)
-		
+			This.name:=String($inParams.name)
+			
 /*
 	"signedIn": Provider will sign the user in and ensure their consent for the permissions your app requests. Need to open a web browser.
 	"service": Call Provider with their own identity.
 */
-		If ((String($inParams.permission)="signedIn") || \
-			(String($inParams.permission)="service"))
-			This.permission:=String($inParams.permission)
-		End if 
-		
+			If ((String($inParams.permission)="signedIn") || \
+				(String($inParams.permission)="service"))
+				This.permission:=String($inParams.permission)
+			End if 
+			
 /*
 	The Application ID that the registration portal assigned the app
 */
-		This.clientId:=String($inParams.clientId)
-		
+			This.clientId:=String($inParams.clientId)
+			
 /*
 	The redirect_uri of your app, where authentication responses can be sent and received by your app.
 */
-		This.redirectURI:=String($inParams.redirectURI)
-		
+			This.redirectURI:=String($inParams.redirectURI)
+			
 /*
 	A space-separated list of the permissions that you want the user to consent to.
 */
-		If (Value type($inParams.scope)=Is collection)
-			This._scope:=$inParams.scope.join(" ")
+			If (Value type($inParams.scope)=Is collection)
+				This._scope:=$inParams.scope.join(" ")
+				
+			Else 
+				This._scope:=String($inParams.scope)
+				
+			End if 
 			
-		Else 
-			This._scope:=String($inParams.scope)
-			
-		End if 
-		
 /*
 	The {tenant} value in the path of the request can be used to control who can sign into the application.
 	The allowed values are "common" for both Microsoft accounts and work or school accounts, "organizations"
 	for work or school accounts only, "consumers" for Microsoft accounts only, and tenant identifiers such as
 	the tenant ID or domain name. By default "common"
 */
-		This.tenant:=Choose(Value type($inParams.tenant)=Is undefined; "common"; String($inParams.tenant))
-		
+			This.tenant:=Choose(Value type($inParams.tenant)=Is undefined; "common"; String($inParams.tenant))
+			
 /*
 	Uri used to do the Authorization request.
 */
-		This._authenticateURI:=String($inParams.authenticateURI)
-		
+			This._authenticateURI:=String($inParams.authenticateURI)
+			
 /*
 	Uri used to request an access token.
 */
-		This._tokenURI:=String($inParams.tokenURI)
-		
+			This._tokenURI:=String($inParams.tokenURI)
+			
 /*
 	The application secret that you created in the app registration portal for your app. Required for web apps.
 */
-		This.clientSecret:=String($inParams.clientSecret)
-		
+			This.clientSecret:=String($inParams.clientSecret)
+			
 /*
 	Any valid existing token
 */
-		If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.token)=Is object))
-			This.token:=$inParams.token.token
-		Else 
-			This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
-		End if 
-		
+			If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.token)=Is object))
+				This.token:=$inParams.token.token
+			Else 
+				This.token:=Choose(Value type($inParams.token)=Is object; $inParams.token; Null)
+			End if 
+			
 /*
 */
-		If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.tokenExpiration)=Is text))
-			This.tokenExpiration:=$inParams.token.tokenExpiration
-		Else 
-			This.tokenExpiration:=Choose(Value type($inParams.tokenExpiration)=Is text; $inParams.tokenExpiration; Null)
-		End if 
-		
+			If ((Value type($inParams.token)=Is object) && (Value type($inParams.token.tokenExpiration)=Is text))
+				This.tokenExpiration:=$inParams.token.tokenExpiration
+			Else 
+				This.tokenExpiration:=Choose(Value type($inParams.tokenExpiration)=Is text; $inParams.tokenExpiration; Null)
+			End if 
+			
 /*
 */
-		This.timeout:=Choose(Value type($inParams.timeout)=Is undefined; 120; Num($inParams.timeout))
-		
+			This.timeout:=Choose(Value type($inParams.timeout)=Is undefined; 120; Num($inParams.timeout))
+			
 /*
 	Path of the web page to display in the webbrowser when the authentication code
 	is received correctly in signed in mode
 	If not present the default page is used
 */
-		If ((Value type($inParams.authenticationPage)=Is text) && cs._Tools.me.isValidURL(String($inParams.authenticationPage)))
-			This.authenticationPage:=String($inParams.authenticationPage)
-		Else 
-			This.authenticationPage:=cs._Tools.me.retainFileObject($inParams.authenticationPage)
-		End if 
+			If ((Value type($inParams.authenticationPage)=Is text) && cs._Tools.me.isValidURL(String($inParams.authenticationPage)))
+				This.authenticationPage:=String($inParams.authenticationPage)
+			Else 
+				This.authenticationPage:=cs._Tools.me.retainFileObject($inParams.authenticationPage)
+			End if 
 /*
 	Path of the web page to display in the webbrowser when the authentication server
 	returns an error in signed in mode
 	If not present the default page is used
 */
-		If ((Value type($inParams.authenticationErrorPage)=Is text) && cs._Tools.me.isValidURL(String($inParams.authenticationErrorPage)))
-			This.authenticationErrorPage:=String($inParams.authenticationErrorPage)
-		Else 
-			This.authenticationErrorPage:=cs._Tools.me.retainFileObject($inParams.authenticationErrorPage)
-		End if 
+			If ((Value type($inParams.authenticationErrorPage)=Is text) && cs._Tools.me.isValidURL(String($inParams.authenticationErrorPage)))
+				This.authenticationErrorPage:=String($inParams.authenticationErrorPage)
+			Else 
+				This.authenticationErrorPage:=cs._Tools.me.retainFileObject($inParams.authenticationErrorPage)
+			End if 
 /*
 	Indicates whether your application can refresh access tokens when the user is not
 	present at the browser. Valid parameter values are online, which is the default
@@ -153,13 +153,13 @@ Class constructor($inParams : Object)
 	an access token the first time that your application exchanges an authorization code
 	for tokens.
 */
-		If ((String($inParams.accessType)="online") || \
-			(String($inParams.accessType)="offline"))
-			This.accessType:=String($inParams.accessType)
-		Else 
-			This.accessType:="online"  // Default Access Type
-		End if 
-		
+			If ((String($inParams.accessType)="online") || \
+				(String($inParams.accessType)="offline"))
+				This.accessType:=String($inParams.accessType)
+			Else 
+				This.accessType:="online"  // Default Access Type
+			End if 
+			
 /*
 	If your application knows which user is trying to authenticate,
 	it can use this parameter to provide a hint to the Google Authentication Server.
@@ -169,8 +169,8 @@ Class constructor($inParams : Object)
 	Set the parameter value to an email address or sub identifier, which is equivalent
 	to the user's Google ID.
 */
-		This.loginHint:=String($inParams.loginHint)
-		
+			This.loginHint:=String($inParams.loginHint)
+			
 /*
 	A space-delimited, case-sensitive list of prompts to present the user.
 	If you don't specify this parameter, the user will be prompted only the
@@ -181,77 +181,78 @@ Class constructor($inParams : Object)
 	consent: Prompt the user for consent.
 	select_account: Prompt the user to select an account.
 */
-		If ((String($inParams.prompt)="none") || \
-			(String($inParams.prompt)="consent") || \
-			(String($inParams.prompt)="select_account"))
-			This.prompt:=String($inParams.prompt)
-		End if 
-		
+			If ((String($inParams.prompt)="none") || \
+				(String($inParams.prompt)="consent") || \
+				(String($inParams.prompt)="select_account"))
+				This.prompt:=String($inParams.prompt)
+			End if 
+			
 /*
 	clientMail used by Google services account used
 */
-		This.clientEmail:=String($inParams.clientEmail)
-		
+			This.clientEmail:=String($inParams.clientEmail)
+			
 /*
 	privateKey may be used used by Google services account to sign JWT token
 */
-		This.privateKey:=String($inParams.privateKey)
-		
+			This.privateKey:=String($inParams.privateKey)
+			
 /*
 	_grantType used in Service mode to determine if we use a JWT or client_credentials
 	If empty value is "urn:ietf:params:oauth:grant-type:jwt-bearer" for Google services,
 	or "client_credentials" for other provider.
 */
-		This._grantType:=String($inParams.grantType)
-		
+			This._grantType:=String($inParams.grantType)
+			
 /*
 	Enable HTTP Server debug log for Debug purposes only
 */
-		If (Bool($inParams.enableDebugLog))
-			This.enableDebugLog:=True
-		End if 
-		
+			If (Bool($inParams.enableDebugLog))
+				This.enableDebugLog:=True
+			End if 
+			
 /*
 	PKCEEnabled : Boolean: if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
 	PKCEMethod : Text: PKCE Encoding method. The only supported values for are "S256" or "plain" ("S256" by default)
 		
 	See https://auth0.com/docs/get-started/authentication-and-authorization-flow/call-your-api-using-the-authorization-code-flow-with-pkce
 */
-		This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
-		If (This.PKCEEnabled)
-			This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
-		End if 
-		
+			This.PKCEEnabled:=Bool($inParams.PKCEEnabled)
+			If (This.PKCEEnabled)
+				This.PKCEMethod:=Choose(((String($inParams.PKCEMethod)="plain") || (String($inParams.PKCEMethod)="S256")); String($inParams.PKCEMethod); "S256")
+			End if 
+			
 /*
 	thumbprint of the public key / certificate  is used for the property x5t in jwt header
 	When _thumprint is empty it's not possible to create a proper jwt token for request.
 */
-		If (Value type($inParams.thumbprint)#Is undefined)
-			This.thumbprint:=String($inParams.thumbprint)
-		End if 
-		If (Value type($inParams.clientAssertionType)#Is undefined)
-			This.clientAssertionType:=String($inParams.clientAssertionType)
-		End if 
-		If ((Length(String(This.privateKey))>0) && (Length(String(This.thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
-			This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-		End if 
-		
-		If ((Value type($inParams.state)=Is text) && (Length($inParams.state)>0))
-			This.state:=This._cleanString($inParams.state)  // Keep only letters, digits, - and _
-			If (Length(This.state)=0)
+			If (Value type($inParams.thumbprint)#Is undefined)
+				This.thumbprint:=String($inParams.thumbprint)
+			End if 
+			If (Value type($inParams.clientAssertionType)#Is undefined)
+				This.clientAssertionType:=String($inParams.clientAssertionType)
+			End if 
+			If ((Length(String(This.privateKey))>0) && (Length(String(This.thumbprint))>0) && (Length(String(This.clientAssertionType))=0))
+				This.clientAssertionType:="urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+			End if 
+			
+			If ((Value type($inParams.state)=Is text) && (Length($inParams.state)>0))
+				This.state:=This._cleanString($inParams.state)  // Keep only letters, digits, - and _
+				If (Length(This.state)=0)
+					This.state:=Generate UUID
+				End if 
+			Else 
 				This.state:=Generate UUID
 			End if 
-		Else 
-			This.state:=Generate UUID
+			If ((Value type($inParams.nonce)=Is text) && (Length($inParams.nonce)>0))
+				This.nonce:=$inParams.nonce
+			End if 
+			This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
+			
 		End if 
-		If ((Value type($inParams.nonce)=Is text) && (Length($inParams.nonce)>0))
-			This.nonce:=$inParams.nonce
-		End if 
-		This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
-		
-	End if 
-	
-	This._finally()
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	
 	// Mark: - [Private]
@@ -849,82 +850,85 @@ Function _useJWTBearerAssertionType() : Boolean
 	
 Function getToken() : Object
 	
+	This._clearErrorStack()
+	
 	var $result : Object:=Null
 	
-	This._try()
-	
-	var $bUseRefreshToken : Boolean:=False
-	If (This.token#Null)
-		var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
-		If (Not($token._Expired()))
-			// Token is still valid.. Simply return it
-			$result:=$token
-		Else 
-			$bUseRefreshToken:=(Length(String(This.token.refresh_token))>0)
-		End if 
-	End if 
-	
-	If ($result=Null)
+	Try
 		
-		var $redirectURI : Text:=This.redirectURI
-		var $authenticateURI : Text:=This.authenticateURI
-		var $tokenURI : Text:=This.tokenURI
-		
-		// Sanity check
-		Case of 
-				
-			: (Length(String(This.clientId))=0)
-				This._throwError(2; {attribute: "clientId"})
-				
-			: (Length(String($authenticateURI))=0)
-				This._throwError(2; {attribute: "authenticateURI"})
-				
-			: ((This._isGoogle() || This._isMicrosoft()) && (Length(String(This.scope))=0))
-				This._throwError(2; {attribute: "scope"})
-				
-			: (Length(String($tokenURI))=0)
-				This._throwError(2; {attribute: "tokenURI"})
-				
-			: (This._isMicrosoft() && (Length(String(This.tenant))=0))
-				This._throwError(2; {attribute: "tenant"})
-				
-			: (Length(String(This.permission))=0)
-				This._throwError(2; {attribute: "permission"})
-				
-			: (This._isSignedIn() && (Length(String($redirectURI))=0))
-				This._throwError(2; {attribute: "permission"})
-				
-			: (Not(This._isSignedIn()) && Not(This._isService()))
-				This._throwError(3; {attribute: "permission"})
-				
+		var $bUseRefreshToken : Boolean:=False
+		If (This.token#Null)
+			var $token : cs.OAuth2Token:=cs.OAuth2Token.new(This)
+			If (Not($token._Expired()))
+				// Token is still valid.. Simply return it
+				$result:=$token
 			Else 
-				
-				Case of 
-						
-					: (This._isSignedIn())
-						$result:=This._getToken_SignedIn($bUseRefreshToken)
-						
-					: (This._isService())
-						$result:=This._getToken_Service()
-						
-					Else 
-						This._throwError(3; {attribute: "permission"})
-						
-				End case 
-				
-				If ($result#Null)
-					// Save token internally
-					If (OB Is defined($result; "tokenExpiration"))
-						This.tokenExpiration:=$result.tokenExpiration
-					End if 
-					This.token:=$result.token
-				End if 
-				
-		End case 
+				$bUseRefreshToken:=(Length(String(This.token.refresh_token))>0)
+			End if 
+		End if 
 		
-	End if 
-	
-	This._finally()
+		If ($result=Null)
+			
+			var $redirectURI : Text:=This.redirectURI
+			var $authenticateURI : Text:=This.authenticateURI
+			var $tokenURI : Text:=This.tokenURI
+			
+			// Sanity check
+			Case of 
+					
+				: (Length(String(This.clientId))=0)
+					This._throwError(2; {attribute: "clientId"})
+					
+				: (Length(String($authenticateURI))=0)
+					This._throwError(2; {attribute: "authenticateURI"})
+					
+				: ((This._isGoogle() || This._isMicrosoft()) && (Length(String(This.scope))=0))
+					This._throwError(2; {attribute: "scope"})
+					
+				: (Length(String($tokenURI))=0)
+					This._throwError(2; {attribute: "tokenURI"})
+					
+				: (This._isMicrosoft() && (Length(String(This.tenant))=0))
+					This._throwError(2; {attribute: "tenant"})
+					
+				: (Length(String(This.permission))=0)
+					This._throwError(2; {attribute: "permission"})
+					
+				: (This._isSignedIn() && (Length(String($redirectURI))=0))
+					This._throwError(2; {attribute: "permission"})
+					
+				: (Not(This._isSignedIn()) && Not(This._isService()))
+					This._throwError(3; {attribute: "permission"})
+					
+				Else 
+					
+					Case of 
+							
+						: (This._isSignedIn())
+							$result:=This._getToken_SignedIn($bUseRefreshToken)
+							
+						: (This._isService())
+							$result:=This._getToken_Service()
+							
+						Else 
+							This._throwError(3; {attribute: "permission"})
+							
+					End case 
+					
+					If ($result#Null)
+						// Save token internally
+						If (OB Is defined($result; "tokenExpiration"))
+							This.tokenExpiration:=$result.tokenExpiration
+						End if 
+						This.token:=$result.token
+					End if 
+					
+			End case 
+			
+		End if 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return $result
 	

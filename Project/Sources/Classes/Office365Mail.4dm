@@ -84,31 +84,32 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	
 	var $status : Object
 	
-	Super._throwErrors(False)
-	
-	If (Length(String(This.mailType))=0)
-		This.mailType:="Microsoft"
-	End if 
-	
-	Case of 
-		: ((This.mailType="MIME") && (\
-			(Value type($inMail)=Is text) || \
-			(Value type($inMail)=Is BLOB)))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
-			
-		: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
-			$status:=This._postMailMIMEMessage($inURL; $inMail)
-			
-		: ((This.mailType="Microsoft") && (Value type($inMail)=Is object))
-			$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
-			
-		Else 
-			Super._throwError(10; {which: 1; function: $inFunction})
-			$status:=This._returnStatus()
-			
-	End case 
-	
-	Super._throwErrors(True)
+	Try
+		
+		If (Length(String(This.mailType))=0)
+			This.mailType:="Microsoft"
+		End if 
+		
+		Case of 
+			: ((This.mailType="MIME") && (\
+				(Value type($inMail)=Is text) || \
+				(Value type($inMail)=Is BLOB)))
+				$status:=This._postMailMIMEMessage($inURL; $inMail)
+				
+			: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
+				$status:=This._postMailMIMEMessage($inURL; $inMail)
+				
+			: ((This.mailType="Microsoft") && (Value type($inMail)=Is object))
+				$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
+				
+			Else 
+				Super._throwError(10; {which: 1; function: $inFunction})
+				$status:=This._returnStatus()
+				
+		End case 
+	Catch
+		$status:=This._returnStatus()
+	End try
 	
 	return $status
 	
@@ -119,6 +120,8 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	
 	
 Function append($inMail : Variant; $inFolderId : Text) : Object
+	
+	Super._clearErrorStack()
 	
 	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
@@ -139,41 +142,44 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	
 Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
+	Super._clearErrorStack()
+	
 	var $response : Object
 	
-	Super._throwErrors(False)
-	
-	Case of 
-		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.copy"})
-			
-		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.copy"})
-			
-		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.copy"})
-			
-		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.copy"})
-			
-		Else 
-			
-			var $URL : Text:=Super._getURL()
-			If (Length(String(This.userId))>0)
-				$URL+="users/"+This.userId
+	Try
+		
+		Case of 
+			: (Type($inMailId)#Is text)
+				Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.copy"})
+				
+			: (Length(String($inMailId))=0)
+				Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.copy"})
+				
+			: (Type($inFolderId)#Is text)
+				Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.copy"})
+				
+			: (Length(String($inFolderId))=0)
+				Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.copy"})
+				
 			Else 
-				$URL+="me"
-			End if 
-			$URL+="/messages/"+$inMailId+"/copy"
-			
-			var $headers : Object:={}
-			var $body : Object:={destinationId: $inFolderId}
-			
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
-	End case 
-	
-	Super._throwErrors(True)
+				
+				var $URL : Text:=Super._getURL()
+				If (Length(String(This.userId))>0)
+					$URL+="users/"+This.userId
+				Else 
+					$URL+="me"
+				End if 
+				$URL+="/messages/"+$inMailId+"/copy"
+				
+				var $headers : Object:={}
+				var $body : Object:={destinationId: $inFolderId}
+				
+				$headers["Content-Type"]:="application/json"
+				$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
+		End case 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
@@ -183,26 +189,29 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 Function delete($inMailId : Text) : Object
 	
-	Super._throwErrors(False)
+	Super._clearErrorStack()
 	
-	If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
+	Try
 		
-		var $URL : Text:=Super._getURL()
-		If (Length(String(This.userId))>0)
-			$URL+="users/"+This.userId
+		If ((Type($inMailId)=Is text) && (Length(String($inMailId))>0))
+			
+			var $URL : Text:=Super._getURL()
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
+			Else 
+				$URL+="me"
+			End if 
+			$URL+="/messages/"+$inMailId
+			
+			Super._sendRequestAndWaitResponse("DELETE"; $URL)
+			
 		Else 
-			$URL+="me"
+			
+			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.delete"})
 		End if 
-		$URL+="/messages/"+$inMailId
-		
-		Super._sendRequestAndWaitResponse("DELETE"; $URL)
-		
-	Else 
-		
-		Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.delete"})
-	End if 
-	
-	Super._throwErrors(True)
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus()
 	
@@ -297,41 +306,44 @@ Function getMails($inParameters : Object) : Object
 	
 Function move($inMailId : Text; $inFolderId : Text) : Object
 	
+	Super._clearErrorStack()
+	
 	var $response : Object
 	
-	Super._throwErrors(False)
-	
-	Case of 
-		: (Type($inMailId)#Is text)
-			Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.move"})
-			
-		: (Length(String($inMailId))=0)
-			Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.move"})
-			
-		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.move"})
-			
-		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.move"})
-			
-		Else 
-			
-			var $URL : Text:=Super._getURL()
-			If (Length(String(This.userId))>0)
-				$URL+="users/"+This.userId
+	Try
+		
+		Case of 
+			: (Type($inMailId)#Is text)
+				Super._throwError(10; {which: "\"mailId\""; function: "office365.mail.move"})
+				
+			: (Length(String($inMailId))=0)
+				Super._throwError(9; {which: "\"mailId\""; function: "office365.mail.move"})
+				
+			: (Type($inFolderId)#Is text)
+				Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.move"})
+				
+			: (Length(String($inFolderId))=0)
+				Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.move"})
+				
 			Else 
-				$URL+="me"
-			End if 
-			$URL+="/messages/"+$inMailId+"/move"
-			
-			var $headers : Object:={}
-			var $body : Object:={destinationId: $inFolderId}
-			
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
-	End case 
-	
-	Super._throwErrors(True)
+				
+				var $URL : Text:=Super._getURL()
+				If (Length(String(This.userId))>0)
+					$URL+="users/"+This.userId
+				Else 
+					$URL+="me"
+				End if 
+				$URL+="/messages/"+$inMailId+"/move"
+				
+				var $headers : Object:={}
+				var $body : Object:={destinationId: $inFolderId}
+				
+				$headers["Content-Type"]:="application/json"
+				$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
+		End case 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
@@ -367,13 +379,15 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 		
 	Else 
 		
-		Super._throwErrors(False)
-		If (Type($inMail)#Is object)
-			Super._throwError(10; {which: "\"reply\""; function: "office365.mail.reply"})
-		Else 
-			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.reply"})
-		End if 
-		Super._throwErrors(True)
+		Try
+			If (Type($inMail)#Is object)
+				Super._throwError(10; {which: "\"reply\""; function: "office365.mail.reply"})
+			Else 
+				Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.reply"})
+			End if 
+		Catch
+			// Errors are already in _errorStack via _throwError
+		End try
 		
 		return This._returnStatus()
 	End if 
@@ -383,6 +397,8 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	
 	
 Function send($inMail : Variant) : Object
+	
+	Super._clearErrorStack()
 	
 	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)
@@ -399,36 +415,39 @@ Function send($inMail : Variant) : Object
 	
 Function update($inMailId : Text; $inMail : Object) : Object
 	
-	Super._throwErrors(False)
+	Super._clearErrorStack()
 	
-	If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
+	Try
 		
-		var $response : Object
-		var $URL : Text:=Super._getURL()
-		
-		If (Length(String(This.userId))>0)
-			$URL+="users/"+This.userId
-		Else 
-			$URL+="me"
-		End if 
-		$URL+="/messages/"+$inMailId
-		
-		var $headers : Object:={}
-		$headers["Content-Type"]:="application/json"
-		$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
-		
-	Else 
-		
-		If (Type($inMail)#Is object)
+		If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
 			
-			Super._throwError(10; {which: "\"mail\""; function: "office365.mail.update"})
+			var $response : Object
+			var $URL : Text:=Super._getURL()
+			
+			If (Length(String(This.userId))>0)
+				$URL+="users/"+This.userId
+			Else 
+				$URL+="me"
+			End if 
+			$URL+="/messages/"+$inMailId
+			
+			var $headers : Object:={}
+			$headers["Content-Type"]:="application/json"
+			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($inMail))
+			
 		Else 
 			
-			Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.update"})
+			If (Type($inMail)#Is object)
+				
+				Super._throwError(10; {which: "\"mail\""; function: "office365.mail.update"})
+			Else 
+				
+				Super._throwError((Length(String($inMailId))=0) ? 9 : 10; {which: "\"mailId\""; function: "office365.mail.update"})
+			End if 
 		End if 
-	End if 
-	
-	Super._throwErrors(True)
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus()
 	
@@ -439,39 +458,42 @@ Function update($inMailId : Text; $inMail : Object) : Object
 	
 Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolderId : Text) : Object
 	
+	Super._clearErrorStack()
+	
 	var $response : Object
 	
-	Super._throwErrors(False)
-	
-	Case of 
-		: (Type($inFolderName)#Is text)
-			Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.createFolder"})
-			
-		: (Length(String($inFolderName))=0)
-			Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.createFolder"})
-			
-		Else 
-			
-			var $URL : Text:=Super._getURL()
-			
-			If (Length(String(This.userId))>0)
-				$URL+="users/"+This.userId
+	Try
+		
+		Case of 
+			: (Type($inFolderName)#Is text)
+				Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.createFolder"})
+				
+			: (Length(String($inFolderName))=0)
+				Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.createFolder"})
+				
 			Else 
-				$URL+="me"
-			End if 
-			$URL+="/mailFolders"
-			If (Length(String($inParentFolderId))>0)
-				$URL+="/"+$inParentFolderId+"/childFolders"
-			End if 
-			
-			var $headers : Object:={}
-			var $body : Object:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
-			
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
-	End case 
-	
-	Super._throwErrors(True)
+				
+				var $URL : Text:=Super._getURL()
+				
+				If (Length(String(This.userId))>0)
+					$URL+="users/"+This.userId
+				Else 
+					$URL+="me"
+				End if 
+				$URL+="/mailFolders"
+				If (Length(String($inParentFolderId))>0)
+					$URL+="/"+$inParentFolderId+"/childFolders"
+				End if 
+				
+				var $headers : Object:={}
+				var $body : Object:={displayName: $inFolderName; isHidden: ($bIsHidden ? "true" : "false")}
+				
+				$headers["Content-Type"]:="application/json"
+				$response:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
+		End case 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
@@ -481,31 +503,34 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	
 Function deleteFolder($inFolderId : Text) : Object
 	
-	Super._throwErrors(False)
+	Super._clearErrorStack()
 	
-	Case of 
-		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
-			
-		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
-			
-		Else 
-			
-			var $URL : Text:=Super._getURL()
-			
-			If (Length(String(This.userId))>0)
-				$URL+="users/"+This.userId
+	Try
+		
+		Case of 
+			: (Type($inFolderId)#Is text)
+				Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
+				
+			: (Length(String($inFolderId))=0)
+				Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.deleteFolder"})
+				
 			Else 
-				$URL+="me"
-			End if 
-			$URL+="/mailFolders/"+$inFolderId
-			
-			Super._sendRequestAndWaitResponse("DELETE"; $URL)
-			
-	End case 
-	
-	Super._throwErrors(True)
+				
+				var $URL : Text:=Super._getURL()
+				
+				If (Length(String(This.userId))>0)
+					$URL+="users/"+This.userId
+				Else 
+					$URL+="me"
+				End if 
+				$URL+="/mailFolders/"+$inFolderId
+				
+				Super._sendRequestAndWaitResponse("DELETE"; $URL)
+				
+		End case 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus()
 	
@@ -578,42 +603,45 @@ Function getFolderList($inParameters : Object) : Object
 	
 Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
+	Super._clearErrorStack()
+	
 	var $response : Object
 	
-	Super._throwErrors(False)
-	
-	Case of 
-		: (Type($inFolderId)#Is text)
-			Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
-			
-		: (Length(String($inFolderId))=0)
-			Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
-			
-		: (Type($inNewFolderName)#Is text)
-			Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
-			
-		: (Length(String($inNewFolderName))=0)
-			Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
-		Else 
-			
-			var $URL : Text:=Super._getURL()
-			
-			If (Length(String(This.userId))>0)
-				$URL+="users/"+This.userId
+	Try
+		
+		Case of 
+			: (Type($inFolderId)#Is text)
+				Super._throwError(10; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
+				
+			: (Length(String($inFolderId))=0)
+				Super._throwError(9; {which: "\"folderId\""; function: "office365.mail.renameFolder"})
+				
+			: (Type($inNewFolderName)#Is text)
+				Super._throwError(10; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
+				
+			: (Length(String($inNewFolderName))=0)
+				Super._throwError(9; {which: "\"folderName\""; function: "office365.mail.renameFolder"})
 			Else 
-				$URL+="me"
-			End if 
-			$URL+="/mailFolders/"+$inFolderId
-			
-			var $headers : Object:={}
-			var $body : Object:={displayName: $inNewFolderName}
-			
-			$headers["Content-Type"]:="application/json"
-			$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($body))
-			
-	End case 
-	
-	Super._throwErrors(True)
+				
+				var $URL : Text:=Super._getURL()
+				
+				If (Length(String(This.userId))>0)
+					$URL+="users/"+This.userId
+				Else 
+					$URL+="me"
+				End if 
+				$URL+="/mailFolders/"+$inFolderId
+				
+				var $headers : Object:={}
+				var $body : Object:={displayName: $inNewFolderName}
+				
+				$headers["Content-Type"]:="application/json"
+				$response:=Super._sendRequestAndWaitResponse("PATCH"; $URL; $headers; JSON Stringify($body))
+				
+		End case 
+	Catch
+		// Errors are already in _errorStack via _throwError
+	End try
 	
 	return This._returnStatus((Length(String($response.id))>0) ? {id: $response.id} : Null)
 	
@@ -653,7 +681,7 @@ Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotifica
 	End if 
 	If (Length(String($inFolderId))>0)
 		$resource+="/mailFolders/"+$inFolderId
-	else
+	Else 
 		$resource+="/mailFolders/inbox"
 	End if 
 	$resource+="/messages"

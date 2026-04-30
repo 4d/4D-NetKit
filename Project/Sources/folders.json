@@ -37,10 +37,7 @@
 		"methods": [
 			"__buildComponent",
 			"_authorize",
-			"_catch",
-			"_errorHandler",
-			"_onWebConnection",
-			"_throwError"
+			"_onWebConnection"
 		]
 	},
 	"Public Classes": {
