@@ -297,23 +297,26 @@ Function _generateCodeChallenge($codeVerifier : Text) : Text
 	// ----------------------------------------------------
 	
 	
-Function _rangeRandom($min : Integer; $max : Integer) : Integer
+Function _generateCodeVerifier : Text
 	
-	return (Random%($max-$min+1))+$min
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function _randomString($size : Integer) : Text
-	
-	var $tab : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $chars : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
+	var $charsLen : Integer:=Length($chars)
+	var $uuid : Text:=Replace string(Generate UUID; "-"; "")  // 32 hex chars
+	var $size : Integer:=43+((This._hexCharToNum($uuid[[1]])*16+This._hexCharToNum($uuid[[2]]))%86)  // Random size between 43 and 128
 	var $string : Text:=""
+	var $hexPool : Text:=""
 	
-	While (Length($string)<$size)
-		var $rnd : Integer:=This._rangeRandom(1; Length($tab))
-		$string+=$tab[[$rnd]]
+	// Build a pool of random hex chars from UUIDs (each UUID = 32 hex chars = 16 random bytes)
+	var $needed : Integer:=$size*2  // 2 hex chars per random byte
+	While (Length($hexPool)<$needed)
+		$hexPool+=Replace string(Generate UUID; "-"; "")
 	End while 
+	
+	var $i : Integer
+	For ($i; 0; $size-1)
+		var $byte : Integer:=(This._hexCharToNum($hexPool[[$i*2+1]])*16)+This._hexCharToNum($hexPool[[$i*2+2]])
+		$string+=$chars[[($byte%$charsLen)+1]]
+	End for 
 	
 	return $string
 	
@@ -321,9 +324,19 @@ Function _randomString($size : Integer) : Text
 	// ----------------------------------------------------
 	
 	
-Function _generateCodeVerifier : Text
+Function _hexCharToNum($c : Text) : Integer
 	
-	return This._randomString(This._rangeRandom(43; 128))
+	var $code : Integer:=Character code($c)
+	Case of 
+		: (($code>=48) && ($code<=57))  // 0-9
+			return $code-48
+		: (($code>=65) && ($code<=70))  // A-F
+			return $code-55
+		: (($code>=97) && ($code<=102))  // a-f
+			return $code-87
+	End case 
+	
+	return 0
 	
 	
 	// ----------------------------------------------------
@@ -339,47 +352,8 @@ Function get _x5t() : Text
 	
 	SET BLOB SIZE($byteArray; ($textSize/2); 0)
 	
-	For ($i; 1; $textSize)
-		
-		Case of 
-			: ($text[[$i]]="A")
-				$byteArray{$l_counter}:=10*16
-			: ($text[[$i]]="B")
-				$byteArray{$l_counter}:=11*16
-			: ($text[[$i]]="C")
-				$byteArray{$l_counter}:=12*16
-			: ($text[[$i]]="D")
-				$byteArray{$l_counter}:=13*16
-			: ($text[[$i]]="E")
-				$byteArray{$l_counter}:=14*16
-			: ($text[[$i]]="F")
-				$byteArray{$l_counter}:=15*16
-			Else 
-				$byteArray{$l_counter}:=Num($text[[$i]])*16
-		End case 
-		
-		$i:=$i+1
-		If ($i>$textSize)  // Sanity check
-			break
-		End if 
-		
-		Case of 
-			: ($text[[$i]]="A")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+10
-			: ($text[[$i]]="B")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+11
-			: ($text[[$i]]="C")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+12
-			: ($text[[$i]]="D")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+13
-			: ($text[[$i]]="E")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+14
-			: ($text[[$i]]="F")
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+15
-			Else 
-				$byteArray{$l_counter}:=$byteArray{$l_counter}+Num($text[[$i]])
-		End case 
-		
+	For ($i; 1; $textSize; 2)
+		$byteArray{$l_counter}:=(This._hexCharToNum($text[[$i]])*16)+This._hexCharToNum($text[[$i+1]])
 		$l_counter+=1
 	End for 
 	
