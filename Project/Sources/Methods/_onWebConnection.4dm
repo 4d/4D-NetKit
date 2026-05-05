@@ -5,7 +5,7 @@ var $redirectURI : Text
 var $state : Text:=cs._Tools.me.getURLParameterValue($1; "state")
 var $statusLine : Text
 
-If (OB Is defined(Storage.requests; $state))
+If ((Storage.requests#Null) && OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
 	If (Length($redirectURI)>0)
 		$redirectURI:=cs._Tools.me.getPathFromURL($redirectURI)+"@"

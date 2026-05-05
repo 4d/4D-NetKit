@@ -87,7 +87,7 @@ Function parse($inURL : Text)
                 
                 // Extract scheme
                 If ($foundPos{2}>0)
-                    This.scheme:=Substring($inURL; $foundPos{2}; $foundLen{2})
+                    This.scheme:=Lowercase(Substring($inURL; $foundPos{2}; $foundLen{2}))
                 End if 
                 
                 // Extract host
@@ -97,7 +97,7 @@ Function parse($inURL : Text)
                     If ($userInfoIndex>0)
                         $userInfo:=Substring($host; 1; $userInfoIndex-1)
                         $host:=Substring($host; $userInfoIndex+1)
-                        $URLComponents:=Split string($userInfo; ":"; sk ignore empty strings)
+                        $URLComponents:=Split string($userInfo; ":")
                         If ($URLComponents.length>0)
                             This.username:=$URLComponents[0]
                             If ($URLComponents.length>1)
@@ -106,18 +106,18 @@ Function parse($inURL : Text)
                         End if 
                     End if 
                     $URLComponents:=[]
-                    var $posLeftBackets : Integer:=Position("["; $host)
-                    var $posRightBackets : Integer:=Position("]"; $host)
-                    If (($posLeftBackets>0) && ($posRightBackets>0) && ($posLeftBackets<$posRightBackets))
+                    var $posLeftBrackets : Integer:=Position("["; $host)
+                    var $posRightBrackets : Integer:=Position("]"; $host)
+                    If (($posLeftBrackets>0) && ($posRightBrackets>0) && ($posLeftBrackets<$posRightBrackets))
                         // IPv6 address
-                        This.host:=Substring($host; $posLeftBackets; $posRightBackets-$posLeftBackets+1)
-                        $portIndex:=Position(":"; $host; $posRightBackets+1)
+                        This.host:=Substring($host; $posLeftBrackets; $posRightBrackets-$posLeftBrackets+1)
+                        $portIndex:=Position(":"; $host; $posRightBrackets+1)
                         If ($portIndex>0)
                             This._port:=Num(Substring($host; $portIndex+1))
                         End if 
                     Else 
                         // Regular host
-                        $URLComponents:=Split string($host; ":"; sk ignore empty strings)
+                        $URLComponents:=Split string($host; ":")
                         If ($URLComponents.length>0)
                             This.host:=$URLComponents[0]
                             If ($URLComponents.length>1)
@@ -171,6 +171,8 @@ Function parseQuery($inQueryString : Text)
                 $name:=Substring($param; 1; Position("="; $param)-1)
                 $value:=Substring($param; Position("="; $param)+1)
                 This.queryParams.push({name: $name; value: $value})
+            Else 
+                This.queryParams.push({name: $param; value: ""})
             End if 
         End for each 
     End if 
@@ -223,7 +225,7 @@ Function toJSON() : Object
     $json.username:=This.username
     $json.password:=This.password
     $json.host:=This.host
-    $json.port:=This.port
+    $json.port:=This._port
     $json.path:=This.path
     $json.query:=This.query
     $json.ref:=This.ref
@@ -248,7 +250,13 @@ Function fromJSON($inURL : Object)
     This.host:=(Value type($inURL.host)=Is text) ? $inURL.host : ""
     This._port:=(Value type($inURL.port)#Is undefined) ? Num($inURL.port) : 0
     This._path:=(Value type($inURL.path)=Is text) ? $inURL.path : ""
-    This.queryParams:=(Value type($inURL.queryParams)=Is collection) ? $inURL.queryParams : []
+    If (Value type($inURL.queryParams)=Is collection)
+        This.queryParams:=$inURL.queryParams
+    Else 
+        If (Value type($inURL.query)=Is text)
+            This.parseQuery($inURL.query)
+        End if 
+    End if 
     This.ref:=(Value type($inURL.ref)=Is text) ? $inURL.ref : ""
     
     
@@ -286,11 +294,11 @@ Function addQueryParameter( ...  : Variant)
 Function getQueryString() : Text
     
     // Get the query string from the URL object
-    var $query : Text:=""
-    If (This.queryParams.length>0)
-        $query:="?"+This.query
+    var $queryStr : Text:=This.query
+    If (Length($queryStr)>0)
+        return "?"+$queryStr
     End if 
-    return $query
+    return ""
     
     
     // ----------------------------------------------------
@@ -356,7 +364,9 @@ Function get port() : Integer
 Function set port($inPort : Integer)
     
     // Set the port number
-    This._port:=$inPort
+    If (($inPort>=0) && ($inPort<=65535))
+        This._port:=$inPort
+    End if 
     
     
     // ----------------------------------------------------
