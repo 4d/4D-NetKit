@@ -31,8 +31,12 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     
     // Delta query internals
     This._internals._deltaResource:=""  // Separate resource path for delta queries (e.g. calendarView instead of events)
-    This._internals._deltaLink:=""
-    This._internals._knownIds:=[]
+    // Pull mode uses one deltaLink per Graph changeType so created/updated/deleted
+    // are known from the delta stream itself, not inferred from a local knownIds cache.
+    This._internals._deltaLinks:={}
+    This._internals._deltaLinks.created:=""
+    This._internals._deltaLinks.updated:=""
+    This._internals._deltaLinks.deleted:=""
     
     // Pull interval in seconds (default: 30 seconds)
     This._internals._pullInterval:=cs._NotificationHelper.me.parsePullInterval($inParameters)
@@ -148,7 +152,9 @@ Function stop() : Object
     This._internals._subscriptionId:=""
     This._internals._expiration:=""
     This._internals._state:=""
-    This._internals._deltaLink:=""
+    This._internals._deltaLinks.created:=""
+    This._internals._deltaLinks.updated:=""
+    This._internals._deltaLinks.deleted:=""
     
     return This._returnStatus()
     
@@ -265,24 +271,22 @@ Function _stopPull($inState : Text)
     // ----------------------------------------------------
     
     
-Function _initialDeltaSync() : Text
+Function _initialDeltaSync($inChangeType : Text) : Text
     
 /*
-	Performs initial delta sync to obtain a deltaLink for tracking future changes.
+	Performs initial delta sync to obtain a deltaLink for tracking future changes
+	for one Graph changeType: created, updated or deleted.
 	
-	The Graph API requires a full initial round-trip through all existing items
-	before returning a @odata.deltaLink. We use $select=id and 
-	Prefer: odata.maxpagesize=999 to minimize both payload size and the number 
-	of HTTP requests (e.g. 5000 messages = ~5 pages instead of 500+).
-	
-	Existing items are ignored — only the final deltaLink matters.
-	After this call, only future changes will be reported via _pollDelta().
+	Using one deltaLink per changeType avoids guessing created vs updated from
+	a local knownIds cache. Items returned by the created stream are created,
+	items returned by the updated stream are updated, and items returned by the
+	deleted stream are deleted.
 	
 	See: https://learn.microsoft.com/en-us/graph/delta-query-messages
 */
     
     var $deltaResource : Text:=(Length(This._internals._deltaResource)>0) ? This._internals._deltaResource : This._internals._resource
-    var $url : Text:=Super._getURL()+$deltaResource+"/delta?$select=id&$deltatoken=latest"
+    var $url : Text:=Super._getURL()+$deltaResource+"/delta?$select=id&changeType="+$inChangeType+"&$deltatoken=latest"
     
     // calendarView/delta requires startDateTime and endDateTime
     If (This._internals._type="event")
@@ -322,15 +326,31 @@ Function _initialDeltaSync() : Text
 Function _pollDelta() : Collection
     
 /*
-	Polls the delta endpoint for changes since the last deltaLink.
+	Polls all configured delta streams.
 	Returns a collection of {changeType; resourceId} items.
-	Uses a known IDs cache to distinguish created vs updated.
 	
-	Deleted items are marked with @removed in the delta response.
+	There is one deltaLink per Graph changeType, so the type is known from the
+	stream being polled and no local knownIds cache is required.
 */
     
     var $items : Collection:=[]
-    var $url : Text:=This._internals._deltaLink
+    var $changeTypes : Collection:=This._computePullChangeTypes()
+    var $changeType : Text
+    
+    For each ($changeType; $changeTypes)
+        $items.combine(This._pollDeltaForChangeType($changeType))
+    End for each 
+    
+    return $items
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function _pollDeltaForChangeType($inChangeType : Text) : Collection
+    
+    var $items : Collection:=[]
+    var $url : Text:=String(This._internals._deltaLinks[$inChangeType])
     
     If (Length($url)=0)
         return $items
@@ -347,34 +367,17 @@ Function _pollDelta() : Collection
                     For each ($entry; $response["value"])
                         var $item : Object:={}
                         $item.resourceId:=String($entry.id)
-                        
-                        If (Value type($entry["@removed"])=Is object)
-                            // Deleted resource
-                            $item.changeType:="deleted"
-                            var $removeIdx : Integer:=This._internals._knownIds.indexOf($item.resourceId)
-                            If ($removeIdx>=0)
-                                This._internals._knownIds.remove($removeIdx)
-                            End if 
-                        Else 
-                            // Distinguish created vs updated using known IDs cache
-                            If (This._internals._knownIds.indexOf($item.resourceId)<0)
-                                $item.changeType:="created"
-                                This._internals._knownIds.push($item.resourceId)
-                            Else 
-                                $item.changeType:="updated"
-                            End if 
-                        End if 
-                        
+                        $item.changeType:=$inChangeType
                         $items.push($item)
                     End for each 
                 End if 
                 
-                // Follow pagination or get new deltaLink
+                // Follow pagination or get new deltaLink for this changeType
                 If (Length(String($response["@odata.nextLink"]))>0)
                     $url:=String($response["@odata.nextLink"])
                 Else 
                     If (Length(String($response["@odata.deltaLink"]))>0)
-                        This._internals._deltaLink:=String($response["@odata.deltaLink"])
+                        This._internals._deltaLinks[$inChangeType]:=String($response["@odata.deltaLink"])
                     End if 
                     $url:=""
                 End if 
@@ -390,6 +393,29 @@ Function _pollDelta() : Collection
     
     
     // Mark: - [Private] Common
+    // ----------------------------------------------------
+    
+    
+Function _computePullChangeTypes() : Collection
+    
+    var $types : Collection:=[]
+    
+    If (This._internals._callbacks.onCreate#Null)
+        $types.push("created")
+    End if 
+    If (This._internals._callbacks.onModify#Null)
+        $types.push("updated")
+    End if 
+    If (This._internals._callbacks.onDelete#Null)
+        $types.push("deleted")
+    End if 
+    If ($types.length=0)
+        $types:=["created"; "updated"; "deleted"]
+    End if 
+    
+    return $types
+    
+    
     // ----------------------------------------------------
     
     
@@ -451,8 +477,12 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
 	In both modes, dispatches callbacks to the original caller context via CALL FORM or CALL WORKER.
 */
     If (This._internals._mode="pull")
-        // Delta query: perform the initial sync to get the first deltaLink
-        This._internals._deltaLink:=This._initialDeltaSync()
+        // Delta query: perform one initial sync per requested changeType.
+        var $changeTypes : Collection:=This._computePullChangeTypes()
+        var $changeType : Text
+        For each ($changeType; $changeTypes)
+            This._internals._deltaLinks[$changeType]:=This._initialDeltaSync($changeType)
+        End for each 
     End if 
     
     var $renewalThreshold : Integer:=3600
