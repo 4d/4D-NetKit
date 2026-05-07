@@ -1,5 +1,8 @@
 Class extends _GraphAPI
 
+property _internals : Object
+property expiration : Text
+
 
 Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text; $inOwner : Object)
     
@@ -16,7 +19,6 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._workerName:=""
     This._internals._formWindow:=0
     This._internals._isStarted:=False
-    This._internals._expiration:=""
     
     // endPoint for push mode (webhook)
     This._internals._endPoint:=""
@@ -49,14 +51,6 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
 Function get endPoint : Text
     
     return This._internals._endPoint
-    
-    
-    // ----------------------------------------------------
-    
-    
-Function get expiration : Text
-    
-    return This._internals._expiration
     
     
     // ----------------------------------------------------
@@ -150,11 +144,13 @@ Function stop() : Object
     End try
     
     This._internals._subscriptionId:=""
-    This._internals._expiration:=""
     This._internals._state:=""
     This._internals._deltaLinks.created:=""
     This._internals._deltaLinks.updated:=""
     This._internals._deltaLinks.deleted:=""
+    If (Value type(This.expiration)=Is text)
+        This.expiration:=""
+    End if 
     
     return This._returnStatus()
     
@@ -199,7 +195,7 @@ Function _startPush($inState : Text) : Object
     If (($response#Null) && (Length(String($response.id))>0))
         
         This._internals._subscriptionId:=$response.id
-        This._internals._expiration:=String($response.expirationDateTime)
+        This.expiration:=String($response.expirationDateTime)
         This._internals._isStarted:=True
         
         Use (Storage.graphNotifications[$inState])
@@ -549,11 +545,11 @@ Function _dispatchCallbacks($inItems : Collection)
     
 Function _renewIfNeeded($inThresholdSeconds : Integer)
     
-    If (Length(This._internals._expiration)=0)
+    If (Length(This.expiration)=0)
         return 
     End if 
     
-    var $expirationDT : cs._DateTime:=cs._DateTime.new(This._internals._expiration)
+    var $expirationDT : cs._DateTime:=cs._DateTime.new(This.expiration)
     var $nowDT : cs._DateTime:=cs._DateTime.new()
     
     var $expirationSeconds : Integer:=($expirationDT.date-$nowDT.date)*86400+($expirationDT.time-$nowDT.time)
@@ -571,7 +567,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         var $response : Object:=Try(Super._sendRequestAndWaitResponse("PATCH"; Super._getURL()+"subscriptions/"+This._internals._subscriptionId; $headers; JSON Stringify($body)))
         
         If (($response#Null) && (Length(String($response.expirationDateTime))>0))
-            This._internals._expiration:=String($response.expirationDateTime)
+            This.expiration:=String($response.expirationDateTime)
         End if 
         
     End if 
