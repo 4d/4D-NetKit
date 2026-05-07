@@ -1,6 +1,5 @@
 Class extends _GraphAPI
 
-property _internals : Object
 property expiration : Text
 
 
