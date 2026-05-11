@@ -33,6 +33,8 @@ property state : Text
 property nonce : Text  // For OpenID Connect
 
 property enableDebugLog : Boolean  // Enable HTTP Server debug log for Debug purposes only
+property _deviceAuthURI : Text  // URI used to request device authorization (RFC 8628)
+property deviceCodeHandler : 4D.Function  // Formula called with device authorization response: { device_code, user_code, verification_uri, verification_uri_complete, expires_in, interval }
 
 Class constructor($inParams : Object)
 	
@@ -53,7 +55,8 @@ Class constructor($inParams : Object)
 	"service": Call Provider with their own identity.
 */
 			If ((String($inParams.permission)="signedIn") || \
-				(String($inParams.permission)="service"))
+				(String($inParams.permission)="service") || \
+				(String($inParams.permission)="device"))
 				This.permission:=String($inParams.permission)
 			End if 
 			
@@ -249,6 +252,20 @@ Class constructor($inParams : Object)
 			End if 
 			This.browserAutoOpen:=Choose(Value type($inParams.browserAutoOpen)=Is undefined; True; Bool($inParams.browserAutoOpen))
 			
+/*
+	URI used to request device authorization (RFC 8628).
+	If not set, defaults are used for Microsoft and Google.
+*/
+			This._deviceAuthURI:=String($inParams.deviceAuthURI)
+			
+/*
+	Formula called when the device authorization response is received,
+	so the application can display user_code and verification_uri to the user.
+*/
+			If (Value type($inParams.deviceCodeHandler)=Is object)
+				This.deviceCodeHandler:=$inParams.deviceCodeHandler
+			End if 
+			
 		End if 
 	Catch
 		// Errors are already in _errorStack via _throwError
@@ -408,6 +425,14 @@ Function _isSignedIn() : Boolean
 Function _isService() : Boolean
 	
 	return (This.permission="service")
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _isDevice() : Boolean
+	
+	return (This.permission="device")
 	
 	
 	// ----------------------------------------------------
@@ -646,6 +671,139 @@ Function _getToken_Service() : Object
 	// ----------------------------------------------------
 	
 	
+Function _getToken_Device() : Object
+	
+	var $result : Object:=Null
+	
+	If (Length(String(This.deviceAuthURI))=0)
+		This._throwError(2; {attribute: "deviceAuthURI"})
+		return Null
+	End if 
+	
+	// Step 1: Request device authorization (RFC 8628 §3.1)
+	var $params : cs._URL:=cs._URL.new()
+	$params.addQueryParameter("client_id"; This.clientId)
+	If (Length(This.scope)>0)
+		$params.addQueryParameter("scope"; cs._Tools.me.urlEncode(This.scope))
+	End if 
+	
+	var $options : Object:={headers: {}}
+	$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
+	$options.headers["Accept"]:="application/json"
+	$options.method:=HTTP POST method
+	$options.body:=$params.query
+	$options.dataType:="text"
+	
+	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.deviceAuthURI; $options).wait())
+	var $status : Integer:=Num($request["response"]["status"])
+	var $response : Text:=String($request["response"]["body"])
+	
+	If ($status=200)
+		
+		var $deviceAuth : Object:=Try(JSON Parse($response))
+		If ($deviceAuth=Null)
+			This._throwError(5; {received: $status; expected: 200})
+			return Null
+		End if 
+		
+		// Notify the caller so they can display user_code and verification_uri to the user
+		If (Value type(This.deviceCodeHandler)=Is object)
+			This.deviceCodeHandler.call(This; $deviceAuth)
+		End if 
+		
+		// Step 2: Poll token endpoint until authorized, denied, or expired (RFC 8628 §3.5)
+		var $interval : Integer:=Choose(Value type($deviceAuth.interval)=Is undefined; 5; Num($deviceAuth.interval))
+		var $expiresIn : Integer:=Choose(Value type($deviceAuth.expires_in)=Is undefined; 300; Num($deviceAuth.expires_in))
+		var $endTime : Integer:=Milliseconds+($expiresIn*1000)
+		
+		$result:=This._pollDeviceToken(String($deviceAuth.device_code); $interval; $endTime)
+		
+	Else 
+		
+		var $error : Object:=Try(JSON Parse($response))
+		If ($error#Null)
+			This._throwError(8; {status: $status; explanation: String($request["response"]["statusText"]); message: String($error.error_description)})
+		Else 
+			This._throwError(5; {received: $status; expected: 200})
+		End if 
+		
+	End if 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _pollDeviceToken($deviceCode : Text; $interval : Integer; $endTime : Integer) : Object
+	
+	var $result : Object:=Null
+	var $polling : Boolean:=True
+	
+	While ($polling && (Milliseconds<=$endTime))
+		
+		DELAY PROCESS(Current process; $interval*60)  // interval in seconds; 1 tick = 1/60 sec
+		
+		var $params : cs._URL:=cs._URL.new()
+		$params.addQueryParameter("grant_type"; cs._Tools.me.urlEncode("urn:ietf:params:oauth:grant-type:device_code"))
+		$params.addQueryParameter("client_id"; This.clientId)
+		$params.addQueryParameter("device_code"; $deviceCode)
+		If (Length(This.clientSecret)>0)
+			$params.addQueryParameter("client_secret"; This.clientSecret)
+		End if 
+		
+		var $options : Object:={headers: {}}
+		$options.headers["Content-Type"]:="application/x-www-form-urlencoded"
+		$options.headers["Accept"]:="application/json"
+		$options.method:=HTTP POST method
+		$options.body:=$params.query
+		$options.dataType:="text"
+		
+		var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.tokenURI; $options).wait())
+		var $status : Integer:=Num($request["response"]["status"])
+		var $response : Text:=String($request["response"]["body"])
+		
+		If ($status=200)
+			
+			$result:=cs.OAuth2Token.new()
+			$result._loadFromResponse($response)
+			$polling:=False
+			
+		Else 
+			
+			var $error : Object:=Try(JSON Parse($response))
+			var $errorCode : Text:=String($error.error)
+			
+			Case of 
+				: ($errorCode="authorization_pending")
+					// User has not yet authorized — keep polling
+				: ($errorCode="slow_down")
+					$interval:=$interval+5  // RFC 8628 §3.5: increase polling interval by 5 seconds
+				: ($errorCode="expired_token")
+					This._throwError(4)  // Device code expired
+					$polling:=False
+				: ($errorCode="access_denied")
+					This._throwError(12; {function: Current method name; message: String($error.error_description)})
+					$polling:=False
+				Else 
+					This._throwError(8; {status: $status; explanation: String($request["response"]["statusText"]); message: String($error.error_description)})
+					$polling:=False
+			End case 
+			
+		End if 
+		
+	End while 
+	
+	If ($polling && ($result=Null))
+		This._throwError(4)  // Polling loop ended because device_code expired
+	End if 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _checkPrerequisites($obj : Object) : Boolean
 	
 	var $OK : Boolean:=False
@@ -665,7 +823,7 @@ Function _checkPrerequisites($obj : Object) : Boolean
 			: (Length(String($obj.permission))=0)
 				This._throwError(2; {attribute: "permission"})
 				
-			: (Not(String($obj.permission)="signedIn") && Not(String($obj.permission)="service"))
+			: (Not(String($obj.permission)="signedIn") && Not(String($obj.permission)="service") && Not(String($obj.permission)="device"))
 				This._throwError(3; {attribute: "permission"})
 				
 			: ((String($obj.permission)="signedIn") && (Length(String($obj.redirectURI))=0))
@@ -853,7 +1011,7 @@ Function getToken() : Object
 				: (Length(String(This.clientId))=0)
 					This._throwError(2; {attribute: "clientId"})
 					
-				: (Length(String($authenticateURI))=0)
+				: ((Not(This._isDevice())) && (Length(String($authenticateURI))=0))
 					This._throwError(2; {attribute: "authenticateURI"})
 					
 				: ((This._isGoogle() || This._isMicrosoft()) && (Length(String(This.scope))=0))
@@ -871,7 +1029,7 @@ Function getToken() : Object
 				: (This._isSignedIn() && (Length(String($redirectURI))=0))
 					This._throwError(2; {attribute: "permission"})
 					
-				: (Not(This._isSignedIn()) && Not(This._isService()))
+				: (Not(This._isSignedIn()) && Not(This._isService()) && Not(This._isDevice()))
 					This._throwError(3; {attribute: "permission"})
 					
 				Else 
@@ -883,6 +1041,13 @@ Function getToken() : Object
 							
 						: (This._isService())
 							$result:=This._getToken_Service()
+							
+						: (This._isDevice())
+							If ($bUseRefreshToken)
+								$result:=This._getToken_SignedIn($bUseRefreshToken)  // Refresh token flow is the same
+							Else 
+								$result:=This._getToken_Device()
+							End if 
 							
 						Else 
 							This._throwError(3; {attribute: "permission"})
@@ -1035,6 +1200,28 @@ Function get tokenURI() : Text
 	End case 
 	
 	return $tokenURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get deviceAuthURI() : Text
+	
+	var $deviceAuthURI : Text
+	Case of 
+		: (This._isMicrosoft())
+			$deviceAuthURI:=Choose((Length(String(This._deviceAuthURI))>0); This._deviceAuthURI; "https://login.microsoftonline.com/{tenant}/oauth2/v2.0/devicecode")
+			$deviceAuthURI:=Replace string($deviceAuthURI; "{tenant}"; Choose((Length(String(This.tenant))>0); This.tenant; "common"))
+			
+		: (This._isGoogle())
+			$deviceAuthURI:=Choose((Length(String(This._deviceAuthURI))>0); This._deviceAuthURI; "https://oauth2.googleapis.com/device/code")
+			
+		Else 
+			$deviceAuthURI:=This._deviceAuthURI
+			
+	End case 
+	
+	return $deviceAuthURI
 	
 	
 	// ----------------------------------------------------
