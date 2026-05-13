@@ -125,7 +125,6 @@ Function previous() : Boolean
 			
 			This.page-=1
 			This._internals._history.resize(This.page)
-			This.isLastPage:=(This.page<=1)
 			
 			return True
 		End if 

@@ -80,6 +80,7 @@ Function next() : Boolean
 		return $bIsOK
 	Else 
 		This.statusText:=Localized string("List_No_Next_Page")
+		This.isLastPage:=True
 		return False
 	End if 
 	
@@ -99,6 +100,8 @@ Function previous() : Boolean
 				This._internals._history.resize(This.page)
 			End if 
 			return $bIsOK
+		Else 
+			return False
 		End if 
 	Else 
 		This.statusText:=Localized string("List_No_Previous_Page")
