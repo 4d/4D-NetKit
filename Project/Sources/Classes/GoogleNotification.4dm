@@ -133,7 +133,7 @@ Function start() : Object
             $result:=This._startPull($state)
         End if 
     Catch
-        // Errors are already in _errorStack via _throwError
+        $result:=This._returnStatus()
     End try
     return $result
     
