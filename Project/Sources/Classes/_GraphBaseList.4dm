@@ -1,10 +1,4 @@
-Class extends _GraphAPI
-
-property page : Integer
-property isLastPage : Boolean
-property statusText : Text
-property success : Boolean
-property errors : Collection
+Class extends _BaseList
 
 Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
@@ -12,14 +6,29 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	
 	This._internals._headers:=$inHeaders
 	This._internals._history:=[$inURL]
-	This._internals._list:=Null
-	This.page:=1
-	This.isLastPage:=False
+	This._internals._nextToken:=""
 	
 	This._getList($inURL)
 	
 	
 	// Mark: - [Private]
+	// ----------------------------------------------------
+	
+	
+Function _cleanGraphObject($inObject : Object) : Object
+	
+	var $cleanObject : Object:=OB Copy($inObject)
+	var $keys : Collection:=OB Keys($cleanObject)
+	var $key : Text
+	For each ($key; $keys)
+		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
+			OB REMOVE($cleanObject; $key)
+		End if 
+	End for each 
+	
+	return $cleanObject
+	
+	
 	// ----------------------------------------------------
 	
 	
@@ -35,15 +44,15 @@ Function _getList($inURL : Text) : Boolean
 	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
 	This.success:=False
-	This._internals._nextLink:=""
+	This._internals._nextToken:=""
 	This._internals._list:=[]
 	
 	If ($response#Null)
 		
-		var $result : Collection:=$response["value"]
+		var $result : Collection:=($response["value"]#Null) ? $response["value"] : []
 		var $object : Object
 		For each ($object; $result)
-			This._internals._list.push(Super._cleanGraphObject($object))
+			This._internals._list.push(This._cleanGraphObject($object))
 		End for each 
 		This.success:=True
 		var $nextLink : Text:=String($response["@odata.nextLink"])
@@ -51,59 +60,10 @@ Function _getList($inURL : Text) : Boolean
 		If ((Length($nextLink)>0) && (This._internals._list.length=$count))
 			$nextLink:=""
 		End if 
-		This._internals._nextLink:=$nextLink
-		This.isLastPage:=(Length(This._internals._nextLink)=0)
+		This._internals._nextToken:=$nextLink
+		This.isLastPage:=(Length(This._internals._nextToken)=0)
 		return True
 	Else 
-		var $errorStack : Collection:=Super._getErrorStack()
-		If ($errorStack.length>0)
-			This.errors:=$errorStack
-			This.statusText:=$errorStack.first().message
-		End if 
-		return False
-	End if 
-	
-	
-	// Mark: - [Public]
-	// ----------------------------------------------------
-	
-	
-Function next() : Boolean
-	
-	var $URL : Text:=String(This._internals._nextLink)
-	If (Length($URL)>0)
-		var $bIsOK : Boolean:=This._getList($URL)
-		If ($bIsOK)
-			This._internals._history.push($URL)
-			This.page+=1
-		End if 
-		return $bIsOK
-	Else 
-		This.statusText:=Localized string("List_No_Next_Page")
-		This.isLastPage:=True
-		return False
-	End if 
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function previous() : Boolean
-	
-	If ((Num(This._internals._history.length)>0) && (This.page>1))
-		var $index : Integer:=This.page-1
-		var $URL : Text:=String(This._internals._history[$index-1])
-		If (Length($URL)>0)
-			var $bIsOK : Boolean:=This._getList($URL)
-			If ($bIsOK)
-				This.page-=1
-				This._internals._history.resize(This.page)
-			End if 
-			return $bIsOK
-		Else 
-			return False
-		End if 
-	Else 
-		This.statusText:=Localized string("List_No_Previous_Page")
+		This._handleListError()
 		return False
 	End if 
