@@ -31,20 +31,4 @@ Function get mails() : Collection
 	return This._internals._mails
 	
 	
-	// ----------------------------------------------------
-	
-	
-Function next() : Boolean
-	
-	This._internals._update:=Super.next()
-	return This._internals._update
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function previous() : Boolean
-	
-	This._internals._update:=Super.previous()
-	return This._internals._update
-	
+

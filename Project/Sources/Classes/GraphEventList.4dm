@@ -33,19 +33,4 @@ Function get events() : Collection
 	return This._internals._events
 	
 	
-	// ----------------------------------------------------
-	
-	
-Function next() : Boolean
-	
-	This._internals._update:=Super.next()
-	return This._internals._update
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function previous() : Boolean
-	
-	This._internals._update:=Super.previous()
-	return This._internals._update
+

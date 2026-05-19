@@ -53,12 +53,14 @@ Function next() : Boolean
 			This.page+=1
 		End if 
 		
+		This._internals._update:=$bIsOK
 		return $bIsOK
 		
 	Else 
 		
 		This.statusText:=Localized string("List_No_Next_Page")
 		This.isLastPage:=True
+		This._internals._update:=False
 		return False
 		
 	End if 
@@ -80,12 +82,14 @@ Function previous() : Boolean
 			This._internals._history.resize(This.page)
 		End if 
 		
+		This._internals._update:=$bIsOK
 		return $bIsOK
 		
 	Else 
 		
 		This.statusText:=Localized string("List_No_Previous_Page")
 		This.isLastPage:=True
+		This._internals._update:=False
 		return False
 		
 	End if 
