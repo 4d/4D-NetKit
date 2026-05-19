@@ -62,17 +62,28 @@ Class constructor( ...  : Variant)
 	End case 
 	
 	
+	// Mark: - [Private]
+	// ----------------------------------------------------
+	
+	
+Function _getDateTimeComponents() : Object
+	
+	var $bIsTimeZoneUndefined : Boolean:=(Bool(Value type(This.timeZone)=Is undefined) || Bool(Length(String(This.timeZone))=0))
+	var $timeZone : Text:=($bIsTimeZoneUndefined) ? "Etc/GMT" : This.timeZone
+	var $dateTimeString : Text:=String(Date(This.date); $bIsTimeZoneUndefined ? ISO date GMT : ISO date; Time(This.time))
+	
+	return {dateTime: $dateTimeString; timeZone: $timeZone}
+	
+	
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	
 	
 Function getGraphDateTime() : Object  // returns GraphDateTime Object
 	
-	var $bIsTimeZoneUndefined : Boolean:=(Bool(Value type(This.timeZone)=Is undefined) || Bool(Length(String(This.timeZone))=0))
-	var $timeZone : Text:=($bIsTimeZoneUndefined) ? "Etc/GMT" : This.timeZone
-	var $dateTimeString : Text:=String(Date(This.date); $bIsTimeZoneUndefined ? ISO date GMT : ISO date; Time(This.time))
-	
-	return New object("@odata.type"; "microsoft.graph.dateTimeTimeZone"; "dateTime"; $dateTimeString; "timeZone"; $timeZone)
+	var $dt : Object:=This._getDateTimeComponents()
+	$dt["@odata.type"]:="microsoft.graph.dateTimeTimeZone"
+	return $dt
 	
 	
 	// ----------------------------------------------------
@@ -80,11 +91,7 @@ Function getGraphDateTime() : Object  // returns GraphDateTime Object
 	
 Function getGoogleDateTime() : Object  // returns Google DateTime Object
 	
-	var $bIsTimeZoneUndefined : Boolean:=(Bool(Value type(This.timeZone)=Is undefined) || Bool(Length(String(This.timeZone))=0))
-	var $timeZone : Text:=($bIsTimeZoneUndefined) ? "Etc/GMT" : This.timeZone
-	var $dateTimeString : Text:=String(Date(This.date); $bIsTimeZoneUndefined ? ISO date GMT : ISO date; Time(This.time))
-	
-	return {dateTime: $dateTimeString; timeZone: $timeZone}
+	return This._getDateTimeComponents()
 	
 	
 	// ----------------------------------------------------
