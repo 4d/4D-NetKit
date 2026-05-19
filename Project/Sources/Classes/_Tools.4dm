@@ -212,8 +212,6 @@ Function getJMAPAttribute($inKey : Text) : Text
 			return "mailboxIds"
 		: ($inKey="Message-Id")
 			return "messageId"
-		: ($inKey="Message-Id")
-			return "messageId"
 		: ($inKey="From")
 			return "from"
 		: ($inKey="Sender")
