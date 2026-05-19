@@ -185,26 +185,31 @@ Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaul
 	
 Function getParameterValue($headerValue : Text; $paramName : Text) : Text
 	
-	ARRAY LONGINT($foundPosArr; 0)
-	ARRAY LONGINT($foundLenArr; 0)
+	var $search : Text:=$paramName+"="
+	var $pos : Integer:=Position($search; $headerValue)
 	
-	var $result : Text
-	var $pattern : Text:=$paramName+"=(\"|)([A-Za-z0-9-\\/\\:;??=&\\.]+)(\"|)"
-	var $startPos; $endPos : Integer
-	
-	If (Match regex($pattern; $headerValue; 1; $foundPosArr; $foundLenArr))
-		If (Size of array($foundPosArr)=3)
-			If ($foundLenArr{2}>0)
-				$startPos:=$foundPosArr{2}
-				$endPos:=$startPos+$foundLenArr{2}
+	If ($pos>0)
+		var $valueStart : Integer:=$pos+Length($search)
+		var $firstChar : Text:=Substring($headerValue; $valueStart; 1)
+		
+		If ($firstChar="\"")
+			// Quoted value: extract between the two double-quotes
+			$valueStart+=1
+			var $closeQuote : Integer:=Position("\""; $headerValue; $valueStart)
+			If ($closeQuote>0)
+				return Substring($headerValue; $valueStart; $closeQuote-$valueStart)
 			End if 
+		Else 
+			// Unquoted value: ends at ';' or end of string
+			var $end : Integer:=Position(";"; $headerValue; $valueStart)
+			If ($end=0)
+				$end:=Length($headerValue)+1
+			End if 
+			return Trim(Substring($headerValue; $valueStart; $end-$valueStart))
 		End if 
 	End if 
-	If (($startPos>0) && ($endPos>$startPos))
-		$result:=Substring($headerValue; $startPos; $endPos-$startPos)
-	End if 
 	
-	return $result
+	return ""
 	
 	
 	// ----------------------------------------------------
