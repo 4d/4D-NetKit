@@ -34,18 +34,22 @@ Function _cleanGraphObject($inObject : Object) : Object
 	
 Function _getList($inURL : Text) : Boolean
 	
+	This.isLastPage:=False
+	This.success:=False
+	This._internals._nextToken:=""
+	This._internals._list:=[]
+	
 	var $response : Object
 	Try
 		$response:=Super._sendRequestAndWaitResponse("GET"; $inURL; This._internals._headers)
 	Catch
 		// Errors are already in _errorStack via _throwError
+		This.statusText:=Super._getStatusLine()
+		This._handleListError()
+		return False
 	End try
 	
-	This.isLastPage:=False
 	This.statusText:=Super._getStatusLine()
-	This.success:=False
-	This._internals._nextToken:=""
-	This._internals._list:=[]
 	
 	If ($response#Null)
 		
