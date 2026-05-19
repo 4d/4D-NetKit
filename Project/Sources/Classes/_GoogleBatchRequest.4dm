@@ -7,7 +7,7 @@ property boundary : Text
 property mailType : Text
 property format : Text
 property maxItemNumber : Integer:=100  // Google API cannot accept more than 100 batch requests
-property _requestes : Collection
+property _requests : Collection
 property _itemNumber : Integer:=0
 
 
@@ -21,7 +21,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	This.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
 	This.headers["Content-Type"]:="multipart/mixed; boundary="+This.boundary
 	
-	This._requestes:=[]
+	This._requests:=[]
 	
 	If (OB Is defined($inParam; "mailType"))
 		// for Messages can be: "MIME" or "JMAP"
@@ -51,7 +51,7 @@ Function appendRequest($inParam : Object)
 	$request.headers:=(Value type($inParam.headers)=Is object) ? $inParam.headers : {}
 	$request.body:=(Value type($inParam.body)=Is text) ? $inParam.body : ""
 	
-	This._requestes.push({request: $request})
+	This._requests.push({request: $request})
 	
 	
 	// ----------------------------------------------------
@@ -61,8 +61,8 @@ Function sendRequestAndWaitResponse() : Collection
 	
 	var $collection : Collection:=[]
 	var $startIndex : Integer:=0
-	var $endIndex : Integer:=$startIndex+((This._requestes.length<=This.maxItemNumber) ? This._requestes.length : This.maxItemNumber)
-	var $requests : Collection:=This._requestes.slice($startIndex; $endIndex)
+	var $endIndex : Integer:=$startIndex+((This._requests.length<=This.maxItemNumber) ? This._requests.length : This.maxItemNumber)
+	var $requests : Collection:=This._requests.slice($startIndex; $endIndex)
 	
 	While ($requests.length>0)
 		
@@ -99,8 +99,8 @@ Function sendRequestAndWaitResponse() : Collection
 		End if 
 		
 		$startIndex+=$requests.length
-		$endIndex:=$startIndex+(((This._requestes.length-$startIndex)<=This.maxItemNumber) ? (This._requestes.length-$startIndex) : This.maxItemNumber)
-		$requests:=This._requestes.slice($startIndex; $endIndex)
+		$endIndex:=$startIndex+(((This._requests.length-$startIndex)<=This.maxItemNumber) ? (This._requests.length-$startIndex) : This.maxItemNumber)
+		$requests:=This._requests.slice($startIndex; $endIndex)
 		
 	End while 
 	
@@ -125,10 +125,11 @@ Function _generateBody($inBoundary : Text; $inRequests : Collection) : Text
 			
 			$body+=String($request.request.verb)+" "+String($request.request.URL)+" HTTP/1.1\r\n"
 			
-			If (Num($request.headers.length)>0)
-				var $header : Object
-				For each ($header; $request.headers)
-					$body+=String($header.name)+": "+String($header.value)+"\r\n"
+			If (Not(OB Is empty($request.request.headers)))
+				var $hKeys : Collection:=OB Keys($request.request.headers)
+				var $hKey : Text
+				For each ($hKey; $hKeys)
+					$body+=$hKey+": "+String($request.request.headers[$hKey])+"\r\n"
 				End for each 
 			End if 
 			$body+="\r\n"
