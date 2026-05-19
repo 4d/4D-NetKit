@@ -566,7 +566,7 @@ Function getFolder($inFolderId : Text) : Object
 			
 	End case 
 	
-	return Super._cleanGraphObject($response)
+	return cs._Tools.me.cleanGraphObject($response)
 	
 	
 	// ----------------------------------------------------

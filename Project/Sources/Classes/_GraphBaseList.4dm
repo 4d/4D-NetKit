@@ -15,23 +15,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	// ----------------------------------------------------
 	
 	
-Function _cleanGraphObject($inObject : Object) : Object
-	
-	var $cleanObject : Object:=OB Copy($inObject)
-	var $keys : Collection:=OB Keys($cleanObject)
-	var $key : Text
-	For each ($key; $keys)
-		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
-			OB REMOVE($cleanObject; $key)
-		End if 
-	End for each 
-	
-	return $cleanObject
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function _getList($inURL : Text) : Boolean
 	
 	This.isLastPage:=False
@@ -56,7 +39,7 @@ Function _getList($inURL : Text) : Boolean
 		var $result : Collection:=($response["value"]#Null) ? $response["value"] : []
 		var $object : Object
 		For each ($object; $result)
-			This._internals._list.push(This._cleanGraphObject($object))
+			This._internals._list.push(cs._Tools.me.cleanGraphObject($object))
 		End for each 
 		This.success:=True
 		var $nextLink : Text:=String($response["@odata.nextLink"])

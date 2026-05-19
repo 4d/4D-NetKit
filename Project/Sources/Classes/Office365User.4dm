@@ -13,7 +13,7 @@ Function _getUserInfo($inURL : Text) : Object
 	
 	var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $inURL)
 	If (Value type($response)=Is object)
-		return Super._cleanGraphObject($response)
+		return cs._Tools.me.cleanGraphObject($response)
 	End if 
 	
 	return Null

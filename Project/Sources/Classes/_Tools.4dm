@@ -153,6 +153,23 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 	// ----------------------------------------------------
 	
 	
+Function cleanGraphObject($inObject : Object) : Object
+	
+	var $cleanObject : Object:=OB Copy($inObject)
+	var $keys : Collection:=OB Keys($cleanObject)
+	var $key : Text
+	For each ($key; $keys)
+		If ((Position("@"; $key)=1) || ($cleanObject[$key]=Null))
+			OB REMOVE($cleanObject; $key)
+		End if 
+	End for each 
+	
+	return $cleanObject
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text
 	
 	var $result : Text:=This.getParameterValue($headerValue; $paramName)

@@ -168,7 +168,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString)
     
     If (Value type($response)=Is object)
-        return Super._cleanGraphObject($response)
+        return cs._Tools.me.cleanGraphObject($response)
     End if 
     
     return Null
@@ -267,7 +267,7 @@ Function getEvent($inParameters : Object) : Object
                 $headers.Prefer:=$prefer
             End if 
             
-            var $result : Object:=Super._cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString; $headers))
+            var $result : Object:=cs._Tools.me.cleanGraphObject(Super._sendRequestAndWaitResponse("GET"; This._getURL()+$URLString; $headers))
             
             If (Value type($result)=Is object)
                 var $options : Object:={userId: This.userId; calendarId: String($inParameters.calendarId); eventId: String($inParameters.eventId)}
@@ -399,7 +399,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
         End if 
         $URLString+="/events"
         
-        var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
+        var $event : Object:=This._conformEvent(cs._Tools.me.cleanGraphObject($inEvent))
         var $attachments : Collection:=Null
         
         If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
@@ -424,14 +424,14 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
                         OB REMOVE($result; "errors")
                         OB REMOVE($result; "statusText")
                     End try
-                    $response.attachments.push(This._cleanGraphObject($result))
+                    $response.attachments.push(cs._Tools.me.cleanGraphObject($result))
                 Else 
                     return This._returnStatus($result)
                 End if 
             End for each 
         End if 
         
-        return This._returnStatus({event: This._cleanGraphObject($response)})
+        return This._returnStatus({event: cs._Tools.me.cleanGraphObject($response)})
     Catch
         // Errors are already in _errorStack via _throwError
     End try
@@ -544,7 +544,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
         End if 
         $URLString+="/events/"+cs._Tools.me.urlEncode($eventId)
         
-        var $event : Object:=This._conformEvent(Super._cleanGraphObject($inEvent))
+        var $event : Object:=This._conformEvent(cs._Tools.me.cleanGraphObject($inEvent))
         var $attachments : Collection:=Null
         
         If (Value type($event.attachments)=Is collection) && ($event.attachments.length>0)
@@ -569,14 +569,14 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
                         OB REMOVE($result; "errors")
                         OB REMOVE($result; "statusText")
                     End try
-                    $response.attachments.push(This._cleanGraphObject($result))
+                    $response.attachments.push(cs._Tools.me.cleanGraphObject($result))
                 Else 
                     return This._returnStatus($result)
                 End if 
             End for each 
         End if 
         
-        return This._returnStatus({event: This._cleanGraphObject($response)})
+        return This._returnStatus({event: cs._Tools.me.cleanGraphObject($response)})
     Catch
         // Errors are already in _errorStack via _throwError
     End try
