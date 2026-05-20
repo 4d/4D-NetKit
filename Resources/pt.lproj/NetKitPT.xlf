@@ -66,6 +66,18 @@
           <source>The '{which}' parameter value in function {function} is too large and must not exceed {max}.</source>
           <target>O valor do parâmetro '{which}' na função {function} é muito grande e não deve exceder {max}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_14">
+          <source>The '{which}' parameter in function {function} is not of type {type}.</source>
+          <target>O parâmetro '{which}' na função {function} não é do tipo {type}.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_15">
+          <source>The private or public key doesn't seem to be valid PEM.</source>
+          <target>A chave privada ou pública não parece ser uma chave PEM válida.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_16">
+          <source>The JWT algorithm '{alg}' is not allowed.</source>
+          <target>O algoritmo JWT '{alg}' não é permitido.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>

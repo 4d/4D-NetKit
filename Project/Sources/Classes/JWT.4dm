@@ -108,16 +108,19 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 			End if 
 			
 			// Generate Verify Signature Hash based on Algorithm
-			If ($algorithm="HS@")
-				$signature:=This._hashHS($webToken; $key)  // HMAC Hash
-			Else 
-				$cryptoKey:=This._getCryptoKey($inKey; This.key)
-				If ($cryptoKey#Null)
-					$signature:=This._hashSign($webToken; $cryptoKey)  // All other Hashes
+			Case of 
+				: (Lowercase($algorithm)="none")
+					This._throwError(16; {alg: $algorithm})  // Reject 'none' algorithm — prevents algorithm confusion attacks
+				: ($algorithm="HS@")
+					$signature:=This._hashHS($webToken; $key)  // HMAC Hash
 				Else 
-					This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
-				End if 
-			End if 
+					$cryptoKey:=This._getCryptoKey($inKey; This.key)
+					If ($cryptoKey#Null)
+						$signature:=This._hashSign($webToken; $cryptoKey)  // All other Hashes
+					Else 
+						This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
+					End if 
+			End case 
 			
 			// Combine Encoded Header and Payload with Hashed Signature for the Token
 			If (Length($signature)>0)
@@ -158,24 +161,25 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
 				var $webToken : Object:={header: Try(JSON Parse($header)); payload: Try(JSON Parse($payload))}
 				
 				var $algorithm : Text:=$webToken.header.alg
-				If ($algorithm="HS@")
-					$signature:=This._hashHS($webToken; $key)  // HMAC Hash
-					$success:=($signature=$parts[2])
-				Else 
-					$cryptoKey:=This._getCryptoKey($inKey; This.key)
-					If ($cryptoKey#Null)
+				Case of 
+					: (Lowercase($algorithm)="none")
+						This._throwError(16; {alg: $algorithm})  // Reject 'none' algorithm — prevents algorithm confusion attacks
+					: ($algorithm="HS@")
+						$signature:=This._hashHS($webToken; $key)  // HMAC Hash
+						$success:=($signature=$parts[2])
+					Else 
+						$cryptoKey:=This._getCryptoKey($inKey; This.key)
+						If ($cryptoKey#Null)
 						var $status : Object
 						var $message : Text:=$parts[0]+"."+$parts[1]
 						var $options : Object:={hash: (Substring($webToken.header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($webToken.header.alg="PS@"); encoding: "Base64URL"}
 						$signature:=$parts[2]
 						$status:=$cryptoKey.verify($message; $signature; $options)
 						$success:=$status.success
-					Else 
-						This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
-					End if 
-				End if 
-				
-				// Validate standard claims if signature is valid
+						Else 
+							This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
+						End if 
+					End case
 				If ($success)
 					$success:=This._validateClaims($webToken.payload; $inOptions)
 				End if 
@@ -333,13 +337,13 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	End if 
 	
 	return $success
-
-
+	
+	
 	// ----------------------------------------------------
-
-
+	
+	
 Function _throwError($inCode : Integer; $inParameters : Object)
-
+	
 	// Push error into errorStack and throw it
 	var $error : Object:=cs._Tools.me.makeError($inCode; $inParameters)
 	$error.deferred:=True

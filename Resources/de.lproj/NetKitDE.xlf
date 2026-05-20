@@ -73,6 +73,14 @@
           <source>The '{which}' parameter in function {function} is not of type {type}.</source>
           <target>Der Parameter '{which}' in der Funktion {function} ist nicht vom Typ {type}.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_15">
+          <source>The private or public key doesn't seem to be valid PEM.</source>
+          <target>Der private oder öffentliche Schlüssel scheint kein gültiger PEM-Schlüssel zu sein.</target>
+        </trans-unit>
+        <trans-unit resname="ERR_4DNK_16">
+          <source>The JWT algorithm '{alg}' is not allowed.</source>
+          <target>Der JWT-Algorithmus '{alg}' ist nicht zulässig.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>

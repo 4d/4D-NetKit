@@ -77,6 +77,10 @@
           <source>The private or public key doesn't seem to be valid PEM.</source>
           <target>The private or public key doesn't seem to be valid PEM.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_16">
+          <source>The JWT algorithm '{alg}' is not allowed.</source>
+          <target>The JWT algorithm '{alg}' is not allowed.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <target>4D NetKit Component</target>
           <source>4D NetKit Component</source>
