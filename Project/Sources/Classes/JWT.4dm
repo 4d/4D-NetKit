@@ -307,16 +307,19 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	// Current Unix timestamp in seconds since 1970-01-01 (assumes server clock is UTC)
 	var $now : Real:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
 	
-	// Check exp (expiration time) — token must not be expired
+	// Clock skew tolerance in seconds (default 0) — allows small drift between server clocks
+	var $leeway : Real:=((Value type($inOptions)=Is object) && (Value type($inOptions.leeway)=Is real) && ($inOptions.leeway>0)) ? $inOptions.leeway : 0
+	
+	// Check exp (expiration time) — token must not be expired, with leeway tolerance
 	If (Value type($inPayload.exp)=Is real)
-		If ($now>$inPayload.exp)
+		If ($now>($inPayload.exp+$leeway))
 			$success:=False
 		End if 
 	End if 
 	
-	// Check nbf (not before) — token must not be used before its valid period
+	// Check nbf (not before) — token must not be used before its valid period, with leeway tolerance
 	If ($success && (Value type($inPayload.nbf)=Is real))
-		If ($now<$inPayload.nbf)
+		If ($now<($inPayload.nbf-$leeway))
 			$success:=False
 		End if 
 	End if 
