@@ -94,6 +94,11 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 			
 			var $encodedHeader; $encodedPayload; $signature : Text
 			
+			// Inject iat (issued at) if not already set by the caller
+			If (Value type($payload.iat)=Is undefined)
+				$payload.iat:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
+			End if 
+			
 			// Encode the Header and Payload
 			BASE64 ENCODE(JSON Stringify($header); $encodedHeader; *)
 			BASE64 ENCODE(JSON Stringify($payload); $encodedPayload; *)
