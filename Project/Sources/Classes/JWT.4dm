@@ -71,7 +71,7 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 	var $result : Text:=""
 	
 	Case of 
-		: ((Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
+		: ((Value type($inParams)#Is object) || (Value type($inParams.payload)#Is object) || (OB Is empty($inParams.payload)))
 			This._throwError(9; {which: "\"$inParams.payload\""; function: "JWT.generate"})
 			
 		Else 
@@ -131,7 +131,7 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 	// ----------------------------------------------------
 	
 	
-Function validate($inJWT : Text; $inKey : Variant) : Boolean
+Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolean
 	
 	var $success : Boolean:=False
 	
@@ -173,6 +173,11 @@ Function validate($inJWT : Text; $inKey : Variant) : Boolean
 					Else 
 						This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
 					End if 
+				End if 
+				
+				// Validate standard claims if signature is valid
+				If ($success)
+					$success:=This._validateClaims($webToken.payload; $inOptions)
 				End if 
 			End if 
 	End case 
@@ -286,8 +291,55 @@ Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 	// ----------------------------------------------------
 	
 	
-Function _throwError($inCode : Integer; $inParameters : Object)
+Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	
+	var $success : Boolean:=True
+	
+	// Current Unix timestamp in seconds since 1970-01-01 (assumes server clock is UTC)
+	var $now : Real:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
+	
+	// Check exp (expiration time) — token must not be expired
+	If (Value type($inPayload.exp)=Is real)
+		If ($now>$inPayload.exp)
+			$success:=False
+		End if 
+	End if 
+	
+	// Check nbf (not before) — token must not be used before its valid period
+	If ($success && (Value type($inPayload.nbf)=Is real))
+		If ($now<$inPayload.nbf)
+			$success:=False
+		End if 
+	End if 
+	
+	// Check iss (issuer) — if expected issuer is provided, verify it matches
+	If ($success && (Value type($inOptions)=Is object) && (Value type($inOptions.iss)=Is text) && (Length($inOptions.iss)>0))
+		If ($inPayload.iss#$inOptions.iss)
+			$success:=False
+		End if 
+	End if 
+	
+	// Check aud (audience) — if expected audience is provided, verify it matches
+	If ($success && (Value type($inOptions)=Is object) && (Value type($inOptions.aud)=Is text) && (Length($inOptions.aud)>0))
+		Case of 
+			: (Value type($inPayload.aud)=Is text)
+				$success:=($inPayload.aud=$inOptions.aud)
+			: (Value type($inPayload.aud)=Is collection)
+				var $audCol : Collection:=$inPayload.aud
+				$success:=($audCol.indexOf($inOptions.aud)>=0)
+			Else 
+				$success:=False
+		End case 
+	End if 
+	
+	return $success
+
+
+	// ----------------------------------------------------
+
+
+Function _throwError($inCode : Integer; $inParameters : Object)
+
 	// Push error into errorStack and throw it
 	var $error : Object:=cs._Tools.me.makeError($inCode; $inParameters)
 	$error.deferred:=True
