@@ -99,6 +99,11 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 				$payload.iat:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
 			End if 
 			
+			// Inject jti (JWT ID) if not already set by the caller — enables replay attack detection
+			If (Value type($payload.jti)=Is undefined)
+				$payload.jti:=Generate UUID
+			End if 
+			
 			// Encode the Header and Payload
 			BASE64 ENCODE(JSON Stringify($header); $encodedHeader; *)
 			BASE64 ENCODE(JSON Stringify($payload); $encodedPayload; *)
