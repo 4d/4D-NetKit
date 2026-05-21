@@ -178,18 +178,18 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
 						$signature:=This._hashHS($webToken; $key)  // HMAC Hash
 						$success:=($signature=$parts[2])
 					Else 
-						$cryptoKey:=This._getCryptoKey($inKey; This.key)
+						$cryptoKey:=This._resolveKey($inKey; This.key; $webToken.header.kid)
 						If ($cryptoKey#Null)
-						var $status : Object
-						var $message : Text:=$parts[0]+"."+$parts[1]
-						var $options : Object:={hash: (Substring($webToken.header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($webToken.header.alg="PS@"); encoding: "Base64URL"}
-						$signature:=$parts[2]
-						$status:=$cryptoKey.verify($message; $signature; $options)
-						$success:=$status.success
+							var $status : Object
+							var $message : Text:=$parts[0]+"."+$parts[1]
+							var $options : Object:={hash: (Substring($webToken.header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($webToken.header.alg="PS@"); encoding: "Base64URL"}
+							$signature:=$parts[2]
+							$status:=$cryptoKey.verify($message; $signature; $options)
+							$success:=$status.success
 						Else 
 							This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
 						End if 
-					End case
+				End case 
 				If ($success)
 					$success:=This._validateClaims($webToken.payload; $inOptions)
 				End if 
@@ -350,6 +350,275 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	End if 
 	
 	return $success
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _resolveKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey; $inKid : Text) : 4D.CryptoKey
+	// Resolves a key that may be a 4D.CryptoKey, a PEM text, or a JWKS URL (https://...)
+	
+	Case of 
+		: ((Value type($inKey)=Is object) && OB Instance of($inKey; 4D.CryptoKey))
+			return $inKey  // Already a CryptoKey
+			
+		: (Value type($inKey)=Is text)
+			var $keyStr : Text:=String($inKey)
+			Case of 
+				: (Length($keyStr)=0)
+					// empty text, fall through to default
+				: (Lowercase(Substring($keyStr; 1; 8))="https://")
+					// JWKS URL — fetch keys and find match by kid
+					var $keys : Collection:=This._fetchJWKS($keyStr)
+					var $jwk : Object:=This._findJWK($keys; $inKid)
+					If ($jwk#Null)
+						return This._jwkToCryptoKey($jwk)
+					End if 
+					return Null
+				Else 
+					return Try(4D.CryptoKey.new({type: "PEM"; pem: $keyStr}))
+			End case 
+			
+		Else 
+			// Not a CryptoKey or text, fall through to default
+	End case 
+	
+	If ((Value type($inDefaultKey)=Is object) && OB Instance of($inDefaultKey; 4D.CryptoKey))
+		return $inDefaultKey
+	End if 
+	return Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _fetchJWKS($inUrl : Text) : Collection
+	// Fetches and caches a JWKS from $inUrl — cache TTL is 3600 seconds (Storage-based)
+	
+	var $now : Real:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
+	
+	// Initialise cache bucket in Storage if needed (use OB Is defined — more reliable than =Null in compiled class methods)
+	If (Not(OB Is defined(Storage; "jwksCache")))
+		Use (Storage)
+			If (Not(OB Is defined(Storage; "jwksCache")))
+				Storage["jwksCache"]:=New shared object
+			End if 
+		End use 
+	End if 
+	
+	// Return cached keys if still fresh
+	var $entry : Object:=Storage["jwksCache"][$inUrl]
+	If (($entry#Null) && (($now-$entry.fetchedAt)<3600))
+		return JSON Parse($entry.json)
+	End if 
+	
+	// Fetch from URL
+	var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($inUrl; {method: "GET"}).wait())
+	If ($request=Null)
+		return Null
+	End if 
+	If (Num($request["response"]["status"])#200)
+		return Null
+	End if 
+	
+	var $body : Variant:=$request["response"]["body"]
+	var $keys : Collection
+	Case of 
+		: (Value type($body)=Is object)
+			$keys:=$body.keys
+		: (Value type($body)=Is text)
+			var $parsed : Object:=Try(JSON Parse($body))
+			If ($parsed#Null)
+				$keys:=$parsed.keys
+			End if 
+		Else 
+			return Null
+	End case 
+	
+	If (($keys=Null) || ($keys.length=0))
+		return Null
+	End if 
+	
+	// Store in cache
+	Use (Storage["jwksCache"])
+		Storage["jwksCache"][$inUrl]:=New shared object("json"; JSON Stringify($keys); "fetchedAt"; $now)
+	End use 
+	
+	return $keys
+	
+	
+	// ----------------------------------------------------
+	
+
+Function _injectJWKSCache($inUrl : Text; $inKeys : Collection)
+	// Injects a JWKS collection into the component's Storage cache (for testing only).
+	// Must be called from within the component context so that Storage refers to the
+	// component's storage — not the host database's storage.
+	
+	var $now : Real:=Num((Current date-!1970-01-01!)*86400)+Num(Current time)
+	Use (Storage)
+		If (Not(OB Is defined(Storage; "jwksCache")))
+			Storage["jwksCache"]:=New shared object
+		End if 
+	End use 
+	Use (Storage["jwksCache"])
+		Storage["jwksCache"][$inUrl]:=New shared object("json"; JSON Stringify($inKeys); "fetchedAt"; $now)
+	End use 
+	
+
+Function _findJWK($inKeys : Collection; $inKid : Text) : Object
+	// Finds a JWK by kid in a JWKS keys collection
+	// Uses For each instead of .query() for reliable matching on JSON-parsed objects
+	
+	If ($inKeys=Null)
+		return Null
+	End if 
+	If (Length($inKid)>0)
+		var $key : Object
+		For each ($key; $inKeys)
+			If ($key.kid=$inKid)
+				return $key
+			End if 
+		End for each 
+		return Null  // kid specified but not found in JWKS
+	End if 
+	// No kid in token header: use the only key if exactly one is present
+	If ($inKeys.length=1)
+		return $inKeys[0]
+	End if 
+	return Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _jwkToCryptoKey($inJwk : Object) : 4D.CryptoKey
+	// Converts a JWK public key to a 4D.CryptoKey — RSA only
+	
+	If (($inJwk=Null) || (Value type($inJwk.kty)#Is text))
+		return Null
+	End if 
+	If ($inJwk.kty="RSA")
+		var $pem : Text:=This._jwkRsaToPem($inJwk)
+		If (Length($pem)>0)
+			return Try(4D.CryptoKey.new({type: "PEM"; pem: $pem}))
+		End if 
+	End if 
+	return Null
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _jwkRsaToPem($inJwk : Object) : Text
+	// Builds a PEM-encoded SubjectPublicKeyInfo from an RSA JWK public key
+	
+	// Decode modulus (n) and exponent (e) from base64url
+	var $nBlob; $eBlob : Blob
+	BASE64 DECODE($inJwk.n; $nBlob; *)
+	BASE64 DECODE($inJwk.e; $eBlob; *)
+	
+	// RSAPublicKey: SEQUENCE { INTEGER n, INTEGER e }
+	var $nInt : Blob:=This._asn1Integer($nBlob)
+	var $eInt : Blob:=This._asn1Integer($eBlob)
+	var $rsaBody : Blob
+	COPY BLOB($nInt; $rsaBody; 0; 0; BLOB size($nInt))
+	COPY BLOB($eInt; $rsaBody; 0; BLOB size($rsaBody); BLOB size($eInt))
+	var $rsaPubKey : Blob:=This._asn1Wrap(0x0030; $rsaBody)
+	
+	// BIT STRING: 0x00 (no unused bits) || RSAPublicKey
+	var $bsContent : Blob
+	SET BLOB SIZE($bsContent; 1)
+	$bsContent{0}:=0
+	COPY BLOB($rsaPubKey; $bsContent; 0; 1; BLOB size($rsaPubKey))
+	var $bitString : Blob:=This._asn1Wrap(0x0003; $bsContent)
+	
+	// AlgorithmIdentifier: SEQUENCE { OID rsaEncryption (1.2.840.113549.1.1.1), NULL }
+	var $oidBytes : Blob
+	SET BLOB SIZE($oidBytes; 9)
+	$oidBytes{0}:=0x002A
+	$oidBytes{1}:=0x0086
+	$oidBytes{2}:=0x0048
+	$oidBytes{3}:=0x0086
+	$oidBytes{4}:=0x00F7
+	$oidBytes{5}:=0x000D
+	$oidBytes{6}:=0x0001
+	$oidBytes{7}:=0x0001
+	$oidBytes{8}:=0x0001
+	var $oid : Blob:=This._asn1Wrap(0x0006; $oidBytes)
+	var $nullBytes : Blob
+	SET BLOB SIZE($nullBytes; 2)
+	$nullBytes{0}:=0x0005
+	$nullBytes{1}:=0x0000
+	var $algIdBody : Blob
+	COPY BLOB($oid; $algIdBody; 0; 0; BLOB size($oid))
+	COPY BLOB($nullBytes; $algIdBody; 0; BLOB size($algIdBody); BLOB size($nullBytes))
+	var $algId : Blob:=This._asn1Wrap(0x0030; $algIdBody)
+	
+	// SubjectPublicKeyInfo: SEQUENCE { AlgorithmIdentifier, BIT STRING }
+	var $spkiBody : Blob
+	COPY BLOB($algId; $spkiBody; 0; 0; BLOB size($algId))
+	COPY BLOB($bitString; $spkiBody; 0; BLOB size($spkiBody); BLOB size($bitString))
+	var $spki : Blob:=This._asn1Wrap(0x0030; $spkiBody)
+	
+	// Base64-encode and wrap in PEM headers (64-char lines)
+	var $b64 : Text
+	BASE64 ENCODE($spki; $b64)
+	$b64:=Replace string(Replace string($b64; Char(13)+Char(10); ""); Char(10); "")
+	var $pem : Text:="-----BEGIN PUBLIC KEY-----"+Char(10)
+	var $i : Integer
+	For ($i; 1; Length($b64); 64)
+		$pem+=Substring($b64; $i; 64)+Char(10)
+	End for 
+	$pem+="-----END PUBLIC KEY-----"
+	return $pem
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _asn1Length($inLen : Integer) : Blob
+	// Returns the DER length field encoding for a given byte count
+	var $result : Blob
+	Case of 
+		: ($inLen<128)
+			SET BLOB SIZE($result; 1)
+			$result{0}:=$inLen
+		: ($inLen<256)
+			SET BLOB SIZE($result; 2)
+			$result{0}:=0x0081
+			$result{1}:=$inLen
+		Else 
+			SET BLOB SIZE($result; 3)
+			$result{0}:=0x0082
+			$result{1}:=Int($inLen/256)
+			$result{2}:=Mod($inLen; 256)
+	End case 
+	return $result
+	
+	
+Function _asn1Wrap($inTag : Integer; $inContent : Blob) : Blob
+	// Wraps $inContent with an ASN.1 TLV header (tag + DER length)
+	var $lenBlob : Blob:=This._asn1Length(BLOB size($inContent))
+	var $result : Blob
+	SET BLOB SIZE($result; 1)
+	$result{0}:=$inTag
+	COPY BLOB($lenBlob; $result; 0; BLOB size($result); BLOB size($lenBlob))
+	COPY BLOB($inContent; $result; 0; BLOB size($result); BLOB size($inContent))
+	return $result
+	
+	
+Function _asn1Integer($inData : Blob) : Blob
+	// Encodes a blob as an ASN.1 DER INTEGER, prepending 0x00 if MSB is set
+	var $data : Blob
+	If ($inData{0}>=128)
+		SET BLOB SIZE($data; BLOB size($inData)+1)
+		$data{0}:=0
+		COPY BLOB($inData; $data; 0; 1; BLOB size($inData))
+	Else 
+		COPY BLOB($inData; $data; 0; 0; BLOB size($inData))
+	End if 
+	return This._asn1Wrap(0x0002; $data)
 	
 	
 	// ----------------------------------------------------
