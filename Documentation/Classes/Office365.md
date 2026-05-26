@@ -5,6 +5,7 @@
 The `Office365` class allows you to call the [Microsoft Graph API](https://docs.microsoft.com/en-us/graph/overview#data-and-services-powering-the-microsoft-365-platform) to:
 * get information from Office365 applications, such as user information
 * create, move or send emails
+* manage events in your calendar
 
 This can be done after a valid token request, (see [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class)).
 
@@ -21,7 +22,7 @@ The `Office365` class can be instantiated in two ways:
 
 * [New Office365 provider](#new-office365-provider)
 
-###  [Calendar](#calendar-1) 
+### [Calendar](#calendar-1) 
 
 * [Office365.calendar.getCalendar()](#office365calendargetcalendar)
 * [Office365.calendar.getCalendars()](#office365calendargetcalendars)
@@ -33,7 +34,7 @@ The `Office365` class can be instantiated in two ways:
 * [Office365.category.list()](#office365categorylist)
 * [Event object](#event-object)
 
-###  [Mail](#mail-1) 
+### [Mail](#mail-1) 
 
 * [Office365.mail.send()](#office365mailsend)
 * [Office365.mail.append()](#office365mailappend)
@@ -51,6 +52,12 @@ The `Office365` class can be instantiated in two ways:
 * [Office365.mail.delete()](#office365maildelete)
 * [Well-known folder names](#well-known-folder-names)
 * ["Microsoft" mail object properties](#microsoft-mail-object-properties)
+
+### [Notifier](#notifier-1) 
+
+* [Office365.mail.notifier()](#office365mailnotifier)
+* [Office365.calendar.notifier()](#office365calendarnotifier)
+
 
 ### [User](#user-1) 
 
@@ -79,9 +86,9 @@ The `Office365` class can be instantiated in two ways:
 
 `New Office365 provider` instantiates an object of the `Office365` class.
 
-In `paramObj`, pass an [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class).
+In *paramObj*, pass an [OAuth2Provider object](./OAuth2Provider.md#oauth2provider-class).
 
-In `param`, you can pass an object that specifies the following options:
+In *param*, you can pass an object that specifies the following options:
 
 |Property|Type|Description|
 |---------|---|------|
@@ -1413,6 +1420,107 @@ When an error occurs during the execution of an Office365.mail function:
 
 - if the function returns a [`status object`](#status-object), the error is handled by the status object and no error is thrown,
 - if the function does not return a [`status object`](#status-object), an error is thrown that you can intercept with a project method installed with `ON ERR CALL`.
+
+
+## Notifier
+
+The notification system allows subscribing to change notifications on [**mails**](#mail-1) and [**calendar events**](#calendar-1).
+
+[Two modes](#modes) are available:
+
+- **Push** (webhook): Real-time notifications via HTTP callbacks. Requires a publicly accessible endpoint.
+- **Pull** (polling): Periodic polling of change APIs. No external endpoint needed.
+
+When a resource changes, user-defined callbacks are dispatched in the 4D worker where [`start()`] was originally called.
+
+
+### Office365.mail.notifier
+
+**Office365.mail.notifier**(*param* : Object { ; *folderId* : Text }) : Object
+
+| Parameter | Type | |Description |
+|---|---|---|---|
+| param | Object |->| Callback and mode definitions (see below) |
+| folderId | Text |->| *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
+|Result|Object|<-| Notification object|
+
+
+`Office365.mail.notifier` creates and returns a notification object for **mail** change notifications.
+
+
+### Office365.calendar.notifier
+
+**Office365.calendar.notifier**(*param* : Object { ; *calendarId* : Text }) : Object
+
+| Parameter | Type | |Description |
+|---|---|---|---|
+| param | Object |->| Callback and mode definitions (see below) |
+| calendarId | Text |->| *(optional)* Subscribe to changes in that specific calendar. If omitted, subscribe to the default calendar. |
+|Result|Object|<-| Notification object|
+
+`Office365.calendar.notifier` creates and returns a notification object for **calendar event** change notifications.
+
+### *param* parameter
+
+Pass the following properties in the *param* parameter:
+
+| Property | Type | Description |
+|---|---|---|
+| `onCreate` | `4D.Function` | Called when a resource is **created**. *(optional)* |
+| `onDelete` | `4D.Function` | Called when a resource is **deleted**. *(optional)* |
+| `onModify` | `4D.Function` | Called when a resource is **modified**. *(optional)* |
+| `endPoint` | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). *(optional)* |
+| `timer` | Integer | Polling interval in seconds for pull mode (default: 30). *(optional)* |
+
+### Modes 
+
+- **Push**: If `endPoint` is provided, creates a [Microsoft Graph subscription](https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions). The webhook URL is derived as `{endPoint}/4dnk-graph-notification?state={uuid}`.
+- **Pull**: If no `endPoint` is provided, polls the [delta query API](https://learn.microsoft.com/en-us/graph/delta-query-messages) at the configured interval.
+
+#### Data Flow (Push mode)
+
+```mermaid
+flowchart TD
+
+    A["4D App\nstart()"]
+    B["Microsoft Graph\nDetects changes on resource"]
+    
+    C["GraphNotificationHandler (shared singleton)\n- Validates webhook (validationToken -> 200)\n- Receives notifications -> Storage.notifications"]
+    
+    D["4DNK_Monitor_{state} (background worker)\n- Drains pending items from Storage (2s interval)\n- Dispatches via CALL WORKER to original worker\n- Auto-renews subscription before expiration"]
+    
+    E["Original Worker (where start() was called)\n- onCreate(owner; type; ids)\n- onModify(owner; type; ids)\n- onDelete(owner; type; ids)"]
+    A -- "POST /subscriptions" --> B
+    B -- "Webhook POST" --> A
+    
+    %% Internal flow
+    A --> C
+    C -- "writes to Storage.notifications[state].pending" --> D
+    D -- "CALL WORKER(originalWorker; callbacks)" --> E
+```
+
+### Examples
+
+```
+// Push mode — Mail notifications via webhook
+var $notif:=$office365.mail.notifier({ \
+    endPoint: "https://myserver.com"; \
+    onCreate: Formula(ALERT("New mail: "+String($2.ids))); \
+    onDelete: Formula(ALERT("Mail deleted: "+String($2.ids))) \
+})
+$status:=$notif.start()
+
+// Pull mode — Calendar notifications via delta polling (every 60 seconds)
+$calNotif:=$office365.calendar.notifier({ \
+    timer: 60; \
+    onCreate: Formula(handleNewEvent($1; $2)); \
+    onModify: Formula(handleEventUpdate($1; $2)) \
+})
+$status:=$calNotif.start()
+
+// Stop
+$status:=$notif.stop()
+```
 
 ## User
  
