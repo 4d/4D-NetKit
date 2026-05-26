@@ -174,14 +174,6 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	// ----------------------------------------------------
 	
 	
-Function _getStatusLine() : Text
-	
-	return This._internals._statusLine
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function _getURL() : Text
 	
 	return This._internals._URL
@@ -193,27 +185,3 @@ Function _getURL() : Text
 Function _getOAuth2Provider() : cs.OAuth2Provider
 	
 	return This._internals._oAuth2Provider
-	
-	
-	// ----------------------------------------------------
-	
-	
-Function _returnStatus($inAdditionalInfo : Object) : Object
-	
-	var $status : Object:={}
-	var $errorStack : Collection:=Super._getErrorStack()
-	
-	If (Not(OB Is empty($inAdditionalInfo)))
-		$status:=OB Copy($inAdditionalInfo)
-	End if 
-	
-	If ($errorStack.length>0)
-		$status.success:=False
-		$status.errors:=$errorStack
-		$status.statusText:=$errorStack.first().message
-	Else 
-		$status.success:=True
-		$status.statusText:=This._getStatusLine()
-	End if 
-	
-	return $status

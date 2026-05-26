@@ -233,7 +233,8 @@ Function ensureWebServer($inEndPoint : Text) : Object
         return {success: True; port: $port}
     End if 
     
-    var $result : Object:={success: cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True}); port: $port}
+    var $result : Object:=cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True})
+    $result.port:=$port
     If ($result.success)
         cs._Tools.me.notificationMode:=True
     End if 

@@ -532,7 +532,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 				End if 
 			End if 
 			
-			If ($bUseHostDatabaseServer || cs._Tools.me.startWebServer($options))
+			var $webServerStatus : Object:={success: $bUseHostDatabaseServer; error: Null}
+			If (Not($bUseHostDatabaseServer))
+				$webServerStatus:=cs._Tools.me.startWebServer($options)
+			End if 
+			
+			If ($webServerStatus.success)
 				
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
@@ -560,7 +565,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			Else 
 				
 				$bSendRequest:=False
-				This._throwError(7; {port: $options.port})
+				If (($webServerStatus.error#Null) && (Value type($webServerStatus.error)=Is object))
+					var $serverError : Object:=OB Copy($webServerStatus.error)
+					This._internals._errorStack.push($serverError)
+					$serverError.deferred:=True
+					throw($serverError)
+				Else 
+					This._throwError(7; {port: $options.port})
+				End if 
 				
 			End if 
 		End if 
@@ -901,7 +913,11 @@ Function getToken() : Object
 			
 		End if 
 	Catch
-		// Errors are already in _errorStack via _throwError
+		// Re-throw so errors are visible to callers
+		var $caughtErrors : Collection:=Last errors
+		If ($caughtErrors.length>0)
+			throw($caughtErrors.first())
+		End if 
 	End try
 	
 	return $result

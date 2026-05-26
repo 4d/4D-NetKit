@@ -2,6 +2,7 @@ property webServer : 4D.WebServer
 property isDebug : Boolean
 property trace : Boolean
 property webLicenseAvailable : Boolean
+property notificationMode : Boolean
 
 
 singleton Class constructor()
@@ -420,16 +421,18 @@ Function retainFileObject($inParameter : Variant) : 4D.File
 	// ----------------------------------------------------
 	
 	
-Function startWebServer($inParameters : Object) : Boolean
+Function startWebServer($inParameters : Object) : Object
 	
 	var $port : Integer:=(Num($inParameters.port)>0) ? Num($inParameters.port) : 50993
 	var $bIsSSL : Boolean:=(Value type($inParameters.useTLS)#Is undefined) ? Bool($inParameters.useTLS) : False
 	var $debugLog : Integer:=Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log
+	var $status : Object:={success: False; error: Null}
 	
 	If (This.webServer.isRunning)
 		If ((This.webServer.HTTPEnabled=$bIsSSL) || ($bIsSSL && (This.webServer.HTTPSPort#$port)) || (Not($bIsSSL) && (This.webServer.HTTPPort#$port)) || (This.webServer.debugLog#$debugLog))
 			If (This.notificationMode)
-				throw(cs._Tools.me.makeError(17; Null))
+				$status.error:=cs._Tools.me.makeError(17; Null)
+				return $status
 			End if 
 			This.webServer.stop()
 			DELAY PROCESS(Current process; 20)
@@ -483,11 +486,22 @@ Function startWebServer($inParameters : Object) : Boolean
 			$settings.rootFolder:=Folder(fk web root folder; *)
 		End if 
 		
-		var $status : Object:=This.webServer.start($settings)
+		var $startStatus : Object:=This.webServer.start($settings)
+		If (($startStatus#Null) && (Value type($startStatus)=Is object))
+			If (OB Is defined($startStatus; "error"))
+				$status.error:=$startStatus.error
+			Else 
+				$status.error:=$startStatus
+			End if 
+		End if 
 		
 	End if 
 	
-	return This.webServer.isRunning
+	$status.success:=This.webServer.isRunning
+	If ((Not($status.success)) && ($status.error=Null))
+		$status.error:=cs._Tools.me.makeError(7; {port: $port})
+	End if 
+	return $status
 	
 	
 	// ----------------------------------------------------
