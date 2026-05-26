@@ -62,7 +62,7 @@ Else
 	
 	// Check if this is a notification webhook request
 	Case of 
-		: ($URL="/$4dnk-graph-notification@")
+		: ($URL="/4dnk-graph-notification@")
 			
 			// --- Microsoft Graph notification ---
 			// Validation: Microsoft sends ?validationToken=<token> as a query parameter
@@ -91,7 +91,7 @@ Else
 			End if 
 			
 			
-		: ($URL="/$4dnk-google-notification@")
+		: ($URL="/4dnk-google-notification@")
 			
 			// --- Google notification ---
 			// Calendar push: Google sends X-Goog-Channel-Token header with state identifier

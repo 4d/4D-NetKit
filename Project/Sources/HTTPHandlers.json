@@ -8,13 +8,13 @@
 	{
 		"class": "GraphNotificationHandler",
 		"method": "getResponse",
-		"regexPattern": "/\\$4dnk-graph-notification",
+		"regexPattern": "/4dnk-graph-notification.*",
 		"verbs": "post"
 	},
 	{
 		"class": "GoogleNotificationHandler",
 		"method": "getResponse",
-		"regexPattern": "/\\$4dnk-google-notification",
+		"regexPattern": "/4dnk-google-notification.*",
 		"verbs": "post"
 	}
 ]
