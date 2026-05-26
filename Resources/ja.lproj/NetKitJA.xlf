@@ -81,6 +81,10 @@
           <source>The JWT algorithm '{alg}' is not allowed.</source>
           <target>JWTのアルゴリズム'{alg}'は許可されていません。</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_17">
+          <source>The web server cannot be restarted: active webhook notifications are registered and would be interrupted.</source>
+          <target>Webサーバーを再起動できません：アクティブなWebhook通知が登録されており、中断されてしまいます。</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <source>4D NetKit Component</source>
           <target>4D NetKit コンポーネント</target>

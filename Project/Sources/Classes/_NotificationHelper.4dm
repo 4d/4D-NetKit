@@ -101,6 +101,13 @@ Function cleanupStorage($inStorageKey : Text; $inState : Text)
                 End use 
             End if 
         End use 
+        
+        // Reset notificationMode when no active webhook sessions remain
+        var $graphEmpty : Boolean:=((Storage.graphNotifications=Null) || OB Is empty(Storage.graphNotifications))
+        var $googleEmpty : Boolean:=((Storage.googleNotifications=Null) || OB Is empty(Storage.googleNotifications))
+        If ($graphEmpty && $googleEmpty)
+            cs._Tools.me.notificationMode:=False
+        End if 
     End if 
     
     
@@ -226,7 +233,11 @@ Function ensureWebServer($inEndPoint : Text) : Object
         return {success: True; port: $port}
     End if 
     
-    return {success: cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True}); port: $port}
+    var $result : Object:={success: cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True}); port: $port}
+    If ($result.success)
+        cs._Tools.me.notificationMode:=True
+    End if 
+    return $result
     
     
     // Mark: - [Caller context dispatch]

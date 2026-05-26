@@ -10,6 +10,7 @@ singleton Class constructor()
 	This.isDebug:=False
 	This.trace:=False
 	This.webLicenseAvailable:=False
+	This.notificationMode:=False
 	
 	
 Function init()
@@ -427,6 +428,9 @@ Function startWebServer($inParameters : Object) : Boolean
 	
 	If (This.webServer.isRunning)
 		If ((This.webServer.HTTPEnabled=$bIsSSL) || ($bIsSSL && (This.webServer.HTTPSPort#$port)) || (Not($bIsSSL) && (This.webServer.HTTPPort#$port)) || (This.webServer.debugLog#$debugLog))
+			If (This.notificationMode)
+				throw(cs._Tools.me.makeError(17; Null))
+			End if 
 			This.webServer.stop()
 			DELAY PROCESS(Current process; 20)
 		End if 
