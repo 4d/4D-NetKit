@@ -1402,7 +1402,7 @@ $status:=$Office365.mail.send($email)
 
 ## Status object
 
-Several Office365.mail functions return a standard `**status object**`, containing the following properties:
+Several Office365.mail functions return a standard **status object**, containing the following properties:
 
 |Property|Type|Description|
 |---------|--- |------|
@@ -1431,7 +1431,7 @@ The notification system allows subscribing to change notifications on [**mails**
 - **Push** (webhook): Real-time notifications via HTTP callbacks. Requires a publicly accessible endpoint.
 - **Pull** (polling): Periodic polling of change APIs. No external endpoint needed.
 
-When a resource changes, user-defined callbacks are dispatched in the 4D worker where [`start()`] was originally called.
+When a resource changes, user-defined callbacks are dispatched in the 4D worker where the notifier's `start()` function was originally called.
 
 
 ### Office365.mail.notifier
@@ -1442,11 +1442,50 @@ When a resource changes, user-defined callbacks are dispatched in the 4D worker 
 |---|---|---|---|
 | param | Object |->| Callback and mode definitions (see below) |
 | folderId | Text |->| *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
-|Result|Object|<-| Notification object|
+|Result|Object|<-| [Notifier object](#returned-object-notifier-object)|
 
 
-`Office365.mail.notifier` creates and returns a notification object for **mail** change notifications.
+`Office365.mail.notifier` creates and returns a [notification object](#returned-object-notifier-object) allowing you to configure, start and stop subscriptions to mail change notifications in the *folderID* folder or all folders (if *folderID* omitted). 
 
+The subscription is automatically closed when the notifier object is destroyed. The callback functions must be called in the worker where the `start()` function of the notifier is executed.
+
+#### *param* parameter
+
+Pass the following properties in the *param* parameter:
+
+| Property | Type | Description |
+|---|---|---|
+| endPoint | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). Public HTTPS endpoint that receives real-time webhook notifications from Microsoft Graph. The endpoint must be publicly accessible, use a valid domain name, and be secured with a trusted SSL certificate that matches the domain name *(optional)*. See [endPoint management](#endpoint-management).|
+| onCreate | 4D.Function | Called when a mail creation is detected *(optional)*. |
+| onDelete | 4D.Function | Called when a mail deletion is detected *(optional)*.  |
+| onModify | 4D.Function | Called when a mail modification is detected *(optional)*. |
+| timer | Integer | Polling interval in seconds for pull mode (default: 30) *(optional)*.|
+
+Callback functions are called along with two parameters: 
+
+**onCreate** (office365 : *cs.NetKit.Office365* ; event : *Object* )<br/>
+**onDelete** (office365 : *cs.NetKit.Office365* ; event : *Object* )<br/>
+**onModify** (office365 : *cs.NetKit.Office365* ; event : *Object* )
+
+| Property || Type | Description |
+|---|----|---|---|
+| office365 | |cs.NetKit.Office365 | Current [office365 object](#returned-object)|
+| event  | | Object | |
+|   | type | Text |"mailCreated", "mailDeleted", "mailModified" |
+|   | ids| Collection |IDs of received / deleted / modified emails |
+
+#### Example
+
+Mail notifications via webhook (push mode):
+
+```4d
+var $notif:=$office365.mail.notifier({ \
+    endPoint: "https://myserver.com"; \
+    onCreate: Formula(ALERT("New mail: "+String($2.ids))); \
+    onDelete: Formula(ALERT("Mail deleted: "+String($2.ids))) \
+})
+$status:=$notif.start()
+```
 
 ### Office365.calendar.notifier
 
@@ -1456,9 +1495,10 @@ When a resource changes, user-defined callbacks are dispatched in the 4D worker 
 |---|---|---|---|
 | param | Object |->| Callback and mode definitions (see below) |
 | calendarId | Text |->| *(optional)* Subscribe to changes in that specific calendar. If omitted, subscribe to the default calendar. |
-|Result|Object|<-| Notification object|
+|Result|Object|<-| [Notification object](#returned-object-notifier-object)|
 
-`Office365.calendar.notifier` creates and returns a notification object for **calendar event** change notifications.
+`Office365.calendar.notifier` creates and returns a [notification object](#returned-object-notifier-object) allowing you to configure, start and stop subscriptions to calendar event change notifications in the *calendarId* calendar or all calendars (if *calendarId* omitted). 
+
 
 ### *param* parameter
 
@@ -1466,11 +1506,78 @@ Pass the following properties in the *param* parameter:
 
 | Property | Type | Description |
 |---|---|---|
-| `onCreate` | `4D.Function` | Called when a resource is **created**. *(optional)* |
-| `onDelete` | `4D.Function` | Called when a resource is **deleted**. *(optional)* |
-| `onModify` | `4D.Function` | Called when a resource is **modified**. *(optional)* |
-| `endPoint` | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). *(optional)* |
-| `timer` | Integer | Polling interval in seconds for pull mode (default: 30). *(optional)* |
+| endPoint | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). Public HTTPS endpoint that receives real-time webhook notifications from Microsoft Graph. The endpoint must be publicly accessible, use a valid domain name, and be secured with a trusted SSL certificate that matches the domain name *(optional)*. See [endPoint management](#endpoint-management).|
+| onCreate | 4D.Function | Called when a calendar event creation is detected *(optional)*. |
+| onDelete | 4D.Function | Called when a calendar event deletion is detected *(optional)*.  |
+| onModify | 4D.Function | Called when a calendar event modification is detected *(optional)*. |
+| timer | Integer | Polling interval in seconds for pull mode (default: 30) *(optional)*.|
+
+Callback functions are called along with two parameters: 
+
+**onCreate** (office365 : *cs.NetKit.Office365* ; event : *Object* )<br/>
+**onDelete** (office365 : *cs.NetKit.Office365* ; event : *Object* )<br/>
+**onModify** (office365 : *cs.NetKit.Office365* ; event : *Object* )
+
+| Property || Type | Description |
+|---|----|---|---|
+| office365 | |cs.NetKit.Office365 | Current [office365 object](#returned-object)|
+| event  | | Object | |
+|   | type | Text |"eventCreated", "eventDeleted", "eventModified" |
+|   | ids| Collection |IDs of new / deleted / modified events |
+
+#### Example
+
+Calendar notifications via delta polling every 60 seconds (pull mode):
+
+```
+$calNotif:=$office365.calendar.notifier({ \
+    timer: 60; \
+    onCreate: Formula(handleNewEvent($1; $2)); \
+    onModify: Formula(handleEventUpdate($1; $2)) \
+})
+$status:=$calNotif.start()
+
+// Stop
+$status:=$notif.stop()
+```
+
+### Returned object (notifier object)
+
+`notifier` functions return an object with the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+|endPoint|Text|Publicly accessible HTTPS-secured endpoint that receives the notifications. See [endPoint management](#endpoint-management)|
+|expiration|Text|Expiration date and time (timestamp). Read only|
+|isStarted|Boolean|Indicates whether notifications are started (true) or stoped (false). Read only|
+|start()|`4D.Function`|Starts the subscription to the notifications and fills the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|stop()|`4D.Function`|Stops the subscription to the notifications and clears the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|timer | Integer |Interval in seconds between each delta query check when no endpoint is provided.|
+
+### `endPoint` management
+
+- If the endPoint port is the same as the host port, 4D NetKit must use the host web server automatically to retrieve the notification. 
+- If the port is not specified in the endPoint, standard ports (80 for http and 443 for https) are used. If the host project is configured with the standard ports, the host project web server is used, otherwhise the 4D Netkit web server is used.
+- In any other case, the 4D Netkit component webserver is used.
+
+When the endPoint uses the host web server, the following [http handler](https://developer.4d.com/docs/WebServer/http-request-handler) should be added to the `Project/Sources/HTTPHandlers.json` file:
+
+```
+[
+  {
+    "class": "NetKit.GraphNotificationHandler",
+    "method": "getResponse",
+    "regexPattern": "/\\$4dnk-graph-notification",
+    "verbs": "post"
+  }
+]
+```
+
+If the OAuth 2.0 connection uses an HTTPS redirect URI, the port must match exactly.
+
+If both a `mail.notifier` and a `calendar.notifier` are declared, they must use the same port.
+
+
 
 ### Modes 
 
@@ -1499,28 +1606,7 @@ flowchart TD
     D -- "CALL WORKER(originalWorker; callbacks)" --> E
 ```
 
-### Examples
 
-```
-// Push mode — Mail notifications via webhook
-var $notif:=$office365.mail.notifier({ \
-    endPoint: "https://myserver.com"; \
-    onCreate: Formula(ALERT("New mail: "+String($2.ids))); \
-    onDelete: Formula(ALERT("Mail deleted: "+String($2.ids))) \
-})
-$status:=$notif.start()
-
-// Pull mode — Calendar notifications via delta polling (every 60 seconds)
-$calNotif:=$office365.calendar.notifier({ \
-    timer: 60; \
-    onCreate: Formula(handleNewEvent($1; $2)); \
-    onModify: Formula(handleEventUpdate($1; $2)) \
-})
-$status:=$calNotif.start()
-
-// Stop
-$status:=$notif.stop()
-```
 
 ## User
  
