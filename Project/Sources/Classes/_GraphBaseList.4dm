@@ -8,7 +8,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	This._internals._history:=[$inURL]
 	This._internals._nextToken:=""
 	
-	This._getList($inURL)
+	Try
+		This._getList($inURL)
+	Catch
+		// Errors are already in _errorStack via _throwError
+		This._handleListError()
+	End try
 	
 	
 	// Mark: - [Private]

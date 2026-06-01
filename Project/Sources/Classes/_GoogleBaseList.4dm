@@ -13,7 +13,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	This._internals._nextToken:=""
 	This._internals._history:=[""]
 	
-	This._getList("")
+	Try
+		This._getList("")
+	Catch
+		// Errors are already in _errorStack via _throwError
+		This._handleListError()
+	End try
 	
 	
 	// Mark: - [Private]

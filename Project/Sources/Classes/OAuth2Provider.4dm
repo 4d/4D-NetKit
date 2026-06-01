@@ -916,7 +916,9 @@ Function getToken() : Object
 		// Re-throw so errors are visible to callers
 		var $caughtErrors : Collection:=Last errors
 		If ($caughtErrors.length>0)
-			throw($caughtErrors.first())
+			var $firstError : Object:=OB Copy($caughtErrors.first())
+			OB REMOVE($firstError; "deferred")  // Force immediate (non-deferred) throw
+			throw($firstError)
 		End if 
 	End try
 	

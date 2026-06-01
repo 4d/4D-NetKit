@@ -20,11 +20,32 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 Function _getToken() : Object
 	
-	If (OB Class(This._internals._oAuth2Provider)=cs.OAuth2Provider)
-		This._internals._oAuth2Provider.getToken()
-	End if 
+	Try
+		If (OB Class(This._internals._oAuth2Provider)=cs.OAuth2Provider)
+			This._internals._oAuth2Provider.getToken()
+		End if 
+		
+		return This._internals._oAuth2Provider.token
+	Catch
+		// Propagate the OAuth2 error into _BaseAPI's error stack
+		var $caughtErrors : Collection:=Last errors
+		If ($caughtErrors.length>0)
+			var $err : Object
+			For each ($err; $caughtErrors)
+				This._internals._errorStack.push($err)
+			End for each 
+			
+			// Re-throw the first error
+			var $firstError : Object:=OB Copy($caughtErrors.first())
+			OB REMOVE($firstError; "deferred")
+			throw($firstError)
+		End if 
+		
+		// Defensive fallback when Last errors is unexpectedly empty
+		This._throwError(13; {function: "_BaseAPI._getToken"; message: "Unknown error while retrieving OAuth2 token"})
+	End try
 	
-	return This._internals._oAuth2Provider.token
+	return Null
 	
 	
 	// ----------------------------------------------------
@@ -32,7 +53,28 @@ Function _getToken() : Object
 	
 Function _getAccessToken() : Text
 	
-	return String(This._getToken().access_token)
+	Try
+		return String(This._getToken().access_token)
+	Catch
+		// Propagate the OAuth2 error into _BaseAPI's error stack
+		var $caughtErrors : Collection:=Last errors
+		If ($caughtErrors.length>0)
+			var $err : Object
+			For each ($err; $caughtErrors)
+				This._internals._errorStack.push($err)
+			End for each 
+			
+			// Re-throw the first error
+			var $firstError : Object:=OB Copy($caughtErrors.first())
+			OB REMOVE($firstError; "deferred")
+			throw($firstError)
+		End if 
+		
+		// Defensive fallback when Last errors is unexpectedly empty
+		This._throwError(13; {function: "_BaseAPI._getAccessToken"; message: "Unknown error while retrieving OAuth2 access token"})
+	End try
+	
+	return ""
 	
 	
 	// ----------------------------------------------------
@@ -41,7 +83,24 @@ Function _getAccessToken() : Text
 Function _getAccessTokenType() : Text
 	
 	var $tokenType : Text
-	var $token : Object:=This._getToken()
+	
+	Try
+		var $token : Object:=This._getToken()
+	Catch
+		// Propagate the OAuth2 error into _BaseAPI's error stack
+		var $caughtErrors : Collection:=Last errors
+		If ($caughtErrors.length>0)
+			var $err : Object
+			For each ($err; $caughtErrors)
+				This._internals._errorStack.push($err)
+			End for each 
+		End if 
+		
+		// Re-throw the first error
+		var $firstError : Object:=OB Copy($caughtErrors.first())
+		OB REMOVE($firstError; "deferred")
+		throw($firstError)
+	End try
 	
 	Case of 
 		: (Value type($token.token_type)=Is text)
@@ -164,7 +223,9 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 		// Re-throw so the error propagates to the caller
 		var $caughtErrors : Collection:=Last errors
 		If ($caughtErrors.length>0)
-			throw($caughtErrors.first())
+			var $firstError : Object:=OB Copy($caughtErrors.first())
+			OB REMOVE($firstError; "deferred")  // Force immediate (non-deferred) throw
+			throw($firstError)
 		End if 
 	End try
 	
