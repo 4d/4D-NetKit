@@ -26,6 +26,7 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 * [Google.Calendar.createEvent()](#googlecalendarcreateevent)
 * [Google.Calendar.updateEvent()](#googlecalendarupdateevent)
 * [Google.Calendar.deleteEvent()](#googlecalendardeleteevent)
+* [Google.Calendar.notifier()](#googlecalendarnotifier)
 * [Event object](#event-object)
 
 ### [Mail](#mail-1)
@@ -43,7 +44,9 @@ The `Google` class is instantiated by calling the `cs.NetKit.Google.new()` funct
 * [Google.mail.getMailIds()](#googlemailgetmailids)
 * [Google.mail.getMails()](#googlemailgetmails)
 * [Google.mail.untrash()](#googlemailuntrash)
+* [Google.mail.notifier()](#googlemailnotifier)
 * [labelInfo object](#labelinfo-object)
+
 
 ### [User](#user-1)
 
@@ -488,6 +491,108 @@ Else
   ALERT($result.statusText)
 End if
 ```
+
+
+### Google.calendar.notifier
+
+**Google.calendar.notifier**(*param* : Object { ; *calendarId* : Text }) : Object
+
+| Parameter | Type | |Description |
+|---|---|---|---|
+| param | Object |->| Callback and mode definitions (see below) |
+| calendarId | Text |->| *(optional)* Subscribe to changes in that specific calendar. If omitted, subscribe to the default calendar. |
+|Result|Object|<-| [Notification object](#returned-object-notifier-object)|
+
+`Google.calendar.notifier` creates and returns a [notifier object](#returned-object-notifier-object) allowing you to configure, start and stop subscriptions to calendar event change notifications in the *calendarId* calendar or all calendars (if *calendarId* omitted). 
+
+Two modes are available:
+
+- **Push** (webhook): Real-time notifications via HTTP callbacks. Requires a publicly accessible endpoint. Creates a Gmail subscription. The webhook URL is derived as `{endPoint}/4dnk-google-notification?state={uuid}`.
+- **Pull** (polling): Periodic polling of change APIs. No external endpoint needed. Polls the delta query API at the configured interval.
+
+
+When a resource changes, user-defined callbacks are dispatched in the 4D worker where the notifier's `start()` function was originally called.
+
+
+### *param* parameter
+
+Pass the following properties in the *param* parameter:
+
+| Property | Type | Description |
+|---|---|---|
+| endPoint | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). Public HTTPS endpoint that receives real-time webhook notifications from Google gmail. The endpoint must be publicly accessible, use a valid domain name, and be secured with a trusted SSL certificate that matches the domain name *(optional)*. See [endPoint management](#endpoint-management).|
+| onCreate | 4D.Function | Callback for a calendar event creation *(optional)*. |
+| onDelete | 4D.Function | Callback for a calendar event deletion *(optional)*.  |
+| onModify | 4D.Function | Callback for a calendar event modification *(optional)*. |
+| timer | Integer | Polling interval in seconds between each delta query check for pull mode (default: 30) *(optional)*.|
+
+Callback functions are called along with two parameters: 
+
+**onCreate** (google : *cs.NetKit.Google* ; event : *Object* )<br/>
+**onDelete** (google : *cs.NetKit.Google* ; event : *Object* )<br/>
+**onModify** (google : *cs.NetKit.Google* ; event : *Object* )
+
+| Property || Type | Description |
+|---|----|---|---|
+| google | |cs.NetKit.Google | Current [Google object](#returned-object)|
+| event  | | Object | |
+|   | type | Text |"eventCreated", "eventDeleted", "eventModified" |
+|   | ids| Collection |IDs of new / deleted / modified events |
+
+### Returned object (notifier object)
+
+`notifier` functions return an object with the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+|endPoint|Text|Publicly accessible HTTPS-secured endpoint that receives the notifications. See [endPoint management](#endpoint-management)|
+|expiration|Text|Expiration date and time (timestamp). Read only|
+|isStarted|Boolean|Indicates whether notifications are started (true) or stoped (false). Read only|
+|start()|`4D.Function`|Starts the subscription to the notifications and fills the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|stop()|`4D.Function`|Stops the subscription to the notifications and clears the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|timer | Integer |Interval in seconds between each delta query check when no endpoint is provided.|
+
+### `endPoint` management
+
+- If the endPoint port is the same as the host port, 4D NetKit must use the host web server automatically to retrieve the notification. 
+- If the port is not specified in the endPoint, standard ports (80 for http and 443 for https) are used. If the host project is configured with the standard ports, the host project web server is used, otherwhise the 4D NetKit web server is used.
+- In any other case, the 4D NetKit component webserver is used.
+
+When the endPoint uses the host web server, the following [http handler](https://developer.4d.com/docs/WebServer/http-request-handler) should be added to the `Project/Sources/HTTPHandlers.json` file:
+
+```
+[
+  {
+    "class": "NetKit.GraphNotificationHandler",
+    "method": "getResponse",
+    "regexPattern": "/4dnk-google-notification",
+    "verbs": "post"
+  }
+]
+```
+
+If the OAuth 2.0 connection uses an HTTPS redirect URI, the port must match exactly.
+
+If both a `calendar.notifier` and  a [`mail.notifier`](#office365mailnotifier) andare declared, they must use the same port.
+
+
+
+#### Example
+
+Calendar notifications via delta polling every 60 seconds (pull mode):
+
+```
+var $provider:=SignedInProvider()
+var $google:=cs.NetKit.Google.new($provider; {mailType: "JMAP"})
+var $notification:={}
+
+$notification.onCreate:=Formula(ALERT("You have a new event!"))
+$google.mail.notification($notification).start()
+```
+
+
+
+
 
 ### Event object
 
@@ -1069,6 +1174,83 @@ $status:=$google.mail.updateLabel($labelId; {name:"Backup January"})
 ```
 
 
+### Google.mail.notifier
+
+**Google.mail.notifier**(*param* : Object { ; *folderId* : Text }) : Object
+
+| Parameter | Type | |Description |
+|---|---|---|---|
+| param | Object |->| Callback and mode definitions (see below) |
+| folderId | Text |->| *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
+|Result|Object|<-| [Notifier object](#returned-object-notifier-object-1)|
+
+
+`Google.mail.notifier` creates and returns a [notifier object](#returned-object-notifier-object-1) allowing you to configure, start and stop subscriptions to mail change notifications in the *folderID* folder or all folders (if *folderID* omitted).
+
+Two modes are available:
+
+- **Push** (webhook): Real-time notifications via HTTP callbacks. Requires a publicly accessible endpoint. Creates a Gmail subscription. The webhook URL is derived as `{endPoint}/4dnk-google-notification?state={uuid}`.
+- **Pull** (polling): Periodic polling of change APIs. No external endpoint needed. Polls the delta query API at the configured interval.
+
+When a resource changes, user-defined callbacks are dispatched in the 4D worker where the notifier's `start()` function was originally called.
+
+The subscription is automatically closed when the notifier object is destroyed. The callback functions must be called in the worker where the `start()` function of the notifier is executed.
+
+#### *param* parameter
+
+Pass the following properties in the *param* parameter:
+
+| Property | Type | Description |
+|---|---|---|
+| endPoint | Text | Webhook URL for **push** mode. If omitted, uses **pull** mode (delta queries). Public HTTPS endpoint that receives real-time webhook notifications from Google gmail. The endpoint must be publicly accessible, use a valid domain name, and be secured with a trusted SSL certificate that matches the domain name *(optional)*. See [**endPoint management** in calendar notifier section](#endpoint-management).|
+| onCreate | 4D.Function | Callback for a mail creation *(optional)*. |
+| onDelete | 4D.Function | Callback for a mail deletion *(optional)*.  |
+| onModify | 4D.Function | Callback for a mail modification *(optional)*. |
+| timer | Integer | Polling interval in seconds for pull mode (default: 30) *(optional)*.|
+
+Callback functions are called along with two parameters: 
+
+**onCreate** (google : *cs.Google.Office365* ; event : *Object* )<br/>
+**onDelete** (google : *cs.Google.Office365* ; event : *Object* )<br/>
+**onModify** (google : *cs.Google.Office365* ; event : *Object* )
+
+| Property || Type | Description |
+|---|----|---|---|
+| google | |cs.NetKit.Google | Current [Google object](#returned-object)|
+| event  | | Object | |
+|   | type | Text |"mailCreated", "mailDeleted", "mailModified" |
+|   | ids| Collection |IDs of received / deleted / modified emails |
+
+### Returned object (notifier object)
+
+`notifier` functions return an object with the following properties:
+
+| Property | Type | Description |
+|---|---|---|
+|endPoint|Text|Publicly accessible HTTPS-secured endpoint that receives the notifications. See [endPoint management](#endpoint-management)|
+|expiration|Text|Expiration date and time (timestamp). Read only|
+|isStarted|Boolean|Indicates whether notifications are started (true) or stoped (false). Read only|
+|start()|`4D.Function`|Starts the subscription to the notifications and fills the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|stop()|`4D.Function`|Stops the subscription to the notifications and clears the `expiration` datetime property. Returns an object with the following attributes:<br/>- "success": boolean<br/>- "statusText" : Text. Status message returned by the server or last error returned by the 4D error stack<br/>- "errors" : Collection : Collection of errors. Not returned if the server returns a "statusText"|
+|timer | Integer |Interval in seconds between each delta query check when no endpoint is provided.|
+
+
+#### Example
+
+Mail notifications via webhook (push mode):
+
+```4d
+var $notif:=$google.mail.notifier({ \
+    endPoint: "https://myserver.com"; \
+    onCreate: Formula(ALERT("New mail: "+String($2.ids))); \
+    onDelete: Formula(ALERT("Mail deleted: "+String($2.ids))) \
+})
+$status:=$notif.start()
+```
+
+
+
+
 
 ### labelInfo object
 
@@ -1082,6 +1264,8 @@ Several Google.mail label management methods use a `labelInfo` object, containin
 |labelListVisibility|Text|The visibility of the label in the label list.<br>Can be:<br>- "labelShow": Show the label in the label list.<br>- "labelShowIfUnread": Show the label if there are any unread messages with that label.<br>- "labelHide": Do not show the label in the label list.|
 |[color](https://developers.google.com/gmail/api/reference/rest/v1/users.labels?hl=en#color)|Object|The color to assign to the label (color is only available for labels that have their type set to `user`).<br>The color object has 2 attributes:<br>- `textColor`: Text. The text color of the label, represented as a hex string. This field is required in order to set the color of a label.<br>- `backgroundColor`: Text. The background color represented as a hex string `#RRGGBB` (e.g., for black: `#000000`). This field is required in order to set the color of a label.|
 |type|Text|The owner type for the label.<br>Can be:<br>- "system": Labels created by Gmail.<br>- "user": Custom labels created by the user or application.<br><br>System labels are internally created and cannot be added, modified, or deleted. They may be able to be applied to or removed from messages and threads under some circumstances, but this is not guaranteed. For example, users can apply and remove the `INBOX` and `UNREAD` labels from messages and threads, but cannot apply or remove the `DRAFTS` or `SENT` labels.<br><br>User labels are created by the user and can be modified and deleted, and can be applied to any message or thread.|
+
+
 
 
 ## User
