@@ -183,12 +183,20 @@ Function parseQuery($inQueryString : Text)
         var $queryParams : Collection:=Split string($queryString; "&"; sk ignore empty strings)
         var $param; $name; $value : Text
         For each ($param; $queryParams)
-            If (Position("="; $param)>0)
-                $name:=Substring($param; 1; Position("="; $param)-1)
-                $value:=Substring($param; Position("="; $param)+1)
-                This.queryParams.push({name: $name; value: $value})
-            Else 
-                This.queryParams.push({name: $param; value: ""})
+            $param:=Trim($param)
+            If (Length($param)>0)
+                If (Position("="; $param)>0)
+                    $name:=Trim(Substring($param; 1; Position("="; $param)-1))
+                    $value:=Substring($param; Position("="; $param)+1)
+                    If (Length($name)>0)
+                        This.queryParams.push({name: $name; value: $value})
+                    End if 
+                Else 
+                    $name:=Trim($param)
+                    If (Length($name)>0)
+                        This.queryParams.push({name: $name; value: ""})
+                    End if 
+                End if 
             End if 
         End for each 
     End if 
@@ -526,20 +534,38 @@ Function clear()
 /**
  * @function removeQueryParameter
  * @param {Text} $paramName - Name of query parameter to remove
+ * @param {Boolean} [$removeAll=False] - When true, removes all matching parameters
  * @returns {Boolean} true if parameter was found and removed
- * @description Removes query parameter by name from queryParams collection
+ * @description Removes query parameter(s) by name from queryParams collection
  * @example
  *   $url.removeQueryParameter("page")  // removes page parameter
+ *   $url.removeQueryParameter("tag"; True)  // removes all tag parameters
  */
-Function removeQueryParameter($paramName : Text) : Boolean
+Function removeQueryParameter( ... : Variant) : Boolean
     
+    var $paramName : Text:=""
+    var $removeAll : Boolean:=False
     var $found : Boolean:=False
     var $param : Object
     var $newQueryParams : Collection:=[]
     
+    Case of 
+        : ((Count parameters=1) && (Value type($1)=Is text))
+            $paramName:=$1
+        : ((Count parameters=2) && (Value type($1)=Is text) && (Value type($2)=Is boolean))
+            $paramName:=$1
+            $removeAll:=$2
+        Else 
+            return False
+    End case 
+    
     For each ($param; This.queryParams)
-        If ((Not($found)) && ($param.name=$paramName))
-            $found:=True
+        If ($param.name=$paramName)
+            If (($removeAll=False) && $found)
+                $newQueryParams.push($param)
+            Else 
+                $found:=True
+            End if 
         Else 
             $newQueryParams.push($param)
         End if 
@@ -550,6 +576,26 @@ Function removeQueryParameter($paramName : Text) : Boolean
     End if 
     
     return $found
+    
+    
+    // ============================================================
+
+/**
+ * @function hasQueryParameter
+ * @param {Text} $paramName - Name of query parameter to check
+ * @returns {Boolean} true if at least one parameter with this name exists
+ * @description Checks whether a query parameter exists by name
+ */
+Function hasQueryParameter($paramName : Text) : Boolean
+    
+    var $param : Object
+    For each ($param; This.queryParams)
+        If ($param.name=$paramName)
+            return True
+        End if 
+    End for each 
+    
+    return False
     
     
     // ============================================================
