@@ -838,7 +838,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
                     This._internals._channelId:=String($response.id)
                     This._internals._googleResourceId:=String($response.resourceId)
                     If (Length(String($response.expiration))>0)
-                        This._internals._expiration:=String($response2.expiration)
+                        This._internals._expiration:=String($response.expiration)
                     End if 
                     
                     // Stop old channel
