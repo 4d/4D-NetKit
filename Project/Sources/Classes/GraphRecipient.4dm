@@ -2,11 +2,12 @@ property emailAddress : Object
 
 Class constructor($inAddress : Text; $inName : Text)
 	
-	If (Length(String($inAddress))>0)
+	var $parsed : cs._EmailAddress:=cs._EmailAddress.new($inName; $inAddress)
+	If ($parsed.isValid())
 		
-		This.emailAddress:={address: $inAddress}
-		If (Length(String($inName))>0)
-			This.emailAddress.name:=$inName
+		This.emailAddress:={address: $parsed.email}
+		If (Length($parsed.name)>0)
+			This.emailAddress.name:=$parsed.name
 		End if 
 	Else 
 		
