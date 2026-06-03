@@ -44,14 +44,12 @@ var $duration : Real:=(Milliseconds-$startMs)
 
 var $hasErrors : Boolean:=False
 var $hasWarnings : Boolean:=False
-var $issues : Collection:=[]
 var $errors : Collection:=[]
 var $warnings : Collection:=[]
 
 If (Value type($status.errors)=Is collection)
 	var $entry : Object
 	For each ($entry; $status.errors)
-		$issues.push($entry)
 		If (Bool($entry.isError))
 			$hasErrors:=True
 			$errors.push($entry)
@@ -65,7 +63,9 @@ End if
 var $success : Boolean:=Bool($status.success) & (Not($hasErrors)) & (Not($failOnWarning & $hasWarnings))
 var $4dVersion : Text:=Application version(*)
 var $projectName : Text:=File(Structure file; fk platform path).name
-var $result : Object:=New object("success"; $success; "hasErrors"; $hasErrors; "hasWarnings"; $hasWarnings; "errorsCount"; $errors.length; "warningsCount"; $warnings.length; "failOnWarning"; $failOnWarning; "timestamp"; $startTime; "duration"; $duration; "4dVersion"; $4dVersion; "projectName"; $projectName; "compileOptions"; $options; "status"; $status; "issues"; $issues; "errors"; $errors; "warnings"; $warnings)
+$status.errors:=$errors
+$status.warnings:=$warnings
+var $result : Object:=New object("success"; $success; "hasErrors"; $hasErrors; "hasWarnings"; $hasWarnings; "errorsCount"; $errors.length; "warningsCount"; $warnings.length; "failOnWarning"; $failOnWarning; "timestamp"; $startTime; "duration"; $duration; "4dVersion"; $4dVersion; "projectName"; $projectName; "compileOptions"; $options; "status"; $status)
 
 // Write machine-readable report for CI inspection.
 $reportFile.setText(JSON Stringify($result; *))
