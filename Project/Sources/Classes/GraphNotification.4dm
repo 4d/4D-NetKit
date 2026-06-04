@@ -338,12 +338,43 @@ Function _startPull($inState : Text) : Object
  * @function _startPull
  * @private
  * @param {Text} $inState - UUID key for `Storage.graphNotifications`
- * @returns {Object} Status object
- * @description Registers the monitor in Storage and starts the delta-polling worker loop
+ * @returns {Object} Status object; returns failure status immediately if the initial
+ *   delta sync fails (e.g. insufficient scope)
+ * @description Registers the monitor in Storage, performs the initial delta sync
+ *   synchronously so API errors are surfaced to the caller, then starts the worker loop
  */
     
     // Register in Storage for the monitor active flag
     cs._NotificationHelper.me.registerInStorage("graphNotifications"; $inState; Null)
+    
+    // Perform initial delta sync before launching the worker;
+    // return the server error immediately if the API call fails (e.g. insufficient scope)
+    If (This._internals._supportsChangeTypeFiltering)
+        // Mail delta: perform one initial sync per requested changeType.
+        var $changeTypes : Collection:=This._computePullChangeTypes()
+        var $changeType : Text
+        For each ($changeType; $changeTypes)
+            This._internals._deltaLinks[$changeType]:=This._initialDeltaSync($changeType)
+        End for each 
+        // Fail if any deltaLink could not be obtained
+        var $ok : Boolean:=True
+        For each ($changeType; $changeTypes)
+            If (Length(String(This._internals._deltaLinks[$changeType]))=0)
+                $ok:=False
+            End if 
+        End for each 
+        If (Not($ok))
+            cs._NotificationHelper.me.cleanupStorage("graphNotifications"; $inState)
+            return This._returnStatus()
+        End if 
+    Else 
+        // Calendar/event delta: one stream + knownIds seeded by a real initial sync.
+        This._internals._deltaLink:=This._initialDeltaSyncWithKnownIds()
+        If (Length(This._internals._deltaLink)=0)
+            cs._NotificationHelper.me.cleanupStorage("graphNotifications"; $inState)
+            return This._returnStatus()
+        End if 
+    End if 
     
     This._internals._isStarted:=True
     This._startMonitoring()
@@ -844,7 +875,8 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
  * @description Main monitoring loop running in the background worker.
  *   - **Push mode**: drains `Storage.graphNotifications[state].pending` and
  *     renews the subscription when close to expiry
- *   - **Pull mode**: polls the delta endpoint at `_pullInterval` seconds intervals
+ *   - **Pull mode**: polls the delta endpoint at `_pullInterval` seconds intervals;
+ *     initial delta sync is pre-performed in `_startPull`
  *
  *   Dispatches callbacks via `_NotificationHelper.callbackInCallerContext`.
  *   See inline comment for mode details.
@@ -858,19 +890,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
 	
 	In both modes, dispatches callbacks to the original caller context via CALL FORM or CALL WORKER.
 */
-    If (This._internals._mode="pull")
-        If (This._internals._supportsChangeTypeFiltering)
-            // Mail delta: perform one initial sync per requested changeType.
-            var $changeTypes : Collection:=This._computePullChangeTypes()
-            var $changeType : Text
-            For each ($changeType; $changeTypes)
-                This._internals._deltaLinks[$changeType]:=This._initialDeltaSync($changeType)
-            End for each 
-        Else 
-            // Calendar/event delta: one stream + knownIds seeded by a real initial sync.
-            This._internals._deltaLink:=This._initialDeltaSyncWithKnownIds()
-        End if 
-    End if 
+    // Initial delta sync is performed in _startPull before the worker is launched
     
     var $renewalThreshold : Integer:=3600
     var $pullIntervalTicks : Integer:=This._internals._pullInterval*60  // Convert seconds to ticks

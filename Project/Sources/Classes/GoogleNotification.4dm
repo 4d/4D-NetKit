@@ -463,6 +463,26 @@ Function _startPull($inState : Text) : Object
     // Register in Storage for the monitor active flag
     cs._NotificationHelper.me.registerInStorage("googleNotifications"; $inState; Null)
     
+    // Perform initial sync to get a baseline token before launching the worker;
+    // return the server error immediately if the API call fails (e.g. insufficient scope)
+    If (This._internals._type="mail")
+        If (Length(This._internals._historyId)=0)
+            This._internals._historyId:=This._initialMailSync()
+        End if 
+        If (Length(This._internals._historyId)=0)
+            cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
+            return This._returnStatus()
+        End if 
+    Else 
+        If (Length(This._internals._syncToken)=0)
+            This._internals._syncToken:=This._initialCalendarSync()
+        End if 
+        If (Length(This._internals._syncToken)=0)
+            cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
+            return This._returnStatus()
+        End if 
+    End if 
+    
     This._internals._isStarted:=True
     This._startMonitoring()
     
@@ -852,7 +872,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
 	In both modes, dispatches callbacks to the original caller context via CALL FORM or CALL WORKER.
 */
     
-    // Perform initial sync if needed
+    // Perform initial sync if needed (safety net for push mode; pull mode is pre-synced in _startPull)
     If (This._internals._type="mail")
         If (Length(This._internals._historyId)=0)
             This._internals._historyId:=This._initialMailSync()
