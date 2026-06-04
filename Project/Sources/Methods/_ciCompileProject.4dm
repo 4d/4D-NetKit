@@ -1,4 +1,24 @@
 //%attributes = {"invisible":true,"shared":true}
+/**
+ * @method _ciCompileProject
+ * @description CI compilation entry point. Reads `typeInference` and `targets` from
+ *   the `--user-param` startup parameter, compiles the project via `Compile project`,
+ *   and writes a JSON report to `ciCompileReport.json` (path configurable via
+ *   `reportPath` in the startup parameter).
+ * @returns {Object} Report object:
+ *   - `success` {Boolean} — `True` when compilation succeeded with no errors
+ *   - `hasErrors` {Boolean} — `True` when at least one error was found
+ *   - `hasWarnings` {Boolean} — `True` when at least one warning was found
+ *   - `errorsCount` {Integer} — Number of compilation errors
+ *   - `warningsCount` {Integer} — Number of warnings
+ *   - `failOnWarning` {Boolean} — Whether warnings were treated as failures
+ *   - `timestamp` {Text} — ISO 8601 start time
+ *   - `duration` {Real} — Elapsed compilation time in milliseconds
+ *   - `4dVersion` {Text} — 4D application version string
+ *   - `projectName` {Text} — Project file name
+ *   - `compileOptions` {Object} — Options passed to `Compile project`
+ *   - `status` {Object} — Raw output of `Compile project`
+ */
 #DECLARE() : Object
 
 var $startupParam : Text:=""

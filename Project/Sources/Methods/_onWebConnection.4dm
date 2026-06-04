@@ -1,4 +1,22 @@
 //%attributes = {"invisible":true}
+/**
+ * @method _onWebConnection
+ * @description Internal HTTP request dispatcher for the NetKit component.
+ *   Handles three categories of incoming requests:
+ *   - **OAuth2 redirect** (matching `redirectURI`): resolves the pending authorization
+ *     code flow via `_authorize` and sends the configured success/error page
+ *   - **Microsoft Graph webhook** (`/4dnk-graph-notification`): responds to subscription
+ *     validation challenges or dispatches change notifications to `GraphNotificationHandler`
+ *   - **Google push notification** (`/4dnk-google-notification`): dispatches calendar
+ *     push or Gmail Pub/Sub notifications to `GoogleNotificationHandler`
+ *   - All other URLs return a 404 response
+ * @param {Text} $URL - Request URL (same as `$1` in the `On Web Connection` database method)
+ * @param {Text} $header - Raw HTTP request headers
+ * @param {Text} $peerIP - Client IP address
+ * @param {Text} $localIP - Server IP address
+ * @param {Text} $username - HTTP Basic Auth username (if any)
+ * @param {Text} $password - HTTP Basic Auth password (if any)
+ */
 #DECLARE($URL : Text; $header : Text; $peerIP : Text; $localIP : Text; $username : Text; $password : Text)
 
 var $redirectURI : Text

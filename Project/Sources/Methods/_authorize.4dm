@@ -1,4 +1,23 @@
 //%attributes = {"invisible":true}
+/**
+ * @method _authorize
+ * @description Resolves a pending OAuth2 authorization redirect.
+ *   Called by `OAuth2Authorization.getResponse` and `_onWebConnection` when the browser
+ *   returns to `redirectURI` after the user approves or denies access.
+ *   Stores the authorization code (or error) in `Storage.requests[state]` and
+ *   builds the HTML response body or redirect URL to return to the browser.
+ * @param {Object} $inOptions - Options:
+ *   - `redirectURI` {Text} — Expected redirect URI path pattern (with `@`)
+ *   - `state` {Text} — OAuth2 state identifier
+ *   - `result` {Object} — URL query parameters from the redirect (code or error fields)
+ * @param {Object} $outResponse - Output object populated by this method:
+ *   - `status` {Integer} — HTTP status code (200, 302, or 500)
+ *   - `body` {Text} — HTML response body
+ *   - `contentType` {Text} — MIME type
+ *   - `redirectURL` {Text} — Redirect URL (set only for 302 responses)
+ * @returns {Boolean} `True` when the URL matched `redirectURI` and was handled;
+ *   `False` otherwise (caller should return 404)
+ */
 #DECLARE($inOptions : Object; $outResponse : Object) : Boolean
 
 var $redirectURI : Text
