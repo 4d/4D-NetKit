@@ -1,5 +1,15 @@
+/**
+ * @class Office365User
+ * @description Microsoft Graph API client for querying Azure AD users.
+ *   Wraps the `/users` and `/me` endpoints.
+ */
+
 Class extends _GraphAPI
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ */
 Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
@@ -9,6 +19,13 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getUserInfo
+ * @private
+ * @param {Text} $inURL - Full Graph API URL for the user endpoint
+ * @returns {Object} Cleaned user object, or `Null` on failure
+ * @description Sends a `GET` request and returns a sanitised Graph user object
+ */
 Function _getUserInfo($inURL : Text) : Object
 	
 	var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $inURL)
@@ -23,6 +40,12 @@ Function _getUserInfo($inURL : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getCurrent
+ * @param {Text} $inSelect - Comma-separated list of properties to return (OData `$select`)
+ * @returns {Object} Current authenticated user's properties, or `Null` on failure
+ * @description Fetches the currently authenticated user via `GET /me`
+ */
 Function getCurrent($inSelect : Text) : Object
 	
 	var $urlParams : Text
@@ -39,6 +62,14 @@ Function getCurrent($inSelect : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get
+ * @param {Text} $inID - Azure AD user ID or user principal name
+ * @param {Text} $inSelect - Comma-separated list of properties to return (OData `$select`)
+ * @returns {Object} User properties object, or `Null` when not found or on error
+ * @description Fetches a specific user via `GET /users/{id}`;
+ *   throws error 9 when `$inID` is empty
+ */
 Function get($inID : Text; $inSelect : Text) : Object
 	
 	Super._clearErrorStack()
@@ -67,6 +98,17 @@ Function get($inID : Text; $inSelect : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function list
+ * @param {Object} $inParameters - Query options:
+ *   - `search` {Text} — OData `$search` expression; automatically sets `ConsistencyLevel: eventual`
+ *   - `filter` {Text} — OData `$filter` expression
+ *   - `select` {Text} — Comma-separated property names (`$select`)
+ *   - `top` {Text|Integer} — Maximum number of results per page (`$top`)
+ *   - `orderBy` {Text} — Sort expression (`$orderBy`)
+ * @returns {cs.GraphUserList} Pageable list of Azure AD users
+ * @description Lists Azure AD users via `GET /users` with optional OData query parameters
+ */
 Function list($inParameters : Object) : Object
 	
 	var $headers : Object
@@ -97,6 +139,19 @@ Function list($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function count
+ * @param {Object} $inParameters - Query options (same as `list`); `$count=true` and
+ *   `ConsistencyLevel: eventual` are added automatically:
+ *   - `search` {Text} — OData `$search` expression
+ *   - `filter` {Text} — OData `$filter` expression
+ *   - `select` {Text} — OData `$select`
+ *   - `top` {Text|Integer} — OData `$top`
+ *   - `orderBy` {Text} — OData `$orderBy`
+ * @returns {cs.GraphUserList} Pageable list with total count included in the response
+ * @description Lists Azure AD users with `$count=true` via `GET /users`;
+ *   requires `ConsistencyLevel: eventual` (set automatically)
+ */
 Function count($inParameters : Object) : Object
 	
 	var $headers : Object

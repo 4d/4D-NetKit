@@ -1,5 +1,19 @@
+/**
+ * @class _GoogleAPI
+ * @extends _BaseAPI
+ * @description Base class for Google API clients; initialises the base URL used by all
+ *   Google service subclasses (Gmail, Calendar, …) and provides shared URL-parameter
+ *   building and mail-object conversion helpers.
+ */
+
 Class extends _BaseAPI
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @param {Text} $inBaseURL - Base URL for the Google API endpoint;
+ *   defaults to `"https://gmail.googleapis.com/gmail/v1/"` when empty
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	Super($inProvider)
@@ -9,7 +23,20 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	// ----------------------------------------------------
 	
-	
+/**
+ * @function _getURLParamsFromObject
+ * @private
+ * @param {Object} $inParameters - Filter/pagination options; recognised properties:
+ *   - `search` {Text} — Gmail search query (`q` parameter)
+ *   - `top` {Integer} — Maximum number of results (`maxResults`)
+ *   - `includeSpamTrash` {Boolean} — Whether to include Spam and Trash in results
+ *   - `labelIds` {Collection} — Array of label IDs to filter by (repeated param)
+ *   - `format` {Text} — Message format: `"raw"` (default), `"minimal"`, or `"metadata"`
+ *   - `headers` {Collection} — Metadata headers to return (only when `format="metadata"`)
+ * @returns {Text} URL query string (including leading `?` when non-empty)
+ * @description Builds the query string appended to Gmail list/get requests from a
+ *   structured options object; invalid `format` values are normalised to `"raw"`
+ */
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $URLParams : cs._URL:=cs._URL.new()
@@ -50,7 +77,17 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	// ----------------------------------------------------
 	
-	
+/**
+ * @function _convertMailObjectToJMAP
+ * @private
+ * @param {Object} $inMail - Raw Gmail message object returned by the API
+ *   (minimal or metadata format)
+ * @returns {Object} JMAP-shaped mail object with standard property names
+ * @description Converts a Gmail API message object to a JMAP-compatible shape by mapping
+ *   Gmail field names through `_Tools.getJMAPAttribute`; processes top-level fields as well
+ *   as `payload.headers`, handling email-address headers via `_EmailAddress` and keyword
+ *   arrays (labelIds / Keywords) as JMAP keyword maps (`{keyword: true, …}`)
+ */
 Function _convertMailObjectToJMAP($inMail : Object) : Object
 	
 	var $result : Object:={}
@@ -105,7 +142,23 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	
 	// ----------------------------------------------------
 	
-	
+/**
+ * @function _extractRawMessage
+ * @private
+ * @param {Object} $result - Raw Gmail API response object
+ * @param {Text} $format - Requested format: `"raw"`, `"minimal"`, or `"metadata"`
+ * @param {Text} $mailType - Output type when format is `"raw"`: `"JMAP"` (4D mail object),
+ *   `"MIME"` (4D.Blob of raw MIME bytes), or any other value to trigger an error
+ * @returns {Variant} Converted message — a 4D mail object, a `4D.Blob`, a JMAP-shaped
+ *   object, or `Null` on error
+ * @description Dispatches message extraction based on `$format` and `$mailType`:
+ *   - `raw` + `JMAP`: base64url-decodes the raw MIME, converts via `MAIL Convert from MIME`,
+ *     then re-attaches `id`, `threadId`, and `labelIds` from the original response
+ *   - `raw` + `MIME`: base64url-decodes to a `4D.Blob`
+ *   - `minimal` / `metadata`: delegates to `_convertMailObjectToJMAP`
+ *   - any other `$format` value: pushes error 10 (unreachable in practice because
+ *     `_getURLParamsFromObject` normalises the format before the request)
+ */
 Function _extractRawMessage($result : Object; $format : Text; $mailType : Text) : Variant
 	
 	var $response : Variant:=Null

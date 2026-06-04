@@ -1,6 +1,20 @@
+/**
+ * @class GoogleUser
+ * @extends _GoogleAPI
+ * @description Google People API client; provides read access to user profiles
+ *   (names, email addresses, and other person fields) via the
+ *   `people.get`, `people.getBatchGet`, and `people.listDirectoryPeople` endpoints.
+ */
+
 Class extends _GoogleAPI
 
-
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @description Initialises the client with the People API base URL
+ *   (`https://people.googleapis.com/v1/`) and sets the default person fields
+ *   to `["names", "emailAddresses"]`
+ */
 Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider; "https://people.googleapis.com/v1/")
@@ -10,8 +24,19 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 	// ----------------------------------------------------
 	// Mark: - [Private]
-	
-	
+
+
+/**
+ * @function _get
+ * @private
+ * @param {Text} $inResourceName - Person resource name (e.g. `"me"` or `"people/c123456"`);
+ *   the `"people/"` prefix is added automatically if absent
+ * @param {Variant} $inPersonFields - Fields to return: a Collection, a comma-separated Text,
+ *   or omitted/empty to use `defaultPersonFields`
+ * @returns {Object} Raw People API person resource object, or `Null` on error
+ * @description Fires a GET request to `{baseURL}/{resourceName}?personFields=...`
+ *   and returns the parsed JSON response; clears the error stack before each call
+ */
 Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	Super._clearErrorStack()
@@ -44,6 +69,21 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getURLParamsFromObject
+ * @private
+ * @param {Object} $inParameters - Query options; recognised properties:
+ *   - `select` {Text|Collection} — Person fields to return (`readMask`); defaults to
+ *     `defaultPersonFields` (`["names","emailAddresses"]`) when omitted
+ *   - `sources` {Text|Collection} — Directory source types to include; defaults to
+ *     `["DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE"]` when omitted
+ *   - `mergeSources` {Text|Collection} — Optional merge source types
+ *   - `top` {Integer} — Maximum number of results per page (`pageSize`)
+ *   - `pageToken` {Text} — Page token for pagination
+ * @returns {Text} URL query string (including leading `?` when non-empty)
+ * @description Overrides `_GoogleAPI._getURLParamsFromObject` with People-API–specific
+ *   parameters; builds the query string for `listDirectoryPeople` requests
+ */
 Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $urlParams : cs._URL:=cs._URL.new()
@@ -107,8 +147,16 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
-	
-	
+
+
+/**
+ * @function getCurrent
+ * @param {Variant} $inPersonFields - Fields to return (Collection, comma-separated Text,
+ *   or omitted to use `defaultPersonFields`)
+ * @returns {Object} People API person resource for the authenticated user
+ * @description Fetches the profile of the currently authenticated user
+ *   by calling `_get("me", $inPersonFields)`
+ */
 Function getCurrent($inPersonFields : Variant) : Object
 	
 	return This._get("me"; $inPersonFields)
@@ -117,6 +165,14 @@ Function getCurrent($inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get
+ * @param {Text} $inResourceName - Person resource name (e.g. `"people/c123456"`)
+ * @param {Variant} $inPersonFields - Fields to return (Collection, comma-separated Text,
+ *   or omitted to use `defaultPersonFields`)
+ * @returns {Object} People API person resource object, or `Null` on error
+ * @description Fetches a single user profile by resource name
+ */
 Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	return This._get($inResourceName; $inPersonFields)
@@ -125,6 +181,15 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function list
+ * @param {Object} $inParameters - Query options forwarded to `_getURLParamsFromObject`
+ *   (`select`, `sources`, `mergeSources`, `top`, `pageToken`)
+ * @returns {cs.GoogleUserList} Paginated list of directory people
+ * @description Builds the `people:listDirectoryPeople` URL and returns a
+ *   `GoogleUserList` instance for the first page; use `next()` / `previous()`
+ *   on the returned object to navigate subsequent pages
+ */
 Function list($inParameters : Object) : Object
 	
 	Super._clearErrorStack()

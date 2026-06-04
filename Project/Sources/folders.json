@@ -21,6 +21,7 @@
 		"classes": [
 			"_BaseAPI",
 			"_BaseClass",
+			"_BaseList",
 			"_DateTime",
 			"_EmailAddress",
 			"_GoogleAPI",
@@ -35,8 +36,8 @@
 	},
 	"Private Methods": {
 		"methods": [
-			"__buildComponent",
 			"_authorize",
+			"_ciCompileProject",
 			"_onWebConnection"
 		]
 	},

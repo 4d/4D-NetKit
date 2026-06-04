@@ -1,10 +1,27 @@
+/**
+ * @class _NotificationHelper
+ * @description Singleton utility class providing shared helpers for push/pull notification
+ *   monitors (Microsoft Graph and Google). Centralises callback parsing, pull-interval
+ *   parsing, shared-storage lifecycle management, pending-item draining, callback dispatch,
+ *   notification URL building, web-server startup, and caller-context dispatch.
+ */
+
 singleton Class constructor()
     
     
     // Mark: - [Constructor helpers]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function parseCallbacks
+ * @param {Object} $inParameters - User-supplied options object that may contain `onCreate`,
+ *   `onDelete`, and `onModify` formula properties
+ * @returns {Object} Normalised callbacks object `{onCreate; onDelete; onModify; thisObj}`;
+ *   missing callbacks are set to `Null`, `thisObj` is set to `$inParameters` itself
+ * @description Extracts the three optional callback formulas from a start() parameters object
+ *   into a canonical shape that `dispatchCallbacks` can consume
+ */
 Function parseCallbacks($inParameters : Object) : Object
     
     var $callbacks : Object:={onCreate: Null; onDelete: Null; onModify: Null; thisObj: Null}
@@ -28,6 +45,12 @@ Function parseCallbacks($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function parsePullInterval
+ * @param {Object} $inParameters - User-supplied options object; reads `$inParameters.timer`
+ * @returns {Integer} Pull interval in seconds; defaults to 30 if not specified or invalid
+ * @description Extracts and validates the polling interval from a start() parameters object
+ */
 Function parsePullInterval($inParameters : Object) : Integer
     
     var $interval : Integer:=30
@@ -44,9 +67,18 @@ Function parsePullInterval($inParameters : Object) : Integer
     
     
     // Mark: - [Storage management]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function registerInStorage
+ * @param {Text} $inStorageKey - Top-level key in `Storage` (e.g. `"graphNotifications"`)
+ * @param {Text} $inState - Second-level key identifying the specific monitor session (UUID)
+ * @param {Object} $inExtraFields - Optional object whose properties are merged into the
+ *   session entry; only Text, Boolean, and Collection values are copied
+ * @description Creates or updates `Storage[$inStorageKey][$inState]` with `isStarted: True`
+ *   and any extra fields; initialises parent and child shared objects as needed
+ */
 Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)
     
     Use (Storage)
@@ -75,6 +107,13 @@ Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields
     // ----------------------------------------------------
     
     
+/**
+ * @function signalStop
+ * @param {Text} $inStorageKey - Top-level key in `Storage`
+ * @param {Text} $inState - Session key to signal
+ * @description Sets `isStarted` to `False` on the session entry so the monitor loop
+ *   exits gracefully on its next tick; no-op if the entry does not exist
+ */
 Function signalStop($inStorageKey : Text; $inState : Text)
     
     If (Length($inState)>0)
@@ -89,6 +128,13 @@ Function signalStop($inStorageKey : Text; $inState : Text)
     // ----------------------------------------------------
     
     
+/**
+ * @function cleanupStorage
+ * @param {Text} $inStorageKey - Top-level key in `Storage`
+ * @param {Text} $inState - Session key to remove
+ * @description Removes `Storage[$inStorageKey][$inState]`; when no Graph or Google
+ *   notification sessions remain, resets `cs._Tools.me.notificationMode` to `False`
+ */
 Function cleanupStorage($inStorageKey : Text; $inState : Text)
     
     If (Length($inState)>0)
@@ -114,6 +160,13 @@ Function cleanupStorage($inStorageKey : Text; $inState : Text)
     // ----------------------------------------------------
     
     
+/**
+ * @function isMonitorActive
+ * @param {Text} $inStorageKey - Top-level key in `Storage`
+ * @param {Text} $inState - Session key to check
+ * @returns {Boolean} True when the session exists and `isStarted` is True
+ * @description Used by monitor loops to decide whether to continue polling
+ */
 Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
     
     If ((Storage[$inStorageKey]#Null) && OB Is defined(Storage[$inStorageKey]; $inState))
@@ -124,9 +177,18 @@ Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
     
     
     // Mark: - [Monitor helpers]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function drainPendingItems
+ * @param {Text} $inStorageKey - Top-level key in `Storage`
+ * @param {Text} $inState - Session key whose `pending` collection is drained
+ * @returns {Collection} Deep copies of all pending notification items; the `pending`
+ *   collection in storage is cleared atomically inside a `Use…End use` block
+ * @description Called each tick by the monitor loop to retrieve and clear all items
+ *   that were pushed by the webhook handler since the last tick
+ */
 Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     
     var $items : Collection:=[]
@@ -148,9 +210,21 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     
     
     // Mark: - [Callback dispatch]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function dispatchCallbacks
+ * @param {Collection} $inItems - Notification items (each with `changeType` and `resourceId`)
+ * @param {Text} $inType - Resource type prefix appended to the event name (e.g. `"message"`
+ *   → `"messageCreated"`, `"messageModified"`, `"messageDeleted"`)
+ * @param {Object} $inCallbacks - Callbacks object as returned by `parseCallbacks`
+ * @param {Object} $inOwner - The API object (e.g. `Office365` instance) passed as first
+ *   argument to each callback formula
+ * @description Groups items by `changeType` then invokes the matching callback formula
+ *   (`onCreate`, `onModify`, `onDelete`) with the owner and a `{type; ids}` event object;
+ *   callbacks with no matching items or set to `Null` are skipped
+ */
 Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)
     
     var $created : Collection:=[]
@@ -183,9 +257,18 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
     
     
     // Mark: - [URL helpers]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function buildNotificationUrl
+ * @param {Text} $inEndPoint - Base endpoint URL (e.g. `"https://myserver.com"`)
+ * @param {Text} $inPath - URL path to set (e.g. `"/webhook/graph"`)
+ * @param {Text} $inState - Optional state token appended as `?state=<value>`
+ * @returns {Text} The fully assembled notification URL, or empty string if `$inEndPoint` is empty
+ * @description Builds the callback URL that is registered with Microsoft Graph or Google
+ *   as the notification endpoint; strips existing query params and fragment from the base URL
+ */
 Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Text) : Text
     
     If (Length($inEndPoint)=0)
@@ -207,14 +290,17 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
     // ----------------------------------------------------
     
     
+/**
+ * @function ensureWebServer
+ * @param {Text} $inEndPoint - Notification endpoint URL used to determine port and TLS mode
+ * @returns {Object} `{success: Boolean; port: Integer}` — success is False if the component
+ *   web server failed to start
+ * @description Ensures a web server is listening on the endpoint's port before registering
+ *   a webhook subscription. If the host database web server is already running on that port
+ *   (HTTP or HTTPS), it is reused. Otherwise the component web server is started and
+ *   `cs._Tools.me.notificationMode` is set to True.
+ */
 Function ensureWebServer($inEndPoint : Text) : Object
-    
-/*
-	Ensures a web server is available to receive push notifications.
-	If the host database web server is already running on the endpoint port, reuses it.
-	Otherwise, starts the component web server.
-	Returns {success: Boolean; port: Integer}.
-*/
     
     var $port : Integer:=cs._Tools.me.getPortFromURL($inEndPoint)
     var $useTLS : Boolean:=(Position("https"; $inEndPoint)=1)
@@ -233,7 +319,8 @@ Function ensureWebServer($inEndPoint : Text) : Object
         return {success: True; port: $port}
     End if 
     
-    var $result : Object:={success: cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True}); port: $port}
+    var $result : Object:=cs._Tools.me.startWebServer({port: $port; useTLS: $useTLS; enableDebugLog: True})
+    $result.port:=$port
     If ($result.success)
         cs._Tools.me.notificationMode:=True
     End if 
@@ -241,17 +328,22 @@ Function ensureWebServer($inEndPoint : Text) : Object
     
     
     // Mark: - [Caller context dispatch]
-    // ----------------------------------------------------
-    
-    
+	// ----------------------------------------------------
+
+
+/**
+ * @function callbackInCallerContext
+ * @param {Integer} $inFormWindow - Form window reference captured at monitor start (0 if none)
+ * @param {Text} $inWorkerName - Worker/process name captured at monitor start
+ * @param {4D.Function} $inFormula - Formula to execute in the caller's context
+ * @param {Object} $inSelf - Object passed as `This` to the formula
+ * @param {Collection} $inItems - Notification items passed as argument to the formula
+ * @description Dispatches a callback formula in the original caller's execution context:
+ *   uses `CALL FORM` when a form window was captured (preserves `Form`, `This`, etc.),
+ *   otherwise falls back to `CALL WORKER` with the captured process name
+ */
 Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)
-    
-/*
-	Dispatches callback execution in the original caller's context:
-	- If a form window was captured at start(), uses CALL FORM to execute
-	  in the form process (preserving Form, This, etc.)
-	- Otherwise, falls back to CALL WORKER using the original process name.
-*/
+
     If ($inFormWindow>0)
         CALL FORM($inFormWindow; $inFormula; $inSelf; $inItems)
     Else 

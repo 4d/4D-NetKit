@@ -1,5 +1,23 @@
+/**
+ * @class OAuth2Authorization
+ * @description Shared singleton HTTP handler for the OAuth2 authorization redirect callback.
+ *   Registered as a 4D HTTP handler; receives the redirect from the authorization server
+ *   (code or error), resolves the pending `_getAuthorizationCode()` call in Storage,
+ *   and returns an HTML response or 302 redirect to the browser.
+ */
+
 shared singleton Class constructor()
     
+/**
+ * @function getResponse
+ * @param {4D.IncomingMessage} $request - Incoming HTTP request from the browser
+ *   (redirect from the authorization server with `?code=` or `?error=` query params)
+ * @returns {4D.OutgoingMessage} HTML page or 302 redirect on success;
+ *   403 when `_authorize` returns `False`; 500 when `$request` is `Null`
+ * @description Extracts `state` from the URL, calls `_authorize()` to store the
+ *   authorization code in `Storage.requests`, and sends the configured
+ *   `authenticationPage` or a default HTML response to the browser.
+ */
 Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
     var $outgoingResponse : 4D.OutgoingMessage:=4D.OutgoingMessage.new()

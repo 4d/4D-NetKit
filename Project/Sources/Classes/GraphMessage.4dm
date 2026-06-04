@@ -1,7 +1,22 @@
+/**
+ * @class GraphMessage
+ * @description Represents a single Microsoft Graph mail message.
+ *   Extends `_GraphAPI` and is hydrated from a Graph API response via `_loadFromObject`.
+ *   Provides lazy-loaded `attachments` via a Graph API call on first access.
+ */
+
 Class extends _GraphAPI
 
 property id : Text
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ * @param {Object} $inParameters - Context options:
+ *   - `mailType` {Text} — `"Microsoft"` (default), `"JMAP"`, or `"MIME"`
+ *   - `userId` {Text} — Graph user ID or UPN (used when fetching attachments)
+ * @param {Object} $inObject - Raw Graph API message object to hydrate from
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)
 	
 	Super($inProvider)
@@ -16,6 +31,13 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inOb
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get attachments
+ * @returns {Collection} Collection of `GraphAttachment` instances for this message;
+ *   fetched on first access (lazy) and cached.
+ *   Note: `hasAttachments` is unreliable for inline-only attachments —
+ *   the Graph API is always queried regardless (see inline comment for Microsoft docs link).
+ */
 Function get attachments() : Collection
 	
 	If (This._internals._attachments=Null)

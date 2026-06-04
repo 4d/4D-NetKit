@@ -1,3 +1,15 @@
+/**
+ * @class OAuth2Provider
+ * @description Core OAuth2 client supporting both `signedIn` (Authorization Code) and
+ *   `service` (Client Credentials / JWT Bearer) flows for Google and Microsoft providers.
+ *   Handles token acquisition, refresh, PKCE, JWT generation (RS256/HS256/PS256),
+ *   and certificate-based client assertions (x5t thumbprint).
+ *
+ * @example
+ *   var $provider : cs.OAuth2Provider := cs.OAuth2Provider.new({\n *     name: "Microsoft"; permission: "signedIn"; clientId: "...";\n *     redirectURI: "http://localhost:9999/authorize"; scope: "Mail.Read"\n *   })
+ *   var $token : cs.OAuth2Token := $provider.getToken()
+ */
+
 Class extends _BaseClass
 
 property name : Text  // Name of OAuth2 provider.
@@ -34,6 +46,33 @@ property nonce : Text  // For OpenID Connect
 
 property enableDebugLog : Boolean  // Enable HTTP Server debug log for Debug purposes only
 
+/**
+ * @constructor
+ * @param {Object} $inParams - Provider configuration; required fields vary by flow:
+ *   - `name` {Text} — Provider name: `"Google"` or `"Microsoft"`
+ *   - `permission` {Text} — `"signedIn"` (Authorization Code) or `"service"` (Client Credentials)
+ *   - `clientId` {Text} — Application (client) ID from the registration portal
+ *   - `redirectURI` {Text} — Redirect URI (required for `signedIn` mode)
+ *   - `scope` {Text|Collection} — Space-separated or collection of OAuth2 scopes
+ *   - `clientSecret` {Text} — Client secret (required for most flows)
+ *   - `tenant` {Text} — Microsoft tenant ID / domain (default `"common"`)
+ *   - `token` {Object} — Existing token to reuse
+ *   - `tokenExpiration` {Text} — ISO 8601 expiration of existing token
+ *   - `timeout` {Integer} — Authorization timeout in seconds (default 120)
+ *   - `accessType` {Text} — `"online"` (default) or `"offline"` (Google refresh token)
+ *   - `loginHint` {Text} — Pre-fill the email field (Google)
+ *   - `prompt` {Text} — `"none"`, `"consent"`, or `"select_account"`
+ *   - `clientEmail` {Text} — Service account email (Google service accounts)
+ *   - `privateKey` {Text} — PEM private key for JWT signing
+ *   - `thumbprint` {Text} — Certificate thumbprint hex string (sets `x5t` in JWT)
+ *   - `clientAssertionType` {Text} — Overrides default assertion type URI
+ *   - `PKCEEnabled` {Boolean} — Enable PKCE (default `False`)
+ *   - `PKCEMethod` {Text} — `"S256"` (default) or `"plain"`
+ *   - `state` {Text} — Custom state value (alphanumeric + `-_`; UUID generated if omitted)
+ *   - `nonce` {Text} — Nonce for OpenID Connect
+ *   - `browserAutoOpen` {Boolean} — Auto-open browser in `signedIn` mode (default `True`)
+ *   - `enableDebugLog` {Boolean} — Enable HTTP server debug log
+ */
 Class constructor($inParams : Object)
 	
 	Super()
@@ -259,6 +298,13 @@ Class constructor($inParams : Object)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _cleanString
+ * @private
+ * @param {Text} $inString - Raw string to sanitise
+ * @returns {Text} String containing only `A-Z`, `a-z`, `0-9`, `-`, and `_`
+ * @description Strips all characters not safe for use as an OAuth2 `state` value
+ */
 Function _cleanString($inString : Text) : Text
 	
 	var $string : Text:=""
@@ -285,6 +331,14 @@ Function _cleanString($inString : Text) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _generateCodeChallenge
+ * @private
+ * @param {Text} $codeVerifier - PKCE code verifier
+ * @returns {Text} `code_challenge` value:
+ *   Base64URL-encoded SHA-256 hash of the verifier (`S256` method) or
+ *   the verifier itself (`plain` method)
+ */
 Function _generateCodeChallenge($codeVerifier : Text) : Text
 	
 	If (This.PKCEMethod="plain")
@@ -297,6 +351,13 @@ Function _generateCodeChallenge($codeVerifier : Text) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _generateCodeVerifier
+ * @private
+ * @returns {Text} Cryptographically random PKCE code verifier string;
+ *   length is randomly chosen between 43 and 128 characters;
+ *   characters are drawn from the PKCE-safe alphabet (`A-Z a-z 0-9 - _ ~ .`)
+ */
 Function _generateCodeVerifier : Text
 	
 	var $chars : Text:="-_abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~."
@@ -324,6 +385,12 @@ Function _generateCodeVerifier : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _hexCharToNum
+ * @private
+ * @param {Text} $c - A single hexadecimal character (`0-9`, `A-F`, `a-f`)
+ * @returns {Integer} Numeric value 0–15; returns 0 for unrecognised characters
+ */
 Function _hexCharToNum($c : Text) : Integer
 	
 	var $code : Integer:=Character code($c)
@@ -342,6 +409,13 @@ Function _hexCharToNum($c : Text) : Integer
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get _x5t
+ * @private
+ * @returns {Text} Base64URL-encoded byte array of the `thumbprint` hex string;
+ *   used as the `x5t` (X.509 certificate thumbprint) claim in JWT headers
+ *   for certificate-based client assertions
+ */
 Function get _x5t() : Text
 	
 	// x5t = BASE64URL-ENCODE(BYTEARRAY(thumbprint))
@@ -364,6 +438,14 @@ Function get _x5t() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getErrorDescription
+ * @private
+ * @param {Object} $inObject - Token endpoint error response object
+ * @returns {Text} JSON string of all `error*` keys from the response
+ * @description Extracts error-related fields (e.g. `error`, `error_description`,
+ *   `error_codes`) from a Graph/OAuth2 error response for inclusion in thrown errors
+ */
 Function _getErrorDescription($inObject : Object) : Text
 	
 	var $result : Object:={}
@@ -381,6 +463,11 @@ Function _getErrorDescription($inObject : Object) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _isMicrosoft
+ * @private
+ * @returns {Boolean} `True` when `name = "Microsoft"`
+ */
 Function _isMicrosoft() : Boolean
 	
 	return (This.name="Microsoft")
@@ -389,6 +476,11 @@ Function _isMicrosoft() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _isGoogle
+ * @private
+ * @returns {Boolean} `True` when `name = "Google"`
+ */
 Function _isGoogle() : Boolean
 	
 	return (This.name="Google")
@@ -397,6 +489,11 @@ Function _isGoogle() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _isSignedIn
+ * @private
+ * @returns {Boolean} `True` when `permission = "signedIn"`
+ */
 Function _isSignedIn() : Boolean
 	
 	return (This.permission="signedIn")
@@ -405,6 +502,11 @@ Function _isSignedIn() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _isService
+ * @private
+ * @returns {Boolean} `True` when `permission = "service"`
+ */
 Function _isService() : Boolean
 	
 	return (This.permission="service")
@@ -413,6 +515,15 @@ Function _isService() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getAuthorizationCode
+ * @private
+ * @returns {Text} Authorization code string from the redirect; empty string on timeout or error
+ * @description Opens the authorization URL in the browser (unless `browserAutoOpen` is `False`),
+ *   then polls `Storage.requests[state]` until a code or error is received or `timeout` expires.
+ *   Throws errors for missing `clientId`, `authenticateURI`, `scope`, `tenant`,
+ *   or `redirectURI`.
+ */
 Function _getAuthorizationCode() : Text
 	
 	var $authorizationCode : Text:=""
@@ -484,6 +595,16 @@ Function _getAuthorizationCode() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getToken_SignedIn
+ * @private
+ * @param {Boolean} $bUseRefreshToken - When `True`, uses the stored `refresh_token`
+ *   instead of triggering a new authorization code flow
+ * @returns {Object} `OAuth2Token` instance, or `Null` on failure
+ * @description Handles the Authorization Code and Refresh Token flows:
+ *   starts a local web server for the redirect, waits for the authorization code,
+ *   then exchanges it for a token via `_sendTokenRequest`
+ */
 Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	
 	var $result : Object:=Null
@@ -532,7 +653,12 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 				End if 
 			End if 
 			
-			If ($bUseHostDatabaseServer || cs._Tools.me.startWebServer($options))
+			var $webServerStatus : Object:={success: $bUseHostDatabaseServer; error: Null}
+			If (Not($bUseHostDatabaseServer))
+				$webServerStatus:=cs._Tools.me.startWebServer($options)
+			End if 
+			
+			If ($webServerStatus.success)
 				
 				var $authorizationCode : Text:=This._getAuthorizationCode()
 				
@@ -560,7 +686,14 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 			Else 
 				
 				$bSendRequest:=False
-				This._throwError(7; {port: $options.port})
+				If (($webServerStatus.error#Null) && (Value type($webServerStatus.error)=Is object))
+					var $serverError : Object:=OB Copy($webServerStatus.error)
+					This._internals._errorStack.push($serverError)
+					$serverError.deferred:=True
+					throw($serverError)
+				Else 
+					This._throwError(7; {port: $options.port})
+				End if 
 				
 			End if 
 		End if 
@@ -579,6 +712,17 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getToken_Service
+ * @private
+ * @returns {Object} `OAuth2Token` instance, or `Null` on failure
+ * @description Handles the Client Credentials and JWT Bearer flows:
+ *   - **JWT Bearer** (`urn:ietf:params:oauth:grant-type:jwt-bearer`): signs a JWT with
+ *     the service account private key (Google)
+ *   - **JWT Bearer + assertion type** (x5t thumbprint set): builds a certificate-based
+ *     client assertion (Microsoft Entra)
+ *   - **Client Credentials**: sends `client_id`, `client_secret`, `grant_type`
+ */
 Function _getToken_Service() : Object
 	
 	var $result : Object:=Null
@@ -646,6 +790,14 @@ Function _getToken_Service() : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _checkPrerequisites
+ * @private
+ * @param {Object} $obj - Provider parameters to validate
+ * @returns {Boolean} `True` when all required fields are present and valid
+ * @description Validates mandatory constructor parameters; throws errors 1, 2, or 3
+ *   for missing/empty/invalid fields (`clientId`, `scope`, `permission`, `redirectURI`)
+ */
 Function _checkPrerequisites($obj : Object) : Boolean
 	
 	var $OK : Boolean:=False
@@ -688,6 +840,18 @@ Function _checkPrerequisites($obj : Object) : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _sendTokenRequest
+ * @private
+ * @param {Text} $params - URL-encoded request body (`application/x-www-form-urlencoded`)
+ * @returns {Object} `OAuth2Token` instance on HTTP 200; `Null` when the response body
+ *   is empty or has an unrecognised `Content-Type`
+ * @description POSTs to `tokenURI` and parses the response:
+ *   - `application/json` or `text/plain` → `_loadFromResponse`
+ *   - `application/x-www-form-urlencoded` → `_loadFromURLEncodedResponse`
+ *   - Other → raw body stored in `_internals._rawBody`, returns `Null`
+ *   Preserves existing `refresh_token` when the response omits it.
+ */
 Function _sendTokenRequest($params : Text) : Object
 	
 	var $result : Object:=Null
@@ -778,6 +942,15 @@ Function _sendTokenRequest($params : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _unixTime
+ * @private
+ * @param {Date} $inDate - Optional UTC date (defaults to `Current date` UTC)
+ * @param {Time} $inTime - Optional UTC time (defaults to `Current time` UTC)
+ * @returns {Real} Unix timestamp (seconds since 1970-01-01 00:00:00 UTC)
+ * @description Converts a date+time pair to a Unix timestamp for JWT `iat`/`exp` claims.
+ *   When called with no parameters, uses the current UTC time from `Timestamp`.
+ */
 Function _unixTime($inDate : Date; $inTime : Time) : Real
 /*
  *	Unix_Time stolen from ThomasMaul/JWT_Token_Example
@@ -805,6 +978,12 @@ Function _unixTime($inDate : Date; $inTime : Time) : Real
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _useJWTBearer
+ * @private
+ * @returns {Boolean} `True` when `grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer"`
+ *   (Google service account flow)
+ */
 Function _useJWTBearer() : Boolean
 	
 	return (This.grantType="urn:ietf:params:oauth:grant-type:jwt-bearer")
@@ -813,6 +992,12 @@ Function _useJWTBearer() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _useJWTBearerAssertionType
+ * @private
+ * @returns {Boolean} `True` when a `thumbprint` is set (certificate-based assertion,
+ *   Microsoft Entra)
+ */
 Function _useJWTBearerAssertionType() : Boolean
 	
 	return (Length(String(This.thumbprint))>0)
@@ -822,6 +1007,17 @@ Function _useJWTBearerAssertionType() : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getToken
+ * @returns {Object} `OAuth2Token` instance with a valid access token, or `Null` on failure
+ * @description Returns the current token if still valid; otherwise:
+ *   - Refreshes via `_getToken_SignedIn(True)` when a `refresh_token` is available
+ *   - Runs the full `signedIn` Authorization Code flow
+ *   - Runs the `service` Client Credentials / JWT Bearer flow
+ *
+ *   Saves the new token and expiration to `This.token` / `This.tokenExpiration`.
+ *   Re-throws any caught errors as non-deferred for caller visibility.
+ */
 Function getToken() : Object
 	
 	This._clearErrorStack()
@@ -901,7 +1097,13 @@ Function getToken() : Object
 			
 		End if 
 	Catch
-		// Errors are already in _errorStack via _throwError
+		// Re-throw so errors are visible to callers
+		var $caughtErrors : Collection:=Last errors
+		If ($caughtErrors.length>0)
+			var $firstError : Object:=OB Copy($caughtErrors.first())
+			OB REMOVE($firstError; "deferred")  // Force immediate (non-deferred) throw
+			throw($firstError)
+		End if 
 	End try
 	
 	return $result
@@ -910,6 +1112,14 @@ Function getToken() : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get authenticateURI
+ * @returns {Text} Full authorization URL including all required query parameters
+ *   (`client_id`, `response_type`, `scope`, `state`, `redirect_uri`, etc.)
+ * @description Builds the authorization URL from the configured `_authenticateURI`
+ *   (or defaults for Google/Microsoft). Appends PKCE parameters when `PKCEEnabled`
+ *   is `True`; otherwise appends `access_type`, `login_hint`, and `prompt` when set.
+ */
 Function get authenticateURI() : Text
 	
 	var $authenticateURI : Text
@@ -968,6 +1178,10 @@ Function get authenticateURI() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get codeVerifier
+ * @returns {Text} PKCE code verifier (lazily generated on first access and cached)
+ */
 Function get codeVerifier() : Text
 	
 	If (Length(String(This._codeVerifier))=0)
@@ -980,6 +1194,12 @@ Function get codeVerifier() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get grantType
+ * @returns {Text} OAuth2 grant type string; defaults to
+ *   `"urn:ietf:params:oauth:grant-type:jwt-bearer"` for Google service accounts or
+ *   `"client_credentials"` for other service-mode providers
+ */
 Function get grantType() : Text
 	
 	If (Length(String(This._grantType))=0)
@@ -996,6 +1216,11 @@ Function get grantType() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get scope
+ * @returns {Text} Space-separated scope string; prepends `offline_access` for Microsoft
+ *   when `accessType = "offline"` and it is not already present
+ */
 Function get scope() : Text
 	
 	var $scope : Text
@@ -1018,6 +1243,12 @@ Function get scope() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get tokenURI
+ * @returns {Text} Token endpoint URL; substitutes `{tenant}` for Microsoft;
+ *   defaults to `https://accounts.google.com/o/oauth2/token` for Google and
+ *   `https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token` for Microsoft
+ */
 Function get tokenURI() : Text
 	
 	var $tokenURI : Text
@@ -1040,6 +1271,11 @@ Function get tokenURI() : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function isTokenValid
+ * @returns {Boolean} `True` when the current token is valid (not expired);
+ *   attempts a refresh when a `refresh_token` is available and the token has expired
+ */
 Function isTokenValid() : Boolean
 	
 	If (This.token#Null)

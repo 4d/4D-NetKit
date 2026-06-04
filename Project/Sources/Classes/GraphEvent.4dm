@@ -1,8 +1,24 @@
+/**
+ * @class GraphEvent
+ * @description Represents a single Microsoft Graph calendar event.
+ *   Extends `_GraphAPI` and is hydrated from a Graph API response via `_loadFromObject`.
+ *   Provides lazy-loaded `attachments` via a Graph API call on first access
+ *   (only when `hasAttachments` is `True`).
+ */
+
 Class extends _GraphAPI
 
 property id : Text:=""
 property hasAttachments : Boolean:=False
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ * @param {Object} $inParameters - Context options:
+ *   - `userId` {Text} — Graph user ID or UPN (used when fetching attachments)
+ *   - `calendarId` {Text} — Calendar ID (used when building the attachment URL)
+ * @param {Object} $inObject - Raw Graph API event object to hydrate from
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)
 	
 	Super($inProvider)
@@ -17,6 +33,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inOb
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function get attachments
+ * @returns {Collection} Collection of `GraphAttachment` instances for this event;
+ *   fetched on first access (lazy) and cached. Only fetched when `hasAttachments` is `True`.
+ *   See inline comment for the supported Graph endpoint variants.
+ */
 Function get attachments() : Collection
 	
 	If (This.hasAttachments && (This._internals._attachments=Null))

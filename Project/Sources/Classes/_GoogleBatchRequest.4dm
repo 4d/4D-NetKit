@@ -1,3 +1,13 @@
+/**
+ * @class _GoogleBatchRequest
+ * @extends _GoogleAPI
+ * @description Builds and dispatches a multipart/mixed Gmail Batch API request;
+ *   accumulates individual sub-requests via `appendRequest`, then sends them all in
+ *   chunks of at most `maxItemNumber` (Google's hard limit of 100 per batch call).
+ *   Each chunk is serialised as a MIME multipart body, sent to the batch endpoint,
+ *   and the response parts are parsed and converted according to `format` / `mailType`.
+ */
+
 Class extends _GoogleAPI
 
 property verb : Text
@@ -11,6 +21,19 @@ property _requests : Collection
 property _itemNumber : Integer:=0
 
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @param {Object} $inParam - Configuration object; recognised properties:
+ *   - `verb` {Text} — HTTP verb for each sub-request (defaults to `"POST"`)
+ *   - `boundary` {Text} — MIME boundary string; auto-generated (`"batch_" + UUID`) if omitted
+ *   - `headers` {Object} — Additional headers merged into the outer batch request
+ *     (`Content-Type: multipart/mixed; boundary=…` is always set automatically)
+ *   - `mailType` {Text} — Output type for message sub-requests: `"MIME"` or `"JMAP"`
+ *   - `format` {Text} — Message format: `"minimal"`, `"metadata"`, `"raw"`, or `"JSON"`
+ *     (use `"JSON"` for non-mail resources such as labels)
+ *   - `maxItemNumber` {Integer} — Override the 100-request-per-batch ceiling
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	Super($inProvider)
@@ -39,8 +62,19 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-	
-	
+
+
+/**
+ * @function appendRequest
+ * @param {Object} $inParam - Sub-request descriptor; recognised properties:
+ *   - `verb` {Text} — HTTP verb (defaults to `"GET"`)
+ *   - `URL` {Text} — Relative or absolute URL of the sub-request
+ *   - `headers` {Object} — Headers specific to this sub-request
+ *   - `body` {Text} — Optional request body
+ * @description Appends one sub-request to the internal queue; assigns a
+ *   sequential `Content-ID` (`<item1>`, `<item2>`, …) used to correlate
+ *   responses. Call `sendRequestAndWaitResponse` after all sub-requests are queued.
+ */
 Function appendRequest($inParam : Object)
 	
 	var $request : Object:={}
@@ -57,6 +91,19 @@ Function appendRequest($inParam : Object)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function sendRequestAndWaitResponse
+ * @returns {Collection} Flat collection of converted results from all sub-requests,
+ *   or `Null` when no results were produced
+ * @description Sends all queued sub-requests to the Gmail batch endpoint in chunks of
+ *   at most `maxItemNumber` items. Each chunk is serialised as a MIME multipart body,
+ *   posted to `https://gmail.googleapis.com/batch/gmail/v1/`, and the multipart response
+ *   is parsed recursively: each part is converted via `_extractRawMessage` (or returned
+ *   as a raw `4D.Blob` for non-JSON parts) and appended to the result collection.
+ * @note This method shares its name with the private `_BaseAPI._sendRequestAndWaitResponse`
+ *   but is a distinct public method — it orchestrates chunked batch dispatch whereas the
+ *   inherited private method performs a single HTTP call.
+ */
 Function sendRequestAndWaitResponse() : Collection
 	
 	var $collection : Collection:=[]
@@ -110,6 +157,16 @@ Function sendRequestAndWaitResponse() : Collection
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _generateBody
+ * @private
+ * @param {Text} $inBoundary - MIME boundary string (without `--` prefix)
+ * @param {Collection} $inRequests - Slice of queued request objects to serialise
+ * @returns {Text} Complete MIME multipart body string ready to send as the HTTP request body
+ * @description Formats each sub-request as a `application/http` MIME part separated by
+ *   `--<boundary>` markers, including verb, URL, optional headers, and optional body;
+ *   terminates with the `--<boundary>--` closing delimiter.
+ */
 Function _generateBody($inBoundary : Text; $inRequests : Collection) : Text
 	
 	var $body : Text:=""
