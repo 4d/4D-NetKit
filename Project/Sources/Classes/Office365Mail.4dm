@@ -12,6 +12,7 @@ Class extends _GraphAPI
 property mailType : Text
 property userId : Text
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
@@ -19,7 +20,6 @@ property userId : Text
  *   - `mailType` {Text} — Mail format: `"Microsoft"` (default), `"JMAP"`, or `"MIME"`
  *   - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
 	
@@ -32,6 +32,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
 /**
  * @function _postJSONMessage
  * @private
@@ -43,7 +44,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @returns {Object} Status object; includes `id` when the server returns one
  * @description Posts a mail message as JSON to the Graph API
  */
-Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
 	
 	var $response : Object
 	
@@ -75,6 +75,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 	// ----------------------------------------------------
 	
 	
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 /**
  * @function _postMailMIMEMessage
  * @private
@@ -86,7 +87,6 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
  *   Note: appending to a folder with MIME always returns `UnableToDeserializePostBody`
  *   (known Microsoft Graph issue — see inline comment for issue links)
  */
-Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 /*
  *	POST /me/mailFolders/{id}/messages with MIME format always returns UnableToDeserializePostBody 
@@ -118,6 +118,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 /**
  * @function _postMessage
  * @private
@@ -130,7 +131,6 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
  * @description Dispatches to `_postJSONMessage` or `_postMailMIMEMessage` based on `mailType`
  *   and the actual type of `$inMail`; throws error 10 on type mismatch
  */
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
 	var $status : Object
 	
@@ -169,6 +169,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	// ----------------------------------------------------
 	
 	
+Function append($inMail : Variant; $inFolderId : Text) : Object
 /**
  * @function append
  * @param {Variant} $inMail - Mail to save; type must match `mailType`
@@ -177,7 +178,6 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
  * @description Saves a message to a mail folder without sending it via
  *   `POST /me/mailFolders/{id}/messages` (or `/users/{id}/...`)
  */
-Function append($inMail : Variant; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -198,6 +198,7 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function copy($inMailId : Text; $inFolderId : Text) : Object
 /**
  * @function copy
  * @param {Text} $inMailId - ID of the message to copy
@@ -206,7 +207,6 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
  * @description Copies a message to another folder via
  *   `POST /me/messages/{id}/copy`
  */
-Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -253,13 +253,13 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function delete($inMailId : Text) : Object
 /**
  * @function delete
  * @param {Text} $inMailId - ID of the message to delete permanently
  * @returns {Object} Status object
  * @description Permanently deletes a message via `DELETE /me/messages/{id}`
  */
-Function delete($inMailId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -291,6 +291,7 @@ Function delete($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function getMail($inMailId : Text; $inOptions : Object) : Variant
 /**
  * @function getMail
  * @param {Text} $inMailId - ID of the message to retrieve
@@ -302,7 +303,6 @@ Function delete($inMailId : Text) : Object
  *   `Null` on error or when not found
  * @description Fetches a single message via `GET /me/messages/{id}` (or `/$value` for MIME)
  */
-Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	
 	Super._clearErrorStack()
 	
@@ -358,6 +358,7 @@ Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	// ----------------------------------------------------
 	
 	
+Function getMails($inParameters : Object) : Object
 /**
  * @function getMails
  * @param {Object} $inParameters - Query options:
@@ -367,7 +368,6 @@ Function getMail($inMailId : Text; $inOptions : Object) : Variant
  * @returns {cs.GraphMessageList} Pageable list of messages
  * @description Lists messages via `GET /me/messages` (or `/mailFolders/{id}/messages`)
  */
-Function getMails($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -396,6 +396,7 @@ Function getMails($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function move($inMailId : Text; $inFolderId : Text) : Object
 /**
  * @function move
  * @param {Text} $inMailId - ID of the message to move
@@ -404,7 +405,6 @@ Function getMails($inParameters : Object) : Object
  * @description Moves a message to another folder via
  *   `POST /me/messages/{id}/move`
  */
-Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -451,6 +451,7 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object
 /**
  * @function reply
  * @param {Object} $inMail - Reply body; for MIME/JMAP types, uses `$inMail.message`
@@ -460,7 +461,6 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
  * @description Replies to a message via
  *   `POST /me/messages/{id}/reply` or `/replyAll`
  */
-Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
 	Super._clearErrorStack()
 	
@@ -505,13 +505,13 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	// ----------------------------------------------------
 	
 	
+Function send($inMail : Variant) : Object
 /**
  * @function send
  * @param {Variant} $inMail - Mail to send; type must match `mailType`
  * @returns {Object} Status object
  * @description Sends a mail message via `POST /me/sendMail`
  */
-Function send($inMail : Variant) : Object
 	
 	Super._clearErrorStack()
 	
@@ -528,6 +528,7 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function update($inMailId : Text; $inMail : Object) : Object
 /**
  * @function update
  * @param {Text} $inMailId - ID of the message to update
@@ -535,7 +536,6 @@ Function send($inMail : Variant) : Object
  * @returns {Object} Status object
  * @description Updates message properties via `PATCH /me/messages/{id}`
  */
-Function update($inMailId : Text; $inMail : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -578,6 +578,7 @@ Function update($inMailId : Text; $inMail : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolderId : Text) : Object
 /**
  * @function createFolder
  * @param {Text} $inFolderName - Display name for the new folder
@@ -586,7 +587,6 @@ Function update($inMailId : Text; $inMail : Object) : Object
  * @returns {Object} Status object; includes `id` of the created folder
  * @description Creates a mail folder via `POST /me/mailFolders` (or `/childFolders`)
  */
-Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolderId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -631,13 +631,13 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	// ----------------------------------------------------
 	
 	
+Function deleteFolder($inFolderId : Text) : Object
 /**
  * @function deleteFolder
  * @param {Text} $inFolderId - ID of the folder to delete
  * @returns {Object} Status object
  * @description Permanently deletes a mail folder via `DELETE /me/mailFolders/{id}`
  */
-Function deleteFolder($inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -674,13 +674,13 @@ Function deleteFolder($inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function getFolder($inFolderId : Text) : Object
 /**
  * @function getFolder
  * @param {Text} $inFolderId - ID of the folder to retrieve
  * @returns {Object} Cleaned folder object, or `Null` on error
  * @description Fetches a single mail folder via `GET /me/mailFolders/{id}`
  */
-Function getFolder($inFolderId : Text) : Object
 	
 	var $response : Object
 	
@@ -714,6 +714,7 @@ Function getFolder($inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function getFolderList($inParameters : Object) : Object
 /**
  * @function getFolderList
  * @param {Object} $inParameters - Query options:
@@ -723,7 +724,6 @@ Function getFolder($inFolderId : Text) : Object
  * @description Lists mail folders via `GET /me/mailFolders`
  *   (or `/mailFolders/{id}/childFolders`)
  */
-Function getFolderList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -752,6 +752,7 @@ Function getFolderList($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 /**
  * @function renameFolder
  * @param {Text} $inFolderId - ID of the folder to rename
@@ -759,7 +760,6 @@ Function getFolderList($inParameters : Object) : Object
  * @returns {Object} Status object; includes `id` of the renamed folder
  * @description Renames a mail folder via `PATCH /me/mailFolders/{id}`
  */
-Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -808,6 +808,7 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
 /**
  * @function notifier
  * @param {Object} $inParameters - Notification callbacks and options:
@@ -821,7 +822,6 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
  * @description Creates a `GraphNotification` for mail change notifications via the
  *   Microsoft Graph subscription API. See inline comment for full parameter details.
  */
-Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
 	
 /*
 	Creates a notification object for mail change notifications.

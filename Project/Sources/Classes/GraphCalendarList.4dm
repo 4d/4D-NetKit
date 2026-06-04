@@ -6,13 +6,13 @@
 
 Class extends _GraphBaseList
 
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  * @param {Text} $inURL - Initial Graph API URL
  * @param {Object} $inHeaders - Additional HTTP headers
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
 	Super($inProvider; $inURL; $inHeaders)
 	
@@ -21,10 +21,10 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	// ----------------------------------------------------
 	
 	
+Function get calendars() : Collection
 /**
  * @function get calendars
  * @returns {Collection} The current page of calendar objects
  */
-Function get calendars() : Collection
 	
 	return This._internals._list

@@ -9,13 +9,13 @@
 
 Class extends _GoogleBaseList
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
  * @param {Object} $inParameters - `_GoogleBaseList` parameters object;
  *   pass at minimum `{url: Text}` pointing to the `calendarList.list` endpoint
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 
 	Super($inProvider; $inParameters)
 
@@ -24,12 +24,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 
 
+Function get calendars() : Collection
 /**
  * @function get calendars
  * @returns {Collection} Current page of Google Calendar list-entry objects
  * @description Returns the raw calendar objects from the current page as delivered
  *   by the API; call `next()` to advance to the following page
  */
-Function get calendars() : Collection
     
     return This._internals._list

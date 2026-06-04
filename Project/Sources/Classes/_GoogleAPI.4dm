@@ -8,13 +8,13 @@
 
 Class extends _BaseAPI
 
+Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
  * @param {Text} $inBaseURL - Base URL for the Google API endpoint;
  *   defaults to `"https://gmail.googleapis.com/gmail/v1/"` when empty
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	Super($inProvider)
 	
@@ -23,6 +23,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	// ----------------------------------------------------
 	
+Function _getURLParamsFromObject($inParameters : Object) : Text
 /**
  * @function _getURLParamsFromObject
  * @private
@@ -37,7 +38,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
  * @description Builds the query string appended to Gmail list/get requests from a
  *   structured options object; invalid `format` values are normalised to `"raw"`
  */
-Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $URLParams : cs._URL:=cs._URL.new()
 	
@@ -77,6 +77,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	// ----------------------------------------------------
 	
+Function _convertMailObjectToJMAP($inMail : Object) : Object
 /**
  * @function _convertMailObjectToJMAP
  * @private
@@ -88,7 +89,6 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
  *   as `payload.headers`, handling email-address headers via `_EmailAddress` and keyword
  *   arrays (labelIds / Keywords) as JMAP keyword maps (`{keyword: true, …}`)
  */
-Function _convertMailObjectToJMAP($inMail : Object) : Object
 	
 	var $result : Object:={}
 	var $keys : Collection:=OB Keys($inMail)
@@ -142,6 +142,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	
 	// ----------------------------------------------------
 	
+Function _extractRawMessage($result : Object; $format : Text; $mailType : Text) : Variant
 /**
  * @function _extractRawMessage
  * @private
@@ -159,7 +160,6 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
  *   - any other `$format` value: pushes error 10 (unreachable in practice because
  *     `_getURLParamsFromObject` normalises the format before the request)
  */
-Function _extractRawMessage($result : Object; $format : Text; $mailType : Text) : Variant
 	
 	var $response : Variant:=Null
 	

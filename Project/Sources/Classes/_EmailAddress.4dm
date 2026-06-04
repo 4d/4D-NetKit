@@ -10,12 +10,12 @@
 property name : Text
 property email : Text
 
+Class constructor($inName : Text; $inAddress : Text)
 /**
  * @constructor
  * @param {Text} $inName - Display name or full address string ("Name <email@domain>")
  * @param {Text} $inAddress - Email address (used when two parameters are provided)
  */
-Class constructor($inName : Text; $inAddress : Text)
 	
 	This._init()
 	
@@ -33,12 +33,12 @@ Class constructor($inName : Text; $inAddress : Text)
 	// Mark: - [Private]
 	// ----------------------------------------------------
 	
+Function _init()
 /**
  * @function _init
  * @private
  * @description Resets name and email values
  */
-Function _init()
 	
 	This.name:=""
 	This.email:=""
@@ -46,13 +46,13 @@ Function _init()
 	
 	// ----------------------------------------------------
 	
+Function _normalizeDisplayName($inName : Text) : Text
 /**
  * @function _normalizeDisplayName
  * @private
  * @param {Text} $inName - Raw display name
  * @returns {Text} Normalized display name (trimmed, optional surrounding quotes removed)
  */
-Function _normalizeDisplayName($inName : Text) : Text
 	
 	var $name : Text:=cs._Tools.me.trimSpaces($inName)
 	If (Length($name)>=2)
@@ -68,12 +68,12 @@ Function _normalizeDisplayName($inName : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function fromString($inValue : Text)
 /**
  * @function fromString
  * @param {Text} $inValue - Address string ("Name <email@domain>" or "email@domain")
  * @description Parses and sets name/email from a string
  */
-Function fromString($inValue : Text)
 	
 	This._init()
 	
@@ -105,11 +105,11 @@ Function fromString($inValue : Text)
 	// ----------------------------------------------------
 	
 	
+Function toString() : Text
 /**
  * @function toString
  * @returns {Text} String representation ("Name <email@domain>" or "email@domain")
  */
-Function toString() : Text
 	
 	If (Length(This.name)=0)
 		return This.email
@@ -121,11 +121,11 @@ Function toString() : Text
 	// ----------------------------------------------------
 	
 	
+Function toJSON() : Object
 /**
  * @function toJSON
  * @returns {Object} JSON representation for JMAP-style email objects
  */
-Function toJSON() : Object
 	
 	return {name: This.name; email: This.email}
 	
@@ -133,13 +133,13 @@ Function toJSON() : Object
 	// ----------------------------------------------------
 	
 	
+Function toGraphJSON() : Object
 /**
  * @function toGraphJSON
  * @returns {Object} JSON representation for Microsoft Graph recipient emailAddress
  * @example
  *   {address: "john@example.com"; name: "John Doe"}
  */
-Function toGraphJSON() : Object
 	
 	var $result : Object:={address: This.email}
 	If (Length(This.name)>0)
@@ -152,10 +152,10 @@ Function toGraphJSON() : Object
 	// ----------------------------------------------------
 	
 	
+Function isValid() : Boolean
 /**
  * @function isValid
  * @returns {Boolean} True if the email address is valid
  */
-Function isValid() : Boolean
 	
 	return cs._Tools.me.isValidEmail(This.email)

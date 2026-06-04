@@ -17,11 +17,11 @@ property _path : Text:=""
 property queryParams : Collection:=[]
 property ref : Text:=""
 
+Class constructor($inParam : Variant)
 /**
  * @constructor
  * @param {Variant} $inParam - URL string or object to parse
  */
-Class constructor($inParam : Variant)
     
     Case of 
         : (Value type($inParam)=Is text)  // URL string
@@ -35,12 +35,12 @@ Class constructor($inParam : Variant)
     // Mark: - [Private]
     // ============================================================
     
+Function _init()
 /**
  * @function _init
  * @private
  * @description Resets all URL components to default values
  */
-Function _init()
     
     This.scheme:=""
     This.username:=""
@@ -55,6 +55,7 @@ Function _init()
     // Mark: - [Public]
     // ============================================================
     
+Function parse($inURL : Text)
 /**
  * @function parse
  * @param {Text} $inURL - URL string to parse (RFC 3986)
@@ -64,7 +65,6 @@ Function _init()
  *   $url.parse("https://user:pass@example.com:8080/path?key=value#hash")
  * @see https://www.rfc-editor.org/rfc/rfc3986#appendix-B
  */
-Function parse($inURL : Text)
     
     This._init()
     
@@ -159,6 +159,7 @@ Function parse($inURL : Text)
     
     // ============================================================
     
+Function parseQuery($inQueryString : Text)
 /**
  * @function parseQuery
  * @param {Text} $inQueryString - Query string (with or without leading ?)
@@ -167,7 +168,6 @@ Function parse($inURL : Text)
  *   $url.parseQuery("key=value&page=1")
  *   // queryParams: [{name: "key"; value: "value"}, {name: "page"; value: "1"}]
  */
-Function parseQuery($inQueryString : Text)
     
     var $queryString : Text:=$inQueryString
     
@@ -204,6 +204,7 @@ Function parseQuery($inQueryString : Text)
     
     // ============================================================
     
+Function toString() : Text
 /**
  * @function toString
  * @returns {Text} URL as string
@@ -211,7 +212,6 @@ Function parseQuery($inQueryString : Text)
  * @example
  *   $url.toString()  // "https://user:pass@example.com:8080/path?key=value#hash"
  */
-Function toString() : Text
     
     var $URL : Text:=""
     If (Length(This.scheme)>0)
@@ -245,6 +245,7 @@ Function toString() : Text
     
     // ============================================================
     
+Function toJSON() : Object
 /**
  * @function toJSON
  * @returns {Object} URL as JSON object
@@ -253,7 +254,6 @@ Function toString() : Text
  *   var $json := $url.toJSON()
  *   // {scheme: "https"; host: "example.com"; port: 8080; ...}
  */
-Function toJSON() : Object
     
     var $json : Object:={}
     $json.scheme:=This.scheme
@@ -270,6 +270,7 @@ Function toJSON() : Object
     
     // ============================================================
     
+Function fromJSON($inURL : Object)
 /**
  * @function fromJSON
  * @param {Object} $inURL - URL object with components
@@ -277,7 +278,6 @@ Function toJSON() : Object
  * @example
  *   $url.fromJSON({scheme: "https"; host: "example.com"; port: 443})
  */
-Function fromJSON($inURL : Object)
     
     This.scheme:=(Value type($inURL.scheme)=Is text) ? $inURL.scheme : ""
     This.username:=(Value type($inURL.username)=Is text) ? $inURL.username : ""
@@ -301,6 +301,7 @@ Function fromJSON($inURL : Object)
     
     // ============================================================
     
+Function addQueryParameter( ...  : Variant)
 /**
  * @function addQueryParameter
  * @param {...Variant} - Variable arguments: object, string, or (name; value) pair
@@ -310,7 +311,6 @@ Function fromJSON($inURL : Object)
  *   $url.addQueryParameter({name: "key"; value: "value"})
  *   $url.addQueryParameter("key=value")
  */
-Function addQueryParameter( ...  : Variant)
     
     Case of 
         : (Count parameters=1)
@@ -337,12 +337,12 @@ Function addQueryParameter( ...  : Variant)
     
     // ============================================================
     
+Function getQueryString() : Text
 /**
  * @function getQueryString
  * @returns {Text} Query string with leading ? if present
  * @description Gets the full query string with ? prefix
  */
-Function getQueryString() : Text
     
     If (Length(This.query)>0)
         return "?"+This.query
@@ -352,12 +352,12 @@ Function getQueryString() : Text
     
     // ============================================================
     
+Function getDefaultPort() : Integer
 /**
  * @function getDefaultPort
  * @returns {Integer} Default port for the URL scheme (80 for http, 443 for https, etc.)
  * @description Returns default port based on URL scheme
  */
-Function getDefaultPort() : Integer
     
     Case of 
         : ((This.scheme="http") || (This.scheme="ws"))
@@ -372,12 +372,12 @@ Function getDefaultPort() : Integer
     // Mark: - Getters/Setters
     // ============================================================
     
+Function get query() : Text
 /**
  * @function get query
  * @returns {Text} Query string built from queryParams
  * @description Gets query string from query parameters collection
  */
-Function get query() : Text
     
     var $query : Text:=""
     If (This.queryParams.length>0)
@@ -396,12 +396,12 @@ Function get query() : Text
     
     // ============================================================
     
+Function set query($inQueryString : Text)
 /**
  * @function set query
  * @param {Text} $inQueryString - Query string to set
  * @description Sets query string and parses it into queryParams
  */
-Function set query($inQueryString : Text)
     
     This.queryParams:=[]
     This.parseQuery($inQueryString)
@@ -409,12 +409,12 @@ Function set query($inQueryString : Text)
     
     // ============================================================
     
+Function get port() : Integer
 /**
  * @function get port
  * @returns {Integer} Port number (or default port if not set)
  * @description Gets the port number, returns default port if not explicitly set
  */
-Function get port() : Integer
     
     If (This._port=0)
         return This.getDefaultPort()
@@ -425,12 +425,12 @@ Function get port() : Integer
     
     // ============================================================
     
+Function set port($inPort : Integer)
 /**
  * @function set port
  * @param {Integer} $inPort - Port number (0-65535)
  * @description Sets port number with validation
  */
-Function set port($inPort : Integer)
     
     If (($inPort>=0) && ($inPort<=65535))
         This._port:=$inPort
@@ -439,24 +439,24 @@ Function set port($inPort : Integer)
     
     // ============================================================
     
+Function get path() : Text
 /**
  * @function get path
  * @returns {Text} URL path component
  * @description Gets the path component
  */
-Function get path() : Text
     
     return This._path
     
     
     // ============================================================
     
+Function set path($inPath : Text)
 /**
  * @function set path
  * @param {Text} $inPath - URL path (automatically adds leading / if missing)
  * @description Sets the path component with automatic normalization
  */
-Function set path($inPath : Text)
     
     If ((Length($inPath)=0) || (Position("/"; $inPath)=1))
         This._path:=$inPath
@@ -468,36 +468,36 @@ Function set path($inPath : Text)
     // Mark: - Utility Methods
     // ============================================================
     
+Function isValid() : Boolean
 /**
  * @function isValid
  * @returns {Boolean} true if URL has required components (scheme, host)
  * @description Validates that URL has minimum required components
  */
-Function isValid() : Boolean
     
     return (Length(This.scheme)>0) && (Length(This.host)>0)
     
     
     // ============================================================
     
+Function isAbsolute() : Boolean
 /**
  * @function isAbsolute
  * @returns {Boolean} true if URL is absolute (has scheme)
  * @description Checks if URL is absolute (not relative)
  */
-Function isAbsolute() : Boolean
     
     return (Length(This.scheme)>0)
     
     
     // ============================================================
     
+Function clone() : Object
 /**
  * @function clone
  * @returns {Object} Deep copy of this URL object
  * @description Creates a complete copy of the URL object
  */
-Function clone() : Object
     
     var $cloned : cs._URL:=cs._URL.new("")
     $cloned.scheme:=This.scheme
@@ -520,17 +520,18 @@ Function clone() : Object
     
     // ============================================================
     
+Function clear()
 /**
  * @function clear
  * @description Resets all URL components to empty values
  */
-Function clear()
     
     This._init()
     
     
     // ============================================================
     
+Function removeQueryParameter( ... : Variant) : Boolean
 /**
  * @function removeQueryParameter
  * @param {Text} $paramName - Name of query parameter to remove
@@ -541,7 +542,6 @@ Function clear()
  *   $url.removeQueryParameter("page")  // removes page parameter
  *   $url.removeQueryParameter("tag"; True)  // removes all tag parameters
  */
-Function removeQueryParameter( ... : Variant) : Boolean
     
     var $paramName : Text:=""
     var $removeAll : Boolean:=False
@@ -580,13 +580,13 @@ Function removeQueryParameter( ... : Variant) : Boolean
     
     // ============================================================
 
+Function hasQueryParameter($paramName : Text) : Boolean
 /**
  * @function hasQueryParameter
  * @param {Text} $paramName - Name of query parameter to check
  * @returns {Boolean} true if at least one parameter with this name exists
  * @description Checks whether a query parameter exists by name
  */
-Function hasQueryParameter($paramName : Text) : Boolean
     
     var $param : Object
     For each ($param; This.queryParams)
@@ -600,6 +600,7 @@ Function hasQueryParameter($paramName : Text) : Boolean
     
     // ============================================================
     
+Function getQueryParameter($paramName : Text) : Text
 /**
  * @function getQueryParameter
  * @param {Text} $paramName - Name of query parameter to retrieve
@@ -608,7 +609,6 @@ Function hasQueryParameter($paramName : Text) : Boolean
  * @example
  *   var $page := $url.getQueryParameter("page")
  */
-Function getQueryParameter($paramName : Text) : Text
     
     var $param : Object
     For each ($param; This.queryParams)

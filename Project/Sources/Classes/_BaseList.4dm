@@ -14,11 +14,11 @@ property success : Boolean
 property errors : Collection
 
 
+Class constructor($inProvider : cs.OAuth2Provider)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider passed through to _BaseAPI
  */
-Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
 	
@@ -30,13 +30,13 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+Function _getList($inToken : Text) : Boolean
 /**
  * @function _getList
  * @private
  * @param {Text} $inToken - Page token for the page to fetch
  * @returns {Boolean} True on success; overridden by subclasses to perform the actual API call
  */
-Function _getList($inToken : Text) : Boolean
 	
 	return False
 	
@@ -44,13 +44,13 @@ Function _getList($inToken : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function _handleListError()
 /**
  * @function _handleListError
  * @private
  * @description Copies the error stack into the public errors property and sets statusText
  *   from the first error message
  */
-Function _handleListError()
 	
 	var $errorStack : Collection:=Super._getErrorStack()
 	
@@ -64,13 +64,13 @@ Function _handleListError()
 	// ----------------------------------------------------
 	
 	
+Function next() : Boolean
 /**
  * @function next
  * @returns {Boolean} True if the next page was fetched successfully, False if there is no next page
  * @description Fetches the next page using the server-issued next page token;
  *   increments page and appends the token to the navigation history on success
  */
-Function next() : Boolean
 	
 	var $nextToken : Text:=String(This._internals._nextToken)
 	
@@ -99,13 +99,13 @@ Function next() : Boolean
 	// ----------------------------------------------------
 	
 	
+Function previous() : Boolean
 /**
  * @function previous
  * @returns {Boolean} True if the previous page was fetched successfully, False if already on the first page
  * @description Navigates back one page using the token history;
  *   decrements page and trims the history on success
  */
-Function previous() : Boolean
 	
 	If ((Num(This._internals._history.length)>0) && (This.page>1))
 		

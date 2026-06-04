@@ -8,13 +8,13 @@ Class extends _GraphAPI
 
 property userId : Text:=""
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  * @param {Object} $inParameters - Configuration object; recognised properties:
  *   - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
 	This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
@@ -24,6 +24,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+Function list : cs.GraphCategoryList
 /**
  * @function list
  * @returns {cs.GraphCategoryList} Pageable list of the user's Outlook master categories
@@ -31,7 +32,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  *   `GET /me/outlook/masterCategories` or
  *   `GET /users/{id}/outlook/masterCategories`
  */
-Function list : cs.GraphCategoryList
 	
 /*
         GET /me/outlook/masterCategories

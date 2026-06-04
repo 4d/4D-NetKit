@@ -19,6 +19,7 @@ property timeZone : Text
 property accessRole : Text
 property defaultReminders : Collection
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -27,7 +28,6 @@ property defaultReminders : Collection
  *   Top-level response properties (`kind`, `etag`, `summary`, etc.) are forwarded
  *   automatically when listed in `$inParameters.attributes`.
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider; $inParameters)
     
@@ -38,6 +38,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     // ----------------------------------------------------
     
     
+Function get events() : Collection
 /**
  * @function get events
  * @returns {Collection} Current page of `GoogleEvent` instances
@@ -45,7 +46,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  *   `GoogleEvent` instance on first access; the result is cached and invalidated
  *   when `next()` / `previous()` loads a new page
  */
-Function get events() : Collection
     
     If (This._internals._update)
         

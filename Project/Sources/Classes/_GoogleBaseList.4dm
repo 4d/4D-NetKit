@@ -8,6 +8,7 @@
 
 Class extends _BaseList
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -22,7 +23,6 @@ Class extends _BaseList
  *   errors during the initial fetch are captured in the error stack and exposed via
  *   `success` / `statusText` (no exception is thrown to the caller)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
 	
@@ -47,6 +47,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 
 
+Function _getList($inPageToken : Text) : Boolean
 /**
  * @function _getList
  * @private
@@ -59,7 +60,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  *   `attributes` onto `This`, and stores `nextPageToken` for `next()` to consume.
  *   On HTTP error the error stack is populated and `False` is returned.
  */
-Function _getList($inPageToken : Text) : Boolean
 	
 	var $URL : cs._URL:=cs._URL.new(This._internals._URL)
 	

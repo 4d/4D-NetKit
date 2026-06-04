@@ -6,11 +6,11 @@
 
 Class extends _GraphAPI
 
+Class constructor($inProvider : cs.OAuth2Provider)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  */
-Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
 	
@@ -19,6 +19,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+Function _getUserInfo($inURL : Text) : Object
 /**
  * @function _getUserInfo
  * @private
@@ -26,7 +27,6 @@ Class constructor($inProvider : cs.OAuth2Provider)
  * @returns {Object} Cleaned user object, or `Null` on failure
  * @description Sends a `GET` request and returns a sanitised Graph user object
  */
-Function _getUserInfo($inURL : Text) : Object
 	
 	var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $inURL)
 	If (Value type($response)=Is object)
@@ -40,13 +40,13 @@ Function _getUserInfo($inURL : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function getCurrent($inSelect : Text) : Object
 /**
  * @function getCurrent
  * @param {Text} $inSelect - Comma-separated list of properties to return (OData `$select`)
  * @returns {Object} Current authenticated user's properties, or `Null` on failure
  * @description Fetches the currently authenticated user via `GET /me`
  */
-Function getCurrent($inSelect : Text) : Object
 	
 	var $urlParams : Text
 	
@@ -62,6 +62,7 @@ Function getCurrent($inSelect : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function get($inID : Text; $inSelect : Text) : Object
 /**
  * @function get
  * @param {Text} $inID - Azure AD user ID or user principal name
@@ -70,7 +71,6 @@ Function getCurrent($inSelect : Text) : Object
  * @description Fetches a specific user via `GET /users/{id}`;
  *   throws error 9 when `$inID` is empty
  */
-Function get($inID : Text; $inSelect : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -98,6 +98,7 @@ Function get($inID : Text; $inSelect : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function list($inParameters : Object) : Object
 /**
  * @function list
  * @param {Object} $inParameters - Query options:
@@ -109,7 +110,6 @@ Function get($inID : Text; $inSelect : Text) : Object
  * @returns {cs.GraphUserList} Pageable list of Azure AD users
  * @description Lists Azure AD users via `GET /users` with optional OData query parameters
  */
-Function list($inParameters : Object) : Object
 	
 	var $headers : Object
 	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")
@@ -139,6 +139,7 @@ Function list($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function count($inParameters : Object) : Object
 /**
  * @function count
  * @param {Object} $inParameters - Query options (same as `list`); `$count=true` and
@@ -152,7 +153,6 @@ Function list($inParameters : Object) : Object
  * @description Lists Azure AD users with `$count=true` via `GET /users`;
  *   requires `ConsistencyLevel: eventual` (set automatically)
  */
-Function count($inParameters : Object) : Object
 	
 	var $headers : Object
 	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")

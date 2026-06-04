@@ -9,6 +9,7 @@ Class extends _GraphBaseList
 
 property calendarId : Text
 
+Class constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders : Object)
 /**
  * @constructor
  * @param {cs.Office365Calendar} $inCalendar - The `Office365Calendar` client owning this list
@@ -16,7 +17,6 @@ property calendarId : Text
  * @param {Text} $inURL - Initial Graph API URL
  * @param {Object} $inHeaders - Additional HTTP headers
  */
-Class constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders : Object)
 	
 	Super($inCalendar._getOAuth2Provider(); $inURL; $inHeaders)
 	
@@ -28,12 +28,12 @@ Class constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders 
 	// ----------------------------------------------------
 	
 	
+Function get events() : Collection
 /**
  * @function get events
  * @returns {Collection} Current page as a `Collection` of `GraphEvent` instances;
  *   computed once and cached until the next page is loaded
  */
-Function get events() : Collection
 	
 	If (This._internals._update)
 		

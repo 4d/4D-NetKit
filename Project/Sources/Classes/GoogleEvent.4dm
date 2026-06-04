@@ -11,13 +11,13 @@ Class extends _BaseClass
 property id : Text
 property attachments : Collection
 
+Class constructor($inObject : Object)
 /**
  * @constructor
  * @param {Object} $inObject - Raw event object from the Calendar API response;
  *   all top-level properties except `attachments` are copied as-is onto `This`;
  *   `attachments` items are wrapped into `GoogleEventAttachment` instances
  */
-Class constructor($inObject : Object)
     
     Super()
     

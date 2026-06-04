@@ -8,6 +8,7 @@
 
 Class extends _GoogleAPI
 
+Class constructor($inProvider : cs.OAuth2Provider)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -15,7 +16,6 @@ Class extends _GoogleAPI
  *   (`https://people.googleapis.com/v1/`) and sets the default person fields
  *   to `["names", "emailAddresses"]`
  */
-Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider; "https://people.googleapis.com/v1/")
 	
@@ -26,6 +26,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// Mark: - [Private]
 
 
+Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 /**
  * @function _get
  * @private
@@ -37,7 +38,6 @@ Class constructor($inProvider : cs.OAuth2Provider)
  * @description Fires a GET request to `{baseURL}/{resourceName}?personFields=...`
  *   and returns the parsed JSON response; clears the error stack before each call
  */
-Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	Super._clearErrorStack()
 	
@@ -69,6 +69,7 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function _getURLParamsFromObject($inParameters : Object) : Text
 /**
  * @function _getURLParamsFromObject
  * @private
@@ -84,7 +85,6 @@ Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
  * @description Overrides `_GoogleAPI._getURLParamsFromObject` with People-API–specific
  *   parameters; builds the query string for `listDirectoryPeople` requests
  */
-Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	var $urlParams : cs._URL:=cs._URL.new()
 	var $personFields : Text
@@ -149,6 +149,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	// ----------------------------------------------------
 
 
+Function getCurrent($inPersonFields : Variant) : Object
 /**
  * @function getCurrent
  * @param {Variant} $inPersonFields - Fields to return (Collection, comma-separated Text,
@@ -157,7 +158,6 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
  * @description Fetches the profile of the currently authenticated user
  *   by calling `_get("me", $inPersonFields)`
  */
-Function getCurrent($inPersonFields : Variant) : Object
 	
 	return This._get("me"; $inPersonFields)
 	
@@ -165,6 +165,7 @@ Function getCurrent($inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 /**
  * @function get
  * @param {Text} $inResourceName - Person resource name (e.g. `"people/c123456"`)
@@ -173,7 +174,6 @@ Function getCurrent($inPersonFields : Variant) : Object
  * @returns {Object} People API person resource object, or `Null` on error
  * @description Fetches a single user profile by resource name
  */
-Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 	
 	return This._get($inResourceName; $inPersonFields)
 	
@@ -181,6 +181,7 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function list($inParameters : Object) : Object
 /**
  * @function list
  * @param {Object} $inParameters - Query options forwarded to `_getURLParamsFromObject`
@@ -190,7 +191,6 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
  *   `GoogleUserList` instance for the first page; use `next()` / `previous()`
  *   on the returned object to navigate subsequent pages
  */
-Function list($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	

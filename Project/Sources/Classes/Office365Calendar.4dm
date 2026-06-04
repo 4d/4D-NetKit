@@ -12,13 +12,13 @@ Class extends _GraphAPI
 property userId : Text:=""
 property id : Text:=""
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  * @param {Object} $inParameters - Configuration object; recognised properties:
  *   - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider)
     This.userId:=(Length(String($inParameters.userId))>0) ? String($inParameters.userId) : ""
@@ -28,6 +28,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     // ----------------------------------------------------
     
     
+Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 /**
  * @function _getURLParamsFromObject
  * @private
@@ -39,7 +40,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @description Overrides `_GraphAPI._getURLParamsFromObject` to handle Graph calendar-specific
  *   `startDateTime` and `endDateTime` parameters; other OData params are forwarded to `Super`
  */
-Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
     
     var $URL : cs._URL:=cs._URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
     var $startDateTime : Text:=""
@@ -77,6 +77,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
     // ----------------------------------------------------
     
     
+Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
 /**
  * @function _conformEventDateTime
  * @private
@@ -87,7 +88,6 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
  * @description Normalises a date/time property to the Graph `{dateTime; timeZone}` format
  *   accepted by the Microsoft Graph API; delegates to `_DateTime`
  */
-Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
     var $dateTime : cs._DateTime
     var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
@@ -106,6 +106,7 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     // ----------------------------------------------------
     
     
+Function _conformEvent($inObject : Object) : Object
 /**
  * @function _conformEvent
  * @private
@@ -115,7 +116,6 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
  * @description Prepares an event object for a Graph API call:
  *   normalises `start`/`end` via `_conformEventDateTime` and strips URL-level fields
  */
-Function _conformEvent($inObject : Object) : Object
     
     var $event : Object:=$inObject
     
@@ -141,6 +141,7 @@ Function _conformEvent($inObject : Object) : Object
     // ----------------------------------------------------
     
     
+Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
 /**
  * @function _insertAttachment
  * @private
@@ -153,7 +154,6 @@ Function _conformEvent($inObject : Object) : Object
  *   `POST /me/calendars/{id}/events/{id}/attachments`.
  *   **For test purposes only — subject to change, use at your own risk.**
  */
-Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Object  // For test purposes only (subject to changes, use at your own risk)
     
 /*
     POST /me/events/{id}/attachments
@@ -202,6 +202,7 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
     // ----------------------------------------------------
     
     
+Function getCalendar($inID : Text; $inSelect : Text) : Object
 /**
  * @function getCalendar
  * @param {Text} $inID - Calendar ID; uses the default calendar when empty
@@ -210,7 +211,6 @@ Function _insertAttachment($inParameters : Object; $inAttachement : Object) : Ob
  * @description Fetches a single calendar via
  *   `GET /me/calendars/{id}` or `GET /me/calendar`
  */
-Function getCalendar($inID : Text; $inSelect : Text) : Object
     
     var $URLString : Text:=""
     
@@ -242,6 +242,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     // ----------------------------------------------------
     
     
+Function getCalendars($inParameters : Object) : Object
 /**
  * @function getCalendars
  * @param {Object} $inParameters - Query options:
@@ -250,7 +251,6 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
  * @returns {cs.GraphCalendarList} Pageable list of calendars
  * @description Lists calendars via `GET /me/calendars`
  */
-Function getCalendars($inParameters : Object) : Object
     
     Super._clearErrorStack()
     
@@ -283,6 +283,7 @@ Function getCalendars($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function getEvent($inParameters : Object) : Object
 /**
  * @function getEvent
  * @param {Object} $inParameters - Required and optional parameters:
@@ -297,7 +298,6 @@ Function getCalendars($inParameters : Object) : Object
  * @description Fetches a single event via `GET /me/calendar/events/{id}` or
  *   `GET /me/calendars/{id}/events/{id}`. See inline comment for all supported Graph endpoints.
  */
-Function getEvent($inParameters : Object) : Object
     
 /*
     GET /me/events/{id}
@@ -365,6 +365,7 @@ Function getEvent($inParameters : Object) : Object
     return Null
     
     
+Function getEvents($inParameters : Object) : Object
 /**
  * @function getEvents
  * @param {Object} $inParameters - Required and optional parameters:
@@ -379,7 +380,6 @@ Function getEvent($inParameters : Object) : Object
  * @description Lists events via `GET /me/calendar/calendarView` (when both date bounds are set)
  *   or `GET /me/calendar/events`. See inline comment for all supported endpoints.
  */
-Function getEvents($inParameters : Object) : Object
     
 /*
     A user's or group's default calendar.
@@ -461,6 +461,7 @@ Function getEvents($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function createEvent($inEvent : Object; $inParameters : Object) : Object
 /**
  * @function createEvent
  * @param {Object} $inEvent - Event object; `calendarId`, `id`, and `attachments` are
@@ -472,7 +473,6 @@ Function getEvents($inParameters : Object) : Object
  *   Attachments in `$inEvent.attachments` are uploaded separately after event creation.
  *   See inline comment for all supported Graph endpoints.
  */
-Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
 /*
         POST /me/events
@@ -554,6 +554,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function deleteEvent($inParameters : Object) : Object
 /**
  * @function deleteEvent
  * @param {Object} $inParameters - Required parameters:
@@ -563,7 +564,6 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
  * @description Permanently deletes a calendar event via `DELETE /me/calendar/events/{id}`.
  *   See inline comment for all supported Graph endpoints.
  */
-Function deleteEvent($inParameters : Object) : Object
     
 /*
         DELETE /me/events/{id}
@@ -613,6 +613,7 @@ Function deleteEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function updateEvent($inEvent : Object; $inParameters : Object) : Object
 /**
  * @function updateEvent
  * @param {Object} $inEvent - Event object with updated properties;
@@ -625,7 +626,6 @@ Function deleteEvent($inParameters : Object) : Object
  *   Attachments in `$inEvent.attachments` are uploaded separately after the update.
  *   See inline comment for all supported Graph endpoints.
  */
-Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
 /*
     PATCH /me/events/{id}
@@ -721,6 +721,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification
 /**
  * @function notifier
  * @param {Object} $inParameters - Notification callbacks and options:
@@ -734,7 +735,6 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
  * @description Creates a `GraphNotification` for calendar event change notifications via the
  *   Microsoft Graph subscription API. See inline comment for full parameter details.
  */
-Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification
     
 /*
     Creates a notification object for calendar event change notifications.

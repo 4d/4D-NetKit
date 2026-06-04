@@ -13,6 +13,7 @@
 Class extends _GraphAPI
 
 
+Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text; $inOwner : Object)
 /**
  * @constructor
  * @param {Text} $inType - Resource type: `"mail"` or `"event"`;
@@ -29,7 +30,6 @@ Class extends _GraphAPI
  * @param {Object} $inOwner - The `Office365Mail` or `Office365Calendar` client
  *   that created this notification; forwarded to callbacks
  */
-Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text; $inOwner : Object)
     
     Super($inProvider)
     
@@ -83,11 +83,11 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     // ----------------------------------------------------
     
     
+Function get endPoint : Text
 /**
  * @function get endPoint
  * @returns {Text} Webhook URL configured at construction (`""` in pull mode)
  */
-Function get endPoint : Text
     
     return This._internals._endPoint
     
@@ -95,12 +95,12 @@ Function get endPoint : Text
     // ----------------------------------------------------
     
     
+Function get expiration : Text
 /**
  * @function get expiration
  * @returns {Text} ISO 8601 expiration date/time of the current Graph subscription;
  *   empty string in pull mode or before `start()` is called
  */
-Function get expiration : Text
     
     return This._internals._expiration
     
@@ -108,11 +108,11 @@ Function get expiration : Text
     // ----------------------------------------------------
     
     
+Function get isStarted : Boolean
 /**
  * @function get isStarted
  * @returns {Boolean} `True` when monitoring is active
  */
-Function get isStarted : Boolean
     
     return This._internals._isStarted
     
@@ -120,11 +120,11 @@ Function get isStarted : Boolean
     // ----------------------------------------------------
     
     
+Function get timer : Integer
 /**
  * @function get timer
  * @returns {Integer} Pull polling interval in seconds (default 30; pull mode only)
  */
-Function get timer : Integer
     
     return This._internals._pullInterval
     
@@ -132,6 +132,7 @@ Function get timer : Integer
     // ----------------------------------------------------
     
     
+Function start() : Object
 /**
  * @function start
  * @returns {Object} Status object
@@ -142,7 +143,6 @@ Function get timer : Integer
  *
  *   No-op when already started. See inline comment for full mode description.
  */
-Function start() : Object
     
 /*
 	Starts change notifications.
@@ -184,6 +184,7 @@ Function start() : Object
     // ----------------------------------------------------
     
     
+Function stop() : Object
 /**
  * @function stop
  * @returns {Object} Status object
@@ -194,7 +195,6 @@ Function start() : Object
  *
  *   No-op when not started. See inline comment for details.
  */
-Function stop() : Object
     
 /*
 	Stops change notifications.
@@ -239,6 +239,7 @@ Function stop() : Object
     // ----------------------------------------------------
     
     
+Function _startPush($inState : Text) : Object
 /**
  * @function _startPush
  * @private
@@ -248,7 +249,6 @@ Function stop() : Object
  *   registers it in Storage, and starts the monitoring worker loop.
  *   Cleans up Storage on failure.
  */
-Function _startPush($inState : Text) : Object
     
     var $notificationUrl : Text:=cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/4dnk-graph-notification"; $inState)
     If (Length($notificationUrl)=0)
@@ -304,6 +304,7 @@ Function _startPush($inState : Text) : Object
     // ----------------------------------------------------
     
     
+Function _stopPush($inState : Text)
 /**
  * @function _stopPush
  * @private
@@ -311,7 +312,6 @@ Function _startPush($inState : Text) : Object
  * @description Signals the monitor worker to stop, kills it, deletes the Graph subscription,
  *   and removes the entry from Storage
  */
-Function _stopPush($inState : Text)
     
     
     // Signal the monitor to stop via Storage
@@ -333,6 +333,7 @@ Function _stopPush($inState : Text)
     // ----------------------------------------------------
     
     
+Function _startPull($inState : Text) : Object
 /**
  * @function _startPull
  * @private
@@ -340,7 +341,6 @@ Function _stopPush($inState : Text)
  * @returns {Object} Status object
  * @description Registers the monitor in Storage and starts the delta-polling worker loop
  */
-Function _startPull($inState : Text) : Object
     
     // Register in Storage for the monitor active flag
     cs._NotificationHelper.me.registerInStorage("graphNotifications"; $inState; Null)
@@ -354,13 +354,13 @@ Function _startPull($inState : Text) : Object
     // ----------------------------------------------------
     
     
+Function _stopPull($inState : Text)
 /**
  * @function _stopPull
  * @private
  * @param {Text} $inState - UUID key for `Storage.graphNotifications`
  * @description Signals the polling worker to stop, kills it, and removes the entry from Storage
  */
-Function _stopPull($inState : Text)
     
     
     // Signal the monitor to stop
@@ -376,6 +376,7 @@ Function _stopPull($inState : Text)
     // ----------------------------------------------------
     
     
+Function _initialDeltaSync($inChangeType : Text) : Text
 /**
  * @function _initialDeltaSync
  * @private
@@ -387,7 +388,6 @@ Function _stopPull($inState : Text)
  *   Used only for resources that support `changeType` filtering (currently mail).
  *   See inline comment for details.
  */
-Function _initialDeltaSync($inChangeType : Text) : Text
     
 /*
     Performs initial delta sync to obtain a deltaLink for tracking future mail changes
@@ -427,6 +427,7 @@ Function _initialDeltaSync($inChangeType : Text) : Text
     // ----------------------------------------------------
     
     
+Function _initialDeltaSyncWithKnownIds() : Text
 /**
  * @function _initialDeltaSyncWithKnownIds
  * @private
@@ -437,7 +438,6 @@ Function _initialDeltaSync($inChangeType : Text) : Text
  *   subsequent polls use the `knownIds` cache to classify changes as
  *   created, updated, or deleted. See inline comment for details.
  */
-Function _initialDeltaSyncWithKnownIds() : Text
     
 /*
     Performs a real initial delta sync and fills _knownIds with all existing items.
@@ -504,6 +504,7 @@ Function _initialDeltaSyncWithKnownIds() : Text
     // ----------------------------------------------------
     
     
+Function _pollDelta() : Collection
 /**
  * @function _pollDelta
  * @private
@@ -513,7 +514,6 @@ Function _initialDeltaSyncWithKnownIds() : Text
  *   `_pollDeltaUsingKnownIds` (calendar/event) based on `_supportsChangeTypeFiltering`.
  *   See inline comment for strategy details.
  */
-Function _pollDelta() : Collection
     
 /*
     Polls the delta endpoint.
@@ -533,6 +533,7 @@ Function _pollDelta() : Collection
     // ----------------------------------------------------
     
     
+Function _pollDeltaUsingChangeTypeStreams() : Collection
 /**
  * @function _pollDeltaUsingChangeTypeStreams
  * @private
@@ -541,7 +542,6 @@ Function _pollDelta() : Collection
  * @description Polls each delta stream (one per enabled changeType) and merges results.
  *   Used for mail, where Graph supports `changeType` filtering on delta queries.
  */
-Function _pollDeltaUsingChangeTypeStreams() : Collection
     
     var $items : Collection:=[]
     var $changeTypes : Collection:=This._computePullChangeTypes()
@@ -557,6 +557,7 @@ Function _pollDeltaUsingChangeTypeStreams() : Collection
     // ----------------------------------------------------
     
     
+Function _pollDeltaForChangeType($inChangeType : Text) : Collection
 /**
  * @function _pollDeltaForChangeType
  * @private
@@ -566,7 +567,6 @@ Function _pollDeltaUsingChangeTypeStreams() : Collection
  * @description Follows the delta link for one change type, paginating until the new
  *   delta link is returned; updates `_internals._deltaLinks[$inChangeType]`
  */
-Function _pollDeltaForChangeType($inChangeType : Text) : Collection
     
     var $items : Collection:=[]
     var $url : Text:=String(This._internals._deltaLinks[$inChangeType])
@@ -616,6 +616,7 @@ Function _pollDeltaForChangeType($inChangeType : Text) : Collection
     // ----------------------------------------------------
     
     
+Function _pollDeltaUsingKnownIds() : Collection
 /**
  * @function _pollDeltaUsingKnownIds
  * @private
@@ -627,7 +628,6 @@ Function _pollDeltaForChangeType($inChangeType : Text) : Collection
  *   - ID already in `_knownIds` → `"updated"`
  *   Only items whose changeType is enabled by a callback are included.
  */
-Function _pollDeltaUsingKnownIds() : Collection
     
     var $items : Collection:=[]
     var $url : Text:=String(This._internals._deltaLink)
@@ -692,6 +692,7 @@ Function _pollDeltaUsingKnownIds() : Collection
     // ----------------------------------------------------
     
     
+Function _shouldDispatchPullChangeType($inChangeType : Text) : Boolean
 /**
  * @function _shouldDispatchPullChangeType
  * @private
@@ -700,7 +701,6 @@ Function _pollDeltaUsingKnownIds() : Collection
  * @description Used in `_pollDeltaUsingKnownIds` to filter out change types
  *   that have no registered callback
  */
-Function _shouldDispatchPullChangeType($inChangeType : Text) : Boolean
     
     Case of 
         : ($inChangeType="created")
@@ -717,6 +717,7 @@ Function _shouldDispatchPullChangeType($inChangeType : Text) : Boolean
     // ----------------------------------------------------
     
     
+Function _removeKnownId($inResourceId : Text)
 /**
  * @function _removeKnownId
  * @private
@@ -724,7 +725,6 @@ Function _shouldDispatchPullChangeType($inChangeType : Text) : Boolean
  * @description Finds and removes the ID from `_internals._knownIds`;
  *   used when processing a `"deleted"` delta entry
  */
-Function _removeKnownId($inResourceId : Text)
     
     var $index : Integer:=This._internals._knownIds.indexOf($inResourceId)
     If ($index>=0)
@@ -736,6 +736,7 @@ Function _removeKnownId($inResourceId : Text)
     // ----------------------------------------------------
     
     
+Function _computePullChangeTypes() : Collection
 /**
  * @function _computePullChangeTypes
  * @private
@@ -744,7 +745,6 @@ Function _removeKnownId($inResourceId : Text)
  * @description Builds the list of change types to poll based on which
  *   `onCreate`, `onModify`, and `onDelete` callbacks are set
  */
-Function _computePullChangeTypes() : Collection
     
     var $types : Collection:=[]
     
@@ -767,6 +767,7 @@ Function _computePullChangeTypes() : Collection
     // ----------------------------------------------------
     
     
+Function _computeChangeType() : Text
 /**
  * @function _computeChangeType
  * @private
@@ -774,7 +775,6 @@ Function _computePullChangeTypes() : Collection
  *   (e.g. `"created,updated,deleted"`) for use in a subscription body;
  *   defaults to all three when no callbacks are registered
  */
-Function _computeChangeType() : Text
     
     var $types : Collection:=[]
     
@@ -797,13 +797,13 @@ Function _computeChangeType() : Text
     // ----------------------------------------------------
     
     
+Function _computeExpiration($inMinutes : Integer) : Text
 /**
  * @function _computeExpiration
  * @private
  * @param {Integer} $inMinutes - Number of minutes from now
  * @returns {Text} ISO 8601 date-time string (UTC) for the subscription `expirationDateTime`
  */
-Function _computeExpiration($inMinutes : Integer) : Text
     
     var $dt : cs._DateTime:=cs._DateTime.new()
     $dt.addTime($inMinutes*60)
@@ -814,6 +814,7 @@ Function _computeExpiration($inMinutes : Integer) : Text
     // ----------------------------------------------------
     
     
+Function _startMonitoring()
 /**
  * @function _startMonitoring
  * @private
@@ -821,7 +822,6 @@ Function _computeExpiration($inMinutes : Integer) : Text
  *   `"4DNK_Monitor_"+state`. The worker receives `This`, the caller worker name,
  *   the state UUID, and the form window reference.
  */
-Function _startMonitoring()
     
     var $self : cs.GraphNotification:=This
     var $workerName : Text:=This._internals._workerName
@@ -834,6 +834,7 @@ Function _startMonitoring()
     // ----------------------------------------------------
     
     
+Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)
 /**
  * @function _monitorLoop
  * @private
@@ -848,7 +849,6 @@ Function _startMonitoring()
  *   Dispatches callbacks via `_NotificationHelper.callbackInCallerContext`.
  *   See inline comment for mode details.
  */
-Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)
     
 /*
 	Main monitoring loop, runs in a dedicated background worker.
@@ -910,6 +910,7 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
     // ----------------------------------------------------
     
     
+Function _isMonitorActive($inState : Text) : Boolean
 /**
  * @function _isMonitorActive
  * @private
@@ -917,7 +918,6 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
  * @returns {Boolean} `True` when the monitor should keep running
  * @description Delegates to `_NotificationHelper.isMonitorActive`
  */
-Function _isMonitorActive($inState : Text) : Boolean
     
     return cs._NotificationHelper.me.isMonitorActive("graphNotifications"; $inState)
     
@@ -925,6 +925,7 @@ Function _isMonitorActive($inState : Text) : Boolean
     // ----------------------------------------------------
     
     
+Function _drainPendingItems($inState : Text) : Collection
 /**
  * @function _drainPendingItems
  * @private
@@ -933,7 +934,6 @@ Function _isMonitorActive($inState : Text) : Boolean
  * @description Delegates to `_NotificationHelper.drainPendingItems`;
  *   used in push mode to collect webhook-delivered notifications
  */
-Function _drainPendingItems($inState : Text) : Collection
     
     return cs._NotificationHelper.me.drainPendingItems("graphNotifications"; $inState)
     
@@ -941,6 +941,7 @@ Function _drainPendingItems($inState : Text) : Collection
     // ----------------------------------------------------
     
     
+Function _dispatchCallbacks($inItems : Collection)
 /**
  * @function _dispatchCallbacks
  * @private
@@ -948,7 +949,6 @@ Function _drainPendingItems($inState : Text) : Collection
  * @description Delegates to `_NotificationHelper.dispatchCallbacks`, forwarding
  *   `_type`, registered callbacks, and the owner client
  */
-Function _dispatchCallbacks($inItems : Collection)
     
     cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks; This._internals._owner)
     
@@ -956,6 +956,7 @@ Function _dispatchCallbacks($inItems : Collection)
     // ----------------------------------------------------
     
     
+Function _renewIfNeeded($inThresholdSeconds : Integer)
 /**
  * @function _renewIfNeeded
  * @private
@@ -965,7 +966,6 @@ Function _dispatchCallbacks($inItems : Collection)
  *   time is below the threshold, patches the Graph subscription via
  *   `PATCH /subscriptions/{id}` with a new `expirationDateTime` of +70 minutes.
  */
-Function _renewIfNeeded($inThresholdSeconds : Integer)
     
     If (Length(This._internals._expiration)=0)
         return 

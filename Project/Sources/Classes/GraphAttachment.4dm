@@ -15,6 +15,7 @@ property isInline : Boolean
 property name : Text
 property contentType : Text
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
@@ -24,7 +25,6 @@ property contentType : Text
  *   - `eventId` {Text} — Parent event ID (exclusive with `messageId`)
  * @param {Object} $inObject - Raw Graph API attachment object to hydrate from
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)
 	
 	Super($inProvider)
 	
@@ -45,6 +45,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject
 	// ----------------------------------------------------
 	
 	
+Function getContent() : 4D.Blob
 /**
  * @function getContent
  * @returns {4D.Blob} Attachment content as a `4D.Blob`;
@@ -54,7 +55,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject
  *   `GET /me/messages/{id}/attachments/{attachmentId}` or
  *   `GET /me/events/{id}/attachments/{attachmentId}`
  */
-Function getContent() : 4D.Blob
 	
 	If (Not(OB Is defined(This; "contentBytes")))
 		
@@ -110,13 +110,13 @@ Function getContent() : 4D.Blob
 	// ----------------------------------------------------
 	
 	
+Function setContent($inContent : 4D.Blob)
 /**
  * @function setContent
  * @param {4D.Blob} $inContent - Binary content to attach
  * @description Base64-encodes `$inContent` and stores it in `contentBytes`;
  *   also updates `size`. No-op when the blob is empty.
  */
-Function setContent($inContent : 4D.Blob)
 	
 	If ($inContent.size>0)
 		var $encodedContent : Text
@@ -129,6 +129,7 @@ Function setContent($inContent : 4D.Blob)
 	// ----------------------------------------------------
 	
 	
+Function fromMailAttachment($inObject : 4D.MailAttachment)
 /**
  * @function fromMailAttachment
  * @param {4D.MailAttachment} $inObject - 4D mail attachment to convert
@@ -136,7 +137,6 @@ Function setContent($inContent : 4D.Blob)
  *   `contentId`, `isInline`, `name`, `contentType`, and `contentBytes`.
  *   No-op when `$inObject` is not a `4D.MailAttachment` instance.
  */
-Function fromMailAttachment($inObject : 4D.MailAttachment)
 	
 	If (OB Instance of($inObject; 4D.MailAttachment))
 		

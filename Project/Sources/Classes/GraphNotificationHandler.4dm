@@ -9,6 +9,7 @@
 shared singleton Class constructor()
     
     
+Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 /**
  * @function getResponse
  * @param {4D.IncomingMessage} $request - Incoming HTTP request from Microsoft Graph
@@ -22,7 +23,6 @@ shared singleton Class constructor()
  *
  *   See inline comment for the Graph webhook protocol reference.
  */
-Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
 /*
 	Handles incoming webhook requests from Microsoft Graph change notifications.
@@ -90,6 +90,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     // ----------------------------------------------------
     
     
+Function _processNotificationBody($inBody : Variant)
 /**
  * @function _processNotificationBody
  * @private
@@ -101,7 +102,6 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
  *   to `Storage.graphNotifications[state].pending`.
  *   See inline comment for the expected payload format.
  */
-Function _processNotificationBody($inBody : Variant)
     
 /*
 	Processes the notification body and pushes pending items into Storage
@@ -182,6 +182,7 @@ Function _processNotificationBody($inBody : Variant)
     // ----------------------------------------------------
     
     
+Function _findStateBySubscriptionId($inSubscriptionId : Text) : Text
 /**
  * @function _findStateBySubscriptionId
  * @private
@@ -191,7 +192,6 @@ Function _processNotificationBody($inBody : Variant)
  * @description Iterates `Storage.graphNotifications` to find the entry whose
  *   `subscriptionId` matches `$inSubscriptionId`
  */
-Function _findStateBySubscriptionId($inSubscriptionId : Text) : Text
     
     // Look up the state key in Storage.notifications by subscription ID
     

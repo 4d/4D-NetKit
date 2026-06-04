@@ -7,11 +7,11 @@
 property _internals : Object
 
 
+Class constructor()
 /**
  * @constructor
  * @description Initializes the internal error stack and status line
  */
-Class constructor()
 	
 	This._internals:={_errorStack: []; _statusLine: ""}
 	
@@ -20,6 +20,7 @@ Class constructor()
 	// ----------------------------------------------------
 	
 	
+Function _pushError($inCode : Integer; $inParameters : Object) : Object
 /**
  * @function _pushError
  * @private
@@ -29,7 +30,6 @@ Class constructor()
  * @description Builds a localized error object, merges $inParameters into it,
  *   and pushes it onto the internal error stack without throwing
  */
-Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	
 	// Push error into errorStack without throwing it
 	var $error : Object:=cs._Tools.me.makeError($inCode; $inParameters)
@@ -47,6 +47,7 @@ Function _pushError($inCode : Integer; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function _throwError($inCode : Integer; $inParameters : Object)
 /**
  * @function _throwError
  * @private
@@ -54,7 +55,6 @@ Function _pushError($inCode : Integer; $inParameters : Object) : Object
  * @param {Object} $inParameters - Key/value pairs merged into the error object
  * @description Pushes an error onto the stack and immediately throws it as a deferred error
  */
-Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it as deferred
 	var $error : Object:=This._pushError($inCode; $inParameters)
@@ -65,12 +65,12 @@ Function _throwError($inCode : Integer; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+Function _getErrorStack() : Collection
 /**
  * @function _getErrorStack
  * @private
  * @returns {Collection} The full error stack
  */
-Function _getErrorStack() : Collection
 	
 	return This._internals._errorStack
 	
@@ -78,12 +78,12 @@ Function _getErrorStack() : Collection
 	// ----------------------------------------------------
 	
 	
+Function _getLastError() : Object
 /**
  * @function _getLastError
  * @private
  * @returns {Object} The last error pushed onto the stack, or Null if the stack is empty
  */
-Function _getLastError() : Object
 	
 	If (This._internals._errorStack.length>0)
 		return This._internals._errorStack.last()
@@ -94,12 +94,12 @@ Function _getLastError() : Object
 	// ----------------------------------------------------
 	
 	
+Function _getLastErrorCode() : Integer
 /**
  * @function _getLastErrorCode
  * @private
  * @returns {Integer} The errCode of the last error, or 0 if the stack is empty
  */
-Function _getLastErrorCode() : Integer
 	
 	var $lastError : Object:=This._getLastError()
 	If ($lastError#Null)
@@ -111,12 +111,12 @@ Function _getLastErrorCode() : Integer
 	// ----------------------------------------------------
 	
 	
+Function _clearErrorStack()
 /**
  * @function _clearErrorStack
  * @private
  * @description Clears all errors from the internal error stack
  */
-Function _clearErrorStack()
 	
 	This._internals._errorStack.clear()
 
@@ -124,12 +124,12 @@ Function _clearErrorStack()
 	// ----------------------------------------------------
 	
 	
+Function _getStatusLine() : Text
 /**
  * @function _getStatusLine
  * @private
  * @returns {Text} The HTTP status line from the last request (e.g. "200 OK")
  */
-Function _getStatusLine() : Text
 	
 	return String(This._internals._statusLine)
 
@@ -137,6 +137,7 @@ Function _getStatusLine() : Text
 	// ----------------------------------------------------
 	
 	
+Function _returnStatus($inAdditionalInfo : Object) : Object
 /**
  * @function _returnStatus
  * @private
@@ -145,7 +146,6 @@ Function _getStatusLine() : Text
  * @description Builds a standardized status response from the error stack;
  *   sets success=False and populates errors when the stack is non-empty
  */
-Function _returnStatus($inAdditionalInfo : Object) : Object
 	
 	var $status : Object:={}
 	var $errorStack : Collection:=This._getErrorStack()

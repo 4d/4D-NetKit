@@ -8,6 +8,7 @@
 
 shared singleton Class constructor()
     
+Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 /**
  * @function getResponse
  * @param {4D.IncomingMessage} $request - Incoming HTTP request from the browser
@@ -18,7 +19,6 @@ shared singleton Class constructor()
  *   authorization code in `Storage.requests`, and sends the configured
  *   `authenticationPage` or a default HTML response to the browser.
  */
-Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
     var $outgoingResponse : 4D.OutgoingMessage:=4D.OutgoingMessage.new()
     var $errorBody : Text

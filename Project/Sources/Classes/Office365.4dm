@@ -12,6 +12,7 @@
 
 property _internals : Object
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used by all Microsoft Graph API clients
@@ -20,7 +21,6 @@ property _internals : Object
  *   - `mailType` {Text} — Mail format: `"Microsoft"` (default), `"JMAP"`, or `"MIME"`
  *   - `userId` {Text} — Graph user ID or UPN (defaults to the authenticated user)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _calendar: Null; _category: Null; _parameters: $inParameters}
 	
@@ -29,12 +29,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+Function get user : cs.Office365User
 /**
  * @function get user
  * @returns {cs.Office365User} Lazy-initialised `Office365User` client; the same instance
  *   is returned on every subsequent call
  */
-Function get user : cs.Office365User
 	
 	If (This._internals._user=Null)
 		This._internals._user:=cs.Office365User.new(This._internals._oAuth2Provider)
@@ -45,12 +45,12 @@ Function get user : cs.Office365User
 	// ----------------------------------------------------
 	
 	
+Function get mail : cs.Office365Mail
 /**
  * @function get mail
  * @returns {cs.Office365Mail} Lazy-initialised `Office365Mail` client; the same instance
  *   is returned on every subsequent call
  */
-Function get mail : cs.Office365Mail
 	
 	If (This._internals._mail=Null)
 		This._internals._mail:=cs.Office365Mail.new(This._internals._oAuth2Provider; This._internals._parameters)
@@ -61,12 +61,12 @@ Function get mail : cs.Office365Mail
 	// ----------------------------------------------------
 	
 	
+Function get calendar : cs.Office365Calendar
 /**
  * @function get calendar
  * @returns {cs.Office365Calendar} Lazy-initialised `Office365Calendar` client; the same instance
  *   is returned on every subsequent call
  */
-Function get calendar : cs.Office365Calendar
 	
 	If (This._internals._calendar=Null)
 		This._internals._calendar:=cs.Office365Calendar.new(This._internals._oAuth2Provider; This._internals._parameters)
@@ -77,12 +77,12 @@ Function get calendar : cs.Office365Calendar
 	// ----------------------------------------------------
 	
 	
+Function get category : cs.Office365Category
 /**
  * @function get category
  * @returns {cs.Office365Category} Lazy-initialised `Office365Category` client; the same instance
  *   is returned on every subsequent call
  */
-Function get category : cs.Office365Category
 	
 	If (This._internals._category=Null)
 		This._internals._category:=cs.Office365Category.new(This._internals._oAuth2Provider; This._internals._parameters)

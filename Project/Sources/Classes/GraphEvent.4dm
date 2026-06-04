@@ -11,6 +11,7 @@ Class extends _GraphAPI
 property id : Text:=""
 property hasAttachments : Boolean:=False
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
@@ -19,7 +20,6 @@ property hasAttachments : Boolean:=False
  *   - `calendarId` {Text} — Calendar ID (used when building the attachment URL)
  * @param {Object} $inObject - Raw Graph API event object to hydrate from
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)
 	
 	Super($inProvider)
 	
@@ -33,13 +33,13 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inOb
 	// ----------------------------------------------------
 	
 	
+Function get attachments() : Collection
 /**
  * @function get attachments
  * @returns {Collection} Collection of `GraphAttachment` instances for this event;
  *   fetched on first access (lazy) and cached. Only fetched when `hasAttachments` is `True`.
  *   See inline comment for the supported Graph endpoint variants.
  */
-Function get attachments() : Collection
 	
 	If (This.hasAttachments && (This._internals._attachments=Null))
 		

@@ -9,6 +9,7 @@
 shared singleton Class constructor()
 	
 
+Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 /**
  * @function getResponse
  * @param {4D.IncomingMessage} $request - Incoming HTTP request from Google
@@ -21,7 +22,6 @@ shared singleton Class constructor()
  *     to `_processGmailNotification`
  *   See inline documentation for the expected payload formats
  */
-Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	
 /*
 	Handles incoming webhook requests from Google push notifications.
@@ -97,6 +97,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	// ----------------------------------------------------
 	
 	
+Function _processCalendarNotification($inState : Text)
 /**
  * @function _processCalendarNotification
  * @private
@@ -105,7 +106,6 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
  * @description Pushes a signal object to the monitor's pending queue in Storage
  *   so the monitoring loop can pick it up and query the Calendar API for changes
  */
-Function _processCalendarNotification($inState : Text)
 	
 /*
 	Processes a Calendar push notification.
@@ -133,6 +133,7 @@ Function _processCalendarNotification($inState : Text)
 	// ----------------------------------------------------
 	
 	
+Function _processGmailNotification($inBody : Variant)
 /**
  * @function _processGmailNotification
  * @private
@@ -143,7 +144,6 @@ Function _processCalendarNotification($inState : Text)
  *   matching monitor state via `_findStateByUserId`, and pushes a signal to
  *   the monitor's pending queue in Storage
  */
-Function _processGmailNotification($inBody : Variant)
 	
 /*
 	Processes a Gmail Pub/Sub push notification.
@@ -212,6 +212,7 @@ Function _processGmailNotification($inBody : Variant)
 	// ----------------------------------------------------
 	
 	
+Function _findStateByUserId($inUserId : Text) : Text
 /**
  * @function _findStateByUserId
  * @private
@@ -222,7 +223,6 @@ Function _processGmailNotification($inBody : Variant)
  *   `userId` matches `$inUserId`; used to route Pub/Sub notifications to the
  *   correct monitoring loop
  */
-Function _findStateByUserId($inUserId : Text) : Text
 	
 	// Look up the state key in Storage.googleNotifications by userId/emailAddress
 	

@@ -11,6 +11,7 @@
 
 property _internals : Object
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used by all Google API clients
@@ -19,7 +20,6 @@ property _internals : Object
  *   - `mailType` {Text} — Mail output format: `"JMAP"` (default) or `"MIME"`
  *   - `userId` {Text} — Gmail user ID (defaults to `"me"`)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	This._internals:={_oAuth2Provider: $inProvider; _parameters: $inParameters; _mail: Null; _user: Null; _calendar: Null}
 	
@@ -28,12 +28,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 
 
+Function get mail : cs.GoogleMail
 /**
  * @function get mail
  * @returns {cs.GoogleMail} Lazy-initialised `GoogleMail` client; the same instance
  *   is returned on every subsequent call
  */
-Function get mail : cs.GoogleMail
 	
 	If (This._internals._mail=Null)
 		This._internals._mail:=cs.GoogleMail.new(This._internals._oAuth2Provider; This._internals._parameters)
@@ -44,12 +44,12 @@ Function get mail : cs.GoogleMail
 	// ----------------------------------------------------
 	
 	
+Function get user : cs.GoogleUser
 /**
  * @function get user
  * @returns {cs.GoogleUser} Lazy-initialised `GoogleUser` client; the same instance
  *   is returned on every subsequent call
  */
-Function get user : cs.GoogleUser
 	
 	If (This._internals._user=Null)
 		This._internals._user:=cs.GoogleUser.new(This._internals._oAuth2Provider)
@@ -60,12 +60,12 @@ Function get user : cs.GoogleUser
 	// ----------------------------------------------------
 	
 	
+Function get calendar : cs.GoogleCalendar
 /**
  * @function get calendar
  * @returns {cs.GoogleCalendar} Lazy-initialised `GoogleCalendar` client; the same
  *   instance is returned on every subsequent call
  */
-Function get calendar : cs.GoogleCalendar
 	
 	If (This._internals._calendar=Null)
 		This._internals._calendar:=cs.GoogleCalendar.new(This._internals._oAuth2Provider; This._internals._parameters)
