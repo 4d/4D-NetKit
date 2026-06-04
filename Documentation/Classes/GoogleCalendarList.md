@@ -1,4 +1,4 @@
-# GoogleCalendarList Class
+﻿# GoogleCalendarList Class
 
 ## Overview
 

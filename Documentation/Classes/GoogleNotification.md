@@ -12,13 +12,6 @@ call `start()` to begin monitoring and `stop()` to end it.
 
 * [cs.NetKit.GoogleNotification.new()](#csnetkitgooglenotificationnew)
 
-### Properties
-
-* [endPoint](#endpoint)
-* [expiration](#expiration)
-* [isStarted](#isstarted)
-* [timer](#timer)
-
 ### Functions
 
 * [GoogleNotification.start()](#googlenotificationstart)

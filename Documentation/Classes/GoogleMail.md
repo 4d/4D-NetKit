@@ -12,11 +12,6 @@ and change-notification operations. Supports both JMAP (4D mail object) and MIME
 
 * [cs.NetKit.GoogleMail.new()](#csnetkitgooglemailnew)
 
-### Properties
-
-* [mailType](#mailtype)
-* [userId](#userid)
-
 ### Mails
 
 * [GoogleMail.append()](#googlemailappend)

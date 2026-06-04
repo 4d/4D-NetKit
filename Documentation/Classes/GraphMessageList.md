@@ -1,4 +1,4 @@
-# GraphMessageList Class
+﻿# GraphMessageList Class
 
 ## Overview
 

@@ -11,10 +11,6 @@ Wraps the `/outlook/masterCategories` endpoint.
 
 * [cs.NetKit.Office365Category.new()](#csnetkitoffice365categorynew)
 
-### Properties
-
-* [userId](#userid)
-
 ## **cs.NetKit.Office365Category.new()**
 
 **cs.NetKit.Office365Category.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.Office365Category

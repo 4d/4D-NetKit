@@ -1,4 +1,4 @@
-# GoogleMailIdList Class
+﻿# GoogleMailIdList Class
 
 ## Overview
 

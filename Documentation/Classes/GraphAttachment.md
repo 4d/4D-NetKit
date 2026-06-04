@@ -12,16 +12,6 @@ Can be built from a `4D.MailAttachment` via `fromMailAttachment()`.
 
 * [cs.NetKit.GraphAttachment.new()](#csnetkitgraphattachmentnew)
 
-### Properties
-
-* [id](#id)
-* [contentBytes](#contentbytes)
-* [size](#size)
-* [contentId](#contentid)
-* [isInline](#isinline)
-* [name](#name)
-* [contentType](#contenttype)
-
 ### Functions
 
 * [GraphAttachment.getContent()](#graphattachmentgetcontent)

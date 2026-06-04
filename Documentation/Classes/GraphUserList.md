@@ -1,4 +1,4 @@
-# GraphUserList Class
+﻿# GraphUserList Class
 
 ## Overview
 

@@ -1,4 +1,4 @@
-# GraphEventList Class
+﻿# GraphEventList Class
 
 ## Overview
 
@@ -11,10 +11,6 @@ Each item is wrapped lazily on first access and cached.
 ### Initialization
 
 * [cs.NetKit.GraphEventList.new()](#csnetkitgrapheventlistnew)
-
-### Properties
-
-* [calendarId](#calendarid)
 
 ## **cs.NetKit.GraphEventList.new()**
 

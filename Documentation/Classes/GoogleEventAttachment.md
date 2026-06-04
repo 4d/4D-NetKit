@@ -12,14 +12,6 @@ of the attachment binary via `getContent()`.
 
 * [cs.NetKit.GoogleEventAttachment.new()](#csnetkitgoogleeventattachmentnew)
 
-### Properties
-
-* [fileUrl](#fileurl)
-* [title](#title)
-* [mimeType](#mimetype)
-* [iconLink](#iconlink)
-* [contentBytes](#contentbytes)
-
 ### Functions
 
 * [GoogleEventAttachment.getContent()](#googleeventattachmentgetcontent)

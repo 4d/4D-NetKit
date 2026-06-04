@@ -1,4 +1,4 @@
-# GoogleEventList Class
+﻿# GoogleEventList Class
 
 ## Overview
 
@@ -12,18 +12,6 @@ use `next()` / `previous()` inherited from `_BaseList` to navigate pages.
 ### Initialization
 
 * [cs.NetKit.GoogleEventList.new()](#csnetkitgoogleeventlistnew)
-
-### Properties
-
-* [kind](#kind)
-* [etag](#etag)
-* [summary](#summary)
-* [calendarId](#calendarid)
-* [description](#description)
-* [updated](#updated)
-* [timeZone](#timezone)
-* [accessRole](#accessrole)
-* [defaultReminders](#defaultreminders)
 
 ## **cs.NetKit.GoogleEventList.new()**
 

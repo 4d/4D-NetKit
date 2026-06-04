@@ -1,4 +1,4 @@
-# GraphRecipient Class
+﻿# GraphRecipient Class
 
 ## Overview
 
@@ -10,10 +10,6 @@ Validates the address on construction and throws a deferred error (code 2) when 
 ### Initialization
 
 * [cs.NetKit.GraphRecipient.new()](#csnetkitgraphrecipientnew)
-
-### Properties
-
-* [emailAddress](#emailaddress)
 
 ## **cs.NetKit.GraphRecipient.new()**
 

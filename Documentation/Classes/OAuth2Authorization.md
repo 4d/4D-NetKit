@@ -1,4 +1,4 @@
-# OAuth2Authorization Class
+﻿# OAuth2Authorization Class
 
 ## Overview
 

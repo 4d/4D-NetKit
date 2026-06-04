@@ -1,4 +1,4 @@
-# GoogleEvent Class
+﻿# GoogleEvent Class
 
 ## Overview
 
@@ -11,11 +11,6 @@ array is converted to a collection of `GoogleEventAttachment` instances.
 ### Initialization
 
 * [cs.NetKit.GoogleEvent.new()](#csnetkitgoogleeventnew)
-
-### Properties
-
-* [id](#id)
-* [attachments](#attachments)
 
 ## **cs.NetKit.GoogleEvent.new()**
 

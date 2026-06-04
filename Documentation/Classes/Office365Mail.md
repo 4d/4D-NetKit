@@ -14,11 +14,6 @@ Accepts messages in Microsoft Graph JSON (`"Microsoft"`), JMAP (`"JMAP"`), or MI
 
 * [cs.NetKit.Office365Mail.new()](#csnetkitoffice365mailnew)
 
-### Properties
-
-* [mailType](#mailtype)
-* [userId](#userid)
-
 ### Mails
 
 * [Office365Mail.append()](#office365mailappend)

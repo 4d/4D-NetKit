@@ -1,4 +1,4 @@
-# GoogleNotificationHandler Class
+﻿# GoogleNotificationHandler Class
 
 ## Overview
 

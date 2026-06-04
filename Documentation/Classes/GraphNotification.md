@@ -17,13 +17,6 @@ one delta stream with a `knownIds` cache to classify changes.
 
 * [cs.NetKit.GraphNotification.new()](#csnetkitgraphnotificationnew)
 
-### Properties
-
-* [endPoint](#endpoint)
-* [expiration](#expiration)
-* [isStarted](#isstarted)
-* [timer](#timer)
-
 ### Functions
 
 * [GraphNotification.start()](#graphnotificationstart)

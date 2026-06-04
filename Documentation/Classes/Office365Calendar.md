@@ -14,11 +14,6 @@ objects — normalised automatically by `_conformEventDateTime`.
 
 * [cs.NetKit.Office365Calendar.new()](#csnetkitoffice365calendarnew)
 
-### Properties
-
-* [userId](#userid)
-* [id](#id)
-
 ### Calendars
 
 * [Office365Calendar.getCalendar()](#office365calendargetcalendar)

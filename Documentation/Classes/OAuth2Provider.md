@@ -1,4 +1,4 @@
-# OAuth2Provider Class
+﻿# OAuth2Provider Class
 
 ## Overview
 
@@ -207,7 +207,7 @@ $provider.permission:="signedIn"
 $provider.clientId:="xxx-xxx-xxx-xxx-c460fc"
 // Redirect URI configured in Microsoft/Azure
 $provider.redirectURI:="http://127.0.0.1:50993/authorize/"
-// Requested scope → access to Microsoft Graph using predefined permissions
+// Requested scope â†’ access to Microsoft Graph using predefined permissions
 $provider.scope:="https://graph.microsoft.com/.default"
 // Request offline access to obtain a refresh token
 // essential to avoid prompting the user to log in again

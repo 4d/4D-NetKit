@@ -1,4 +1,4 @@
-# GoogleUser Class
+﻿# GoogleUser Class
 
 ## Overview
 

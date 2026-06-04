@@ -1,4 +1,4 @@
-# Office365 class
+﻿# Office365 class
 
 ## Overview
 
@@ -290,7 +290,7 @@ In *param*, you can pass the following optional properties:
 | select | Text | Specifies which event properties to return (columns) |
 | orderby | Text | Defines sorting order for results |
 | filter | Text | Applies additional filters based on specific conditions, such as event status, organizer, or categories. Uses [Microsoft Graph OData query syntax](https://learn.microsoft.com/en-us/graph/query-parameters#filter-parameter). Example: "status eq 'confirmed' and organizer/emailAddress/address eq 'example@domain.com'"|
-| top | Integer | Limit number of events per page. Maximum value is 999. If top is not defined, the default value is applied (10). When a result set spans multiple pages. Use `.next()` to fetch additional pages. See [Microsoft’s documentation on paging](https://learn.microsoft.com/en-us/graph/paging) for more information |
+| top | Integer | Limit number of events per page. Maximum value is 999. If top is not defined, the default value is applied (10). When a result set spans multiple pages. Use `.next()` to fetch additional pages. See [Microsoft's documentation on paging](https://learn.microsoft.com/en-us/graph/paging) for more information |
 
 **Note**: If no time range is provided (`startDateTime` or `endDateTime`) it returns single-instance meetings and series masters. When both `startDateTime` and `endDateTime` are specified, it retrieves all occurrences, exceptions, and single-instance events within the defined time range.
 
@@ -672,7 +672,7 @@ The `event` object used with Microsoft Calendar methods includes the following m
 | calendarId |    | Text  | Calendar ID. If not provided, the user's primary calendar is used.   |         |
 | attachments| | Collection | Event file [attachments](#attachment-object).|          |                                                                                    
 | attendees |   | Collection | List of attendees.|Yes|                                                                                          
-|  | emailAddress | Text       |  Required. Attendee’s email address.|         |                                                                     
+|  | emailAddress | Text       |  Required. Attendee's email address.|         |                                                                     
 | | type         | Text       | Attendee role: `"required"`, `"optional"`, or `"resource"`.|         |                                                 
 | body | | Object |Body of the message associated with the event.| Yes |                                                                  
 | | content      | Text       | Content of the body|         |                                                                                     

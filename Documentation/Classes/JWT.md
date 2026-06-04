@@ -1,4 +1,4 @@
-# JWT Class
+﻿# JWT Class
 
 ## Overview
 
@@ -8,7 +8,7 @@ This class is typically used in three scenarios:
 
 * **Token generation**: Create a signed JWT when a user logs in.
 * **Token decoding**: Read and inspect a JWT received from an authentication provider.
-* **Token validation**: Verify the JWT’s signature and expiration before granting access to protected resources.
+* **Token validation**: Verify the JWT's signature and expiration before granting access to protected resources.
 
 This class is instantiated using the `cs.NetKit.JWT.new()` function.
 
@@ -32,7 +32,7 @@ Creates a new instance of the JWT class.
 
 | Parameter | Type         | Description |
 |-----------|--------------|-------------|
-| key       | Text/Object  | *Optional.* If text → Key in PEM format.<br>- If object → Must be an object returned by `4D.CryptoKey`.<br>If it's a private key, the public key will be inferred. |
+| key       | Text/Object  | *Optional.* If text â†’ Key in PEM format.<br>- If object â†’ Must be an object returned by `4D.CryptoKey`.<br>If it's a private key, the public key will be inferred. |
 
 ### Example
 
@@ -64,7 +64,7 @@ The function returns an object containing the following properties:
 |---|---|---|
 |header| Object |Metadata about the token type and the signing algorithm |
 |payload| Object |The information (claims) of the token like the user's name, role, user ID, or expiration date.|                                                                          
-|signature| Object |Ensures the integrity of the token and verifies the sender’s authenticity|
+|signature| Object |Ensures the integrity of the token and verifies the sender's authenticity|
 
 ### Example
 
@@ -83,7 +83,7 @@ var $result := cs.NetKit.JWT.new().decode($token)
 | Parameter | Type | | Description |
 |------------|--------|:--:|--------------------------------------------------------------|
 | params | Object | ->| Options for the JWT content|
-| privateKey | Text/Object | ->| *Optional.* If text → Private key in PEM format.<br>- If object → Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
+| privateKey | Text/Object | ->| *Optional.* If text â†’ Private key in PEM format.<br>- If object â†’ Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
 | Result | Text | <-| The generated JWT token |
 
 ### Description
@@ -119,7 +119,7 @@ var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 | Parameter | Type | | Description |
 |-----------|------|--:|-------------------------------------------------------------|
 | token | Text | ->| JWT token to validate |
-| key | Text | ->| *Optional.* If text → Private or public key in PEM format.<br>- If object → Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
+| key | Text | ->| *Optional.* If text â†’ Private or public key in PEM format.<br>- If object â†’ Must be returned by `4D.CryptoKey`.<br>If omitted, the key passed to `JWT.new()` will be used. |
 | Result | Boolean | <-| `True` if the token is valid, `False` otherwise |
 
 ### Description

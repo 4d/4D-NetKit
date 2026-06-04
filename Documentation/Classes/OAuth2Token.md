@@ -12,11 +12,6 @@ or a URL-encoded response string.
 
 * [cs.NetKit.OAuth2Token.new()](#csnetkitoauth2tokennew)
 
-### Properties
-
-* [token](#token)
-* [tokenExpiration](#tokenexpiration)
-
 ## **cs.NetKit.OAuth2Token.new()**
 
 **cs.NetKit.OAuth2Token.new**( *$inParams* : Object ) : cs.NetKit.OAuth2Token

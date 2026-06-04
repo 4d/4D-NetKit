@@ -13,11 +13,6 @@ Provides lazy-loaded `attachments` via a Graph API call on first access
 
 * [cs.NetKit.GraphEvent.new()](#csnetkitgrapheventnew)
 
-### Properties
-
-* [id](#id)
-* [hasAttachments](#hasattachments)
-
 ## **cs.NetKit.GraphEvent.new()**
 
 **cs.NetKit.GraphEvent.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ; *$inObject* : Object ) : cs.NetKit.GraphEvent

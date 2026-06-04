@@ -12,10 +12,6 @@ Provides lazy-loaded `attachments` via a Graph API call on first access.
 
 * [cs.NetKit.GraphMessage.new()](#csnetkitgraphmessagenew)
 
-### Properties
-
-* [id](#id)
-
 ## **cs.NetKit.GraphMessage.new()**
 
 **cs.NetKit.GraphMessage.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ; *$inObject* : Object ) : cs.NetKit.GraphMessage

@@ -1,4 +1,4 @@
-# GraphCategoryList Class
+﻿# GraphCategoryList Class
 
 ## Overview
 

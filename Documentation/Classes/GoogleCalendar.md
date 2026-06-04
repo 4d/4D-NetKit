@@ -11,10 +11,6 @@ and events, and exposes a `notifier()` factory for push/pull change monitoring.
 
 * [cs.NetKit.GoogleCalendar.new()](#csnetkitgooglecalendarnew)
 
-### Properties
-
-* [userId](#userid)
-
 ### Calendars
 
 * [GoogleCalendar.getCalendar()](#googlecalendargetcalendar)

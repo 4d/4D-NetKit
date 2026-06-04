@@ -1,4 +1,4 @@
-# GraphFolderList Class
+﻿# GraphFolderList Class
 
 ## Overview
 
