@@ -1,4 +1,4 @@
-//%attributes = {"invisible":true,"shared":true}
+//%attributes = {"invisible":true}
 /**
  * @method _ciCompileProject
  * @description CI compilation entry point. Reads `typeInference` and `targets` from
