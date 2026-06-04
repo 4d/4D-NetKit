@@ -1,5 +1,20 @@
+/**
+ * @class JWT
+ * @description JSON Web Token utility class.
+ *   Supports RS256/PS256/HS256 (and their 512 variants) for signing, verification,
+ *   decoding, and claim validation. Rejects the `none` algorithm to prevent
+ *   algorithm confusion attacks.
+ */
+
 property key : 4D.CryptoKey
 
+/**
+ * @constructor
+ * @param {Variant} $inParam - Optional initial key:
+ *   - `4D.CryptoKey` — Used directly
+ *   - `Text` — PEM-encoded key string
+ *   - Any other type or empty — `key` property set to `Null`
+ */
 Class constructor($inParam : Variant)
 	
 	This.key:=This._getCryptoKey($inParam)
@@ -9,6 +24,13 @@ Class constructor($inParam : Variant)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getCryptoKey
+ * @private
+ * @param {Variant} $inKey - Key source: `4D.CryptoKey` or PEM `Text`
+ * @param {4D.CryptoKey} $inDefaultKey - Fallback key when `$inKey` is invalid
+ * @returns {4D.CryptoKey} Resolved crypto key, or `Null` when no valid key is available
+ */
 Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.CryptoKey
 	
 	var $key : 4D.CryptoKey
@@ -35,6 +57,16 @@ Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.Cryp
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function decode
+ * @param {Text} $inToken - JWT string (`header.payload.signature`)
+ * @returns {Object} Object with:
+ *   - `header` {Object} — Decoded JWT header (or `Null` on parse failure)
+ *   - `payload` {Object} — Decoded JWT payload (or `Null` on parse failure)
+ *   - `signature` {Text} — Raw Base64URL signature string
+ * @description Decodes a JWT without verifying its signature.
+ *   Throws error 9 when `$inToken` is empty or not a text value.
+ */
 Function decode($inToken : Text) : Object
 	
 	var $header : Object:=Null
@@ -66,6 +98,21 @@ Function decode($inToken : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function generate
+ * @param {Object} $inParams - JWT generation parameters:
+ *   - `payload` {Object} — JWT claims object (required; must be non-empty)
+ *   - `header` {Object} — Optional header overrides (`alg`, `typ`, `x5t`);
+ *     defaults to `alg: "RS256", typ: "JWT"`
+ * @param {Variant} $inKey - Optional signing key (overrides `This.key`):
+ *   `4D.CryptoKey` or PEM `Text` for RS/PS algorithms;
+ *   `Text` secret for HS algorithms
+ * @returns {Text} Signed JWT string (`header.payload.signature`); empty string on failure
+ * @description Generates a signed JWT. Automatically injects `iat` and `jti` claims
+ *   when not already present in the payload.
+ *   Throws error 16 when `alg` is `none`; error 15 when no valid key is available;
+ *   error 9 when `$inParams.payload` is missing or empty.
+ */
 Function generate($inParams : Object; $inKey : Variant) : Text
 	
 	var $result : Text:=""
@@ -144,6 +191,19 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function validate
+ * @param {Text} $inJWT - JWT string to validate
+ * @param {Variant} $inKey - Verification key (`4D.CryptoKey`, PEM `Text`, or HMAC secret `Text`)
+ * @param {Object} $inOptions - Optional claim validation options:
+ *   - `leeway` {Real} — Clock skew tolerance in seconds (default 0)
+ *   - `iss` {Text} — Expected issuer claim
+ *   - `aud` {Text} — Expected audience claim
+ * @returns {Boolean} `True` when signature is valid and all specified claims pass
+ * @description Validates a JWT signature and optionally checks `exp`, `nbf`, `iss`,
+ *   and `aud` claims. Throws error 16 when `alg` is `none`;
+ *   error 15 when no valid key is available; error 9 when `$inJWT` is empty.
+ */
 Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolean
 	
 	var $success : Boolean:=False
@@ -203,6 +263,15 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _hashHS
+ * @private
+ * @param {Object} $inJWT - Object with `header` and `payload` sub-objects
+ * @param {Text} $inPrivateKey - HMAC shared secret
+ * @returns {Text} Base64URL-encoded HMAC-SHA256 or HMAC-SHA512 signature
+ * @description Implements HMAC signing (HS256 / HS512) using the standard
+ *   HMAC construction: `HASH(K_opad || HASH(K_ipad || message))`
+ */
 Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
 	
 	var $encodedHeader; $encodedPayload : Text
@@ -265,6 +334,15 @@ Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _hashSign
+ * @private
+ * @param {Object} $inJWT - Object with `header` and `payload` sub-objects
+ * @param {4D.CryptoKey} $inCryptoKey - Asymmetric private key for signing
+ * @returns {Text} Base64URL-encoded signature;
+ *   empty string when no valid key is available (after throwing error 15)
+ * @description Signs the JWT using `4D.CryptoKey.sign()` for RS256/RS512/PS256/PS512
+ */
 Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 	
 	var $hash : Text
@@ -305,6 +383,18 @@ Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _validateClaims
+ * @private
+ * @param {Object} $inPayload - Decoded JWT payload claims
+ * @param {Object} $inOptions - Optional validation options:
+ *   - `leeway` {Real} — Clock skew tolerance in seconds
+ *   - `iss` {Text} — Expected issuer
+ *   - `aud` {Text} — Expected audience (matched against text or collection)
+ * @returns {Boolean} `True` when all present/specified claims are valid
+ * @description Validates `exp` (expiration), `nbf` (not-before), `iss` (issuer),
+ *   and `aud` (audience) claims against the current UTC time and provided options
+ */
 Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	
 	var $success : Boolean:=True
@@ -355,6 +445,14 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _throwError
+ * @private
+ * @param {Integer} $inCode - NetKit error code
+ * @param {Object} $inParameters - Optional parameters for the error message template
+ * @description Builds a NetKit error object via `_Tools.makeError`, marks it as deferred,
+ *   and throws it
+ */
 Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
