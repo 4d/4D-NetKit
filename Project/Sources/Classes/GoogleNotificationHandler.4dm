@@ -1,6 +1,26 @@
+/**
+ * @class GoogleNotificationHandler
+ * @description Shared singleton HTTP handler for incoming Google push notifications.
+ *   Registered as a 4D HTTP handler at `/4dnk-google-notification`; routes Calendar
+ *   webhook requests and Gmail Pub/Sub push messages to the appropriate active
+ *   `GoogleNotification` monitors via `Storage.googleNotifications`.
+ */
+
 shared singleton Class constructor()
 	
-	
+
+/**
+ * @function getResponse
+ * @param {4D.IncomingMessage} $request - Incoming HTTP request from Google
+ * @returns {4D.OutgoingMessage} HTTP 200 response on success; HTTP 400 when
+ *   `$request` is `Null`
+ * @description Handles two types of incoming push notifications:
+ *   - Calendar webhook: identified by `X-Goog-Channel-Token` header; routes
+ *     to `_processCalendarNotification`
+ *   - Gmail Pub/Sub: JSON body with `message.data` (base64 encoded); routes
+ *     to `_processGmailNotification`
+ *   See inline documentation for the expected payload formats
+ */
 Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	
 /*
@@ -77,6 +97,14 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _processCalendarNotification
+ * @private
+ * @param {Text} $inState - Channel token from the `X-Goog-Channel-Token` header;
+ *   used to look up the matching monitor in `Storage.googleNotifications`
+ * @description Pushes a signal object to the monitor's pending queue in Storage
+ *   so the monitoring loop can pick it up and query the Calendar API for changes
+ */
 Function _processCalendarNotification($inState : Text)
 	
 /*
@@ -105,6 +133,16 @@ Function _processCalendarNotification($inState : Text)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _processGmailNotification
+ * @private
+ * @param {Variant} $inBody - Raw HTTP body: Text (JSON string) or Object;
+ *   expected to be a Pub/Sub push message with `message.data` containing
+ *   base64-encoded `{emailAddress; historyId}`
+ * @description Decodes the Pub/Sub message, extracts `emailAddress`, finds the
+ *   matching monitor state via `_findStateByUserId`, and pushes a signal to
+ *   the monitor's pending queue in Storage
+ */
 Function _processGmailNotification($inBody : Variant)
 	
 /*
@@ -174,6 +212,16 @@ Function _processGmailNotification($inBody : Variant)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _findStateByUserId
+ * @private
+ * @param {Text} $inUserId - Gmail user ID or email address to search for
+ * @returns {Text} The Storage key (UUID) of the matching monitor,
+ *   or empty string when not found
+ * @description Iterates `Storage.googleNotifications` to find the entry whose
+ *   `userId` matches `$inUserId`; used to route Pub/Sub notifications to the
+ *   correct monitoring loop
+ */
 Function _findStateByUserId($inUserId : Text) : Text
 	
 	// Look up the state key in Storage.googleNotifications by userId/emailAddress

@@ -1,5 +1,27 @@
+/**
+ * @class _GoogleBaseList
+ * @extends _BaseList
+ * @description Base class for paginated Google API list resources; fetches the first page
+ *   in the constructor and exposes `next()` / `previous()` navigation inherited from
+ *   `_BaseList`. Supports dynamic attribute forwarding from the API response.
+ */
+
 Class extends _BaseList
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @param {Object} $inParameters - Configuration object; recognised properties:
+ *   - `url` {Text} — Full URL of the Google list endpoint to fetch
+ *   - `headers` {Object} — Additional HTTP headers merged into each request
+ *   - `elements` {Text} — Name of the array property in the response that holds items
+ *     (defaults to `"items"`)
+ *   - `attributes` {Collection} — Array of extra top-level response property names to
+ *     copy onto `This` (e.g. `["nextSyncToken"]`)
+ * @description Initialises internal state and immediately fetches the first page;
+ *   errors during the initial fetch are captured in the error stack and exposed via
+ *   `success` / `statusText` (no exception is thrown to the caller)
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
@@ -23,8 +45,20 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
-	
-	
+
+
+/**
+ * @function _getList
+ * @private
+ * @param {Text} $inPageToken - Google page token for the page to fetch;
+ *   pass an empty string to fetch the first page
+ * @returns {Boolean} True on success, False on error
+ * @description Appends `pageToken` to the URL when non-empty, fires a GET request via
+ *   `_BaseAPI._sendRequestAndWaitResponse`, then maps the response onto `This`:
+ *   copies the `elements` array into `_internals._list`, copies any requested
+ *   `attributes` onto `This`, and stores `nextPageToken` for `next()` to consume.
+ *   On HTTP error the error stack is populated and `False` is returned.
+ */
 Function _getList($inPageToken : Text) : Boolean
 	
 	var $URL : cs._URL:=cs._URL.new(This._internals._URL)
@@ -74,6 +108,7 @@ Function _getList($inPageToken : Text) : Boolean
 		
 	Else 
 		
+		This.statusText:=Super._getStatusLine()
 		This._handleListError()
 		return False
 		

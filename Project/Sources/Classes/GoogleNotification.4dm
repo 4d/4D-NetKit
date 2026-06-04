@@ -1,6 +1,30 @@
+/**
+ * @class GoogleNotification
+ * @extends _GoogleAPI
+ * @description Represents a Google notification monitor for Gmail or Calendar changes.
+ *   Supports push (Pub/Sub for mail, webhook for calendar) and pull (polling) modes;
+ *   call `start()` to begin monitoring and `stop()` to end it.
+ */
+
 Class extends _GoogleAPI
 
 
+/**
+ * @constructor
+ * @param {Text} $inType - Notification type: `"mail"` (Gmail) or `"event"` (Google Calendar)
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for token retrieval;
+ *   determines the base URL (`gmail.googleapis.com` or `www.googleapis.com/calendar`)
+ * @param {Object} $inParameters - Configuration object; recognised properties:
+ *   - `onCreate`, `onDelete`, `onModify` {4D.Function} — Change-event callbacks
+ *   - `endPoint` {Text} — Webhook URL for Calendar push mode
+ *   - `topicName` {Text} — Google Cloud Pub/Sub topic name for Gmail push mode
+ *   - `labelIds` {Collection} — Gmail label filter for push mode
+ *   - `timer` {Integer} — Polling interval in seconds for pull mode (default: 30)
+ * @param {Text} $inResource - Resource to monitor: Gmail user ID (mail mode) or
+ *   calendar ID (event mode)
+ * @param {Object} $inOwner - Parent `GoogleMail` or `GoogleCalendar` instance;
+ *   forwarded to callbacks as context
+ */
 Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inOwner : Object)
     
     var $baseURL : Text
@@ -64,6 +88,11 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     // ----------------------------------------------------
     
     
+/**
+ * @function get endPoint
+ * @returns {Text} The webhook endpoint URL configured for push mode;
+ *   empty string when in pull mode or not yet configured
+ */
 Function get endPoint : Text
     
     return This._internals._endPoint
@@ -72,6 +101,11 @@ Function get endPoint : Text
     // ----------------------------------------------------
     
     
+/**
+ * @function get expiration
+ * @returns {Text} Expiration timestamp in milliseconds since epoch (as Text);
+ *   empty string when not started or when the subscription has no expiration
+ */
 Function get expiration : Text
     
     return This._internals._expiration
@@ -80,6 +114,10 @@ Function get expiration : Text
     // ----------------------------------------------------
     
     
+/**
+ * @function get isStarted
+ * @returns {Boolean} True when the notification monitor is currently active
+ */
 Function get isStarted : Boolean
     
     return This._internals._isStarted
@@ -88,6 +126,10 @@ Function get isStarted : Boolean
     // ----------------------------------------------------
     
     
+/**
+ * @function get timer
+ * @returns {Integer} Polling interval in seconds used in pull mode
+ */
 Function get timer : Integer
     
     return This._internals._pullInterval
@@ -96,6 +138,12 @@ Function get timer : Integer
     // ----------------------------------------------------
     
     
+/**
+ * @function start
+ * @returns {Object} Status object `{success; statusText}`; no-op when already started
+ * @description Starts change notifications for Gmail or Google Calendar in either
+ *   push or pull mode; see inline documentation for mode-specific details
+ */
 Function start() : Object
     
 /*
@@ -141,6 +189,12 @@ Function start() : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function stop
+ * @returns {Object} Status object `{success; statusText}`; no-op when already stopped
+ * @description Stops the notification monitor, cleans up all internal state;
+ *   in push mode also stops the Gmail watch or Calendar channel on the Google API
+ */
 Function stop() : Object
     
 /*
@@ -184,6 +238,13 @@ Function stop() : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _startPush
+ * @private
+ * @param {Text} $inState - UUID key used to track this monitor in `Storage.googleNotifications`
+ * @returns {Object} Status from `_startMailPush` or `_startCalendarPush`
+ * @description Registers the state in Storage then delegates to the type-specific push starter
+ */
 Function _startPush($inState : Text) : Object
     
     // Register in Storage for monitoring
@@ -199,6 +260,15 @@ Function _startPush($inState : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _startMailPush
+ * @private
+ * @param {Text} $inState - UUID key for this monitor; stored in Storage alongside
+ *   the userId so incoming Pub/Sub notifications can be matched
+ * @returns {Object} Status object; cleans up Storage and returns failure status on error
+ * @description Creates a Gmail watch via `POST users/{userId}/watch` using the
+ *   configured Pub/Sub topic; see inline documentation for prerequisites
+ */
 Function _startMailPush($inState : Text) : Object
     
 /*
@@ -255,6 +325,16 @@ Function _startMailPush($inState : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _startCalendarPush
+ * @private
+ * @param {Text} $inState - UUID key used as the channel token so incoming webhook
+ *   requests can be matched to this monitor via `X-Goog-Channel-Token`
+ * @returns {Object} Status object; pushes errors 2 (missing endpoint) or
+ *   7 (web server unavailable) and cleans up Storage on failure
+ * @description Performs initial calendar sync to get a syncToken, then creates a
+ *   Google Calendar watch channel via `POST calendars/{id}/events/watch`
+ */
 Function _startCalendarPush($inState : Text) : Object
     
 /*
@@ -332,6 +412,13 @@ Function _startCalendarPush($inState : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _stopPush
+ * @private
+ * @param {Text} $inState - UUID key for this monitor in Storage
+ * @description Signals the monitoring worker to stop, kills it, stops the Gmail
+ *   watch or Calendar channel on the Google API, then cleans up Storage
+ */
 Function _stopPush($inState : Text)
     
     
@@ -363,6 +450,14 @@ Function _stopPush($inState : Text)
     // ----------------------------------------------------
     
     
+/**
+ * @function _startPull
+ * @private
+ * @param {Text} $inState - UUID key for this monitor in Storage
+ * @returns {Object} Status object
+ * @description Registers the state in Storage, marks the monitor as started,
+ *   and launches the monitoring loop in a background worker
+ */
 Function _startPull($inState : Text) : Object
     
     // Register in Storage for the monitor active flag
@@ -377,6 +472,13 @@ Function _startPull($inState : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _stopPull
+ * @private
+ * @param {Text} $inState - UUID key for this monitor in Storage
+ * @description Signals the monitoring worker to stop, kills it,
+ *   then cleans up Storage
+ */
 Function _stopPull($inState : Text)
     
     
@@ -394,6 +496,13 @@ Function _stopPull($inState : Text)
     // ----------------------------------------------------
     
     
+/**
+ * @function _initialMailSync
+ * @private
+ * @returns {Text} The current Gmail `historyId`, or empty string on failure
+ * @description Fetches `GET users/{userId}/profile` to get the starting `historyId`;
+ *   used as the baseline for `_pollMailHistory` change detection
+ */
 Function _initialMailSync() : Text
     
 /*
@@ -418,6 +527,15 @@ Function _initialMailSync() : Text
     // ----------------------------------------------------
     
     
+/**
+ * @function _pollMailHistory
+ * @private
+ * @returns {Collection} Deduplicated collection of `{changeType; resourceId}` objects
+ *   where `changeType` is `"created"`, `"deleted"`, or `"updated"`;
+ *   updates `_historyId` after each successful poll
+ * @description Paginates through `GET users/{userId}/history?startHistoryId=...`
+ *   and maps Gmail history entry types to unified change types
+ */
 Function _pollMailHistory() : Collection
     
 /*
@@ -533,6 +651,14 @@ Function _pollMailHistory() : Collection
     // ----------------------------------------------------
     
     
+/**
+ * @function _initialCalendarSync
+ * @private
+ * @returns {Text} The `nextSyncToken` for future incremental sync,
+ *   or empty string on failure
+ * @description Pages through all calendar events with minimal fields to populate
+ *   the `_knownIds` cache; the resulting syncToken is used by `_pollCalendarChanges`
+ */
 Function _initialCalendarSync() : Text
     
 /*
@@ -578,6 +704,16 @@ Function _initialCalendarSync() : Text
     // ----------------------------------------------------
     
     
+/**
+ * @function _pollCalendarChanges
+ * @private
+ * @returns {Collection} Collection of `{changeType; resourceId}` objects where
+ *   `changeType` is `"created"`, `"deleted"`, or `"updated"`;
+ *   updates `_syncToken` after each successful poll
+ * @description Paginates through `GET calendars/{id}/events?syncToken=...`;
+ *   uses the `_knownIds` cache to distinguish created from updated events;
+ *   cancelled events (`status="cancelled"`) are reported as deleted
+ */
 Function _pollCalendarChanges() : Collection
     
 /*
@@ -657,6 +793,13 @@ Function _pollCalendarChanges() : Collection
     // ----------------------------------------------------
     
     
+/**
+ * @function _buildNotificationUrl
+ * @private
+ * @param {Text} $inState - UUID state key (forwarded to `_NotificationHelper` for
+ *   potential future extension; not used in the current URL)
+ * @returns {Text} Resolved webhook URL for this notification monitor
+ */
 Function _buildNotificationUrl($inState : Text) : Text
     
     return cs._NotificationHelper.me.buildNotificationUrl(This._internals._endPoint; "/4dnk-google-notification"; "")
@@ -665,6 +808,13 @@ Function _buildNotificationUrl($inState : Text) : Text
     // ----------------------------------------------------
     
     
+/**
+ * @function _startMonitoring
+ * @private
+ * @description Launches `_monitorLoop` in a dedicated background worker named
+ *   `"4DNK_GMonitor_"+state`; captures the current process name and form window
+ *   reference so callbacks can be dispatched back to the caller context
+ */
 Function _startMonitoring()
     
     var $self : cs.GoogleNotification:=This
@@ -678,6 +828,18 @@ Function _startMonitoring()
     // ----------------------------------------------------
     
     
+/**
+ * @function _monitorLoop
+ * @private
+ * @param {Text} $inWorkerName - Name of the worker process that called `start()`;
+ *   used to dispatch callbacks back to the original context
+ * @param {Text} $inState - UUID key used to monitor active status via
+ *   `Storage.googleNotifications`
+ * @param {Integer} $inFormWindow - Form window reference for `CALL FORM` dispatch;
+ *   `0` when the caller is not a form
+ * @description Main monitoring loop running in a dedicated background worker;
+ *   see inline documentation for push/pull behaviour and renewal details
+ */
 Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)
     
 /*
@@ -749,6 +911,13 @@ Function _monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Int
     // ----------------------------------------------------
     
     
+/**
+ * @function _isMonitorActive
+ * @private
+ * @param {Text} $inState - UUID state key to check in `Storage.googleNotifications`
+ * @returns {Boolean} True when the monitor should continue its loop;
+ *   False when `signalStop` has been called
+ */
 Function _isMonitorActive($inState : Text) : Boolean
     
     return cs._NotificationHelper.me.isMonitorActive("googleNotifications"; $inState)
@@ -757,6 +926,13 @@ Function _isMonitorActive($inState : Text) : Boolean
     // ----------------------------------------------------
     
     
+/**
+ * @function _drainPendingItems
+ * @private
+ * @param {Text} $inState - UUID state key for this monitor
+ * @returns {Collection} Drained collection of pending notification signals;
+ *   empty collection when there are no pending items
+ */
 Function _drainPendingItems($inState : Text) : Collection
     
     return cs._NotificationHelper.me.drainPendingItems("googleNotifications"; $inState)
@@ -765,6 +941,14 @@ Function _drainPendingItems($inState : Text) : Collection
     // ----------------------------------------------------
     
     
+/**
+ * @function _dispatchCallbacks
+ * @private
+ * @param {Collection} $inItems - Collection of `{changeType; resourceId}` objects to dispatch
+ * @description Groups items by change type and invokes `onCreate`, `onDelete`, or
+ *   `onModify` callbacks via `_NotificationHelper.dispatchCallbacks`;
+ *   passes the parent owner object as the callback context
+ */
 Function _dispatchCallbacks($inItems : Collection)
     
     cs._NotificationHelper.me.dispatchCallbacks($inItems; This._internals._type; This._internals._callbacks; This._internals._owner)
@@ -773,6 +957,15 @@ Function _dispatchCallbacks($inItems : Collection)
     // ----------------------------------------------------
     
     
+/**
+ * @function _renewIfNeeded
+ * @private
+ * @param {Integer} $inThresholdSeconds - Seconds before expiration to trigger renewal;
+ *   renewal occurs when remaining time is less than this value
+ * @description Proactively renews the Gmail watch or Calendar channel before expiration;
+ *   for Gmail re-calls `POST .../watch`; for Calendar creates a new channel then
+ *   stops the old one to maintain continuity
+ */
 Function _renewIfNeeded($inThresholdSeconds : Integer)
     
     If (Length(This._internals._expiration)=0)

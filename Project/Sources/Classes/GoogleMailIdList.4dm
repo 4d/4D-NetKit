@@ -1,5 +1,20 @@
+/**
+ * @class GoogleMailIdList
+ * @extends _GoogleBaseList
+ * @description Paginated list of Gmail message identifiers returned by the Gmail
+ *   `users.messages.list` endpoint. Exposes the raw message-id objects (each with
+ *   `id` and `threadId`) via the `mailIds` getter; use `next()` / `previous()`
+ *   inherited from `_BaseList` to navigate pages.
+ */
+
 Class extends _GoogleBaseList
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @param {Text} $inURL - Full URL of the Gmail messages list endpoint
+ *   (including query parameters such as `q`, `maxResults`, etc.)
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
 	
 	Super($inProvider; {url: $inURL; elements: "messages"})
@@ -7,8 +22,14 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-	
-	
+
+
+/**
+ * @function get mailIds
+ * @returns {Collection} Current page of message-id objects (`{id: Text; threadId: Text}`)
+ * @description Returns the raw list items from the current page as delivered by the API;
+ *   call `next()` to advance to the following page
+ */
 Function get mailIds() : Collection
 	
 	return This._internals._list

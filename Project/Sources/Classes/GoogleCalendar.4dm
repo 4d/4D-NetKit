@@ -1,7 +1,21 @@
+/**
+ * @class GoogleCalendar
+ * @extends _GoogleAPI
+ * @description Google Calendar API client; provides CRUD operations on calendars
+ *   and events, and exposes a `notifier()` factory for push/pull change monitoring.
+ */
+
 Class extends _GoogleAPI
 
 property userId : Text
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
+ * @param {Object} $inParameters - Configuration object; recognised properties:
+ *   - `userId` {Text} — Google account identifier (defaults to empty,
+ *     meaning the authenticated user)
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider; "https://www.googleapis.com/calendar/v3/")
@@ -11,8 +25,19 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     // Mark: - [Private]
     // ----------------------------------------------------
-    
-    
+
+
+/**
+ * @function _conformEventDateTime
+ * @private
+ * @param {Object} $inObject - Event object containing the date/time property to normalise
+ * @param {Text} $inName - Name of the property to normalise (`"start"` or `"end"`)
+ * @returns {Object} Google Calendar `dateTime` resource (timed events) or `date` resource
+ *   (all-day events), ready to send to the API
+ * @description Accepts flexible date/time input — ISO string, `{date; time; timeZone}` object,
+ *   or date-only object — and converts it to the canonical Google Calendar shape via
+ *   `_DateTime.getGoogleDateTime()` or `_DateTime.getGoogleDate()`
+ */
 Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
     var $dateTime : cs._DateTime
@@ -35,6 +60,14 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function _conformEvent
+ * @private
+ * @param {Object} $inObject - Raw event object to normalise
+ * @returns {Object} Deep copy of the event with `start` and `end` normalised via
+ *   `_conformEventDateTime`; `id` and `_internals` are stripped so the object
+ *   is safe to POST/PUT to the Calendar API
+ */
 Function _conformEvent($inObject : Object) : Object
     
     var $event : Object:=OB Copy($inObject)
@@ -61,8 +94,15 @@ Function _conformEvent($inObject : Object) : Object
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
-    
-    
+
+
+/**
+ * @function getCalendar
+ * @param {Text} $inID - Calendar ID to fetch; defaults to `"primary"` when empty
+ * @returns {Object} Google Calendar `calendarListEntry` resource, or `Null` on error
+ * @description Fetches a single entry from the user's calendar list via
+ *   `GET users/me/calendarList/{calendarId}`; pushes error 10 when `$inID` is not a Text
+ */
 Function getCalendar($inID : Text) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList/calendarId
@@ -88,6 +128,19 @@ Function getCalendar($inID : Text) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function getCalendars
+ * @param {Object} $inParameters - Query options; recognised properties:
+ *   - `top` {Integer|Text} — Maximum results per page (`maxResults`)
+ *   - `minAccessRole` {Text} — Minimum access role filter
+ *   - `pageToken` {Text} — Page token for pagination
+ *   - `showHidden` {Boolean} — Include hidden calendars
+ *   - `showDeleted` {Boolean} — Include deleted calendars
+ * @returns {cs.GoogleCalendarList} Paginated list of calendar entries;
+ *   use `next()` / `previous()` to navigate pages
+ * @description Fetches the user's calendar list via `GET users/me/calendarList`
+ *   and returns a `GoogleCalendarList` for the first page
+ */
 Function getCalendars($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList
@@ -130,8 +183,22 @@ Function getCalendars($inParameters : Object) : Object
     // Mark: - [Public]
     // Mark: - Events
     // ----------------------------------------------------
-    
-    
+
+
+/**
+ * @function getEvent
+ * @param {Object} $inParameters - Query options; required properties:
+ *   - `eventId` {Text} — ID of the event to fetch
+ *   Optional properties:
+ *   - `calendarId` {Text} — Calendar ID (defaults to `"primary"`)
+ *   - `timeZone` {Text} — Timezone for the response (defaults to `"UTC"`)
+ *   - `maxAttendees` {Integer|Text} — Maximum number of attendees to include
+ * @returns {cs.GoogleEvent} The requested event wrapped in a `GoogleEvent` instance,
+ *   or `Null` on error or missing required parameters
+ * @description Fetches a single event via `GET calendars/{calendarId}/events/{eventId}`;
+ *   pushes error 10 when `eventId` is not a Text, error 9 when `startDateTime` / `endDateTime`
+ *   is missing from a paired requirement
+ */
 Function getEvent($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
@@ -172,6 +239,26 @@ Function getEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function getEvents
+ * @param {Object} $inParameters - Query options; recognised properties:
+ *   - `calendarId` {Text} — Calendar ID (defaults to `"primary"`)
+ *   - `startDateTime` {Text|Object} — Lower bound for event start time; defaults to now
+ *   - `endDateTime` {Text|Object} — Upper bound for event start time
+ *   - `timeZone` {Text} — Timezone for the response (defaults to `"UTC"`)
+ *   - `top` {Integer|Text} — Maximum results per page (`maxResults`)
+ *   - `orderBy` {Text} — Sort order: `"startTime"` or `"updated"`
+ *   - `search` {Text} — Free-text search query (`q`)
+ *   - `eventTypes` {Text} — Event type filter
+ *   - `iCalUID` {Text} — Filter by iCalendar UID
+ *   - `maxAttendees` {Integer|Text} — Maximum attendees to include
+ *   - `showDeleted` / `showHiddenInvitations` / `singleEvents` {Boolean}
+ *   - `updatedMin` / `privateExtendedProperty` / `sharedExtendedProperty` {Text}
+ * @returns {cs.GoogleEventList} Paginated list of `GoogleEvent` instances;
+ *   top-level metadata (`kind`, `etag`, `summary`, etc.) is forwarded onto the list object
+ * @description Fetches events via `GET calendars/{calendarId}/events` and returns a
+ *   `GoogleEventList` for the first page; use `next()` / `previous()` to navigate pages
+ */
 Function getEvents($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
@@ -267,6 +354,21 @@ Function getEvents($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function createEvent
+ * @param {Object} $inEvent - Event object to create; `start` / `end` are normalised via
+ *   `_conformEvent` (flexible date/time input accepted); `id` is stripped automatically
+ * @param {Object} $inParameters - Request options; recognised properties:
+ *   - `calendarId` {Text} — Target calendar ID (defaults to `"primary"`)
+ *   - `conferenceDataVersion` {Integer|Text} — Conference data version
+ *   - `maxAttendees` {Integer|Text} — Maximum attendees in the response
+ *   - `sendNotifications` {Boolean} — Whether to send notifications to attendees
+ *   - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"`
+ *   - `supportsAttachments` {Boolean} — Whether attachments are supported
+ * @returns {Object} Status object `{success; statusText; ?event}` where `event`
+ *   is the created `GoogleEvent` instance on success
+ * @description Creates a new event via `POST calendars/{calendarId}/events`
+ */
 Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
@@ -307,6 +409,17 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function deleteEvent
+ * @param {Object} $inParameters - Request options; recognised properties:
+ *   - `calendarId` {Text} — Calendar ID (defaults to `"primary"`)
+ *   - `eventId` {Text} — ID of the event to delete
+ *   - `sendNotifications` {Boolean} — Whether to send cancellation notifications
+ *   - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"`
+ * @returns {Object} Status object `{success; statusText}`
+ * @description Permanently deletes an event via
+ *   `DELETE calendars/{calendarId}/events/{eventId}`
+ */
 Function deleteEvent($inParameters : Object) : Object
     
     // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
@@ -338,6 +451,23 @@ Function deleteEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+/**
+ * @function updateEvent
+ * @param {Object} $inEvent - Event object with updated fields; `id` is used to identify
+ *   the event then stripped from the request body; `start` / `end` are normalised
+ *   via `_conformEvent`
+ * @param {Object} $inParameters - Request options; recognised properties:
+ *   - `calendarId` {Text} — Calendar ID (defaults to `"primary"`)
+ *   - `fullUpdate` {Boolean} — Use `PUT` (full replace) when True, `PATCH` (partial) otherwise
+ *   - `conferenceDataVersion` {Integer|Text} — Conference data version
+ *   - `maxAttendees` {Integer|Text} — Maximum attendees in the response
+ *   - `sendNotifications` {Boolean} — Whether to send update notifications
+ *   - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"`
+ *   - `supportsAttachments` {Boolean}
+ * @returns {Object} Status object `{success; statusText; ?event}` where `event`
+ *   is the updated `GoogleEvent` instance on success
+ * @description Updates an event via `PATCH` (default) or `PUT` (when `fullUpdate` is True)
+ */
 Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
@@ -385,8 +515,20 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // Mark: - Notifications
     // ----------------------------------------------------
-    
-    
+
+
+/**
+ * @function notifier
+ * @param {Object} $inParameters - Notification options (see inline documentation):
+ *   `onCreate`, `onDelete`, `onModify` callbacks; optional `endPoint` for push mode;
+ *   optional `timer` (seconds) for pull mode
+ * @param {Text} $inCalendarId - Calendar ID to watch (defaults to `"primary"`)
+ * @returns {cs.GoogleNotification} Notification object with `start()`, `stop()`,
+ *   `expiration`, and `isStarted`; call `start()` to begin monitoring
+ * @description Factory that creates a `GoogleNotification` for calendar event change
+ *   monitoring. Push mode (webhook) requires `endPoint`; pull mode polls the Calendar
+ *   events API with sync tokens at a configurable interval.
+ */
 Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
     
 /*
