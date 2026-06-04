@@ -1,7 +1,19 @@
+/**
+ * @class Office365Category
+ * @description Microsoft Graph API client for managing Outlook master categories.
+ *   Wraps the `/outlook/masterCategories` endpoint.
+ */
+
 Class extends _GraphAPI
 
 property userId : Text:=""
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ * @param {Object} $inParameters - Configuration object; recognised properties:
+ *   - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint)
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
@@ -12,6 +24,13 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function list
+ * @returns {cs.GraphCategoryList} Pageable list of the user's Outlook master categories
+ * @description Fetches all master categories via:
+ *   `GET /me/outlook/masterCategories` or
+ *   `GET /users/{id}/outlook/masterCategories`
+ */
 Function list : cs.GraphCategoryList
 	
 /*

@@ -1,3 +1,10 @@
+/**
+ * @class GraphAttachment
+ * @description Represents a Microsoft Graph file attachment on a message or calendar event.
+ *   `contentBytes` is fetched lazily via `getContent()` when not already present.
+ *   Can be built from a `4D.MailAttachment` via `fromMailAttachment()`.
+ */
+
 Class extends _GraphAPI
 
 property id : Text
@@ -8,6 +15,15 @@ property isInline : Boolean
 property name : Text
 property contentType : Text
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ * @param {Object} $inParams - Context:
+ *   - `userId` {Text} — Graph user ID or UPN
+ *   - `messageId` {Text} — Parent message ID (exclusive with `eventId`)
+ *   - `eventId` {Text} — Parent event ID (exclusive with `messageId`)
+ * @param {Object} $inObject - Raw Graph API attachment object to hydrate from
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)
 	
 	Super($inProvider)
@@ -29,6 +45,15 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getContent
+ * @returns {4D.Blob} Attachment content as a `4D.Blob`;
+ *   `contentBytes` is fetched from the Graph API on first call when absent.
+ *   For `itemAttachment` types, the item is JSON-stringified and base64-encoded.
+ * @description Downloads attachment bytes via
+ *   `GET /me/messages/{id}/attachments/{attachmentId}` or
+ *   `GET /me/events/{id}/attachments/{attachmentId}`
+ */
 Function getContent() : 4D.Blob
 	
 	If (Not(OB Is defined(This; "contentBytes")))
@@ -85,6 +110,12 @@ Function getContent() : 4D.Blob
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function setContent
+ * @param {4D.Blob} $inContent - Binary content to attach
+ * @description Base64-encodes `$inContent` and stores it in `contentBytes`;
+ *   also updates `size`. No-op when the blob is empty.
+ */
 Function setContent($inContent : 4D.Blob)
 	
 	If ($inContent.size>0)
@@ -98,6 +129,13 @@ Function setContent($inContent : 4D.Blob)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function fromMailAttachment
+ * @param {4D.MailAttachment} $inObject - 4D mail attachment to convert
+ * @description Populates `This` from a `4D.MailAttachment`; sets `@odata.type`,
+ *   `contentId`, `isInline`, `name`, `contentType`, and `contentBytes`.
+ *   No-op when `$inObject` is not a `4D.MailAttachment` instance.
+ */
 Function fromMailAttachment($inObject : 4D.MailAttachment)
 	
 	If (OB Instance of($inObject; 4D.MailAttachment))

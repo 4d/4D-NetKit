@@ -1,5 +1,17 @@
+/**
+ * @class _GraphAPI
+ * @description Base class for all Microsoft Graph API clients.
+ *   Sets the base URL to `https://graph.microsoft.com/v1.0/`, provides helpers for
+ *   building OData query strings, copying Graph message objects, and loading JSON
+ *   responses into `This` properties.
+ */
+
 Class extends _BaseAPI
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ */
 Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
@@ -11,6 +23,17 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _copyGraphMessage
+ * @private
+ * @param {Object} $inMessage - A `GraphMessage` instance or a plain message object
+ * @returns {Object} A plain object copy of `$inMessage` suitable for a Graph API request;
+ *   strips `_internals`, `@`-prefixed, and `webLink` keys; converts `attachments`
+ *   entries via `_Tools.convertToGraphAttachment`
+ * @description Creates a serialisable copy of a Graph message object,
+ *   converting any typed attachment objects to plain Graph attachment objects.
+ *   If `$inMessage` is not a `GraphMessage` instance it is returned as-is.
+ */
 Function _copyGraphMessage($inMessage : Object) : Object
 	
 	If (OB Instance of($inMessage; cs.GraphMessage))
@@ -53,6 +76,14 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _loadFromObject
+ * @private
+ * @param {Object} $inObject - JSON response object from the Graph API
+ * @description Copies every key-value pair from `$inObject` onto `This`,
+ *   effectively hydrating the current instance with the API response data.
+ *   No-op when `$inObject` is `Null` or empty.
+ */
 Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null) && (Not(OB Is empty($inObject))))
@@ -70,6 +101,21 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _getURLParamsFromObject
+ * @private
+ * @param {Object} $inParameters - OData query options:
+ *   - `search` {Text} — OData `$search`
+ *   - `filter` {Text} — OData `$filter`
+ *   - `select` {Text|Collection} — OData `$select` (collection joined with `,`)
+ *   - `top` {Text|Integer} — OData `$top`
+ *   - `orderBy` {Text} — OData `$orderBy`
+ *   - `includeHiddenFolders` {Boolean} — Adds `includeHiddenFolders=true` (folders only)
+ * @param {Boolean} $inCount - When `True`, appends `$count=true`
+ * @returns {Text} URL query string (may be empty)
+ * @description Builds an OData query string from a parameter object.
+ *   Overridden by `Office365Calendar` to add `startDateTime` and `endDateTime`.
+ */
 Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
 	var $URLParams : cs._URL:=cs._URL.new()

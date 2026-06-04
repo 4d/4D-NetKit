@@ -1,5 +1,18 @@
+/**
+ * @class GraphRecipient
+ * @description Represents a Microsoft Graph email recipient (`{emailAddress: {address; name}}`).
+ *   Validates the address on construction and throws a deferred error (code 2) when invalid.
+ */
+
 property emailAddress : Object
 
+/**
+ * @constructor
+ * @param {Text} $inAddress - Email address (validated via `_EmailAddress`)
+ * @param {Text} $inName - Optional display name
+ * @description Creates a Graph recipient object. Throws a deferred error with
+ *   `{code: 2; component: "4DNK"; attribute: "address"}` when the address is invalid.
+ */
 Class constructor($inAddress : Text; $inName : Text)
 	
 	var $parsed : cs._EmailAddress:=cs._EmailAddress.new($inName; $inAddress)

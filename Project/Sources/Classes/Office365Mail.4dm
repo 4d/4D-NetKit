@@ -1,8 +1,24 @@
+/**
+ * @class Office365Mail
+ * @description Microsoft Graph API client for mail operations.
+ *   Supports reading, sending, moving, copying, replying, updating, and deleting messages,
+ *   as well as managing mail folders and setting up change notifications.
+ *   Accepts messages in Microsoft Graph JSON (`"Microsoft"`), JMAP (`"JMAP"`), or MIME
+ *   (`"MIME"`) format, controlled by the `mailType` property.
+ */
+
 Class extends _GraphAPI
 
 property mailType : Text
 property userId : Text
 
+/**
+ * @constructor
+ * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
+ * @param {Object} $inParameters - Configuration object; recognised properties:
+ *   - `mailType` {Text} — Mail format: `"Microsoft"` (default), `"JMAP"`, or `"MIME"`
+ *   - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint)
+ */
 Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
@@ -16,6 +32,17 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _postJSONMessage
+ * @private
+ * @param {Text} $inURL - Target Graph API endpoint URL
+ * @param {Object} $inMail - Mail object in Microsoft Graph JSON format
+ * @param {Boolean} $bSkipMessageEncapsulation - When `True`, sends `$inMail` as-is;
+ *   otherwise wraps it in a `{message: ...}` envelope
+ * @param {Object} $inHeaders - Additional HTTP headers merged into the request
+ * @returns {Object} Status object; includes `id` when the server returns one
+ * @description Posts a mail message as JSON to the Graph API
+ */
 Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
 	
 	var $response : Object
@@ -48,6 +75,17 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _postMailMIMEMessage
+ * @private
+ * @param {Text} $inURL - Target Graph API endpoint URL
+ * @param {Variant} $inMail - Mail content: BLOB (raw MIME), Object (JMAP — converted via
+ *   `MAIL Convert to MIME`), or Text (raw MIME string)
+ * @returns {Object} Status object
+ * @description Posts a mail message in MIME format (`Content-Type: text/plain`, base64-encoded).
+ *   Note: appending to a folder with MIME always returns `UnableToDeserializePostBody`
+ *   (known Microsoft Graph issue — see inline comment for issue links)
+ */
 Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	
 /*
@@ -80,6 +118,18 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function _postMessage
+ * @private
+ * @param {Text} $inFunction - Caller name for error reporting (e.g. `"office365.mail.send"`)
+ * @param {Text} $inURL - Target Graph API endpoint URL
+ * @param {Variant} $inMail - Mail content; type must match `mailType`
+ * @param {Boolean} $bSkipMessageEncapsulation - Forwarded to `_postJSONMessage`
+ * @param {Object} $inHeader - Additional HTTP headers forwarded to `_postJSONMessage`
+ * @returns {Object} Status object
+ * @description Dispatches to `_postJSONMessage` or `_postMailMIMEMessage` based on `mailType`
+ *   and the actual type of `$inMail`; throws error 10 on type mismatch
+ */
 Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object
 	
 	var $status : Object
@@ -119,6 +169,14 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function append
+ * @param {Variant} $inMail - Mail to save; type must match `mailType`
+ * @param {Text} $inFolderId - Target folder ID; uses `me/messages` (draft) when empty
+ * @returns {Object} Status object; includes `id` of the saved message
+ * @description Saves a message to a mail folder without sending it via
+ *   `POST /me/mailFolders/{id}/messages` (or `/users/{id}/...`)
+ */
 Function append($inMail : Variant; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -140,6 +198,14 @@ Function append($inMail : Variant; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function copy
+ * @param {Text} $inMailId - ID of the message to copy
+ * @param {Text} $inFolderId - Destination folder ID
+ * @returns {Object} Status object; includes `id` of the new copy
+ * @description Copies a message to another folder via
+ *   `POST /me/messages/{id}/copy`
+ */
 Function copy($inMailId : Text; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -187,6 +253,12 @@ Function copy($inMailId : Text; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function delete
+ * @param {Text} $inMailId - ID of the message to delete permanently
+ * @returns {Object} Status object
+ * @description Permanently deletes a message via `DELETE /me/messages/{id}`
+ */
 Function delete($inMailId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -219,6 +291,17 @@ Function delete($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getMail
+ * @param {Text} $inMailId - ID of the message to retrieve
+ * @param {Object} $inOptions - Optional overrides:
+ *   - `mailType` {Text} — `"Microsoft"` (Graph object), `"JMAP"` (converted via
+ *     `MAIL Convert from MIME`), or `"MIME"` (raw MIME text)
+ *   - `contentType` {Text} — `"text"` or `"html"` (sets `Prefer: outlook.body-content-type`)
+ * @returns {Variant} `GraphMessage` object, JMAP Object, or MIME Text depending on `mailType`;
+ *   `Null` on error or when not found
+ * @description Fetches a single message via `GET /me/messages/{id}` (or `/$value` for MIME)
+ */
 Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	
 	Super._clearErrorStack()
@@ -275,6 +358,15 @@ Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getMails
+ * @param {Object} $inParameters - Query options:
+ *   - `folderId` {Text} — Folder ID to filter by
+ *   - `search` {Text} — OData `$search` (sets `ConsistencyLevel: eventual`)
+ *   - `filter`, `select`, `top`, `orderBy`, `skip` — standard OData parameters
+ * @returns {cs.GraphMessageList} Pageable list of messages
+ * @description Lists messages via `GET /me/messages` (or `/mailFolders/{id}/messages`)
+ */
 Function getMails($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
@@ -304,6 +396,14 @@ Function getMails($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function move
+ * @param {Text} $inMailId - ID of the message to move
+ * @param {Text} $inFolderId - Destination folder ID
+ * @returns {Object} Status object; includes `id` of the moved message
+ * @description Moves a message to another folder via
+ *   `POST /me/messages/{id}/move`
+ */
 Function move($inMailId : Text; $inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -351,6 +451,15 @@ Function move($inMailId : Text; $inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function reply
+ * @param {Object} $inMail - Reply body; for MIME/JMAP types, uses `$inMail.message`
+ * @param {Text} $inMailId - ID of the message to reply to
+ * @param {Boolean} $bReplyAll - When `True`, uses `replyAll`; otherwise uses `reply`
+ * @returns {Object} Status object
+ * @description Replies to a message via
+ *   `POST /me/messages/{id}/reply` or `/replyAll`
+ */
 Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object
 	
 	Super._clearErrorStack()
@@ -396,6 +505,12 @@ Function reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Objec
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function send
+ * @param {Variant} $inMail - Mail to send; type must match `mailType`
+ * @returns {Object} Status object
+ * @description Sends a mail message via `POST /me/sendMail`
+ */
 Function send($inMail : Variant) : Object
 	
 	Super._clearErrorStack()
@@ -413,6 +528,13 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function update
+ * @param {Text} $inMailId - ID of the message to update
+ * @param {Object} $inMail - Partial message object with properties to update
+ * @returns {Object} Status object
+ * @description Updates message properties via `PATCH /me/messages/{id}`
+ */
 Function update($inMailId : Text; $inMail : Object) : Object
 	
 	Super._clearErrorStack()
@@ -456,6 +578,14 @@ Function update($inMailId : Text; $inMail : Object) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function createFolder
+ * @param {Text} $inFolderName - Display name for the new folder
+ * @param {Boolean} $bIsHidden - When `True`, the folder is hidden
+ * @param {Text} $inParentFolderId - Parent folder ID; creates a top-level folder when empty
+ * @returns {Object} Status object; includes `id` of the created folder
+ * @description Creates a mail folder via `POST /me/mailFolders` (or `/childFolders`)
+ */
 Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolderId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -501,6 +631,12 @@ Function createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolde
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function deleteFolder
+ * @param {Text} $inFolderId - ID of the folder to delete
+ * @returns {Object} Status object
+ * @description Permanently deletes a mail folder via `DELETE /me/mailFolders/{id}`
+ */
 Function deleteFolder($inFolderId : Text) : Object
 	
 	Super._clearErrorStack()
@@ -538,6 +674,12 @@ Function deleteFolder($inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getFolder
+ * @param {Text} $inFolderId - ID of the folder to retrieve
+ * @returns {Object} Cleaned folder object, or `Null` on error
+ * @description Fetches a single mail folder via `GET /me/mailFolders/{id}`
+ */
 Function getFolder($inFolderId : Text) : Object
 	
 	var $response : Object
@@ -572,6 +714,15 @@ Function getFolder($inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function getFolderList
+ * @param {Object} $inParameters - Query options:
+ *   - `folderId` {Text} — Parent folder ID to list child folders
+ *   - `search`, `filter`, `select`, `top`, `orderBy` — standard OData parameters
+ * @returns {cs.GraphFolderList} Pageable list of mail folders
+ * @description Lists mail folders via `GET /me/mailFolders`
+ *   (or `/mailFolders/{id}/childFolders`)
+ */
 Function getFolderList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
@@ -601,6 +752,13 @@ Function getFolderList($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function renameFolder
+ * @param {Text} $inFolderId - ID of the folder to rename
+ * @param {Text} $inNewFolderName - New display name for the folder
+ * @returns {Object} Status object; includes `id` of the renamed folder
+ * @description Renames a mail folder via `PATCH /me/mailFolders/{id}`
+ */
 Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	
 	Super._clearErrorStack()
@@ -650,6 +808,19 @@ Function renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object
 	// ----------------------------------------------------
 	
 	
+/**
+ * @function notifier
+ * @param {Object} $inParameters - Notification callbacks and options:
+ *   - `onCreate` {4D.Function} — Called when a mail is created; receives the `mailId`
+ *   - `onDelete` {4D.Function} — Called when a mail is deleted; receives the `mailId`
+ *   - `onModify` {4D.Function} — Called when a mail is modified; receives the `mailId`
+ *   - `endPoint` {Text} — Webhook URL for push mode; omit to use pull (delta query) mode
+ * @param {Text} $inFolderId - Folder to subscribe to; defaults to `inbox` when empty
+ * @returns {cs.GraphNotification} Notification object with `start()`, `stop()`,
+ *   `expiration`, and `isStarted`
+ * @description Creates a `GraphNotification` for mail change notifications via the
+ *   Microsoft Graph subscription API. See inline comment for full parameter details.
+ */
 Function notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification
 	
 /*

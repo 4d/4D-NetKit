@@ -1,6 +1,27 @@
+/**
+ * @class GraphNotificationHandler
+ * @description Shared singleton HTTP handler for incoming Microsoft Graph change notifications.
+ *   Registered at `/4dnk-graph-notification`; handles both validation requests
+ *   (responds with `validationToken`) and notification payloads (routes to monitors via
+ *   `Storage.graphNotifications`).
+ */
+
 shared singleton Class constructor()
     
     
+/**
+ * @function getResponse
+ * @param {4D.IncomingMessage} $request - Incoming HTTP request from Microsoft Graph
+ * @returns {4D.OutgoingMessage} HTTP 200 + `validationToken` for validation requests;
+ *   HTTP 202 for notification payloads; HTTP 400 when `$request` is `Null`
+ * @description Two types of requests are handled:
+ *   1. **Validation** — `POST ?validationToken=<token>`; response must echo the token as
+ *      plain text with status 200
+ *   2. **Notification** — `POST` with JSON body containing `{value: [...]}` array;
+ *      routes each item to the matching monitor via `_processNotificationBody`
+ *
+ *   See inline comment for the Graph webhook protocol reference.
+ */
 Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     
 /*
@@ -69,6 +90,17 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     // ----------------------------------------------------
     
     
+/**
+ * @function _processNotificationBody
+ * @private
+ * @param {Variant} $inBody - Parsed JSON body (Object) or raw JSON Text;
+ *   expected to contain `{value: [{subscriptionId; changeType; resource; resourceData}]}`
+ * @description Iterates the notification `value` array, extracts `changeType` and
+ *   `resourceId` (from `resourceData.id` or the last path segment of `resource`),
+ *   finds the matching monitor state by `subscriptionId`, and pushes a signal object
+ *   to `Storage.graphNotifications[state].pending`.
+ *   See inline comment for the expected payload format.
+ */
 Function _processNotificationBody($inBody : Variant)
     
 /*
@@ -150,6 +182,15 @@ Function _processNotificationBody($inBody : Variant)
     // ----------------------------------------------------
     
     
+/**
+ * @function _findStateBySubscriptionId
+ * @private
+ * @param {Text} $inSubscriptionId - Microsoft Graph subscription ID to search for
+ * @returns {Text} The `Storage.graphNotifications` key (UUID) of the matching monitor,
+ *   or empty string when not found
+ * @description Iterates `Storage.graphNotifications` to find the entry whose
+ *   `subscriptionId` matches `$inSubscriptionId`
+ */
 Function _findStateBySubscriptionId($inSubscriptionId : Text) : Text
     
     // Look up the state key in Storage.notifications by subscription ID
