@@ -1,4 +1,4 @@
-﻿# GraphMessageList Class
+# GraphMessageList Class
 
 ## Overview
 
@@ -26,3 +26,8 @@ Each item is wrapped lazily on first access and cached.
 | $inHeaders | Object | -> | Additional HTTP headers |
 | Result | cs.NetKit.GraphMessageList | <- | Object of the GraphMessageList class |
 
+
+## See also
+
+* [GraphMessage](./GraphMessage.md)
+* [Office365Mail](./Office365Mail.md)

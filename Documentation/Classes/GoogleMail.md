@@ -124,14 +124,14 @@ Removes a message from Trash via `POST users/{userId}/messages/{id}/untrash`
 
 ### GoogleMail.getMailIds()
 
-**GoogleMail.getMailIds**( *$inParameters* : Object ) : Object
+**GoogleMail.getMailIds**( *$inParameters* : Object ) : [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options forwarded to `_getURLParamsFromObject`; see the Gmail `users.messages.list` API for supported parameters (e.g. `q`, `labelIds`, `maxResults`, `pageToken`) |
-| Result | Object | <- | Paginated list of Gmail message IDs; use `next()` / `previous()` to navigate pages |
+| Result | [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md) | <- | Paginated list of Gmail message IDs; use `next()` / `previous()` to navigate pages |
 
 #### Description
 
@@ -286,3 +286,9 @@ Factory that creates a `GoogleNotification` for Gmail change monitoring.
 Push mode requires a Google Cloud Pub/Sub topic (`topicName`); pull mode polls
 the Gmail history API at a configurable interval.
 
+
+## See also
+
+* [GoogleMailIdList](./GoogleMailIdList.md)
+* [GoogleNotification](./GoogleNotification.md)
+* [Google](./Google.md)

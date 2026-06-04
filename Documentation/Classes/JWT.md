@@ -133,6 +133,8 @@ Validates a JWT token using the provided public key or the key passed to the con
 var $isValid:= cs.NetKit.JWT.new().validate($token; $key)
 
 ```
+
+
 ## See also
 
 * [OAuth2Provider Class](./OAuth2Provider.md)

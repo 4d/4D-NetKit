@@ -1,4 +1,4 @@
-﻿# GraphEventList Class
+# GraphEventList Class
 
 ## Overview
 
@@ -33,3 +33,8 @@ The returned `GraphEventList` object contains the following properties:
 |---|---|---|
 | calendarId | Text |  |
 
+
+## See also
+
+* [GraphEvent](./GraphEvent.md)
+* [Office365Calendar](./Office365Calendar.md)

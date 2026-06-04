@@ -1,4 +1,4 @@
-﻿# GoogleUser Class
+# GoogleUser Class
 
 ## Overview
 
@@ -71,14 +71,14 @@ Fetches a single user profile by resource name
 
 ### GoogleUser.list()
 
-**GoogleUser.list**( *$inParameters* : Object ) : Object
+**GoogleUser.list**( *$inParameters* : Object ) : [cs.NetKit.GoogleUserList](./GoogleUserList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options forwarded to `_getURLParamsFromObject` (`select`, `sources`, `mergeSources`, `top`, `pageToken`) |
-| Result | Object | <- | Paginated list of directory people |
+| Result | [cs.NetKit.GoogleUserList](./GoogleUserList.md) | <- | Paginated list of directory people |
 
 #### Description
 
@@ -86,3 +86,8 @@ Builds the `people:listDirectoryPeople` URL and returns a
 `GoogleUserList` instance for the first page; use `next()` / `previous()`
 on the returned object to navigate subsequent pages
 
+
+## See also
+
+* [GoogleUserList](./GoogleUserList.md)
+* [Google](./Google.md)

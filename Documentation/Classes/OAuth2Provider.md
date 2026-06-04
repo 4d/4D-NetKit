@@ -316,6 +316,8 @@ When requesting access on behalf of a user ("signedIn" mode) the command opens a
 In "signedIn" mode, when `.getToken()` is called, a web server included in 4D NetKit starts automatically on the port specified in the [redirectURI parameter](#description) to intercept the provider's authorization response and display it in the browser.
 
 
+
+
 ## See also
 
 [Google Class](./Google.md)<br/>

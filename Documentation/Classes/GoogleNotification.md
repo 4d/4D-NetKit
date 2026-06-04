@@ -61,3 +61,9 @@ push or pull mode; see inline documentation for mode-specific details
 Stops the notification monitor, cleans up all internal state;
 in push mode also stops the Gmail watch or Calendar channel on the Google API
 
+
+## See also
+
+* [GoogleNotificationHandler](./GoogleNotificationHandler.md)
+* [GoogleCalendar](./GoogleCalendar.md)
+* [GoogleMail](./GoogleMail.md)

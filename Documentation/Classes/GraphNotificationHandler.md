@@ -42,3 +42,7 @@ routes each item to the matching monitor via `_processNotificationBody`
 
 See inline comment for the Graph webhook protocol reference.
 
+
+## See also
+
+* [GraphNotification](./GraphNotification.md)

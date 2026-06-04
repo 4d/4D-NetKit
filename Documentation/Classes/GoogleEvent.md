@@ -1,4 +1,4 @@
-﻿# GoogleEvent Class
+# GoogleEvent Class
 
 ## Overview
 
@@ -32,3 +32,9 @@ The returned `GoogleEvent` object contains the following properties:
 | id | Text |  |
 | attachments | Collection |  |
 
+
+## See also
+
+* [GoogleEventList](./GoogleEventList.md)
+* [GoogleEventAttachment](./GoogleEventAttachment.md)
+* [GoogleCalendar](./GoogleCalendar.md)

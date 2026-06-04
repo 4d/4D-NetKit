@@ -68,14 +68,14 @@ Fetches a single entry from the user's calendar list via
 
 ### GoogleCalendar.getCalendars()
 
-**GoogleCalendar.getCalendars**( *$inParameters* : Object ) : Object
+**GoogleCalendar.getCalendars**( *$inParameters* : Object ) : [cs.NetKit.GoogleCalendarList](./GoogleCalendarList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options; recognised properties: - `top` {Integer|Text} — Maximum results per page (`maxResults`) - `minAccessRole` {Text} — Minimum access role filter - `pageToken` {Text} — Page token for pagination - `showHidden` {Boolean} — Include hidden calendars - `showDeleted` {Boolean} — Include deleted calendars |
-| Result | Object | <- | Paginated list of calendar entries; use `next()` / `previous()` to navigate pages |
+| Result | [cs.NetKit.GoogleCalendarList](./GoogleCalendarList.md) | <- | Paginated list of calendar entries; use `next()` / `previous()` to navigate pages |
 
 #### Description
 
@@ -86,14 +86,14 @@ and returns a `GoogleCalendarList` for the first page
 
 ### GoogleCalendar.getEvent()
 
-**GoogleCalendar.getEvent**( *$inParameters* : Object ) : Object
+**GoogleCalendar.getEvent**( *$inParameters* : Object ) : [cs.NetKit.GoogleEvent](./GoogleEvent.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options; required properties: - `eventId` {Text} — ID of the event to fetch Optional properties: - `calendarId` {Text} — Calendar ID (defaults to `"primary"`) - `timeZone` {Text} — Timezone for the response (defaults to `"UTC"`) - `maxAttendees` {Integer|Text} — Maximum number of attendees to include |
-| Result | Object | <- | The requested event wrapped in a `GoogleEvent` instance, or `Null` on error or missing required parameters |
+| Result | [cs.NetKit.GoogleEvent](./GoogleEvent.md) | <- | The requested event wrapped in a `GoogleEvent` instance, or `Null` on error or missing required parameters |
 
 #### Description
 
@@ -103,14 +103,14 @@ is missing from a paired requirement
 
 ### GoogleCalendar.getEvents()
 
-**GoogleCalendar.getEvents**( *$inParameters* : Object ) : Object
+**GoogleCalendar.getEvents**( *$inParameters* : Object ) : [cs.NetKit.GoogleEventList](./GoogleEventList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options; recognised properties: - `calendarId` {Text} — Calendar ID (defaults to `"primary"`) - `startDateTime` {Text|Object} — Lower bound for event start time; defaults to now - `endDateTime` {Text|Object} — Upper bound for event start time - `timeZone` {Text} — Timezone for the response (defaults to `"UTC"`) - `top` {Integer|Text} — Maximum results per page (`maxResults`) - `orderBy` {Text} — Sort order: `"startTime"` or `"updated"` - `search` {Text} — Free-text search query (`q`) - `eventTypes` {Text} — Event type filter - `iCalUID` {Text} — Filter by iCalendar UID - `maxAttendees` {Integer|Text} — Maximum attendees to include - `showDeleted` / `showHiddenInvitations` / `singleEvents` {Boolean} - `updatedMin` / `privateExtendedProperty` / `sharedExtendedProperty` {Text} |
-| Result | Object | <- | Paginated list of `GoogleEvent` instances; top-level metadata (`kind`, `etag`, `summary`, etc.) is forwarded onto the list object |
+| Result | [cs.NetKit.GoogleEventList](./GoogleEventList.md) | <- | Paginated list of `GoogleEvent` instances; top-level metadata (`kind`, `etag`, `summary`, etc.) is forwarded onto the list object |
 
 #### Description
 
@@ -185,3 +185,10 @@ Factory that creates a `GoogleNotification` for calendar event change
 monitoring. Push mode (webhook) requires `endPoint`; pull mode polls the Calendar
 events API with sync tokens at a configurable interval.
 
+
+## See also
+
+* [GoogleCalendarList](./GoogleCalendarList.md)
+* [GoogleEvent](./GoogleEvent.md)
+* [GoogleNotification](./GoogleNotification.md)
+* [Google](./Google.md)

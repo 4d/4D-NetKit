@@ -1,4 +1,4 @@
-﻿# OAuth2Authorization Class
+# OAuth2Authorization Class
 
 ## Overview
 
@@ -38,3 +38,7 @@ Extracts `state` from the URL, calls `_authorize()` to store the
 authorization code in `Storage.requests`, and sends the configured
 `authenticationPage` or a default HTML response to the browser.
 
+
+## See also
+
+* [OAuth2Provider](./OAuth2Provider.md)

@@ -73,14 +73,14 @@ Fetches a single calendar via
 
 ### Office365Calendar.getCalendars()
 
-**Office365Calendar.getCalendars**( *$inParameters* : Object ) : Object
+**Office365Calendar.getCalendars**( *$inParameters* : Object ) : [cs.NetKit.GraphCalendarList](./GraphCalendarList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options: - `search` {Text} — OData `$search` (sets `ConsistencyLevel: eventual`) - `filter`, `select`, `top`, `orderBy` — standard OData parameters |
-| Result | Object | <- | Pageable list of calendars |
+| Result | [cs.NetKit.GraphCalendarList](./GraphCalendarList.md) | <- | Pageable list of calendars |
 
 #### Description
 
@@ -90,14 +90,14 @@ Lists calendars via `GET /me/calendars`
 
 ### Office365Calendar.getEvent()
 
-**Office365Calendar.getEvent**( *$inParameters* : Object ) : Object
+**Office365Calendar.getEvent**( *$inParameters* : Object ) : [cs.NetKit.GraphEvent](./GraphEvent.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Required and optional parameters: - `eventId` {Text} — **Required.** ID of the event to fetch - `startDateTime` {Text|Object} — **Required.** Range start (used as query parameter) - `endDateTime` {Text|Object} — **Required.** Range end (used as query parameter) - `calendarId` {Text} — Calendar ID; uses default calendar when empty - `timeZone` {Text} — Response time zone (`Prefer: outlook.timezone`) - `bodyContentType` {Text} — Body format (`Prefer: outlook.body-content-type`) - `select` {Text} — OData `$select` |
-| Result | Object | <- | Event object, or `Null` when not found or on error |
+| Result | [cs.NetKit.GraphEvent](./GraphEvent.md) | <- | Event object, or `Null` when not found or on error |
 
 #### Description
 
@@ -106,14 +106,14 @@ Fetches a single event via `GET /me/calendar/events/{id}` or
 
 ### Office365Calendar.getEvents()
 
-**Office365Calendar.getEvents**( *$inParameters* : Object ) : Object
+**Office365Calendar.getEvents**( *$inParameters* : Object ) : [cs.NetKit.GraphEventList](./GraphEventList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Required and optional parameters: - `startDateTime` {Text|Object} — **Required.** Start of the date range - `endDateTime` {Text|Object} — **Required.** End of the date range - `calendarId` {Text} — Calendar ID; uses default calendar when empty - `timeZone` {Text} — Response time zone (`Prefer: outlook.timezone`) - `bodyContentType` {Text} — Body format (`Prefer: outlook.body-content-type`) - `search` {Text} — OData `$search` (sets `ConsistencyLevel: eventual`) - `filter`, `select`, `top`, `orderBy` — standard OData parameters |
-| Result | Object | <- | Pageable list of events |
+| Result | [cs.NetKit.GraphEventList](./GraphEventList.md) | <- | Pageable list of events |
 
 #### Description
 
@@ -191,3 +191,10 @@ See inline comment for all supported Graph endpoints.
 Creates a `GraphNotification` for calendar event change notifications via the
 Microsoft Graph subscription API. See inline comment for full parameter details.
 
+
+## See also
+
+* [GraphEvent](./GraphEvent.md)
+* [GraphEventList](./GraphEventList.md)
+* [Office365Mail](./Office365Mail.md)
+* [Office365](./Office365.md)

@@ -1,4 +1,4 @@
-﻿# GoogleEventList Class
+# GoogleEventList Class
 
 ## Overview
 
@@ -41,3 +41,8 @@ The returned `GoogleEventList` object contains the following properties:
 | accessRole | Text |  |
 | defaultReminders | Collection |  |
 
+
+## See also
+
+* [GoogleEvent](./GoogleEvent.md)
+* [GoogleCalendar](./GoogleCalendar.md)

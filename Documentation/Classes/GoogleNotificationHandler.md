@@ -1,4 +1,4 @@
-﻿# GoogleNotificationHandler Class
+# GoogleNotificationHandler Class
 
 ## Overview
 
@@ -41,3 +41,7 @@ to `_processCalendarNotification`
 to `_processGmailNotification`
 See inline documentation for the expected payload formats
 
+
+## See also
+
+* [GoogleNotification](./GoogleNotification.md)

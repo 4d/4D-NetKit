@@ -63,14 +63,14 @@ throws error 9 when `$inID` is empty
 
 ### Office365User.list()
 
-**Office365User.list**( *$inParameters* : Object ) : Object
+**Office365User.list**( *$inParameters* : Object ) : [cs.NetKit.GraphUserList](./GraphUserList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options: - `search` {Text} — OData `$search` expression; automatically sets `ConsistencyLevel: eventual` - `filter` {Text} — OData `$filter` expression - `select` {Text} — Comma-separated property names (`$select`) - `top` {Text|Integer} — Maximum number of results per page (`$top`) - `orderBy` {Text} — Sort expression (`$orderBy`) |
-| Result | Object | <- | Pageable list of Azure AD users |
+| Result | [cs.NetKit.GraphUserList](./GraphUserList.md) | <- | Pageable list of Azure AD users |
 
 #### Description
 
@@ -78,17 +78,22 @@ Lists Azure AD users via `GET /users` with optional OData query parameters
 
 ### Office365User.count()
 
-**Office365User.count**( *$inParameters* : Object ) : Object
+**Office365User.count**( *$inParameters* : Object ) : [cs.NetKit.GraphUserList](./GraphUserList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options (same as `list`); `$count=true` and `ConsistencyLevel: eventual` are added automatically: - `search` {Text} — OData `$search` expression - `filter` {Text} — OData `$filter` expression - `select` {Text} — OData `$select` - `top` {Text|Integer} — OData `$top` - `orderBy` {Text} — OData `$orderBy` |
-| Result | Object | <- | Pageable list with total count included in the response |
+| Result | [cs.NetKit.GraphUserList](./GraphUserList.md) | <- | Pageable list with total count included in the response |
 
 #### Description
 
 Lists Azure AD users with `$count=true` via `GET /users`;
 requires `ConsistencyLevel: eventual` (set automatically)
 
+
+## See also
+
+* [GraphUserList](./GraphUserList.md)
+* [Office365](./Office365.md)

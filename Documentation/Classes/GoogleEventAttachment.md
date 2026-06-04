@@ -59,3 +59,7 @@ making a new HTTP request
 Downloads the icon image from `iconLink` and converts the blob to a
 4D Picture via `BLOB TO PICTURE`; not cached — a new HTTP request is made on each call
 
+
+## See also
+
+* [GoogleEvent](./GoogleEvent.md)

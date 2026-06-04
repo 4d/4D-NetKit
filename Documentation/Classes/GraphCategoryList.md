@@ -1,4 +1,4 @@
-﻿# GraphCategoryList Class
+# GraphCategoryList Class
 
 ## Overview
 
@@ -24,3 +24,7 @@ The `categories` getter returns the list as a `Collection` of plain objects.
 | $inHeaders | Object | -> | Additional HTTP headers |
 | Result | cs.NetKit.GraphCategoryList | <- | Object of the GraphCategoryList class |
 
+
+## See also
+
+* [Office365Category](./Office365Category.md)

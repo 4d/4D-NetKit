@@ -1,4 +1,4 @@
-﻿# GraphUserList Class
+# GraphUserList Class
 
 ## Overview
 
@@ -24,3 +24,7 @@ The `users` getter returns the list as a `Collection` of plain objects.
 | $inHeaders | Object | -> | Additional HTTP headers |
 | Result | cs.NetKit.GraphUserList | <- | Object of the GraphUserList class |
 
+
+## See also
+
+* [Office365User](./Office365User.md)

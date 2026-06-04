@@ -1,4 +1,4 @@
-﻿# GraphFolderList Class
+# GraphFolderList Class
 
 ## Overview
 
@@ -24,3 +24,7 @@ The `folders` getter returns the list as a `Collection` of plain objects.
 | $inHeaders | Object | -> | Additional HTTP headers |
 | Result | cs.NetKit.GraphFolderList | <- | Object of the GraphFolderList class |
 
+
+## See also
+
+* [Office365Mail](./Office365Mail.md)

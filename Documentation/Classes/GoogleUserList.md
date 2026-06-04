@@ -1,4 +1,4 @@
-﻿# GoogleUserList Class
+# GoogleUserList Class
 
 ## Overview
 
@@ -26,3 +26,7 @@ to navigate pages.
 | $inHeaders | Object | -> | Additional HTTP headers to include in each request (e.g. `{"X-Goog-Request-Reason": "..."}`) |
 | Result | cs.NetKit.GoogleUserList | <- | Object of the GoogleUserList class |
 
+
+## See also
+
+* [GoogleUser](./GoogleUser.md)

@@ -31,3 +31,8 @@ The returned `Office365Category` object contains the following properties:
 |---|---|---|
 | userId | Text |  |
 
+
+## See also
+
+* [GraphCategoryList](./GraphCategoryList.md)
+* [Office365](./Office365.md)

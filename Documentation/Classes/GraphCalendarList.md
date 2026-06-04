@@ -1,4 +1,4 @@
-﻿# GraphCalendarList Class
+# GraphCalendarList Class
 
 ## Overview
 
@@ -24,3 +24,7 @@ The `calendars` getter returns the list as a `Collection` of plain objects.
 | $inHeaders | Object | -> | Additional HTTP headers |
 | Result | cs.NetKit.GraphCalendarList | <- | Object of the GraphCalendarList class |
 
+
+## See also
+
+* [Office365Calendar](./Office365Calendar.md)

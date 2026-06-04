@@ -75,3 +75,9 @@ kills the monitor worker; cleans up Storage
 
 No-op when not started. See inline comment for details.
 
+
+## See also
+
+* [GraphNotificationHandler](./GraphNotificationHandler.md)
+* [Office365Calendar](./Office365Calendar.md)
+* [Office365Mail](./Office365Mail.md)

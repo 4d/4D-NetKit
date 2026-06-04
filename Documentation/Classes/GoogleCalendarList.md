@@ -1,4 +1,4 @@
-﻿# GoogleCalendarList Class
+# GoogleCalendarList Class
 
 ## Overview
 
@@ -25,3 +25,7 @@ to navigate pages.
 | $inParameters | Object | -> | `_GoogleBaseList` parameters object; pass at minimum `{url: Text}` pointing to the `calendarList.list` endpoint |
 | Result | cs.NetKit.GoogleCalendarList | <- | Object of the GoogleCalendarList class |
 
+
+## See also
+
+* [GoogleCalendar](./GoogleCalendar.md)

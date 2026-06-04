@@ -1,4 +1,4 @@
-﻿# GoogleMailIdList Class
+# GoogleMailIdList Class
 
 ## Overview
 
@@ -25,3 +25,7 @@ inherited from `_BaseList` to navigate pages.
 | $inURL | Text | -> | Full URL of the Gmail messages list endpoint (including query parameters such as `q`, `maxResults`, etc.) |
 | Result | cs.NetKit.GoogleMailIdList | <- | Object of the GoogleMailIdList class |
 
+
+## See also
+
+* [GoogleMail](./GoogleMail.md)

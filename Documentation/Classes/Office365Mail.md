@@ -128,14 +128,14 @@ Fetches a single message via `GET /me/messages/{id}` (or `/$value` for MIME)
 
 ### Office365Mail.getMails()
 
-**Office365Mail.getMails**( *$inParameters* : Object ) : Object
+**Office365Mail.getMails**( *$inParameters* : Object ) : [cs.NetKit.GraphMessageList](./GraphMessageList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options: - `folderId` {Text} — Folder ID to filter by - `search` {Text} — OData `$search` (sets `ConsistencyLevel: eventual`) - `filter`, `select`, `top`, `orderBy`, `skip` — standard OData parameters |
-| Result | Object | <- | Pageable list of messages |
+| Result | [cs.NetKit.GraphMessageList](./GraphMessageList.md) | <- | Pageable list of messages |
 
 #### Description
 
@@ -258,14 +258,14 @@ Fetches a single mail folder via `GET /me/mailFolders/{id}`
 
 ### Office365Mail.getFolderList()
 
-**Office365Mail.getFolderList**( *$inParameters* : Object ) : Object
+**Office365Mail.getFolderList**( *$inParameters* : Object ) : [cs.NetKit.GraphFolderList](./GraphFolderList.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | $inParameters | Object | -> | Query options: - `folderId` {Text} — Parent folder ID to list child folders - `search`, `filter`, `select`, `top`, `orderBy` — standard OData parameters |
-| Result | Object | <- | Pageable list of mail folders |
+| Result | [cs.NetKit.GraphFolderList](./GraphFolderList.md) | <- | Pageable list of mail folders |
 
 #### Description
 
@@ -307,3 +307,10 @@ Renames a mail folder via `PATCH /me/mailFolders/{id}`
 Creates a `GraphNotification` for mail change notifications via the
 Microsoft Graph subscription API. See inline comment for full parameter details.
 
+
+## See also
+
+* [GraphMessage](./GraphMessage.md)
+* [GraphMessageList](./GraphMessageList.md)
+* [Office365Calendar](./Office365Calendar.md)
+* [Office365](./Office365.md)

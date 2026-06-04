@@ -86,3 +86,8 @@ Populates `This` from a `4D.MailAttachment`; sets `@odata.type`,
 `contentId`, `isInline`, `name`, `contentType`, and `contentBytes`.
 No-op when `$inObject` is not a `4D.MailAttachment` instance.
 
+
+## See also
+
+* [GraphEvent](./GraphEvent.md)
+* [GraphMessage](./GraphMessage.md)
