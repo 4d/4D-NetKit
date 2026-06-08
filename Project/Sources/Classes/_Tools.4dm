@@ -556,22 +556,28 @@ Function startWebServer($inParameters : Object) : Object
 /**
  * @function startWebServer
  * @param {Object} $inParameters - Settings object
- * @param {Integer} [$inParameters.port=50993] - Port to listen on
+ * @param {Integer} [$inParameters.port=50993] - HTTPS port when useTLS=True, HTTP port when useTLS=False
+ * @param {Integer} [$inParameters.httpPort=80] - HTTP port when useTLS=True (both HTTP and HTTPS are enabled simultaneously)
  * @param {Boolean} [$inParameters.useTLS=False] - Enable TLS (HTTPS)
  * @param {Boolean} [$inParameters.enableDebugLog] - Enable web debug log
  * @param {4D.Folder|Text} [$inParameters.certificateFolder] - Folder containing cert.pem and key.pem
  * @param {4D.Folder|Text} [$inParameters.webFolder] - Web root folder
  * @returns {Object} {success: Boolean; error: Object|Null}
- * @description Starts the web server; stops and restarts it if settings have changed
+ * @description Starts the web server; stops and restarts it if settings have changed.
+ *   When useTLS=True, both HTTP (httpPort) and HTTPS (port) are enabled simultaneously.
  */
 	
 	var $port : Integer:=(Num($inParameters.port)>0) ? Num($inParameters.port) : 50993
+	var $httpPort : Integer:=(Num($inParameters.httpPort)>0) ? Num($inParameters.httpPort) : 80
 	var $bIsSSL : Boolean:=(Value type($inParameters.useTLS)#Is undefined) ? Bool($inParameters.useTLS) : False
 	var $debugLog : Integer:=Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log
 	var $status : Object:={success: False; error: Null}
 	
 	If (This.webServer.isRunning)
-		If ((This.webServer.HTTPEnabled=$bIsSSL) || ($bIsSSL && (This.webServer.HTTPSPort#$port)) || (Not($bIsSSL) && (This.webServer.HTTPPort#$port)) || (This.webServer.debugLog#$debugLog))
+		If (Not(This.webServer.HTTPEnabled) \
+			|| ($bIsSSL && (Not(This.webServer.HTTPSEnabled) || (This.webServer.HTTPSPort#$port) || (This.webServer.HTTPPort#$httpPort))) \
+			|| (Not($bIsSSL) && (This.webServer.HTTPSEnabled || (This.webServer.HTTPPort#$port))) \
+			|| (This.webServer.debugLog#$debugLog))
 			If (This.notificationMode)
 				$status.error:=cs._Tools.me.makeError(17; Null)
 				return $status
@@ -583,10 +589,11 @@ Function startWebServer($inParameters : Object) : Object
 	
 	If (Not(This.webServer.isRunning))
 		var $settings : Object:={}
-		$settings.HTTPEnabled:=Not($bIsSSL)
+		$settings.HTTPEnabled:=True
 		$settings.HTTPSEnabled:=$bIsSSL
 		If ($bIsSSL)
 			$settings.HTTPSPort:=$port
+			$settings.HTTPPort:=$httpPort
 			// Force TLSv1.2 as minimum: observed that Microsoft Graph webhook callbacks fail to connect over TLSv1.3 only
 			$settings.minTLSVersion:=TLSv1_2
 			If (Not(OB Is defined($inParameters; "certificateFolder")))
