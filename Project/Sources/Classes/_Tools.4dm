@@ -177,7 +177,8 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 			$result.contentType:=String($inObject.type)
 		End if 
 		If (Not(OB Is defined($inObject; "contentBytes")))
-			var $blob : Blob:=$inObject.getContent()
+			// Calling .getContent() will populate the contentBytes property, so we need to call it at least once to ensure contentBytes is available for the GraphAttachment
+			$inObject.getContent()
 		End if 
 		$result.contentBytes:=$inObject.contentBytes
 		$result.size:=$inObject.size
