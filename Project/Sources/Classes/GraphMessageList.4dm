@@ -50,5 +50,3 @@ Function get mails() : Collection
 	
 	return This._internals._mails
 	
-	
-

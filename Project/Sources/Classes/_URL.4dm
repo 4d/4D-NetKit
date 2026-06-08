@@ -33,8 +33,9 @@ Class constructor($inParam : Variant)
     
     
     // Mark: - [Private]
-    // ============================================================
-    
+	// ----------------------------------------------------
+
+
 Function _init()
 /**
  * @function _init
@@ -53,8 +54,9 @@ Function _init()
     
     
     // Mark: - [Public]
-    // ============================================================
-    
+    // ----------------------------------------------------
+
+
 Function parse($inURL : Text)
 /**
  * @function parse
@@ -157,7 +159,8 @@ Function parse($inURL : Text)
     End if 
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
     
 Function parseQuery($inQueryString : Text)
 /**
@@ -202,7 +205,8 @@ Function parseQuery($inQueryString : Text)
     End if 
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
     
 Function toString() : Text
 /**
@@ -243,7 +247,8 @@ Function toString() : Text
     return $URL
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
     
 Function toJSON() : Object
 /**
@@ -268,8 +273,9 @@ Function toJSON() : Object
     return $json
     
     
-    // ============================================================
-    
+    // -----------------------------------------------------------
+
+
 Function fromJSON($inURL : Object)
 /**
  * @function fromJSON
@@ -299,7 +305,8 @@ Function fromJSON($inURL : Object)
     End if 
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
     
 Function addQueryParameter( ...  : Variant)
 /**
@@ -335,8 +342,9 @@ Function addQueryParameter( ...  : Variant)
     End case 
     
     
-    // ============================================================
-    
+    // -----------------------------------------------------------
+
+
 Function getQueryString() : Text
 /**
  * @function getQueryString
@@ -350,8 +358,9 @@ Function getQueryString() : Text
     return ""
     
     
-    // ============================================================
-    
+    // -----------------------------------------------------------
+
+
 Function getDefaultPort() : Integer
 /**
  * @function getDefaultPort
@@ -370,8 +379,9 @@ Function getDefaultPort() : Integer
     
     
     // Mark: - Getters/Setters
-    // ============================================================
-    
+    // -----------------------------------------------------------
+
+
 Function get query() : Text
 /**
  * @function get query
@@ -394,7 +404,8 @@ Function get query() : Text
     return $query
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function set query($inQueryString : Text)
 /**
@@ -407,7 +418,8 @@ Function set query($inQueryString : Text)
     This.parseQuery($inQueryString)
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function get port() : Integer
 /**
@@ -423,7 +435,8 @@ Function get port() : Integer
     return This._port
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function set port($inPort : Integer)
 /**
@@ -437,7 +450,8 @@ Function set port($inPort : Integer)
     End if 
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function get path() : Text
 /**
@@ -449,7 +463,8 @@ Function get path() : Text
     return This._path
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function set path($inPath : Text)
 /**
@@ -466,7 +481,8 @@ Function set path($inPath : Text)
     
     
     // Mark: - Utility Methods
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function isValid() : Boolean
 /**
@@ -478,7 +494,8 @@ Function isValid() : Boolean
     return (Length(This.scheme)>0) && (Length(This.host)>0)
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function isAbsolute() : Boolean
 /**
@@ -490,7 +507,8 @@ Function isAbsolute() : Boolean
     return (Length(This.scheme)>0)
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function clone() : Object
 /**
@@ -518,7 +536,8 @@ Function clone() : Object
     return $cloned
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function clear()
 /**
@@ -529,7 +548,8 @@ Function clear()
     This._init()
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+
     
 Function removeQueryParameter( ... : Variant) : Boolean
 /**
@@ -578,7 +598,8 @@ Function removeQueryParameter( ... : Variant) : Boolean
     return $found
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
 
 Function hasQueryParameter($paramName : Text) : Boolean
 /**
@@ -598,7 +619,8 @@ Function hasQueryParameter($paramName : Text) : Boolean
     return False
     
     
-    // ============================================================
+    // -----------------------------------------------------------
+    
     
 Function getQueryParameter($paramName : Text) : Text
 /**

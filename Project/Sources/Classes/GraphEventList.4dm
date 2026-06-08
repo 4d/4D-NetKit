@@ -24,6 +24,7 @@ Class constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders 
 	This._internals._events:=Null
 	This._internals._update:=True
 	
+
 	// Mark: - [Public]
 	// ----------------------------------------------------
 	

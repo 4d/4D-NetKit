@@ -679,7 +679,6 @@ Function createLabel($inLabelInfo : Object) : Object
 	return This._returnStatus(($response#Null) ? {label: $response} : Null)
 	
 	
-	
 	// ----------------------------------------------------
 	
 	

@@ -365,6 +365,9 @@ Function getEvent($inParameters : Object) : Object
     return Null
     
     
+    // ----------------------------------------------------
+    
+    
 Function getEvents($inParameters : Object) : Object
 /**
  * @function getEvents

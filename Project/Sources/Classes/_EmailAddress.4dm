@@ -45,7 +45,8 @@ Function _init()
 	
 	
 	// ----------------------------------------------------
-	
+
+
 Function _normalizeDisplayName($inName : Text) : Text
 /**
  * @function _normalizeDisplayName
