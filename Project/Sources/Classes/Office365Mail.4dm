@@ -357,7 +357,7 @@ Function getMail($inMailId : Text; $inOptions : Object) : Variant
 	// ----------------------------------------------------
 	
 	
-Function getMails($inParameters : Object) : Object
+Function getMails($inParameters : Object) : cs.GraphMessageList
 /**
  * @function getMails
  * @param {Object} $inParameters - Query options:
@@ -713,7 +713,7 @@ Function getFolder($inFolderId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getFolderList($inParameters : Object) : Object
+Function getFolderList($inParameters : Object) : cs.GraphFolderList
 /**
  * @function getFolderList
  * @param {Object} $inParameters - Query options:

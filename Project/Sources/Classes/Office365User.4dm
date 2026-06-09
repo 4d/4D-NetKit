@@ -98,7 +98,7 @@ Function get($inID : Text; $inSelect : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function list($inParameters : Object) : Object
+Function list($inParameters : Object) : cs.GraphUserList
 /**
  * @function list
  * @param {Object} $inParameters - Query options:
@@ -139,7 +139,7 @@ Function list($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function count($inParameters : Object) : Object
+Function count($inParameters : Object) : cs.GraphUserList
 /**
  * @function count
  * @param {Object} $inParameters - Query options (same as `list`); `$count=true` and

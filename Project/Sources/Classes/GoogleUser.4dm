@@ -181,7 +181,7 @@ Function get($inResourceName : Text; $inPersonFields : Variant) : Object
 	// ----------------------------------------------------
 	
 	
-Function list($inParameters : Object) : Object
+Function list($inParameters : Object) : cs.GoogleUserList
 /**
  * @function list
  * @param {Object} $inParameters - Query options forwarded to `_getURLParamsFromObject`

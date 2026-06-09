@@ -299,7 +299,7 @@ Function untrash($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
-Function getMailIds($inParameters : Object) : Object
+Function getMailIds($inParameters : Object) : cs.GoogleMailIdList
 /**
  * @function getMailIds
  * @param {Object} $inParameters - Query options forwarded to `_getURLParamsFromObject`;

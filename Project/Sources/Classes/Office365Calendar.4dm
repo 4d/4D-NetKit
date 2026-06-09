@@ -242,7 +242,7 @@ Function getCalendar($inID : Text; $inSelect : Text) : Object
     // ----------------------------------------------------
     
     
-Function getCalendars($inParameters : Object) : Object
+Function getCalendars($inParameters : Object) : cs.GraphCalendarList
 /**
  * @function getCalendars
  * @param {Object} $inParameters - Query options:
@@ -283,7 +283,7 @@ Function getCalendars($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function getEvent($inParameters : Object) : Object
+Function getEvent($inParameters : Object) : cs.GraphEvent
 /**
  * @function getEvent
  * @param {Object} $inParameters - Required and optional parameters:
@@ -368,7 +368,7 @@ Function getEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function getEvents($inParameters : Object) : Object
+Function getEvents($inParameters : Object) : cs.GraphEventList
 /**
  * @function getEvents
  * @param {Object} $inParameters - Required and optional parameters:

@@ -128,7 +128,7 @@ Function getCalendar($inID : Text) : Object
     // ----------------------------------------------------
     
     
-Function getCalendars($inParameters : Object) : Object
+Function getCalendars($inParameters : Object) : cs.GoogleCalendarList
 /**
  * @function getCalendars
  * @param {Object} $inParameters - Query options; recognised properties:
@@ -185,7 +185,7 @@ Function getCalendars($inParameters : Object) : Object
     // ----------------------------------------------------
 
 
-Function getEvent($inParameters : Object) : Object
+Function getEvent($inParameters : Object) : cs.GoogleEvent
 /**
  * @function getEvent
  * @param {Object} $inParameters - Query options; required properties:
@@ -239,7 +239,7 @@ Function getEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
-Function getEvents($inParameters : Object) : Object
+Function getEvents($inParameters : Object) : cs.GoogleEventList
 /**
  * @function getEvents
  * @param {Object} $inParameters - Query options; recognised properties:
