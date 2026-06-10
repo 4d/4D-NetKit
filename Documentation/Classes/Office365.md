@@ -560,6 +560,12 @@ Callback functions are called along with two parameters:
 
 ### `endPoint` management
 
+Using an `endPoint`, you let Microsoft call your application whenever a change occurs. To enable the mode, provide an endPoint` property containing the callback URL:
+
+```4d
+$parameter.endPoint:="https://mydomain.com/notifications"
+```
+
 - If the endPoint port is the same as the host port, 4D NetKit must use the host web server automatically to retrieve the notification. 
 - If the port is not specified in the endPoint, standard ports (80 for http and 443 for https) are used. If the host project is configured with the standard ports, the host project web server is used, otherwhise the 4D Netkit web server is used.
 - In any other case, the 4D Netkit component webserver is used.
@@ -579,7 +585,14 @@ When the endPoint uses the host web server, the following [http handler](https:/
 
 If the OAuth 2.0 connection uses an HTTPS redirect URI, the port must match exactly.
 
-If both a `calendar.notifier` and  a [`mail.notifier`](#office365mailnotifier) andare declared, they must use the same port.
+If both a `calendar.notifier` and  a [`mail.notifier`](#office365mailnotifier) are declared, they must use the same port.
+
+**Note:** You need to enable **TLS 1.2** on 4D to use the Office365 notifier with the push mode:
+
+```
+// server settings
+$settings.minTLSVersion:=TLSv1_2
+```
 
 
 
@@ -596,7 +609,7 @@ $calNotif:=$office365.calendar.notifier({ \
 $status:=$calNotif.start()
 
 // Stop
-$status:=$notif.stop()
+$status:=$calNotif.stop()
 ```
 
 
