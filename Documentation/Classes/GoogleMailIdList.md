@@ -7,24 +7,13 @@ Paginated list of Gmail message identifiers returned by the Gmail
 `id` and `threadId`) via the `mailIds` getter; use `next()` / `previous()`
 inherited from `_BaseList` to navigate pages.
 
-## Table of Contents
+## Properties
 
-### Initialization
+A `GoogleMailIdList` object exposes the following properties:
 
-* [cs.NetKit.GoogleMailIdList.new()](#csnetkitgooglemailidlistnew)
-
-## **cs.NetKit.GoogleMailIdList.new()**
-
-**cs.NetKit.GoogleMailIdList.new**( *$inProvider* : cs.OAuth2Provider ; *$inURL* : Text ) : cs.NetKit.GoogleMailIdList
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider used for token retrieval |
-| $inURL | Text | -> | Full URL of the Gmail messages list endpoint (including query parameters such as `q`, `maxResults`, etc.) |
-| Result | cs.NetKit.GoogleMailIdList | <- | Object of the GoogleMailIdList class |
-
+| Property | Type | Description |
+|---|---|---|
+| mailIds | Collection | (read-only) Returns the raw list items from the current page as delivered by the API; call `next()` to advance to the following page |
 
 ## See also
 

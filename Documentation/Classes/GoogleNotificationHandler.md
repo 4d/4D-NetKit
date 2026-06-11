@@ -9,21 +9,15 @@ webhook requests and Gmail Pub/Sub push messages to the appropriate active
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GoogleNotificationHandler.new()](#csnetkitgooglenotificationhandlernew)
-
 ### Functions
 
-* [GoogleNotificationHandler.getResponse()](#googlenotificationhandlergetresponse)
+* [.getResponse()](#getresponse)
 
-## **cs.NetKit.GoogleNotificationHandler.new()**
+## Functions
 
-**cs.NetKit.GoogleNotificationHandler.new**() : cs.NetKit.GoogleNotificationHandler
+### .getResponse()
 
-### GoogleNotificationHandler.getResponse()
-
-**GoogleNotificationHandler.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
+**.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
 
 #### Parameters
 
@@ -40,7 +34,6 @@ to `_processCalendarNotification`
 - Gmail Pub/Sub: JSON body with `message.data` (base64 encoded); routes
 to `_processGmailNotification`
 See inline documentation for the expected payload formats
-
 
 ## See also
 

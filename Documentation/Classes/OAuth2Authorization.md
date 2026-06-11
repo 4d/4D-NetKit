@@ -9,21 +9,15 @@ and returns an HTML response or 302 redirect to the browser.
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.OAuth2Authorization.new()](#csnetkitoauth2authorizationnew)
-
 ### Functions
 
-* [OAuth2Authorization.getResponse()](#oauth2authorizationgetresponse)
+* [.getResponse()](#getresponse)
 
-## **cs.NetKit.OAuth2Authorization.new()**
+## Functions
 
-**cs.NetKit.OAuth2Authorization.new**() : cs.NetKit.OAuth2Authorization
+### .getResponse()
 
-### OAuth2Authorization.getResponse()
-
-**OAuth2Authorization.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
+**.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
 
 #### Parameters
 
@@ -37,7 +31,6 @@ and returns an HTML response or 302 redirect to the browser.
 Extracts `state` from the URL, calls `_authorize()` to store the
 authorization code in `Storage.requests`, and sends the configured
 `authenticationPage` or a default HTML response to the browser.
-
 
 ## See also
 

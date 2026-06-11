@@ -7,24 +7,13 @@ Paginated list of Google Calendar entries returned by the
 `calendars` getter; use `next()` / `previous()` inherited from `_BaseList`
 to navigate pages.
 
-## Table of Contents
+## Properties
 
-### Initialization
+A `GoogleCalendarList` object exposes the following properties:
 
-* [cs.NetKit.GoogleCalendarList.new()](#csnetkitgooglecalendarlistnew)
-
-## **cs.NetKit.GoogleCalendarList.new()**
-
-**cs.NetKit.GoogleCalendarList.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.GoogleCalendarList
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider used for token retrieval |
-| $inParameters | Object | -> | `_GoogleBaseList` parameters object; pass at minimum `{url: Text}` pointing to the `calendarList.list` endpoint |
-| Result | cs.NetKit.GoogleCalendarList | <- | Object of the GoogleCalendarList class |
-
+| Property | Type | Description |
+|---|---|---|
+| calendars | Collection | (read-only) Returns the raw calendar objects from the current page as delivered by the API; call `next()` to advance to the following page |
 
 ## See also
 

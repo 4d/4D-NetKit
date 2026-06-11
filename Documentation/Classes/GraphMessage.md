@@ -6,33 +6,14 @@ Represents a single Microsoft Graph mail message.
 Extends `_GraphAPI` and is hydrated from a Graph API response via `_loadFromObject`.
 Provides lazy-loaded `attachments` via a Graph API call on first access.
 
-## Table of Contents
+## Properties
 
-### Initialization
-
-* [cs.NetKit.GraphMessage.new()](#csnetkitgraphmessagenew)
-
-## **cs.NetKit.GraphMessage.new()**
-
-**cs.NetKit.GraphMessage.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ; *$inObject* : Object ) : cs.NetKit.GraphMessage
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider for authenticating requests |
-| $inParameters | Object | -> | Context options: - `mailType` {Text} — `"Microsoft"` (default), `"JMAP"`, or `"MIME"` - `userId` {Text} — Graph user ID or UPN (used when fetching attachments) |
-| $inObject | Object | -> | Raw Graph API message object to hydrate from |
-| Result | cs.NetKit.GraphMessage | <- | Object of the GraphMessage class |
-
-### Properties
-
-The returned `GraphMessage` object contains the following properties:
+A `GraphMessage` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
 | id | Text |  |
-
+| attachments | Collection | (read-only) Collection of `GraphAttachment` instances for this message; fetched on first access (lazy) and cached. Note: `hasAttachments` is unreliable for inline-only attachments — the Graph API is always queried regardless (see inline comment for Microsoft docs link). |
 
 ## See also
 

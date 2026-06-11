@@ -7,27 +7,9 @@ Paginated list of Google Calendar events returned by the
 instance on first access via the `events` getter (lazy, cached);
 use `next()` / `previous()` inherited from `_BaseList` to navigate pages.
 
-## Table of Contents
+## Properties
 
-### Initialization
-
-* [cs.NetKit.GoogleEventList.new()](#csnetkitgoogleeventlistnew)
-
-## **cs.NetKit.GoogleEventList.new()**
-
-**cs.NetKit.GoogleEventList.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.GoogleEventList
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider used for token retrieval |
-| $inParameters | Object | -> | `_GoogleBaseList` parameters object; pass at minimum `{url: Text}` pointing to the `events.list` endpoint. Top-level response properties (`kind`, `etag`, `summary`, etc.) are forwarded automatically when listed in `$inParameters.attributes`. |
-| Result | cs.NetKit.GoogleEventList | <- | Object of the GoogleEventList class |
-
-### Properties
-
-The returned `GoogleEventList` object contains the following properties:
+A `GoogleEventList` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -40,7 +22,7 @@ The returned `GoogleEventList` object contains the following properties:
 | timeZone | Text |  |
 | accessRole | Text |  |
 | defaultReminders | Collection |  |
-
+| events | Collection | (read-only) Lazily wraps each raw event object from `_internals._list` into a `GoogleEvent` instance on first access; the result is cached and invalidated when `next()` / `previous()` loads a new page |
 
 ## See also
 

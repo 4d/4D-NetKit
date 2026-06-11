@@ -10,49 +10,33 @@ Accepts messages in Microsoft Graph JSON (`"Microsoft"`), JMAP (`"JMAP"`), or MI
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.Office365Mail.new()](#csnetkitoffice365mailnew)
-
 ### Mails
 
-* [Office365Mail.append()](#office365mailappend)
-* [Office365Mail.copy()](#office365mailcopy)
-* [Office365Mail.delete()](#office365maildelete)
-* [Office365Mail.getMail()](#office365mailgetmail)
-* [Office365Mail.getMails()](#office365mailgetmails)
-* [Office365Mail.move()](#office365mailmove)
-* [Office365Mail.reply()](#office365mailreply)
-* [Office365Mail.send()](#office365mailsend)
-* [Office365Mail.update()](#office365mailupdate)
+* [.append()](#append)
+* [.copy()](#copy)
+* [.delete()](#delete)
+* [.getMail()](#getmail)
+* [.getMails()](#getmails)
+* [.move()](#move)
+* [.reply()](#reply)
+* [.send()](#send)
+* [.update()](#update)
 
 ### Folders
 
-* [Office365Mail.createFolder()](#office365mailcreatefolder)
-* [Office365Mail.deleteFolder()](#office365maildeletefolder)
-* [Office365Mail.getFolder()](#office365mailgetfolder)
-* [Office365Mail.getFolderList()](#office365mailgetfolderlist)
-* [Office365Mail.renameFolder()](#office365mailrenamefolder)
+* [.createFolder()](#createfolder)
+* [.deleteFolder()](#deletefolder)
+* [.getFolder()](#getfolder)
+* [.getFolderList()](#getfolderlist)
+* [.renameFolder()](#renamefolder)
 
 ### Notifications
 
-* [Office365Mail.notifier()](#office365mailnotifier)
+* [.notifier()](#notifier)
 
-## **cs.NetKit.Office365Mail.new()**
+## Properties
 
-**cs.NetKit.Office365Mail.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.Office365Mail
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider for authenticating requests |
-| $inParameters | Object | -> | Configuration object; recognised properties: - `mailType` {Text} — Mail format: `"Microsoft"` (default), `"JMAP"`, or `"MIME"` - `userId` {Text} — Graph user ID or UPN; defaults to `""` (uses `me` endpoint) |
-| Result | cs.NetKit.Office365Mail | <- | Object of the Office365Mail class |
-
-### Properties
-
-The returned `Office365Mail` object contains the following properties:
+A `Office365Mail` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -61,9 +45,9 @@ The returned `Office365Mail` object contains the following properties:
 
 ## Mails
 
-### Office365Mail.append()
+### .append()
 
-**Office365Mail.append**( *$inMail* : Variant ; *$inFolderId* : Text ) : Object
+**.append**( *$inMail* : Variant { ; *$inFolderId* : Text } ) : Object
 
 #### Parameters
 
@@ -78,9 +62,9 @@ The returned `Office365Mail` object contains the following properties:
 Saves a message to a mail folder without sending it via
 `POST /me/mailFolders/{id}/messages` (or `/users/{id}/...`)
 
-### Office365Mail.copy()
+### .copy()
 
-**Office365Mail.copy**( *$inMailId* : Text ; *$inFolderId* : Text ) : Object
+**.copy**( *$inMailId* : Text ; *$inFolderId* : Text ) : Object
 
 #### Parameters
 
@@ -95,9 +79,9 @@ Saves a message to a mail folder without sending it via
 Copies a message to another folder via
 `POST /me/messages/{id}/copy`
 
-### Office365Mail.delete()
+### .delete()
 
-**Office365Mail.delete**( *$inMailId* : Text ) : Object
+**.delete**( *$inMailId* : Text ) : Object
 
 #### Parameters
 
@@ -110,9 +94,9 @@ Copies a message to another folder via
 
 Permanently deletes a message via `DELETE /me/messages/{id}`
 
-### Office365Mail.getMail()
+### .getMail()
 
-**Office365Mail.getMail**( *$inMailId* : Text ; *$inOptions* : Object ) : Variant
+**.getMail**( *$inMailId* : Text { ; *$inOptions* : Object } ) : Variant
 
 #### Parameters
 
@@ -126,9 +110,9 @@ Permanently deletes a message via `DELETE /me/messages/{id}`
 
 Fetches a single message via `GET /me/messages/{id}` (or `/$value` for MIME)
 
-### Office365Mail.getMails()
+### .getMails()
 
-**Office365Mail.getMails**( *$inParameters* : Object ) : [cs.NetKit.GraphMessageList](./GraphMessageList.md)
+**.getMails**( *$inParameters* : Object ) : [cs.NetKit.GraphMessageList](./GraphMessageList.md)
 
 #### Parameters
 
@@ -141,9 +125,9 @@ Fetches a single message via `GET /me/messages/{id}` (or `/$value` for MIME)
 
 Lists messages via `GET /me/messages` (or `/mailFolders/{id}/messages`)
 
-### Office365Mail.move()
+### .move()
 
-**Office365Mail.move**( *$inMailId* : Text ; *$inFolderId* : Text ) : Object
+**.move**( *$inMailId* : Text ; *$inFolderId* : Text ) : Object
 
 #### Parameters
 
@@ -158,9 +142,9 @@ Lists messages via `GET /me/messages` (or `/mailFolders/{id}/messages`)
 Moves a message to another folder via
 `POST /me/messages/{id}/move`
 
-### Office365Mail.reply()
+### .reply()
 
-**Office365Mail.reply**( *$inMail* : Object ; *$inMailId* : Text ; *$bReplyAll* : Boolean ) : Object
+**.reply**( *$inMail* : Object ; *$inMailId* : Text ; *$bReplyAll* : Boolean ) : Object
 
 #### Parameters
 
@@ -176,9 +160,9 @@ Moves a message to another folder via
 Replies to a message via
 `POST /me/messages/{id}/reply` or `/replyAll`
 
-### Office365Mail.send()
+### .send()
 
-**Office365Mail.send**( *$inMail* : Variant ) : Object
+**.send**( *$inMail* : Variant ) : Object
 
 #### Parameters
 
@@ -191,9 +175,9 @@ Replies to a message via
 
 Sends a mail message via `POST /me/sendMail`
 
-### Office365Mail.update()
+### .update()
 
-**Office365Mail.update**( *$inMailId* : Text ; *$inMail* : Object ) : Object
+**.update**( *$inMailId* : Text ; *$inMail* : Object ) : Object
 
 #### Parameters
 
@@ -209,9 +193,9 @@ Updates message properties via `PATCH /me/messages/{id}`
 
 ## Folders
 
-### Office365Mail.createFolder()
+### .createFolder()
 
-**Office365Mail.createFolder**( *$inFolderName* : Text ; *$bIsHidden* : Boolean ; *$inParentFolderId* : Text ) : Object
+**.createFolder**( *$inFolderName* : Text ; *$bIsHidden* : Boolean { ; *$inParentFolderId* : Text } ) : Object
 
 #### Parameters
 
@@ -226,9 +210,9 @@ Updates message properties via `PATCH /me/messages/{id}`
 
 Creates a mail folder via `POST /me/mailFolders` (or `/childFolders`)
 
-### Office365Mail.deleteFolder()
+### .deleteFolder()
 
-**Office365Mail.deleteFolder**( *$inFolderId* : Text ) : Object
+**.deleteFolder**( *$inFolderId* : Text ) : Object
 
 #### Parameters
 
@@ -241,9 +225,9 @@ Creates a mail folder via `POST /me/mailFolders` (or `/childFolders`)
 
 Permanently deletes a mail folder via `DELETE /me/mailFolders/{id}`
 
-### Office365Mail.getFolder()
+### .getFolder()
 
-**Office365Mail.getFolder**( *$inFolderId* : Text ) : Object
+**.getFolder**( *$inFolderId* : Text ) : Object
 
 #### Parameters
 
@@ -256,9 +240,9 @@ Permanently deletes a mail folder via `DELETE /me/mailFolders/{id}`
 
 Fetches a single mail folder via `GET /me/mailFolders/{id}`
 
-### Office365Mail.getFolderList()
+### .getFolderList()
 
-**Office365Mail.getFolderList**( *$inParameters* : Object ) : [cs.NetKit.GraphFolderList](./GraphFolderList.md)
+**.getFolderList**( *$inParameters* : Object ) : [cs.NetKit.GraphFolderList](./GraphFolderList.md)
 
 #### Parameters
 
@@ -272,9 +256,9 @@ Fetches a single mail folder via `GET /me/mailFolders/{id}`
 Lists mail folders via `GET /me/mailFolders`
 (or `/mailFolders/{id}/childFolders`)
 
-### Office365Mail.renameFolder()
+### .renameFolder()
 
-**Office365Mail.renameFolder**( *$inFolderId* : Text ; *$inNewFolderName* : Text ) : Object
+**.renameFolder**( *$inFolderId* : Text ; *$inNewFolderName* : Text ) : Object
 
 #### Parameters
 
@@ -290,9 +274,9 @@ Renames a mail folder via `PATCH /me/mailFolders/{id}`
 
 ## Notifications
 
-### Office365Mail.notifier()
+### .notifier()
 
-**Office365Mail.notifier**( *$inParameters* : Object ; *$inFolderId* : Text ) : cs.GraphNotification
+**.notifier**( *$inParameters* : Object { ; *$inFolderId* : Text } ) : cs.GraphNotification
 
 #### Parameters
 
@@ -306,7 +290,6 @@ Renames a mail folder via `PATCH /me/mailFolders/{id}`
 
 Creates a `GraphNotification` for mail change notifications via the
 Microsoft Graph subscription API. See inline comment for full parameter details.
-
 
 ## See also
 

@@ -8,29 +8,14 @@ of the attachment binary via `getContent()`.
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GoogleEventAttachment.new()](#csnetkitgoogleeventattachmentnew)
-
 ### Functions
 
-* [GoogleEventAttachment.getContent()](#googleeventattachmentgetcontent)
-* [GoogleEventAttachment.getIcon()](#googleeventattachmentgeticon)
+* [.getContent()](#getcontent)
+* [.getIcon()](#geticon)
 
-## **cs.NetKit.GoogleEventAttachment.new()**
+## Properties
 
-**cs.NetKit.GoogleEventAttachment.new**( *$inAttachment* : Object ) : cs.NetKit.GoogleEventAttachment
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inAttachment | Object | -> | Raw attachment object from the Calendar API event response; expected properties: `fileUrl`, `title`, `mimeType`, `iconLink` |
-| Result | cs.NetKit.GoogleEventAttachment | <- | Object of the GoogleEventAttachment class |
-
-### Properties
-
-The returned `GoogleEventAttachment` object contains the following properties:
+A `GoogleEventAttachment` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -40,9 +25,17 @@ The returned `GoogleEventAttachment` object contains the following properties:
 | iconLink | Text |  |
 | contentBytes | 4D.Blob |  |
 
-### GoogleEventAttachment.getContent()
+## Functions
 
-**GoogleEventAttachment.getContent**() : 4D.Blob
+### .getContent()
+
+**.getContent**() : 4D.Blob
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| Result | 4D.Blob | <- | The attachment binary; `Null` if the download fails |
 
 #### Description
 
@@ -50,15 +43,20 @@ Downloads the attachment from `fileUrl` on first call and caches the
 result in `contentBytes`; subsequent calls return the cached blob without
 making a new HTTP request
 
-### GoogleEventAttachment.getIcon()
+### .getIcon()
 
-**GoogleEventAttachment.getIcon**() : Picture
+**.getIcon**() : Picture
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| Result | Picture | <- | The attachment icon as a 4D Picture; `Null` if the download fails |
 
 #### Description
 
 Downloads the icon image from `iconLink` and converts the blob to a
 4D Picture via `BLOB TO PICTURE`; not cached — a new HTTP request is made on each call
-
 
 ## See also
 

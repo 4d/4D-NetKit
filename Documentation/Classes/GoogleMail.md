@@ -8,48 +8,32 @@ and change-notification operations. Supports both JMAP (4D mail object) and MIME
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GoogleMail.new()](#csnetkitgooglemailnew)
-
 ### Mails
 
-* [GoogleMail.append()](#googlemailappend)
-* [GoogleMail.send()](#googlemailsend)
-* [GoogleMail.delete()](#googlemaildelete)
-* [GoogleMail.untrash()](#googlemailuntrash)
-* [GoogleMail.getMailIds()](#googlemailgetmailids)
-* [GoogleMail.getMail()](#googlemailgetmail)
-* [GoogleMail.getMails()](#googlemailgetmails)
-* [GoogleMail.update()](#googlemailupdate)
+* [.append()](#append)
+* [.delete()](#delete)
+* [.getMail()](#getmail)
+* [.getMailIds()](#getmailids)
+* [.getMails()](#getmails)
+* [.send()](#send)
+* [.untrash()](#untrash)
+* [.update()](#update)
 
 ### Labels
 
-* [GoogleMail.getLabelList()](#googlemailgetlabellist)
-* [GoogleMail.getLabel()](#googlemailgetlabel)
-* [GoogleMail.createLabel()](#googlemailcreatelabel)
-* [GoogleMail.deleteLabel()](#googlemaildeletelabel)
-* [GoogleMail.updateLabel()](#googlemailupdatelabel)
+* [.createLabel()](#createlabel)
+* [.deleteLabel()](#deletelabel)
+* [.getLabel()](#getlabel)
+* [.getLabelList()](#getlabellist)
+* [.updateLabel()](#updatelabel)
 
 ### Notifications
 
-* [GoogleMail.notifier()](#googlemailnotifier)
+* [.notifier()](#notifier)
 
-## **cs.NetKit.GoogleMail.new()**
+## Properties
 
-**cs.NetKit.GoogleMail.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.GoogleMail
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider used for token retrieval |
-| $inParameters | Object | -> | Configuration object; recognised properties: - `mailType` {Text} — Default output format for received messages: `"JMAP"` (4D mail object, default) or `"MIME"` (raw RFC 2822 blob) - `userId` {Text} — Gmail user ID; defaults to `"me"` (the authenticated user) |
-| Result | cs.NetKit.GoogleMail | <- | Object of the GoogleMail class |
-
-### Properties
-
-The returned `GoogleMail` object contains the following properties:
+A `GoogleMail` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -58,9 +42,9 @@ The returned `GoogleMail` object contains the following properties:
 
 ## Mails
 
-### GoogleMail.append()
+### .append()
 
-**GoogleMail.append**( *$inMail* : Variant ; *$inLabelIds* : Collection ) : Object
+**.append**( *$inMail* : Variant { ; *$inLabelIds* : Collection } ) : Object
 
 #### Parameters
 
@@ -76,24 +60,9 @@ Stores a mail message without sending it via
 `POST users/{userId}/messages/`; useful for importing existing messages or saving
 drafts with custom labels
 
-### GoogleMail.send()
+### .delete()
 
-**GoogleMail.send**( *$inMail* : Variant ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inMail | Variant | -> | Mail to send; BLOB or Text (MIME) when `mailType` is `"MIME"`, Object (JMAP) when `mailType` is `"JMAP"` |
-| Result | Object | <- | Status object `{success; statusText}` |
-
-#### Description
-
-Sends a mail message via `POST users/{userId}/messages/send`
-
-### GoogleMail.delete()
-
-**GoogleMail.delete**( *$inMailId* : Text ; *$permanently* : Boolean ) : Object
+**.delete**( { *$inMailId* : Text ; *$permanently* : Boolean } ) : Object
 
 #### Parameters
 
@@ -107,39 +76,9 @@ Sends a mail message via `POST users/{userId}/messages/send`
 
 Deletes a mail message, either permanently or by trashing it
 
-### GoogleMail.untrash()
+### .getMail()
 
-**GoogleMail.untrash**( *$inMailId* : Text ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inMailId | Text | -> | Gmail message ID to restore; pushes error 10 when not a Text, error 9 when empty |
-| Result | Object | <- | Status object `{success; statusText}` |
-
-#### Description
-
-Removes a message from Trash via `POST users/{userId}/messages/{id}/untrash`
-
-### GoogleMail.getMailIds()
-
-**GoogleMail.getMailIds**( *$inParameters* : Object ) : [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md)
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inParameters | Object | -> | Query options forwarded to `_getURLParamsFromObject`; see the Gmail `users.messages.list` API for supported parameters (e.g. `q`, `labelIds`, `maxResults`, `pageToken`) |
-| Result | [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md) | <- | Paginated list of Gmail message IDs; use `next()` / `previous()` to navigate pages |
-
-#### Description
-
-Returns a `GoogleMailIdList` for the first page of matching messages
-
-### GoogleMail.getMail()
-
-**GoogleMail.getMail**( *$inMailId* : Text ; *$inParameters* : Object ) : Variant
+**.getMail**( { *$inMailId* : Text ; *$inParameters* : Object } ) : Variant
 
 #### Parameters
 
@@ -154,9 +93,24 @@ Returns a `GoogleMailIdList` for the first page of matching messages
 Fetches a single message via `GET users/{userId}/messages/{id}` and
 converts the response via `_extractRawMessage`
 
-### GoogleMail.getMails()
+### .getMailIds()
 
-**GoogleMail.getMails**( *$inMailIds* : Collection ; *$inParameters* : Object ) : Collection
+**.getMailIds**( *$inParameters* : Object ) : [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md)
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inParameters | Object | -> | Query options forwarded to `_getURLParamsFromObject`; see the Gmail `users.messages.list` API for supported parameters (e.g. `q`, `labelIds`, `maxResults`, `pageToken`) |
+| Result | [cs.NetKit.GoogleMailIdList](./GoogleMailIdList.md) | <- | Paginated list of Gmail message IDs; use `next()` / `previous()` to navigate pages |
+
+#### Description
+
+Returns a `GoogleMailIdList` for the first page of matching messages
+
+### .getMails()
+
+**.getMails**( { *$inMailIds* : Collection ; *$inParameters* : Object } ) : Collection
 
 #### Parameters
 
@@ -171,9 +125,39 @@ converts the response via `_extractRawMessage`
 Fetches multiple messages: uses a single `getMail` call for one ID,
 or a `_GoogleBatchRequest` for multiple IDs to reduce round-trips
 
-### GoogleMail.update()
+### .send()
 
-**GoogleMail.update**( *$inMailIds* : Collection ; *$inParameters* : Object ) : Object
+**.send**( *$inMail* : Variant ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inMail | Variant | -> | Mail to send; BLOB or Text (MIME) when `mailType` is `"MIME"`, Object (JMAP) when `mailType` is `"JMAP"` |
+| Result | Object | <- | Status object `{success; statusText}` |
+
+#### Description
+
+Sends a mail message via `POST users/{userId}/messages/send`
+
+### .untrash()
+
+**.untrash**( { *$inMailId* : Text } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inMailId | Text | -> | Gmail message ID to restore; pushes error 10 when not a Text, error 9 when empty |
+| Result | Object | <- | Status object `{success; statusText}` |
+
+#### Description
+
+Removes a message from Trash via `POST users/{userId}/messages/{id}/untrash`
+
+### .update()
+
+**.update**( { *$inMailIds* : Collection ; *$inParameters* : Object } ) : Object
 
 #### Parameters
 
@@ -190,9 +174,54 @@ Batch-modifies labels on up to 1000 messages via
 
 ## Labels
 
-### GoogleMail.getLabelList()
+### .createLabel()
 
-**GoogleMail.getLabelList**( *$inParameters* : Object ) : Object
+**.createLabel**( { *$inLabelInfo* : Object } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inLabelInfo | Object | -> | Label properties to create (e.g. `name`, `messageListVisibility`, `labelListVisibility`); pushes error 10 when not an Object, error 9 when empty |
+| Result | Object | <- | Status object `{success; statusText; ?label}` where `label` is the created label resource on success |
+
+#### Description
+
+Creates a new label via `POST users/{userId}/labels`
+
+### .deleteLabel()
+
+**.deleteLabel**( { *$inLabelId* : Text } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inLabelId | Text | -> | Gmail label ID to delete; pushes error 10 when not a Text, error 9 when empty |
+| Result | Object | <- | Status object `{success; statusText}` |
+
+#### Description
+
+Permanently deletes a label via `DELETE users/{userId}/labels/{labelId}`
+
+### .getLabel()
+
+**.getLabel**( { *$inLabelId* : Text } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inLabelId | Text | -> | Gmail label ID to fetch; pushes error 10 when not a Text, error 9 when empty |
+| Result | Object | <- | Label resource object from the Gmail API, or `Null` when validation fails |
+
+#### Description
+
+Fetches a single label's details via `GET users/{userId}/labels/{labelId}`
+
+### .getLabelList()
+
+**.getLabelList**( { *$inParameters* : Object } ) : Object
 
 #### Parameters
 
@@ -206,54 +235,9 @@ Batch-modifies labels on up to 1000 messages via
 Retrieves one or more labels; when `ids` are provided or `withCounters`
 is True, individual label details are fetched via a `_GoogleBatchRequest`
 
-### GoogleMail.getLabel()
+### .updateLabel()
 
-**GoogleMail.getLabel**( *$inLabelId* : Text ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inLabelId | Text | -> | Gmail label ID to fetch; pushes error 10 when not a Text, error 9 when empty |
-| Result | Object | <- | Label resource object from the Gmail API, or `Null` when validation fails |
-
-#### Description
-
-Fetches a single label's details via `GET users/{userId}/labels/{labelId}`
-
-### GoogleMail.createLabel()
-
-**GoogleMail.createLabel**( *$inLabelInfo* : Object ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inLabelInfo | Object | -> | Label properties to create (e.g. `name`, `messageListVisibility`, `labelListVisibility`); pushes error 10 when not an Object, error 9 when empty |
-| Result | Object | <- | Status object `{success; statusText; ?label}` where `label` is the created label resource on success |
-
-#### Description
-
-Creates a new label via `POST users/{userId}/labels`
-
-### GoogleMail.deleteLabel()
-
-**GoogleMail.deleteLabel**( *$inLabelId* : Text ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inLabelId | Text | -> | Gmail label ID to delete; pushes error 10 when not a Text, error 9 when empty |
-| Result | Object | <- | Status object `{success; statusText}` |
-
-#### Description
-
-Permanently deletes a label via `DELETE users/{userId}/labels/{labelId}`
-
-### GoogleMail.updateLabel()
-
-**GoogleMail.updateLabel**( *$inLabelId* : Text ; *$inLabelInfo* : Object ) : Object
+**.updateLabel**( { *$inLabelId* : Text ; *$inLabelInfo* : Object } ) : Object
 
 #### Parameters
 
@@ -269,9 +253,9 @@ Fully replaces a label's properties via `PUT users/{userId}/labels/{labelId}`
 
 ## Notifications
 
-### GoogleMail.notifier()
+### .notifier()
 
-**GoogleMail.notifier**( *$inParameters* : Object ) : cs.GoogleNotification
+**.notifier**( { *$inParameters* : Object } ) : cs.GoogleNotification
 
 #### Parameters
 
@@ -285,7 +269,6 @@ Fully replaces a label's properties via `PUT users/{userId}/labels/{labelId}`
 Factory that creates a `GoogleNotification` for Gmail change monitoring.
 Push mode requires a Google Cloud Pub/Sub topic (`topicName`); pull mode polls
 the Gmail history API at a configurable interval.
-
 
 ## See also
 

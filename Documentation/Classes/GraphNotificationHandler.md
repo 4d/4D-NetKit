@@ -9,21 +9,15 @@ Registered at `/4dnk-graph-notification`; handles both validation requests
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GraphNotificationHandler.new()](#csnetkitgraphnotificationhandlernew)
-
 ### Functions
 
-* [GraphNotificationHandler.getResponse()](#graphnotificationhandlergetresponse)
+* [.getResponse()](#getresponse)
 
-## **cs.NetKit.GraphNotificationHandler.new()**
+## Functions
 
-**cs.NetKit.GraphNotificationHandler.new**() : cs.NetKit.GraphNotificationHandler
+### .getResponse()
 
-### GraphNotificationHandler.getResponse()
-
-**GraphNotificationHandler.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
+**.getResponse**( *$request* : 4D.IncomingMessage ) : 4D.OutgoingMessage
 
 #### Parameters
 
@@ -41,7 +35,6 @@ plain text with status 200
 routes each item to the matching monitor via `_processNotificationBody`
 
 See inline comment for the Graph webhook protocol reference.
-
 
 ## See also
 

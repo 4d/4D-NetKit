@@ -7,42 +7,26 @@ and events, and exposes a `notifier()` factory for push/pull change monitoring.
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GoogleCalendar.new()](#csnetkitgooglecalendarnew)
-
 ### Calendars
 
-* [GoogleCalendar.getCalendar()](#googlecalendargetcalendar)
-* [GoogleCalendar.getCalendars()](#googlecalendargetcalendars)
+* [.getCalendar()](#getcalendar)
+* [.getCalendars()](#getcalendars)
 
 ### Events
 
-* [GoogleCalendar.getEvent()](#googlecalendargetevent)
-* [GoogleCalendar.getEvents()](#googlecalendargetevents)
-* [GoogleCalendar.createEvent()](#googlecalendarcreateevent)
-* [GoogleCalendar.deleteEvent()](#googlecalendardeleteevent)
-* [GoogleCalendar.updateEvent()](#googlecalendarupdateevent)
+* [.createEvent()](#createevent)
+* [.deleteEvent()](#deleteevent)
+* [.getEvent()](#getevent)
+* [.getEvents()](#getevents)
+* [.updateEvent()](#updateevent)
 
 ### Notifications
 
-* [GoogleCalendar.notifier()](#googlecalendarnotifier)
+* [.notifier()](#notifier)
 
-## **cs.NetKit.GoogleCalendar.new()**
+## Properties
 
-**cs.NetKit.GoogleCalendar.new**( *$inProvider* : cs.OAuth2Provider ; *$inParameters* : Object ) : cs.NetKit.GoogleCalendar
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider used for token retrieval |
-| $inParameters | Object | -> | Configuration object; recognised properties: - `userId` {Text} — Google account identifier (defaults to empty, meaning the authenticated user) |
-| Result | cs.NetKit.GoogleCalendar | <- | Object of the GoogleCalendar class |
-
-### Properties
-
-The returned `GoogleCalendar` object contains the following properties:
+A `GoogleCalendar` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -50,9 +34,9 @@ The returned `GoogleCalendar` object contains the following properties:
 
 ## Calendars
 
-### GoogleCalendar.getCalendar()
+### .getCalendar()
 
-**GoogleCalendar.getCalendar**( *$inID* : Text ) : Object
+**.getCalendar**( { *$inID* : Text } ) : Object
 
 #### Parameters
 
@@ -66,9 +50,9 @@ The returned `GoogleCalendar` object contains the following properties:
 Fetches a single entry from the user's calendar list via
 `GET users/me/calendarList/{calendarId}`; pushes error 10 when `$inID` is not a Text
 
-### GoogleCalendar.getCalendars()
+### .getCalendars()
 
-**GoogleCalendar.getCalendars**( *$inParameters* : Object ) : [cs.NetKit.GoogleCalendarList](./GoogleCalendarList.md)
+**.getCalendars**( *$inParameters* : Object ) : [cs.NetKit.GoogleCalendarList](./GoogleCalendarList.md)
 
 #### Parameters
 
@@ -84,9 +68,41 @@ and returns a `GoogleCalendarList` for the first page
 
 ## Events
 
-### GoogleCalendar.getEvent()
+### .createEvent()
 
-**GoogleCalendar.getEvent**( *$inParameters* : Object ) : [cs.NetKit.GoogleEvent](./GoogleEvent.md)
+**.createEvent**( *$inEvent* : Object { ; *$inParameters* : Object } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inEvent | Object | -> | Event object to create; `start` / `end` are normalised via `_conformEvent` (flexible date/time input accepted); `id` is stripped automatically |
+| $inParameters | Object | -> | Request options; recognised properties: - `calendarId` {Text} — Target calendar ID (defaults to `"primary"`) - `conferenceDataVersion` {Integer|Text} — Conference data version - `maxAttendees` {Integer|Text} — Maximum attendees in the response - `sendNotifications` {Boolean} — Whether to send notifications to attendees - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"` - `supportsAttachments` {Boolean} — Whether attachments are supported |
+| Result | Object | <- | Status object `{success; statusText; ?event}` where `event` is the created `GoogleEvent` instance on success |
+
+#### Description
+
+Creates a new event via `POST calendars/{calendarId}/events`
+
+### .deleteEvent()
+
+**.deleteEvent**( { *$inParameters* : Object } ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inParameters | Object | -> | Request options; recognised properties: - `calendarId` {Text} — Calendar ID (defaults to `"primary"`) - `eventId` {Text} — ID of the event to delete - `sendNotifications` {Boolean} — Whether to send cancellation notifications - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"` |
+| Result | Object | <- | Status object `{success; statusText}` |
+
+#### Description
+
+Permanently deletes an event via
+`DELETE calendars/{calendarId}/events/{eventId}`
+
+### .getEvent()
+
+**.getEvent**( { *$inParameters* : Object } ) : [cs.NetKit.GoogleEvent](./GoogleEvent.md)
 
 #### Parameters
 
@@ -101,9 +117,9 @@ Fetches a single event via `GET calendars/{calendarId}/events/{eventId}`;
 pushes error 10 when `eventId` is not a Text, error 9 when `startDateTime` / `endDateTime`
 is missing from a paired requirement
 
-### GoogleCalendar.getEvents()
+### .getEvents()
 
-**GoogleCalendar.getEvents**( *$inParameters* : Object ) : [cs.NetKit.GoogleEventList](./GoogleEventList.md)
+**.getEvents**( { *$inParameters* : Object } ) : [cs.NetKit.GoogleEventList](./GoogleEventList.md)
 
 #### Parameters
 
@@ -117,41 +133,9 @@ is missing from a paired requirement
 Fetches events via `GET calendars/{calendarId}/events` and returns a
 `GoogleEventList` for the first page; use `next()` / `previous()` to navigate pages
 
-### GoogleCalendar.createEvent()
+### .updateEvent()
 
-**GoogleCalendar.createEvent**( *$inEvent* : Object ; *$inParameters* : Object ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inEvent | Object | -> | Event object to create; `start` / `end` are normalised via `_conformEvent` (flexible date/time input accepted); `id` is stripped automatically |
-| $inParameters | Object | -> | Request options; recognised properties: - `calendarId` {Text} — Target calendar ID (defaults to `"primary"`) - `conferenceDataVersion` {Integer|Text} — Conference data version - `maxAttendees` {Integer|Text} — Maximum attendees in the response - `sendNotifications` {Boolean} — Whether to send notifications to attendees - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"` - `supportsAttachments` {Boolean} — Whether attachments are supported |
-| Result | Object | <- | Status object `{success; statusText; ?event}` where `event` is the created `GoogleEvent` instance on success |
-
-#### Description
-
-Creates a new event via `POST calendars/{calendarId}/events`
-
-### GoogleCalendar.deleteEvent()
-
-**GoogleCalendar.deleteEvent**( *$inParameters* : Object ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inParameters | Object | -> | Request options; recognised properties: - `calendarId` {Text} — Calendar ID (defaults to `"primary"`) - `eventId` {Text} — ID of the event to delete - `sendNotifications` {Boolean} — Whether to send cancellation notifications - `sendUpdates` {Text} — `"all"`, `"externalOnly"`, or `"none"` |
-| Result | Object | <- | Status object `{success; statusText}` |
-
-#### Description
-
-Permanently deletes an event via
-`DELETE calendars/{calendarId}/events/{eventId}`
-
-### GoogleCalendar.updateEvent()
-
-**GoogleCalendar.updateEvent**( *$inEvent* : Object ; *$inParameters* : Object ) : Object
+**.updateEvent**( *$inEvent* : Object { ; *$inParameters* : Object } ) : Object
 
 #### Parameters
 
@@ -167,9 +151,9 @@ Updates an event via `PATCH` (default) or `PUT` (when `fullUpdate` is True)
 
 ## Notifications
 
-### GoogleCalendar.notifier()
+### .notifier()
 
-**GoogleCalendar.notifier**( *$inParameters* : Object ; *$inCalendarId* : Text ) : cs.GoogleNotification
+**.notifier**( { *$inParameters* : Object ; *$inCalendarId* : Text } ) : cs.GoogleNotification
 
 #### Parameters
 
@@ -184,7 +168,6 @@ Updates an event via `PATCH` (default) or `PUT` (when `fullUpdate` is True)
 Factory that creates a `GoogleNotification` for calendar event change
 monitoring. Push mode (webhook) requires `endPoint`; pull mode polls the Calendar
 events API with sync tokens at a configurable interval.
-
 
 ## See also
 

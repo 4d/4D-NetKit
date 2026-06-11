@@ -8,32 +8,15 @@ Can be built from a `4D.MailAttachment` via `fromMailAttachment()`.
 
 ## Table of Contents
 
-### Initialization
-
-* [cs.NetKit.GraphAttachment.new()](#csnetkitgraphattachmentnew)
-
 ### Functions
 
-* [GraphAttachment.getContent()](#graphattachmentgetcontent)
-* [GraphAttachment.setContent()](#graphattachmentsetcontent)
-* [GraphAttachment.fromMailAttachment()](#graphattachmentfrommailattachment)
+* [.fromMailAttachment()](#frommailattachment)
+* [.getContent()](#getcontent)
+* [.setContent()](#setcontent)
 
-## **cs.NetKit.GraphAttachment.new()**
+## Properties
 
-**cs.NetKit.GraphAttachment.new**( *$inProvider* : cs.OAuth2Provider ; *$inParams* : Object ; *$inObject* : Object ) : cs.NetKit.GraphAttachment
-
-### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inProvider | cs.OAuth2Provider | -> | OAuth2 provider for authenticating requests |
-| $inParams | Object | -> | Context: - `userId` {Text} — Graph user ID or UPN - `messageId` {Text} — Parent message ID (exclusive with `eventId`) - `eventId` {Text} — Parent event ID (exclusive with `messageId`) |
-| $inObject | Object | -> | Raw Graph API attachment object to hydrate from |
-| Result | cs.NetKit.GraphAttachment | <- | Object of the GraphAttachment class |
-
-### Properties
-
-The returned `GraphAttachment` object contains the following properties:
+A `GraphAttachment` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
@@ -45,34 +28,11 @@ The returned `GraphAttachment` object contains the following properties:
 | name | Text |  |
 | contentType | Text |  |
 
-### GraphAttachment.getContent()
+## Functions
 
-**GraphAttachment.getContent**() : 4D.Blob
+### .fromMailAttachment()
 
-#### Description
-
-Downloads attachment bytes via
-`GET /me/messages/{id}/attachments/{attachmentId}` or
-`GET /me/events/{id}/attachments/{attachmentId}`
-
-### GraphAttachment.setContent()
-
-**GraphAttachment.setContent**( *$inContent* : 4D.Blob )
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| $inContent | 4D.Blob | -> | Binary content to attach |
-
-#### Description
-
-Base64-encodes `$inContent` and stores it in `contentBytes`;
-also updates `size`. No-op when the blob is empty.
-
-### GraphAttachment.fromMailAttachment()
-
-**GraphAttachment.fromMailAttachment**( *$inObject* : 4D.MailAttachment )
+**.fromMailAttachment**( *$inObject* : 4D.MailAttachment )
 
 #### Parameters
 
@@ -86,6 +46,30 @@ Populates `This` from a `4D.MailAttachment`; sets `@odata.type`,
 `contentId`, `isInline`, `name`, `contentType`, and `contentBytes`.
 No-op when `$inObject` is not a `4D.MailAttachment` instance.
 
+### .getContent()
+
+**.getContent**() : 4D.Blob
+
+#### Description
+
+Downloads attachment bytes via
+`GET /me/messages/{id}/attachments/{attachmentId}` or
+`GET /me/events/{id}/attachments/{attachmentId}`
+
+### .setContent()
+
+**.setContent**( *$inContent* : 4D.Blob )
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| $inContent | 4D.Blob | -> | Binary content to attach |
+
+#### Description
+
+Base64-encodes `$inContent` and stores it in `contentBytes`;
+also updates `size`. No-op when the blob is empty.
 
 ## See also
 
