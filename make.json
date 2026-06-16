@@ -3,7 +3,8 @@
     "remove": [
       "LICENSE.md",
       "CONTRIBUTING.md",
-      "make.json"
+      "make.json",
+      "Documentation/UML Diagram.svg"
     ]
   }
 }
