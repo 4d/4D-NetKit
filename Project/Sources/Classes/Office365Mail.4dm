@@ -31,10 +31,11 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// ----------------------------------------------------
 	
 	
-Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
+Function _postJSONMessage($inFunction : Text; $inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object
 /**
  * @function _postJSONMessage
  * @private
+ * @param {Text} $inFunction - Caller name for error reporting (e.g. `"office365.mail.send"`)
  * @param {Text} $inURL - Target Graph API endpoint URL
  * @param {Object} $inMail - Mail object in Microsoft Graph JSON format
  * @param {Boolean} $bSkipMessageEncapsulation - When `True`, sends `$inMail` as-is;
@@ -53,6 +54,10 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsul
 			$headers:=OB Copy($inHeaders)
 		End if 
 		$headers["Content-Type"]:="application/json"
+		
+		If (Not(This._validateGraphMessageProperties($inMail; $inFunction)))
+			return This._returnStatus()
+		End if 
 		
 		var $message : Object
 		var $messageCopy : Object:=This._copyGraphMessage($inMail)
@@ -149,7 +154,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 				$status:=This._postMailMIMEMessage($inURL; $inMail)
 				
 			: ((This.mailType="Microsoft") && (Value type($inMail)=Is object))
-				$status:=This._postJSONMessage($inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
+				$status:=This._postJSONMessage($inFunction; $inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
 				
 			Else 
 				Super._throwError(10; {which: 1; function: $inFunction})
@@ -541,6 +546,10 @@ Function update($inMailId : Text; $inMail : Object) : Object
 	Try
 		
 		If ((Type($inMail)=Is object) && (Type($inMailId)=Is text) && (Length(String($inMailId))>0))
+			
+			If (Not(This._validateGraphMessageProperties($inMail; "office365.mail.update")))
+				return This._returnStatus()
+			End if 
 			
 			var $response : Object
 			var $URL : Text:=Super._getURL()
