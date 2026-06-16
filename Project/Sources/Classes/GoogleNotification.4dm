@@ -45,7 +45,7 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
     This._internals._workerName:=""
     This._internals._formWindow:=0
     This._internals._isStarted:=False
-    This._internals._expiration:=""
+    This._internals._expirationMs:=0
     
     // Push mode config
     This._internals._endPoint:=""
@@ -104,11 +104,24 @@ Function get endPoint : Text
 Function get expiration : Text
 /**
  * @function get expiration
- * @returns {Text} Expiration timestamp in milliseconds since epoch (as Text);
+ * @returns {Text} Expiration datetime as ISO 8601 UTC/GMT string (for example
+ *   `"2026-06-16T14:30:00Z"`);
  *   empty string when not started or when the subscription has no expiration
  */
-    
-    return This._internals._expiration
+
+    var $expirationMs : Real:=This._internals._expirationMs
+    If ($expirationMs<=0)
+        return ""
+    End if 
+
+    var $expirationSeconds : Integer:=$expirationMs\1000
+    var $daysSinceEpoch : Integer:=$expirationSeconds\86400
+    var $secondsInDay : Integer:=$expirationSeconds%86400
+
+    var $date : Date:=Add to date(!1970-01-01!; 0; 0; $daysSinceEpoch)
+    var $time : Time:=$secondsInDay
+
+    return String(Date($date); ISO date GMT; Time($time))
     
     
     // ----------------------------------------------------
@@ -225,7 +238,7 @@ Function stop() : Object
     End try
     
     This._internals._state:=""
-    This._internals._expiration:=""
+    This._internals._expirationMs:=0
     This._internals._historyId:=""
     This._internals._syncToken:=""
     This._internals._channelId:=""
@@ -302,9 +315,9 @@ Function _startMailPush($inState : Text) : Object
         This._internals._historyId:=String($response.historyId)
         This._internals._isStarted:=True
         
-        // Expiration is in milliseconds since epoch
+        // Convert Google expiration (epoch ms) to UTC/GMT datetime string
         If (Length(String($response.expiration))>0)
-            This._internals._expiration:=String($response.expiration)
+            This._setExpirationFromGoogle($response.expiration)
         End if 
         
         // Store emailAddress/userId for matching push notifications
@@ -394,9 +407,9 @@ Function _startCalendarPush($inState : Text) : Object
         This._internals._googleResourceId:=String($response.resourceId)
         This._internals._isStarted:=True
         
-        // Expiration is in milliseconds since epoch
+        // Convert Google expiration (epoch ms) to UTC/GMT datetime string
         If (Length(String($response.expiration))>0)
-            This._internals._expiration:=String($response.expiration)
+            This._setExpirationFromGoogle($response.expiration)
         End if 
         
         This._startMonitoring()
@@ -811,6 +824,24 @@ Function _pollCalendarChanges() : Collection
     
     // Mark: - [Private] Common
     // ----------------------------------------------------
+
+
+Function _setExpirationFromGoogle($inExpiration : Variant)
+/**
+ * @function _setExpirationFromGoogle
+ * @private
+ * @param {Variant} $inExpiration - Google expiration value in epoch milliseconds
+ * @description Stores the raw epoch milliseconds for internal renewal logic;
+ *   the public ISO 8601 UTC/GMT string is computed on demand by `get expiration`
+ */
+
+    var $expirationMs : Real:=Num($inExpiration)
+    If ($expirationMs<=0)
+        This._internals._expirationMs:=0
+        return 
+    End if 
+
+    This._internals._expirationMs:=$expirationMs
     
     
 Function _buildNotificationUrl($inState : Text) : Text
@@ -988,12 +1019,12 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
  *   stops the old one to maintain continuity
  */
     
-    If (Length(This._internals._expiration)=0)
+    If (This._internals._expirationMs<=0)
         return 
     End if 
     
     // Google expiration is in milliseconds since epoch
-    var $expirationMs : Real:=Num(This._internals._expiration)
+    var $expirationMs : Real:=This._internals._expirationMs
     var $expirationSeconds : Real:=$expirationMs/1000
     
     // Compute current UTC epoch seconds
@@ -1026,7 +1057,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
                 $response:=Super._sendRequestAndWaitResponse("POST"; $url; $headers; JSON Stringify($body))
                 
                 If (($response#Null) && (Length(String($response.expiration))>0))
-                    This._internals._expiration:=String($response.expiration)
+                    This._setExpirationFromGoogle($response.expiration)
                 End if 
                 
             Else 
@@ -1051,7 +1082,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
                     This._internals._channelId:=String($response.id)
                     This._internals._googleResourceId:=String($response.resourceId)
                     If (Length(String($response.expiration))>0)
-                        This._internals._expiration:=String($response.expiration)
+                        This._setExpirationFromGoogle($response.expiration)
                     End if 
                     
                     // Stop old channel
