@@ -180,6 +180,12 @@ Function start() : Object
     End if 
     
     Super._clearErrorStack()
+
+    // Avoid silent fallback to pull when Gmail push looks intended but is incomplete.
+    If ((This._internals._type="mail") && (Length(This._internals._endPoint)>0) && (Length(This._internals._topicName)=0))
+        This._throwError(2; {attribute: "topicName"})
+        return This._returnStatus()
+    End if 
     
     var $result : Object
     var $state : Text:=Generate UUID
