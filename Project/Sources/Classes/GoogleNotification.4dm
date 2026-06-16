@@ -56,7 +56,8 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
         If (Length(String($inParameters.endPoint))>0)
             This._internals._endPoint:=String($inParameters.endPoint)
         End if 
-        If (Length(String($inParameters.topicName))>0)
+        // topicName is meaningful only for Gmail (mail push via Pub/Sub)
+        If (($inType="mail") && (Length(String($inParameters.topicName))>0))
             This._internals._topicName:=String($inParameters.topicName)
         End if 
         If (Value type($inParameters.labelIds)=Is collection)
