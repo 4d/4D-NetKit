@@ -126,6 +126,15 @@ var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 
 Validates a JWT token using the provided public key or the key passed to the constructor.
 
+The function returns `True` if:
+- The token signature is valid.
+- The token is not expired (`exp` claim is in the future).
+
+The function returns `False` if:
+- The token's signature cannot be verified with the provided key.
+- The token has expired.
+- The token is malformed.
+
 ### Example
 
 ```4d
@@ -134,6 +143,35 @@ var $isValid:= cs.NetKit.JWT.new().validate($token; $key)
 
 ```
 
+## OpenID Connect use case
+
+When using an OAuth2 provider with the `openid` scope, the access token response includes an `id_token` (a JWT). You can use `JWT.decode()` and `JWT.validate()` to inspect and verify the identity information it contains:
+
+```4d
+var $provider:={}
+$provider.name:="Microsoft"
+$provider.permission:="signedIn"
+$provider.clientId:="your-client-id"
+$provider.redirectURI:="http://127.0.0.1:80/authorize/"
+$provider.scope:="openid profile email"
+$provider.nonce:="randomNonce456"  // optional custom nonce
+
+var $oauth:=cs.NetKit.OAuth2Provider.new($provider)
+var $token:=$oauth.getToken()
+
+// Access the id_token returned with the OpenID response
+If ($token.token.id_token#Null)
+
+  // Decode the JWT — header, payload, and signature
+  var $openID:=cs.NetKit.JWT.new().decode($token.token.id_token)
+
+  // Verify the nonce to prevent replay attacks
+  If ($openID.payload.nonce=$provider.nonce)
+    ALERT("Hello "+$openID.payload.name)
+  End if
+
+End if
+```
 
 ## See also
 
