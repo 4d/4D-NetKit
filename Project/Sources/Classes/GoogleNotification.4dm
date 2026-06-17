@@ -17,7 +17,8 @@ Class constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters
  *   determines the base URL (`gmail.googleapis.com` or `www.googleapis.com/calendar`)
  * @param {Object} $inParameters - Configuration object; recognised properties:
  *   - `onCreate`, `onDelete`, `onModify` {4D.Function} — Change-event callbacks
- *   - `endPoint` {Text} — Webhook URL for Calendar push mode
+ *   - `endPoint` {Text} — Webhook base URL; required for Calendar push mode,
+ *     optional for Gmail push mode to auto-ensure a local web server
  *   - `topicName` {Text} — Google Cloud Pub/Sub topic name for Gmail push mode
  *   - `labelIds` {Collection} — Gmail label filter for push mode
  *   - `timer` {Integer} — Polling interval in seconds for pull mode (default: 30)
@@ -164,8 +165,9 @@ Function start() : Object
 	Starts change notifications for Google Mail or Calendar.
 	
 	Two modes:
-	- Push:
-	    Mail: Creates a Gmail watch via Google Pub/Sub. Requires topicName parameter.
+    - Push:
+        Mail: Creates a Gmail watch via Google Pub/Sub. Requires topicName parameter.
+          If endPoint is provided, ensures a local web server is available on that endpoint.
 	      The user must have a Pub/Sub push subscription pointing to {serverUrl}/4dnk-google-notification.
 	    Calendar: Creates a Google Calendar watch channel via webhook. Requires endPoint parameter.
 	- Pull:
@@ -299,11 +301,25 @@ Function _startMailPush($inState : Text) : Object
 	1. A Google Cloud Pub/Sub topic with Gmail publish permissions
 	2. A push subscription on that topic pointing to {serverUrl}/4dnk-google-notification
 	
+    If endPoint is provided, this method also ensures a local web server is
+    available for receiving Pub/Sub push notifications.
+	
 	See: https://developers.google.com/gmail/api/guides/push
 */
     
     var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
+    var $storedUserId : Text:=$userId
     var $url : Text:=Super._getURL()+"users/"+$userId+"/watch"
+
+    // If an endpoint is provided for Gmail push, ensure a web server is listening.
+    If (Length(This._internals._endPoint)>0)
+        var $wsResult : Object:=cs._NotificationHelper.me.ensureWebServer(This._internals._endPoint)
+        If (Not($wsResult.success))
+            This._throwError(7; {port: $wsResult.port})
+            cs._NotificationHelper.me.cleanupStorage("googleNotifications"; $inState)
+            return This._returnStatus()
+        End if 
+    End if 
     
     var $body : Object:={}
     $body.topicName:=This._internals._topicName
@@ -327,9 +343,17 @@ Function _startMailPush($inState : Text) : Object
             This._setExpirationFromGoogle($response.expiration)
         End if 
         
+        // Resolve "me" to a concrete email when possible, then store for webhook matching.
+        If ($userId="me")
+            var $profile : Object:=Try(Super._sendRequestAndWaitResponse("GET"; Super._getURL()+"users/me/profile"))
+            If (($profile#Null) && (Length(String($profile.emailAddress))>0))
+                $storedUserId:=String($profile.emailAddress)
+            End if 
+        End if 
+
         // Store emailAddress/userId for matching push notifications
         Use (Storage.googleNotifications[$inState])
-            Storage.googleNotifications[$inState].userId:=$userId
+            Storage.googleNotifications[$inState].userId:=$storedUserId
         End use 
         
         This._startMonitoring()
