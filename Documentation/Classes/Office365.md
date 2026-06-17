@@ -560,12 +560,13 @@ Callback functions are called along with two parameters:
 
 ### `endPoint` management
 
-Using an `endPoint`, you let Microsoft call your application whenever a change occurs. To enable the mode, provide an endPoint` property containing the callback URL:
+Using an `endPoint`, you let Microsoft call your application whenever a change occurs. To enable the mode, provide an `endPoint` property containing the callback URL:
 
 ```4d
 $parameter.endPoint:="https://mydomain.com/notifications"
 ```
 
+- The 4D Web Server must be [launched in TLS 1.2](https://developer.4d.com/docs/commands/set-database-parameter#min-tls-version-105) to be compliant with the Microsoft Server. 
 - If the endPoint port is the same as the host port, 4D NetKit must use the host web server automatically to retrieve the notification. 
 - If the port is not specified in the endPoint, standard ports (80 for http and 443 for https) are used. If the host project is configured with the standard ports, the host project web server is used, otherwhise the 4D Netkit web server is used.
 - In any other case, the 4D Netkit component webserver is used.
