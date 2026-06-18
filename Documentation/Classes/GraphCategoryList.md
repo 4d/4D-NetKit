@@ -2,7 +2,7 @@
 
 ## Overview
 
-`GraphCategoryList` is a paginated list of Outlook master categories returned by [`Office365.category.list()`](./Office365.md#office365categorylist). It exposes the category objects via the `categories` property.
+`GraphCategoryList` is a paginated list of Outlook master categories returned by [`Office365.category.list()`](./Office365Category.md#list). It exposes the category objects via the `categories` property.
 
 ## Properties
 

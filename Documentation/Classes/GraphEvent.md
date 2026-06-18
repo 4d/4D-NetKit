@@ -22,7 +22,7 @@ A `GraphEvent` object exposes the following main properties:
 | body | | Object | Body of the message associated with the event. | Yes |
 | | content | Text | Content of the body. | |
 | | contentType | Text | Type of content: `"text"` or `"html"`. | |
-| categories | | Collection | List of categories. Must match the `displayName` of categories returned by [`Office365.category.list()`](./Office365.md#office365categorylist). | Yes |
+| categories | | Collection | List of categories. Must match the `displayName` of categories returned by [`Office365.category.list()`](./Office365Category.md#list). | Yes |
 | start | | Object | Start time of the event. | Yes |
 | | date | Date | Start date. | |
 | | time | Time | Start time (omitted for all-day events). | |

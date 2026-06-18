@@ -41,9 +41,9 @@ var $jwt := cs.NetKit.JWT.new($key)
 
 ```
 
-## JWT.decode()
+## .decode()
 
-**JWT.decode** ( *token* : Text ) : Object
+**.decode** ( *token* : Text ) : Object
 
 ### Parameters
 
@@ -74,9 +74,9 @@ var $result := cs.NetKit.JWT.new().decode($token)
 
 ```
 
-## JWT.generate()
+## .generate()
 
-**JWT.generate** ( *params* : Object { ; *privateKey* : Text or Object } ) : Text
+**.generate** ( *params* : Object { ; *privateKey* : Text or Object } ) : Text
 
 ### Parameters
 
@@ -110,9 +110,9 @@ var $token := cs.NetKit.JWT.new().generate($params; $privateKey)
 
 ```
 
-## JWT.validate()
+## .validate()
 
-**JWT.validate** ( *token* : Text { ; *key* : Text or Object } ) : Boolean
+**.validate** ( *token* : Text { ; *key* : Text or Object } ) : Boolean
 
 ### Parameters
 

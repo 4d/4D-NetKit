@@ -67,7 +67,7 @@ If the token has expired:
 
 When requesting access on behalf of a user ("signedIn" mode) the command opens a web browser to request authorization.
 
-In "signedIn" mode, when `.getToken()` is called, a web server included in 4D NetKit starts automatically on the port specified in the [redirectURI parameter](#description) to intercept the provider's authorization response and display it in the browser.
+In "signedIn" mode, when `.getToken()` is called, a web server included in 4D NetKit starts automatically on the port specified in the [redirectURI parameter](../Methods/New%20OAuth2%20provider.md) to intercept the provider's authorization response and display it in the browser.
 
 
 

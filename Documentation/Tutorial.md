@@ -55,7 +55,7 @@ $mailList:=$office365.mail.getMails()
 
 ## (Archived) Authenticate to the Microsoft Graph API in signedIn mode and send an email with SMTP
 
-> This tutorial has been archived. We recommend using the [Office365.mail.send()](Classes/Office365.md#office365mailsend) method to send emails.
+> This tutorial has been archived. We recommend using the [Office365.mail.send()](Classes/Office365Mail.md#send) method to send emails.
 
 #### Objectives
 
