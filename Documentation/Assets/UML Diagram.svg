@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns='http://www.w3.org/2000/svg' width='7220' height='3412' viewBox='0 0 7220 3412'>
+<defs><style><![CDATA[
+text { font-family: 'Segoe UI', Arial, sans-serif; }
+.title { font-size: 28px; font-weight: 700; fill: #0f172a; }
+.sub { font-size: 13px; fill: #475569; }
+.lvl { font-size: 12px; fill: #64748b; }
+.cn { font-size: 15px; font-weight: 700; fill: #0f172a; }
+.m { font-size: 12px; fill: #111827; }
+.edge { stroke:#0f766e; stroke-width:1.8; fill:none; marker-end:url(#arr); stroke-linecap:round; }
+]]></style>
+<marker id='arr' markerWidth='12' markerHeight='9' refX='10' refY='4.5' orient='auto'><polygon points='0 0,12 4.5,0 9' fill='#0f766e'/></marker>
+</defs>
+<rect x='0' y='0' width='7220' height='3412' fill='#f8fafc'/>
+<text class='title' x='40' y='42'>4D-NetKit UML Diagram</text>
+<text class='lvl' x='40' y='120'>Level 0</text>
+<text class='lvl' x='40' y='832'>Level 1</text>
+<text class='lvl' x='40' y='1928'>Level 2</text>
+<text class='lvl' x='40' y='2304'>Level 3</text>
+<text class='lvl' x='40' y='2968'>Level 4</text>
+<path class='edge' d='M 250 368 L 250 417 L 3130 795 L 3130 844'/>
+<path class='edge' d='M 3130 1032 L 3130 1081 L 3130 1891 L 3130 1940'/>
+<path class='edge' d='M 3130 1032 L 3130 1081 L 3610 1891 L 3610 1940'/>
+<path class='edge' d='M 3130 2176 L 3130 2225 L 250 2267 L 250 2316'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 730 2267 L 730 2316'/>
+<path class='edge' d='M 3130 1032 L 3130 1081 L 4090 1891 L 4090 1940'/>
+<path class='edge' d='M 3130 2176 L 3130 2225 L 1210 2267 L 1210 2316'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 1690 2267 L 1690 2316'/>
+<path class='edge' d='M 250 2436 L 250 2485 L 1450 2931 L 1450 2980'/>
+<path class='edge' d='M 250 368 L 250 417 L 3610 795 L 3610 844'/>
+<path class='edge' d='M 250 2436 L 250 2485 L 1930 2931 L 1930 2980'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 2170 2267 L 2170 2316'/>
+<path class='edge' d='M 250 2436 L 250 2485 L 2410 2931 L 2410 2980'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 2650 2267 L 2650 2316'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 3130 2267 L 3130 2316'/>
+<path class='edge' d='M 250 2436 L 250 2485 L 2890 2931 L 2890 2980'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 3610 2267 L 3610 2316'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 3370 2931 L 3370 2980'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 3850 2931 L 3850 2980'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 4090 2267 L 4090 2316'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 4330 2931 L 4330 2980'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 4810 2931 L 4810 2980'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 4570 2267 L 4570 2316'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 5290 2931 L 5290 2980'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 5050 2267 L 5050 2316'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 5770 2931 L 5770 2980'/>
+<path class='edge' d='M 250 368 L 250 417 L 4090 795 L 4090 844'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 5530 2267 L 5530 2316'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 6010 2267 L 6010 2316'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 6490 2267 L 6490 2316'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 6970 2267 L 6970 2316'/>
+<rect x='2920' y='844' width='420' height='188' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='2920' y1='880' x2='3340' y2='880' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='2932' y='868'>_BaseAPI</text>
+<text class='m' x='2932' y='898'>-_getAccessToken() : Text</text>
+<text class='m' x='2932' y='914'>-_getAccessTokenType() : Text</text>
+<text class='m' x='2932' y='930'>-_getOAuth2Provider() : cs.OAuth2Provider</text>
+<text class='m' x='2932' y='946'>-_getToken() : Object</text>
+<text class='m' x='2932' y='962'>-_getURL() : Text</text>
+<text class='m' x='2932' y='978'>-_sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant) : Variant</text>
+<text class='m' x='2932' y='994'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<rect x='40' y='132' width='420' height='236' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='40' y1='168' x2='460' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='52' y='156'>_BaseClass</text>
+<text class='m' x='52' y='186'>-_internals : Object</text>
+<line x1='50' y1='197' x2='450' y2='197' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='52' y='212'>-_clearErrorStack()</text>
+<text class='m' x='52' y='228'>-_getErrorStack() : Collection</text>
+<text class='m' x='52' y='244'>-_getLastError() : Object</text>
+<text class='m' x='52' y='260'>-_getLastErrorCode() : Integer</text>
+<text class='m' x='52' y='276'>-_getStatusLine() : Text</text>
+<text class='m' x='52' y='292'>-_pushError($inCode : Integer; $inParameters : Object) : Object</text>
+<text class='m' x='52' y='308'>-_returnStatus($inAdditionalInfo : Object) : Object</text>
+<text class='m' x='52' y='324'>-_throwError($inCode : Integer; $inParameters : Object)</text>
+<text class='m' x='52' y='340'>+constructor()</text>
+<rect x='2920' y='1940' width='420' height='236' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='2920' y1='1976' x2='3340' y2='1976' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='2932' y='1964'>_BaseList</text>
+<text class='m' x='2932' y='1994'>+errors : Collection</text>
+<text class='m' x='2932' y='2010'>+isLastPage : Boolean</text>
+<text class='m' x='2932' y='2026'>+page : Integer</text>
+<text class='m' x='2932' y='2042'>+statusText : Text</text>
+<text class='m' x='2932' y='2058'>+success : Boolean</text>
+<line x1='2930' y1='2069' x2='3330' y2='2069' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='2932' y='2084'>-_getList($inToken : Text) : Boolean</text>
+<text class='m' x='2932' y='2100'>-_handleListError()</text>
+<text class='m' x='2932' y='2116'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<text class='m' x='2932' y='2132'>+next() : Boolean</text>
+<text class='m' x='2932' y='2148'>+previous() : Boolean</text>
+<rect x='520' y='132' width='420' height='492' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='520' y1='168' x2='940' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='532' y='156'>_DateTime</text>
+<text class='m' x='532' y='186'>+date : Date</text>
+<text class='m' x='532' y='202'>+time : Integer</text>
+<text class='m' x='532' y='218'>+timeZone : Text</text>
+<line x1='530' y1='229' x2='930' y2='229' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='532' y='244'>-_getDateTimeComponents() : Object</text>
+<text class='m' x='532' y='260'>+addDate($years : Integer; $months : Integer; $days : Integer; $duration : Time)</text>
+<text class='m' x='532' y='276'>+addDays($days : Integer)</text>
+<text class='m' x='532' y='292'>+addTime($duration : Time)</text>
+<text class='m' x='532' y='308'>+constructor(... : Variant)</text>
+<text class='m' x='532' y='324'>+get day()-&gt;$day : Integer</text>
+<text class='m' x='532' y='340'>+get dayName()-&gt;$dayName : Text</text>
+<text class='m' x='532' y='356'>+get dayNumber()-&gt;$dayNumber : Integer</text>
+<text class='m' x='532' y='372'>+get hours()-&gt;$hours : Integer</text>
+<text class='m' x='532' y='388'>+get minutes()-&gt;$minutes : Integer</text>
+<text class='m' x='532' y='404'>+get month()-&gt;$month : Integer</text>
+<text class='m' x='532' y='420'>+get monthName()-&gt;$monthName : Text</text>
+<text class='m' x='532' y='436'>+get seconds()-&gt;$seconds : Integer</text>
+<text class='m' x='532' y='452'>+get weekNumber()-&gt;$weekNumber : Integer</text>
+<text class='m' x='532' y='468'>+get year()-&gt;$year : Integer</text>
+<text class='m' x='532' y='484'>+getDateTimeURLParameter()-&gt;$dateTimeString : Text</text>
+<text class='m' x='532' y='500'>+getGoogleDate() : Object</text>
+<text class='m' x='532' y='516'>+getGoogleDateTime() : Object</text>
+<text class='m' x='532' y='532'>+getGraphDateTime() : Object</text>
+<text class='m' x='532' y='548'>+isAfter($other : cs.NetKit._DateTime)-&gt;$result : Boolean</text>
+<text class='m' x='532' y='564'>+isBefore($other : cs.NetKit._DateTime)-&gt;$result : Boolean</text>
+<text class='m' x='532' y='580'>+isNull()-&gt;$result : Boolean</text>
+<text class='m' x='532' y='596'>+toString()-&gt;$result : Text</text>
+<rect x='1000' y='132' width='420' height='236' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='1000' y1='168' x2='1420' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='1012' y='156'>_EmailAddress</text>
+<text class='m' x='1012' y='186'>+email : Text</text>
+<text class='m' x='1012' y='202'>+name : Text</text>
+<line x1='1010' y1='213' x2='1410' y2='213' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='1012' y='228'>-_init()</text>
+<text class='m' x='1012' y='244'>-_normalizeDisplayName($inName : Text) : Text</text>
+<text class='m' x='1012' y='260'>+constructor($inName : Text; $inAddress : Text)</text>
+<text class='m' x='1012' y='276'>+fromString($inValue : Text)</text>
+<text class='m' x='1012' y='292'>+isValid() : Boolean</text>
+<text class='m' x='1012' y='308'>+toGraphJSON() : Object</text>
+<text class='m' x='1012' y='324'>+toJSON() : Object</text>
+<text class='m' x='1012' y='340'>+toString() : Text</text>
+<rect x='3400' y='1940' width='420' height='140' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='3400' y1='1976' x2='3820' y2='1976' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='3412' y='1964'>_GoogleAPI</text>
+<text class='m' x='3412' y='1994'>-_convertMailObjectToJMAP($inMail : Object) : Object</text>
+<text class='m' x='3412' y='2010'>-_extractRawMessage($result : Object; $format : Text; $mailType : Text) : Variant</text>
+<text class='m' x='3412' y='2026'>-_getURLParamsFromObject($inParameters : Object) : Text</text>
+<text class='m' x='3412' y='2042'>+constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)</text>
+<rect x='40' y='2316' width='420' height='120' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='40' y1='2352' x2='460' y2='2352' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='52' y='2340'>_GoogleBaseList</text>
+<text class='m' x='52' y='2370'>-_getList($inPageToken : Text) : Boolean</text>
+<text class='m' x='52' y='2386'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<rect x='520' y='2316' width='420' height='284' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='520' y1='2352' x2='940' y2='2352' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='532' y='2340'>_GoogleBatchRequest</text>
+<text class='m' x='532' y='2370'>-_itemNumber : Integer:</text>
+<text class='m' x='532' y='2386'>-_requests : Collection</text>
+<text class='m' x='532' y='2402'>+boundary : Text</text>
+<text class='m' x='532' y='2418'>+format : Text</text>
+<text class='m' x='532' y='2434'>+headers : Object</text>
+<text class='m' x='532' y='2450'>+mailType : Text</text>
+<text class='m' x='532' y='2466'>+maxItemNumber : Integer:</text>
+<text class='m' x='532' y='2482'>+URL : Text</text>
+<text class='m' x='532' y='2498'>+verb : Text</text>
+<line x1='530' y1='2509' x2='930' y2='2509' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='532' y='2524'>-_generateBody($inBoundary : Text; $inRequests : Collection) : Text</text>
+<text class='m' x='532' y='2540'>+appendRequest($inParam : Object)</text>
+<text class='m' x='532' y='2556'>+constructor($inProvider : cs.OAuth2Provider; $inParam : Object)</text>
+<text class='m' x='532' y='2572'>+sendRequestAndWaitResponse() : Collection</text>
+<rect x='3880' y='1940' width='420' height='140' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='3880' y1='1976' x2='4300' y2='1976' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='3892' y='1964'>_GraphAPI</text>
+<text class='m' x='3892' y='1994'>-_copyGraphMessage($inMessage : Object) : Object</text>
+<text class='m' x='3892' y='2010'>-_getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text</text>
+<text class='m' x='3892' y='2026'>-_loadFromObject($inObject : Object)</text>
+<text class='m' x='3892' y='2042'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<rect x='1000' y='2316' width='420' height='120' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='1000' y1='2352' x2='1420' y2='2352' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='1012' y='2340'>_GraphBaseList</text>
+<text class='m' x='1012' y='2370'>-_getList($inURL : Text) : Boolean</text>
+<text class='m' x='1012' y='2386'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<rect x='1480' y='132' width='420' height='252' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='1480' y1='168' x2='1900' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='1492' y='156'>_NotificationHelper</text>
+<text class='m' x='1492' y='186'>+buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Text) : Text</text>
+<text class='m' x='1492' y='202'>+callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)</text>
+<text class='m' x='1492' y='218'>+cleanupStorage($inStorageKey : Text; $inState : Text)</text>
+<text class='m' x='1492' y='234'>+dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)</text>
+<text class='m' x='1492' y='250'>+drainPendingItems($inStorageKey : Text; $inState : Text) : Collection</text>
+<text class='m' x='1492' y='266'>+ensureWebServer($inEndPoint : Text) : Object</text>
+<text class='m' x='1492' y='282'>+isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean</text>
+<text class='m' x='1492' y='298'>+parseCallbacks($inParameters : Object) : Object</text>
+<text class='m' x='1492' y='314'>+parsePullInterval($inParameters : Object) : Integer</text>
+<text class='m' x='1492' y='330'>+registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)</text>
+<text class='m' x='1492' y='346'>+signalStop($inStorageKey : Text; $inState : Text)</text>
+<rect x='1960' y='132' width='420' height='556' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='1960' y1='168' x2='2380' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='1972' y='156'>_Tools</text>
+<text class='m' x='1972' y='186'>+isDebug : Boolean</text>
+<text class='m' x='1972' y='202'>+notificationMode : Boolean</text>
+<text class='m' x='1972' y='218'>+trace : Boolean</text>
+<text class='m' x='1972' y='234'>+webLicenseAvailable : Boolean</text>
+<text class='m' x='1972' y='250'>+webServer : 4D.WebServer</text>
+<line x1='1970' y1='261' x2='2370' y2='261' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='1972' y='276'>+base64UrlSafeDecode($inBase64Encoded : Text) : Text</text>
+<text class='m' x='1972' y='292'>+buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inSuccess : Boolean) : Text</text>
+<text class='m' x='1972' y='308'>+camelCase($inString : Text) : Text</text>
+<text class='m' x='1972' y='324'>+cleanGraphObject($inObject : Object) : Object</text>
+<text class='m' x='1972' y='340'>+convertToGraphAttachment($inObject : cs.GraphAttachment) : Object</text>
+<text class='m' x='1972' y='356'>+getDomainFromURL($inURL : Text) : Text</text>
+<text class='m' x='1972' y='372'>+getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text</text>
+<text class='m' x='1972' y='388'>+getJMAPAttribute($inKey : Text) : Text</text>
+<text class='m' x='1972' y='404'>+getParameterValue($headerValue : Text; $paramName : Text) : Text</text>
+<text class='m' x='1972' y='420'>+getPathFromURL($inURL : Text) : Text</text>
+<text class='m' x='1972' y='436'>+getPortFromURL($inURL : Text) : Integer</text>
+<text class='m' x='1972' y='452'>+getURLParameterValue($inURL : Text; $inParamName : Text) : Text</text>
+<text class='m' x='1972' y='468'>+init()</text>
+<text class='m' x='1972' y='484'>+isEmailAddressHeader($inKey : Text) : Boolean</text>
+<text class='m' x='1972' y='500'>+isLocalIP($inIPAddress : Text) : Boolean</text>
+<text class='m' x='1972' y='516'>+isValidEmail($inEmail : Text) : Boolean</text>
+<text class='m' x='1972' y='532'>+isValidURL($inURL : Text) : Boolean</text>
+<text class='m' x='1972' y='548'>+makeError($inCode : Integer; $inParameters : Object) : Object</text>
+<text class='m' x='1972' y='564'>+quoteString($inString : Text) : Text</text>
+<text class='m' x='1972' y='580'>+retainFileObject($inParameter : Variant) : 4D.File</text>
+<text class='m' x='1972' y='596'>+startWebServer($inParameters : Object) : Object</text>
+<text class='m' x='1972' y='612'>+stopWebServer() : Boolean</text>
+<text class='m' x='1972' y='628'>+trimSpaces($inText : Text) : Text</text>
+<text class='m' x='1972' y='644'>+urlDecode($inURL : Text) : Text</text>
+<text class='m' x='1972' y='660'>+urlEncode($value : Text) : Text</text>
+<rect x='2440' y='132' width='420' height='572' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<line x1='2440' y1='168' x2='2860' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
+<text class='cn' x='2452' y='156'>_URL</text>
+<text class='m' x='2452' y='186'>-_path : Text:</text>
+<text class='m' x='2452' y='202'>-_port : Integer:</text>
+<text class='m' x='2452' y='218'>+host : Text:</text>
+<text class='m' x='2452' y='234'>+password : Text:</text>
+<text class='m' x='2452' y='250'>+queryParams : Collection:</text>
+<text class='m' x='2452' y='266'>+ref : Text:</text>
+<text class='m' x='2452' y='282'>+scheme : Text:</text>
+<text class='m' x='2452' y='298'>+username : Text:</text>
+<line x1='2450' y1='309' x2='2850' y2='309' stroke='#dc2626' stroke-opacity='0.35'/>
+<text class='m' x='2452' y='324'>-_init()</text>
+<text class='m' x='2452' y='340'>+addQueryParameter( ... : Variant)</text>
+<text class='m' x='2452' y='356'>+clear()</text>
+<text class='m' x='2452' y='372'>+clone() : Object</text>
+<text class='m' x='2452' y='388'>+constructor($inParam : Variant)</text>
+<text class='m' x='2452' y='404'>+fromJSON($inURL : Object)</text>
+<text class='m' x='2452' y='420'>+get path() : Text</text>
+<text class='m' x='2452' y='436'>+get port() : Integer</text>
+<text class='m' x='2452' y='452'>+get query() : Text</text>
+<text class='m' x='2452' y='468'>+getDefaultPort() : Integer</text>
+<text class='m' x='2452' y='484'>+getQueryParameter($paramName : Text) : Text</text>
+<text class='m' x='2452' y='500'>+getQueryString() : Text</text>
+<text class='m' x='2452' y='516'>+hasQueryParameter($paramName : Text) : Boolean</text>
+<text class='m' x='2452' y='532'>+isAbsolute() : Boolean</text>
+<text class='m' x='2452' y='548'>+isValid() : Boolean</text>
+<text class='m' x='2452' y='564'>+parse($inURL : Text)</text>
+<text class='m' x='2452' y='580'>+parseQuery($inQueryString : Text)</text>
+<text class='m' x='2452' y='596'>+removeQueryParameter( ... : Variant) : Boolean</text>
+<text class='m' x='2452' y='612'>+set path($inPath : Text)</text>
+<text class='m' x='2452' y='628'>+set port($inPort : Integer)</text>
+<text class='m' x='2452' y='644'>+set query($inQueryString : Text)</text>
+<text class='m' x='2452' y='660'>+toJSON() : Object</text>
+<text class='m' x='2452' y='676'>+toString() : Text</text>
+<rect x='2920' y='132' width='420' height='156' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2920' y1='168' x2='3340' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2932' y='156'>Google</text>
+<text class='m' x='2932' y='186'>-_internals : Object</text>
+<line x1='2930' y1='197' x2='3330' y2='197' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='2932' y='212'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='2932' y='228'>+get calendar : cs.GoogleCalendar</text>
+<text class='m' x='2932' y='244'>+get mail : cs.GoogleMail</text>
+<text class='m' x='2932' y='260'>+get user : cs.GoogleUser</text>
+<rect x='1480' y='2316' width='420' height='268' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='1480' y1='2352' x2='1900' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='1492' y='2340'>GoogleCalendar</text>
+<text class='m' x='1492' y='2370'>+userId : Text</text>
+<line x1='1490' y1='2381' x2='1890' y2='2381' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='1492' y='2396'>-_conformEvent($inObject : Object) : Object</text>
+<text class='m' x='1492' y='2412'>-_conformEventDateTime($inObject : Object; $inName : Text) : Object</text>
+<text class='m' x='1492' y='2428'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='1492' y='2444'>+createEvent($inEvent : Object; $inParameters : Object) : Object</text>
+<text class='m' x='1492' y='2460'>+deleteEvent($inParameters : Object) : Object</text>
+<text class='m' x='1492' y='2476'>+getCalendar($inID : Text) : Object</text>
+<text class='m' x='1492' y='2492'>+getCalendars($inParameters : Object) : cs.GoogleCalendarList</text>
+<text class='m' x='1492' y='2508'>+getEvent($inParameters : Object) : cs.GoogleEvent</text>
+<text class='m' x='1492' y='2524'>+getEvents($inParameters : Object) : cs.GoogleEventList</text>
+<text class='m' x='1492' y='2540'>+notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification</text>
+<text class='m' x='1492' y='2556'>+updateEvent($inEvent : Object; $inParameters : Object) : Object</text>
+<rect x='1240' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='1240' y1='3016' x2='1660' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='1252' y='3004'>GoogleCalendarList</text>
+<text class='m' x='1252' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='1252' y='3050'>+get calendars() : Collection</text>
+<rect x='3400' y='844' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3400' y1='880' x2='3820' y2='880' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3412' y='868'>GoogleEvent</text>
+<text class='m' x='3412' y='898'>+attachments : Collection</text>
+<text class='m' x='3412' y='914'>+id : Text</text>
+<line x1='3410' y1='925' x2='3810' y2='925' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='3412' y='940'>+constructor($inObject : Object)</text>
+<rect x='3400' y='132' width='420' height='204' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3400' y1='168' x2='3820' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3412' y='156'>GoogleEventAttachment</text>
+<text class='m' x='3412' y='186'>+contentBytes : 4D.Blob:</text>
+<text class='m' x='3412' y='202'>+fileUrl : Text</text>
+<text class='m' x='3412' y='218'>+iconLink : Text</text>
+<text class='m' x='3412' y='234'>+mimeType : Text</text>
+<text class='m' x='3412' y='250'>+title : Text</text>
+<line x1='3410' y1='261' x2='3810' y2='261' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='3412' y='276'>+constructor($inAttachment : Object)</text>
+<text class='m' x='3412' y='292'>+getContent() : 4D.Blob</text>
+<text class='m' x='3412' y='308'>+getIcon() : Picture</text>
+<rect x='1720' y='2980' width='420' height='252' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='1720' y1='3016' x2='2140' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='1732' y='3004'>GoogleEventList</text>
+<text class='m' x='1732' y='3034'>+accessRole : Text</text>
+<text class='m' x='1732' y='3050'>+calendarId : Text</text>
+<text class='m' x='1732' y='3066'>+defaultReminders : Collection</text>
+<text class='m' x='1732' y='3082'>+description : Text</text>
+<text class='m' x='1732' y='3098'>+etag : Text</text>
+<text class='m' x='1732' y='3114'>+kind : Text</text>
+<text class='m' x='1732' y='3130'>+summary : Text</text>
+<text class='m' x='1732' y='3146'>+timeZone : Text</text>
+<text class='m' x='1732' y='3162'>+updated : Text</text>
+<line x1='1730' y1='3173' x2='2130' y2='3173' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='1732' y='3188'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='1732' y='3204'>+get events() : Collection</text>
+<rect x='1960' y='2316' width='420' height='396' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='1960' y1='2352' x2='2380' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='1972' y='2340'>GoogleMail</text>
+<text class='m' x='1972' y='2370'>+mailType : Text</text>
+<text class='m' x='1972' y='2386'>+userId : Text</text>
+<line x1='1970' y1='2397' x2='2370' y2='2397' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='1972' y='2412'>-_postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object</text>
+<text class='m' x='1972' y='2428'>-_postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object</text>
+<text class='m' x='1972' y='2444'>-_postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object</text>
+<text class='m' x='1972' y='2460'>+append($inMail : Variant; $inLabelIds : Collection) : Object</text>
+<text class='m' x='1972' y='2476'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='1972' y='2492'>+createLabel($inLabelInfo : Object) : Object</text>
+<text class='m' x='1972' y='2508'>+delete($inMailId : Text; $permanently : Boolean) : Object</text>
+<text class='m' x='1972' y='2524'>+deleteLabel($inLabelId : Text) : Object</text>
+<text class='m' x='1972' y='2540'>+getLabel($inLabelId : Text) : Object</text>
+<text class='m' x='1972' y='2556'>+getLabelList($inParameters : Object) : Object</text>
+<text class='m' x='1972' y='2572'>+getMail($inMailId : Text; $inParameters : Object) : Variant</text>
+<text class='m' x='1972' y='2588'>+getMailIds($inParameters : Object) : cs.GoogleMailIdList</text>
+<text class='m' x='1972' y='2604'>+getMails($inMailIds : Collection; $inParameters : Object) : Collection</text>
+<text class='m' x='1972' y='2620'>+notifier($inParameters : Object) : cs.GoogleNotification</text>
+<text class='m' x='1972' y='2636'>+send($inMail : Variant) : Object</text>
+<text class='m' x='1972' y='2652'>+untrash($inMailId : Text) : Object</text>
+<text class='m' x='1972' y='2668'>+update($inMailIds : Collection; $inParameters : Object) : Object</text>
+<text class='m' x='1972' y='2684'>+updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object</text>
+<rect x='2200' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2200' y1='3016' x2='2620' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2212' y='3004'>GoogleMailIdList</text>
+<text class='m' x='2212' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text)</text>
+<text class='m' x='2212' y='3050'>+get mailIds() : Collection</text>
+<rect x='2440' y='2316' width='420' height='460' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2440' y1='2352' x2='2860' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2452' y='2340'>GoogleNotification</text>
+<text class='m' x='2452' y='2370'>-_buildNotificationUrl($inState : Text) : Text</text>
+<text class='m' x='2452' y='2386'>-_dispatchCallbacks($inItems : Collection)</text>
+<text class='m' x='2452' y='2402'>-_drainPendingItems($inState : Text) : Collection</text>
+<text class='m' x='2452' y='2418'>-_initialCalendarSync() : Text</text>
+<text class='m' x='2452' y='2434'>-_initialMailSync() : Text</text>
+<text class='m' x='2452' y='2450'>-_isMonitorActive($inState : Text) : Boolean</text>
+<text class='m' x='2452' y='2466'>-_monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)</text>
+<text class='m' x='2452' y='2482'>-_pollCalendarChanges() : Collection</text>
+<text class='m' x='2452' y='2498'>-_pollMailHistory() : Collection</text>
+<text class='m' x='2452' y='2514'>-_renewIfNeeded($inThresholdSeconds : Integer)</text>
+<text class='m' x='2452' y='2530'>-_startCalendarPush($inState : Text) : Object</text>
+<text class='m' x='2452' y='2546'>-_startMailPush($inState : Text) : Object</text>
+<text class='m' x='2452' y='2562'>-_startMonitoring()</text>
+<text class='m' x='2452' y='2578'>-_startPull($inState : Text) : Object</text>
+<text class='m' x='2452' y='2594'>-_startPush($inState : Text) : Object</text>
+<text class='m' x='2452' y='2610'>-_stopPull($inState : Text)</text>
+<text class='m' x='2452' y='2626'>-_stopPush($inState : Text)</text>
+<text class='m' x='2452' y='2642'>+constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inOwner : Object)</text>
+<text class='m' x='2452' y='2658'>+get endPoint : Text</text>
+<text class='m' x='2452' y='2674'>+get expiration : Text</text>
+<text class='m' x='2452' y='2690'>+get isStarted : Boolean</text>
+<text class='m' x='2452' y='2706'>+get timer : Integer</text>
+<text class='m' x='2452' y='2722'>+start() : Object</text>
+<text class='m' x='2452' y='2738'>+stop() : Object</text>
+<rect x='3880' y='132' width='420' height='140' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3880' y1='168' x2='4300' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3892' y='156'>GoogleNotificationHandler</text>
+<text class='m' x='3892' y='186'>-_findStateByUserId($inUserId : Text) : Text</text>
+<text class='m' x='3892' y='202'>-_processCalendarNotification($inState : Text)</text>
+<text class='m' x='3892' y='218'>-_processGmailNotification($inBody : Variant)</text>
+<text class='m' x='3892' y='234'>+getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage</text>
+<rect x='2920' y='2316' width='420' height='172' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2920' y1='2352' x2='3340' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2932' y='2340'>GoogleUser</text>
+<text class='m' x='2932' y='2370'>-_get($inResourceName : Text; $inPersonFields : Variant) : Object</text>
+<text class='m' x='2932' y='2386'>-_getURLParamsFromObject($inParameters : Object) : Text</text>
+<text class='m' x='2932' y='2402'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<text class='m' x='2932' y='2418'>+get($inResourceName : Text; $inPersonFields : Variant) : Object</text>
+<text class='m' x='2932' y='2434'>+getCurrent($inPersonFields : Variant) : Object</text>
+<text class='m' x='2932' y='2450'>+list($inParameters : Object) : cs.GoogleUserList</text>
+<rect x='2680' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2680' y1='3016' x2='3100' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2692' y='3004'>GoogleUserList</text>
+<text class='m' x='2692' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='2692' y='3050'>+get users() : Collection</text>
+<rect x='3400' y='2316' width='420' height='252' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3400' y1='2352' x2='3820' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3412' y='2340'>GraphAttachment</text>
+<text class='m' x='3412' y='2370'>+contentBytes : Text</text>
+<text class='m' x='3412' y='2386'>+contentId : Text</text>
+<text class='m' x='3412' y='2402'>+contentType : Text</text>
+<text class='m' x='3412' y='2418'>+id : Text</text>
+<text class='m' x='3412' y='2434'>+isInline : Boolean</text>
+<text class='m' x='3412' y='2450'>+name : Text</text>
+<text class='m' x='3412' y='2466'>+size : Integer</text>
+<line x1='3410' y1='2477' x2='3810' y2='2477' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='3412' y='2492'>+constructor($inProvider : cs.OAuth2Provider; $inParams : Object; $inObject : Object)</text>
+<text class='m' x='3412' y='2508'>+fromMailAttachment($inObject : 4D.MailAttachment)</text>
+<text class='m' x='3412' y='2524'>+getContent() : 4D.Blob</text>
+<text class='m' x='3412' y='2540'>+setContent($inContent : 4D.Blob)</text>
+<rect x='3160' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3160' y1='3016' x2='3580' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3172' y='3004'>GraphCalendarList</text>
+<text class='m' x='3172' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='3172' y='3050'>+get calendars() : Collection</text>
+<rect x='3640' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3640' y1='3016' x2='4060' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3652' y='3004'>GraphCategoryList</text>
+<text class='m' x='3652' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='3652' y='3050'>+get categories() : Collection</text>
+<rect x='3880' y='2316' width='420' height='140' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3880' y1='2352' x2='4300' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3892' y='2340'>GraphEvent</text>
+<text class='m' x='3892' y='2370'>+hasAttachments : Boolean:</text>
+<text class='m' x='3892' y='2386'>+id : Text:</text>
+<line x1='3890' y1='2397' x2='4290' y2='2397' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='3892' y='2412'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)</text>
+<text class='m' x='3892' y='2428'>+get attachments() : Collection</text>
+<rect x='4120' y='2980' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4120' y1='3016' x2='4540' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4132' y='3004'>GraphEventList</text>
+<text class='m' x='4132' y='3034'>+calendarId : Text</text>
+<line x1='4130' y1='3045' x2='4530' y2='3045' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='4132' y='3060'>+constructor($inCalendar : cs.Office365Calendar; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='4132' y='3076'>+get events() : Collection</text>
+<rect x='4600' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4600' y1='3016' x2='5020' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4612' y='3004'>GraphFolderList</text>
+<text class='m' x='4612' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='4612' y='3050'>+get folders() : Collection</text>
+<rect x='4360' y='2316' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4360' y1='2352' x2='4780' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4372' y='2340'>GraphMessage</text>
+<text class='m' x='4372' y='2370'>+id : Text</text>
+<line x1='4370' y1='2381' x2='4770' y2='2381' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='4372' y='2396'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object; $inObject : Object)</text>
+<text class='m' x='4372' y='2412'>+get attachments() : Collection</text>
+<rect x='5080' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5080' y1='3016' x2='5500' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5092' y='3004'>GraphMessageList</text>
+<text class='m' x='5092' y='3034'>+constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='5092' y='3050'>+get mails() : Collection</text>
+<rect x='4840' y='2316' width='420' height='524' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4840' y1='2352' x2='5260' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4852' y='2340'>GraphNotification</text>
+<text class='m' x='4852' y='2370'>-_computeChangeType() : Text</text>
+<text class='m' x='4852' y='2386'>-_computeExpiration($inMinutes : Integer) : Text</text>
+<text class='m' x='4852' y='2402'>-_computePullChangeTypes() : Collection</text>
+<text class='m' x='4852' y='2418'>-_dispatchCallbacks($inItems : Collection)</text>
+<text class='m' x='4852' y='2434'>-_drainPendingItems($inState : Text) : Collection</text>
+<text class='m' x='4852' y='2450'>-_initialDeltaSync($inChangeType : Text) : Text</text>
+<text class='m' x='4852' y='2466'>-_initialDeltaSyncWithKnownIds() : Text</text>
+<text class='m' x='4852' y='2482'>-_isMonitorActive($inState : Text) : Boolean</text>
+<text class='m' x='4852' y='2498'>-_monitorLoop($inWorkerName : Text; $inState : Text; $inFormWindow : Integer)</text>
+<text class='m' x='4852' y='2514'>-_pollDelta() : Collection</text>
+<text class='m' x='4852' y='2530'>-_pollDeltaForChangeType($inChangeType : Text) : Collection</text>
+<text class='m' x='4852' y='2546'>-_pollDeltaUsingChangeTypeStreams() : Collection</text>
+<text class='m' x='4852' y='2562'>-_pollDeltaUsingKnownIds() : Collection</text>
+<text class='m' x='4852' y='2578'>-_removeKnownId($inResourceId : Text)</text>
+<text class='m' x='4852' y='2594'>-_renewIfNeeded($inThresholdSeconds : Integer)</text>
+<text class='m' x='4852' y='2610'>-_shouldDispatchPullChangeType($inChangeType : Text) : Boolean</text>
+<text class='m' x='4852' y='2626'>-_startMonitoring()</text>
+<text class='m' x='4852' y='2642'>-_startPull($inState : Text) : Object</text>
+<text class='m' x='4852' y='2658'>-_startPush($inState : Text) : Object</text>
+<text class='m' x='4852' y='2674'>-_stopPull($inState : Text)</text>
+<text class='m' x='4852' y='2690'>-_stopPush($inState : Text)</text>
+<text class='m' x='4852' y='2706'>+constructor($inType : Text; $inProvider : cs.OAuth2Provider; $inParameters : Object; $inResource : Text; $inUserId : Text; $inOwner : Object)</text>
+<text class='m' x='4852' y='2722'>+get endPoint : Text</text>
+<text class='m' x='4852' y='2738'>+get expiration : Text</text>
+<text class='m' x='4852' y='2754'>+get isStarted : Boolean</text>
+<text class='m' x='4852' y='2770'>+get timer : Integer</text>
+<text class='m' x='4852' y='2786'>+start() : Object</text>
+<text class='m' x='4852' y='2802'>+stop() : Object</text>
+<rect x='4360' y='132' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4360' y1='168' x2='4780' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4372' y='156'>GraphNotificationHandler</text>
+<text class='m' x='4372' y='186'>-_findStateBySubscriptionId($inSubscriptionId : Text) : Text</text>
+<text class='m' x='4372' y='202'>-_processNotificationBody($inBody : Variant)</text>
+<text class='m' x='4372' y='218'>+getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage</text>
+<rect x='4840' y='132' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='4840' y1='168' x2='5260' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='4852' y='156'>GraphRecipient</text>
+<text class='m' x='4852' y='186'>+emailAddress : Object</text>
+<line x1='4850' y1='197' x2='5250' y2='197' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='4852' y='212'>+constructor($inAddress : Text; $inName : Text)</text>
+<rect x='5560' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5560' y1='3016' x2='5980' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5572' y='3004'>GraphUserList</text>
+<text class='m' x='5572' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='5572' y='3050'>+get users() : Collection</text>
+<rect x='5320' y='132' width='420' height='236' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5320' y1='168' x2='5740' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5332' y='156'>JWT</text>
+<text class='m' x='5332' y='186'>+key : 4D.CryptoKey</text>
+<line x1='5330' y1='197' x2='5730' y2='197' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='5332' y='212'>-_getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.CryptoKey</text>
+<text class='m' x='5332' y='228'>-_hashHS($inJWT : Object; $inPrivateKey : Text) : Text</text>
+<text class='m' x='5332' y='244'>-_hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text</text>
+<text class='m' x='5332' y='260'>-_throwError($inCode : Integer; $inParameters : Object)</text>
+<text class='m' x='5332' y='276'>-_validateClaims($inPayload : Object; $inOptions : Object) : Boolean</text>
+<text class='m' x='5332' y='292'>+constructor($inParam : Variant)</text>
+<text class='m' x='5332' y='308'>+decode($inToken : Text) : Object</text>
+<text class='m' x='5332' y='324'>+generate($inParams : Object; $inKey : Variant) : Text</text>
+<text class='m' x='5332' y='340'>+validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolean</text>
+<rect x='5800' y='132' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5800' y1='168' x2='6220' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5812' y='156'>OAuth2Authorization</text>
+<text class='m' x='5812' y='186'>+getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage</text>
+<rect x='3880' y='844' width='420' height='956' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='3880' y1='880' x2='4300' y2='880' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='3892' y='868'>OAuth2Provider</text>
+<text class='m' x='3892' y='898'>-_authenticateURI : Text</text>
+<text class='m' x='3892' y='914'>-_codeVerifier : Text</text>
+<text class='m' x='3892' y='930'>-_grantType : Text</text>
+<text class='m' x='3892' y='946'>-_scope : Text</text>
+<text class='m' x='3892' y='962'>-_tokenURI : Text</text>
+<text class='m' x='3892' y='978'>+accessType : Text</text>
+<text class='m' x='3892' y='994'>+authenticationErrorPage : Variant</text>
+<text class='m' x='3892' y='1010'>+authenticationPage : Variant</text>
+<text class='m' x='3892' y='1026'>+browserAutoOpen : Boolean</text>
+<text class='m' x='3892' y='1042'>+clientAssertionType : Text</text>
+<text class='m' x='3892' y='1058'>+clientEmail : Text</text>
+<text class='m' x='3892' y='1074'>+clientId : Text</text>
+<text class='m' x='3892' y='1090'>+clientSecret : Text</text>
+<text class='m' x='3892' y='1106'>+enableDebugLog : Boolean</text>
+<text class='m' x='3892' y='1122'>+loginHint : Text</text>
+<text class='m' x='3892' y='1138'>+name : Text</text>
+<text class='m' x='3892' y='1154'>+nonce : Text</text>
+<text class='m' x='3892' y='1170'>+permission : Text</text>
+<text class='m' x='3892' y='1186'>+PKCEEnabled : Boolean</text>
+<text class='m' x='3892' y='1202'>+PKCEMethod : Text</text>
+<text class='m' x='3892' y='1218'>+privateKey : Text</text>
+<text class='m' x='3892' y='1234'>+prompt : Text</text>
+<text class='m' x='3892' y='1250'>+redirectURI : Text</text>
+<text class='m' x='3892' y='1266'>+state : Text</text>
+<text class='m' x='3892' y='1282'>+tenant : Text</text>
+<text class='m' x='3892' y='1298'>+thumbprint : Text</text>
+<text class='m' x='3892' y='1314'>+timeout : Integer</text>
+<text class='m' x='3892' y='1330'>+token : Object</text>
+<text class='m' x='3892' y='1346'>+tokenExpiration : Text</text>
+<line x1='3890' y1='1357' x2='4290' y2='1357' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='3892' y='1372'>-_checkPrerequisites($obj : Object) : Boolean</text>
+<text class='m' x='3892' y='1388'>-_cleanString($inString : Text) : Text</text>
+<text class='m' x='3892' y='1404'>-_generateCodeChallenge($codeVerifier : Text) : Text</text>
+<text class='m' x='3892' y='1420'>-_getAuthorizationCode() : Text</text>
+<text class='m' x='3892' y='1436'>-_getErrorDescription($inObject : Object) : Text</text>
+<text class='m' x='3892' y='1452'>-_getToken_Service() : Object</text>
+<text class='m' x='3892' y='1468'>-_getToken_SignedIn($bUseRefreshToken : Boolean) : Object</text>
+<text class='m' x='3892' y='1484'>-_hexCharToNum($c : Text) : Integer</text>
+<text class='m' x='3892' y='1500'>-_isGoogle() : Boolean</text>
+<text class='m' x='3892' y='1516'>-_isMicrosoft() : Boolean</text>
+<text class='m' x='3892' y='1532'>-_isService() : Boolean</text>
+<text class='m' x='3892' y='1548'>-_isSignedIn() : Boolean</text>
+<text class='m' x='3892' y='1564'>-_sendTokenRequest($params : Text) : Object</text>
+<text class='m' x='3892' y='1580'>-_unixTime($inDate : Date; $inTime : Time) : Real</text>
+<text class='m' x='3892' y='1596'>-_useJWTBearer() : Boolean</text>
+<text class='m' x='3892' y='1612'>-_useJWTBearerAssertionType() : Boolean</text>
+<text class='m' x='3892' y='1628'>-get _x5t() : Text</text>
+<text class='m' x='3892' y='1644'>+_generateCodeVerifier : Text</text>
+<text class='m' x='3892' y='1660'>+constructor($inParams : Object)</text>
+<text class='m' x='3892' y='1676'>+get authenticateURI() : Text</text>
+<text class='m' x='3892' y='1692'>+get codeVerifier() : Text</text>
+<text class='m' x='3892' y='1708'>+get grantType() : Text</text>
+<text class='m' x='3892' y='1724'>+get scope() : Text</text>
+<text class='m' x='3892' y='1740'>+get tokenURI() : Text</text>
+<text class='m' x='3892' y='1756'>+getToken() : Object</text>
+<text class='m' x='3892' y='1772'>+isTokenValid() : Boolean</text>
+<rect x='6280' y='132' width='420' height='188' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6280' y1='168' x2='6700' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6292' y='156'>OAuth2Token</text>
+<text class='m' x='6292' y='186'>+token : Object</text>
+<text class='m' x='6292' y='202'>+tokenExpiration : Text</text>
+<line x1='6290' y1='213' x2='6690' y2='213' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='6292' y='228'>-_Expired($inParams : Text) : Boolean</text>
+<text class='m' x='6292' y='244'>-_loadFromObject($inObject : Object)</text>
+<text class='m' x='6292' y='260'>-_loadFromResponse($inResponseString : Text)</text>
+<text class='m' x='6292' y='276'>-_loadFromURLEncodedResponse($inResponseString : Text)</text>
+<text class='m' x='6292' y='292'>+constructor($inParams : Object)</text>
+<rect x='6760' y='132' width='420' height='172' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6760' y1='168' x2='7180' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6772' y='156'>Office365</text>
+<text class='m' x='6772' y='186'>-_internals : Object</text>
+<line x1='6770' y1='197' x2='7170' y2='197' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='6772' y='212'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='6772' y='228'>+get calendar : cs.Office365Calendar</text>
+<text class='m' x='6772' y='244'>+get category : cs.Office365Category</text>
+<text class='m' x='6772' y='260'>+get mail : cs.Office365Mail</text>
+<text class='m' x='6772' y='276'>+get user : cs.Office365User</text>
+<rect x='5320' y='2316' width='420' height='316' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5320' y1='2352' x2='5740' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5332' y='2340'>Office365Calendar</text>
+<text class='m' x='5332' y='2370'>+id : Text:</text>
+<text class='m' x='5332' y='2386'>+userId : Text:</text>
+<line x1='5330' y1='2397' x2='5730' y2='2397' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='5332' y='2412'>-_conformEvent($inObject : Object) : Object</text>
+<text class='m' x='5332' y='2428'>-_conformEventDateTime($inObject : Object; $inName : Text) : Object</text>
+<text class='m' x='5332' y='2444'>-_getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text</text>
+<text class='m' x='5332' y='2460'>-_insertAttachment($inParameters : Object; $inAttachement : Object) : Object</text>
+<text class='m' x='5332' y='2476'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='5332' y='2492'>+createEvent($inEvent : Object; $inParameters : Object) : Object</text>
+<text class='m' x='5332' y='2508'>+deleteEvent($inParameters : Object) : Object</text>
+<text class='m' x='5332' y='2524'>+getCalendar($inID : Text; $inSelect : Text) : Object</text>
+<text class='m' x='5332' y='2540'>+getCalendars($inParameters : Object) : cs.GraphCalendarList</text>
+<text class='m' x='5332' y='2556'>+getEvent($inParameters : Object) : cs.GraphEvent</text>
+<text class='m' x='5332' y='2572'>+getEvents($inParameters : Object) : cs.GraphEventList</text>
+<text class='m' x='5332' y='2588'>+notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification</text>
+<text class='m' x='5332' y='2604'>+updateEvent($inEvent : Object; $inParameters : Object) : Object</text>
+<rect x='5800' y='2316' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='5800' y1='2352' x2='6220' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='5812' y='2340'>Office365Category</text>
+<text class='m' x='5812' y='2370'>+userId : Text:</text>
+<line x1='5810' y1='2381' x2='6210' y2='2381' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='5812' y='2396'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='5812' y='2412'>+list : cs.GraphCategoryList</text>
+<rect x='6280' y='2316' width='420' height='412' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6280' y1='2352' x2='6700' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6292' y='2340'>Office365Mail</text>
+<text class='m' x='6292' y='2370'>+mailType : Text</text>
+<text class='m' x='6292' y='2386'>+userId : Text</text>
+<line x1='6290' y1='2397' x2='6690' y2='2397' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='6292' y='2412'>-_postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object</text>
+<text class='m' x='6292' y='2428'>-_postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object</text>
+<text class='m' x='6292' y='2444'>-_postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object</text>
+<text class='m' x='6292' y='2460'>+append($inMail : Variant; $inFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2476'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='6292' y='2492'>+copy($inMailId : Text; $inFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2508'>+createFolder($inFolderName : Text; $bIsHidden : Boolean; $inParentFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2524'>+delete($inMailId : Text) : Object</text>
+<text class='m' x='6292' y='2540'>+deleteFolder($inFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2556'>+getFolder($inFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2572'>+getFolderList($inParameters : Object) : cs.GraphFolderList</text>
+<text class='m' x='6292' y='2588'>+getMail($inMailId : Text; $inOptions : Object) : Variant</text>
+<text class='m' x='6292' y='2604'>+getMails($inParameters : Object) : cs.GraphMessageList</text>
+<text class='m' x='6292' y='2620'>+move($inMailId : Text; $inFolderId : Text) : Object</text>
+<text class='m' x='6292' y='2636'>+notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification</text>
+<text class='m' x='6292' y='2652'>+renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object</text>
+<text class='m' x='6292' y='2668'>+reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object</text>
+<text class='m' x='6292' y='2684'>+send($inMail : Variant) : Object</text>
+<text class='m' x='6292' y='2700'>+update($inMailId : Text; $inMail : Object) : Object</text>
+<rect x='6760' y='2316' width='420' height='172' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6760' y1='2352' x2='7180' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6772' y='2340'>Office365User</text>
+<text class='m' x='6772' y='2370'>-_getUserInfo($inURL : Text) : Object</text>
+<text class='m' x='6772' y='2386'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<text class='m' x='6772' y='2402'>+count($inParameters : Object) : cs.GraphUserList</text>
+<text class='m' x='6772' y='2418'>+get($inID : Text; $inSelect : Text) : Object</text>
+<text class='m' x='6772' y='2434'>+getCurrent($inSelect : Text) : Object</text>
+<text class='m' x='6772' y='2450'>+list($inParameters : Object) : cs.GraphUserList</text>
+</svg>

@@ -13,6 +13,7 @@ singleton Class constructor()
 	// ----------------------------------------------------
 
 
+Function parseCallbacks($inParameters : Object) : Object
 /**
  * @function parseCallbacks
  * @param {Object} $inParameters - User-supplied options object that may contain `onCreate`,
@@ -22,7 +23,6 @@ singleton Class constructor()
  * @description Extracts the three optional callback formulas from a start() parameters object
  *   into a canonical shape that `dispatchCallbacks` can consume
  */
-Function parseCallbacks($inParameters : Object) : Object
     
     var $callbacks : Object:={onCreate: Null; onDelete: Null; onModify: Null; thisObj: Null}
     
@@ -45,13 +45,13 @@ Function parseCallbacks($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function parsePullInterval($inParameters : Object) : Integer
 /**
  * @function parsePullInterval
  * @param {Object} $inParameters - User-supplied options object; reads `$inParameters.timer`
  * @returns {Integer} Pull interval in seconds; defaults to 30 if not specified or invalid
  * @description Extracts and validates the polling interval from a start() parameters object
  */
-Function parsePullInterval($inParameters : Object) : Integer
     
     var $interval : Integer:=30
     
@@ -70,6 +70,7 @@ Function parsePullInterval($inParameters : Object) : Integer
 	// ----------------------------------------------------
 
 
+Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)
 /**
  * @function registerInStorage
  * @param {Text} $inStorageKey - Top-level key in `Storage` (e.g. `"graphNotifications"`)
@@ -79,7 +80,6 @@ Function parsePullInterval($inParameters : Object) : Integer
  * @description Creates or updates `Storage[$inStorageKey][$inState]` with `isStarted: True`
  *   and any extra fields; initialises parent and child shared objects as needed
  */
-Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)
     
     Use (Storage)
         If (Storage[$inStorageKey]=Null)
@@ -107,6 +107,7 @@ Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields
     // ----------------------------------------------------
     
     
+Function signalStop($inStorageKey : Text; $inState : Text)
 /**
  * @function signalStop
  * @param {Text} $inStorageKey - Top-level key in `Storage`
@@ -114,7 +115,6 @@ Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields
  * @description Sets `isStarted` to `False` on the session entry so the monitor loop
  *   exits gracefully on its next tick; no-op if the entry does not exist
  */
-Function signalStop($inStorageKey : Text; $inState : Text)
     
     If (Length($inState)>0)
         If ((Storage[$inStorageKey]#Null) && OB Is defined(Storage[$inStorageKey]; $inState))
@@ -128,6 +128,7 @@ Function signalStop($inStorageKey : Text; $inState : Text)
     // ----------------------------------------------------
     
     
+Function cleanupStorage($inStorageKey : Text; $inState : Text)
 /**
  * @function cleanupStorage
  * @param {Text} $inStorageKey - Top-level key in `Storage`
@@ -135,7 +136,6 @@ Function signalStop($inStorageKey : Text; $inState : Text)
  * @description Removes `Storage[$inStorageKey][$inState]`; when no Graph or Google
  *   notification sessions remain, resets `cs._Tools.me.notificationMode` to `False`
  */
-Function cleanupStorage($inStorageKey : Text; $inState : Text)
     
     If (Length($inState)>0)
         Use (Storage)
@@ -160,6 +160,7 @@ Function cleanupStorage($inStorageKey : Text; $inState : Text)
     // ----------------------------------------------------
     
     
+Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
 /**
  * @function isMonitorActive
  * @param {Text} $inStorageKey - Top-level key in `Storage`
@@ -167,7 +168,6 @@ Function cleanupStorage($inStorageKey : Text; $inState : Text)
  * @returns {Boolean} True when the session exists and `isStarted` is True
  * @description Used by monitor loops to decide whether to continue polling
  */
-Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
     
     If ((Storage[$inStorageKey]#Null) && OB Is defined(Storage[$inStorageKey]; $inState))
         return Bool(Storage[$inStorageKey][$inState].isStarted)
@@ -180,6 +180,7 @@ Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
 	// ----------------------------------------------------
 
 
+Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
 /**
  * @function drainPendingItems
  * @param {Text} $inStorageKey - Top-level key in `Storage`
@@ -189,7 +190,6 @@ Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
  * @description Called each tick by the monitor loop to retrieve and clear all items
  *   that were pushed by the webhook handler since the last tick
  */
-Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     
     var $items : Collection:=[]
     
@@ -213,6 +213,7 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
 	// ----------------------------------------------------
 
 
+Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)
 /**
  * @function dispatchCallbacks
  * @param {Collection} $inItems - Notification items (each with `changeType` and `resourceId`)
@@ -225,7 +226,6 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
  *   (`onCreate`, `onModify`, `onDelete`) with the owner and a `{type; ids}` event object;
  *   callbacks with no matching items or set to `Null` are skipped
  */
-Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)
     
     var $created : Collection:=[]
     var $updated : Collection:=[]
@@ -260,6 +260,7 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
 	// ----------------------------------------------------
 
 
+Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Text) : Text
 /**
  * @function buildNotificationUrl
  * @param {Text} $inEndPoint - Base endpoint URL (e.g. `"https://myserver.com"`)
@@ -269,7 +270,6 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
  * @description Builds the callback URL that is registered with Microsoft Graph or Google
  *   as the notification endpoint; strips existing query params and fragment from the base URL
  */
-Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Text) : Text
     
     If (Length($inEndPoint)=0)
         return ""
@@ -290,6 +290,7 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
     // ----------------------------------------------------
     
     
+Function ensureWebServer($inEndPoint : Text) : Object
 /**
  * @function ensureWebServer
  * @param {Text} $inEndPoint - Notification endpoint URL used to determine port and TLS mode
@@ -300,7 +301,6 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
  *   (HTTP or HTTPS), it is reused. Otherwise the component web server is started and
  *   `cs._Tools.me.notificationMode` is set to True.
  */
-Function ensureWebServer($inEndPoint : Text) : Object
     
     var $port : Integer:=cs._Tools.me.getPortFromURL($inEndPoint)
     var $useTLS : Boolean:=(Position("https"; $inEndPoint)=1)
@@ -331,6 +331,7 @@ Function ensureWebServer($inEndPoint : Text) : Object
 	// ----------------------------------------------------
 
 
+Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)
 /**
  * @function callbackInCallerContext
  * @param {Integer} $inFormWindow - Form window reference captured at monitor start (0 if none)
@@ -342,7 +343,6 @@ Function ensureWebServer($inEndPoint : Text) : Object
  *   uses `CALL FORM` when a form window was captured (preserves `Form`, `This`, etc.),
  *   otherwise falls back to `CALL WORKER` with the captured process name
  */
-Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)
 
     If ($inFormWindow>0)
         CALL FORM($inFormWindow; $inFormula; $inSelf; $inItems)

@@ -8,6 +8,7 @@
 property token : Object
 property tokenExpiration : Text
 
+Class constructor($inParams : Object)
 /**
  * @constructor
  * @param {Object} $inParams - Optional initial token data:
@@ -15,7 +16,6 @@ property tokenExpiration : Text
  *   - `tokenExpiration` {Text} — ISO 8601 expiration timestamp; computed from `expires_in`
  *     when absent
  */
-Class constructor($inParams : Object)
 	
 	var $params : Object:=Null
 	If (Count parameters>0)
@@ -35,6 +35,7 @@ Class constructor($inParams : Object)
 	// ----------------------------------------------------
 	
 	
+Function _loadFromObject($inObject : Object)
 /**
  * @function _loadFromObject
  * @private
@@ -42,7 +43,6 @@ Class constructor($inParams : Object)
  * @description Hydrates `This.token` and `This.tokenExpiration` from a plain object;
  *   computes `tokenExpiration` from `token.expires_in` when not provided
  */
-Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
@@ -65,13 +65,13 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
+Function _loadFromResponse($inResponseString : Text)
 /**
  * @function _loadFromResponse
  * @private
  * @param {Text} $inResponseString - Raw JSON response body from the token endpoint
  * @description Parses the JSON string and delegates to `_loadFromObject`
  */
-Function _loadFromResponse($inResponseString : Text)
 	
 	var $token : Object:=Try(JSON Parse($inResponseString))
 	
@@ -83,6 +83,7 @@ Function _loadFromResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
+Function _loadFromURLEncodedResponse($inResponseString : Text)
 /**
  * @function _loadFromURLEncodedResponse
  * @private
@@ -90,7 +91,6 @@ Function _loadFromResponse($inResponseString : Text)
  * @description Parses a `application/x-www-form-urlencoded` response and delegates
  *   to `_loadFromObject`
  */
-Function _loadFromURLEncodedResponse($inResponseString : Text)
 	
 	var $URL : cs._URL:=cs._URL.new()
 	$URL.parseQuery($inResponseString)
@@ -109,6 +109,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
+Function _Expired($inParams : Text) : Boolean
 /**
  * @function _Expired
  * @private
@@ -117,7 +118,6 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
  * @returns {Boolean} `True` when the token is expired (or expiration is unknown);
  *   `False` when the token is still valid (with a 10-second safety margin)
  */
-Function _Expired($inParams : Text) : Boolean
 	
 	var $result : Boolean:=True
 	var $expiration : Text:=Choose((Count parameters>0); $inParams; This.tokenExpiration)

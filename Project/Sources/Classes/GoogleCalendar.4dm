@@ -9,6 +9,7 @@ Class extends _GoogleAPI
 
 property userId : Text
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -16,7 +17,6 @@ property userId : Text
  *   - `userId` {Text} — Google account identifier (defaults to empty,
  *     meaning the authenticated user)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     Super($inProvider; "https://www.googleapis.com/calendar/v3/")
     
@@ -27,6 +27,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     // ----------------------------------------------------
 
 
+Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
 /**
  * @function _conformEventDateTime
  * @private
@@ -38,7 +39,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  *   or date-only object — and converts it to the canonical Google Calendar shape via
  *   `_DateTime.getGoogleDateTime()` or `_DateTime.getGoogleDate()`
  */
-Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     
     var $dateTime : cs._DateTime
     var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
@@ -60,6 +60,7 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
     // ----------------------------------------------------
     
     
+Function _conformEvent($inObject : Object) : Object
 /**
  * @function _conformEvent
  * @private
@@ -68,7 +69,6 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
  *   `_conformEventDateTime`; `id` and `_internals` are stripped so the object
  *   is safe to POST/PUT to the Calendar API
  */
-Function _conformEvent($inObject : Object) : Object
     
     var $event : Object:=OB Copy($inObject)
     
@@ -96,6 +96,7 @@ Function _conformEvent($inObject : Object) : Object
     // ----------------------------------------------------
 
 
+Function getCalendar($inID : Text) : Object
 /**
  * @function getCalendar
  * @param {Text} $inID - Calendar ID to fetch; defaults to `"primary"` when empty
@@ -103,7 +104,6 @@ Function _conformEvent($inObject : Object) : Object
  * @description Fetches a single entry from the user's calendar list via
  *   `GET users/me/calendarList/{calendarId}`; pushes error 10 when `$inID` is not a Text
  */
-Function getCalendar($inID : Text) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList/calendarId
     
@@ -128,6 +128,7 @@ Function getCalendar($inID : Text) : Object
     // ----------------------------------------------------
     
     
+Function getCalendars($inParameters : Object) : cs.GoogleCalendarList
 /**
  * @function getCalendars
  * @param {Object} $inParameters - Query options; recognised properties:
@@ -141,7 +142,6 @@ Function getCalendar($inID : Text) : Object
  * @description Fetches the user's calendar list via `GET users/me/calendarList`
  *   and returns a `GoogleCalendarList` for the first page
  */
-Function getCalendars($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/users/me/calendarList
     Super._clearErrorStack()
@@ -185,6 +185,7 @@ Function getCalendars($inParameters : Object) : Object
     // ----------------------------------------------------
 
 
+Function getEvent($inParameters : Object) : cs.GoogleEvent
 /**
  * @function getEvent
  * @param {Object} $inParameters - Query options; required properties:
@@ -199,7 +200,6 @@ Function getCalendars($inParameters : Object) : Object
  *   pushes error 10 when `eventId` is not a Text, error 9 when `startDateTime` / `endDateTime`
  *   is missing from a paired requirement
  */
-Function getEvent($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
     
@@ -239,6 +239,7 @@ Function getEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function getEvents($inParameters : Object) : cs.GoogleEventList
 /**
  * @function getEvents
  * @param {Object} $inParameters - Query options; recognised properties:
@@ -259,7 +260,6 @@ Function getEvent($inParameters : Object) : Object
  * @description Fetches events via `GET calendars/{calendarId}/events` and returns a
  *   `GoogleEventList` for the first page; use `next()` / `previous()` to navigate pages
  */
-Function getEvents($inParameters : Object) : Object
     
     // GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
     
@@ -354,6 +354,7 @@ Function getEvents($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function createEvent($inEvent : Object; $inParameters : Object) : Object
 /**
  * @function createEvent
  * @param {Object} $inEvent - Event object to create; `start` / `end` are normalised via
@@ -369,7 +370,6 @@ Function getEvents($inParameters : Object) : Object
  *   is the created `GoogleEvent` instance on success
  * @description Creates a new event via `POST calendars/{calendarId}/events`
  */
-Function createEvent($inEvent : Object; $inParameters : Object) : Object
     
     // POST https://www.googleapis.com/calendar/v3/calendars/calendarId/events
     
@@ -409,6 +409,7 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function deleteEvent($inParameters : Object) : Object
 /**
  * @function deleteEvent
  * @param {Object} $inParameters - Request options; recognised properties:
@@ -420,7 +421,6 @@ Function createEvent($inEvent : Object; $inParameters : Object) : Object
  * @description Permanently deletes an event via
  *   `DELETE calendars/{calendarId}/events/{eventId}`
  */
-Function deleteEvent($inParameters : Object) : Object
     
     // DELETE https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
     
@@ -451,6 +451,7 @@ Function deleteEvent($inParameters : Object) : Object
     // ----------------------------------------------------
     
     
+Function updateEvent($inEvent : Object; $inParameters : Object) : Object
 /**
  * @function updateEvent
  * @param {Object} $inEvent - Event object with updated fields; `id` is used to identify
@@ -468,7 +469,6 @@ Function deleteEvent($inParameters : Object) : Object
  *   is the updated `GoogleEvent` instance on success
  * @description Updates an event via `PATCH` (default) or `PUT` (when `fullUpdate` is True)
  */
-Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // PUT https://www.googleapis.com/calendar/v3/calendars/calendarId/events/eventId
     // or
@@ -517,6 +517,7 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     // ----------------------------------------------------
 
 
+Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
 /**
  * @function notifier
  * @param {Object} $inParameters - Notification options (see inline documentation):
@@ -529,7 +530,6 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
  *   monitoring. Push mode (webhook) requires `endPoint`; pull mode polls the Calendar
  *   events API with sync tokens at a configurable interval.
  */
-Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
     
 /*
     Creates a notification object for calendar event change notifications.

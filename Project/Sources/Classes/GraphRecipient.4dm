@@ -6,6 +6,7 @@
 
 property emailAddress : Object
 
+Class constructor($inAddress : Text; $inName : Text)
 /**
  * @constructor
  * @param {Text} $inAddress - Email address (validated via `_EmailAddress`)
@@ -13,7 +14,6 @@ property emailAddress : Object
  * @description Creates a Graph recipient object. Throws a deferred error with
  *   `{code: 2; component: "4DNK"; attribute: "address"}` when the address is invalid.
  */
-Class constructor($inAddress : Text; $inName : Text)
 	
 	var $parsed : cs._EmailAddress:=cs._EmailAddress.new($inName; $inAddress)
 	If ($parsed.isValid())

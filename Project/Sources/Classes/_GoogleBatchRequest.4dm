@@ -21,6 +21,7 @@ property _requests : Collection
 property _itemNumber : Integer:=0
 
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -34,7 +35,6 @@ property _itemNumber : Integer:=0
  *     (use `"JSON"` for non-mail resources such as labels)
  *   - `maxItemNumber` {Integer} — Override the 100-request-per-batch ceiling
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	Super($inProvider)
 	
@@ -64,6 +64,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	// ----------------------------------------------------
 
 
+Function appendRequest($inParam : Object)
 /**
  * @function appendRequest
  * @param {Object} $inParam - Sub-request descriptor; recognised properties:
@@ -75,7 +76,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
  *   sequential `Content-ID` (`<item1>`, `<item2>`, …) used to correlate
  *   responses. Call `sendRequestAndWaitResponse` after all sub-requests are queued.
  */
-Function appendRequest($inParam : Object)
 	
 	var $request : Object:={}
 	This._itemNumber+=1
@@ -91,6 +91,7 @@ Function appendRequest($inParam : Object)
 	// ----------------------------------------------------
 	
 	
+Function sendRequestAndWaitResponse() : Collection
 /**
  * @function sendRequestAndWaitResponse
  * @returns {Collection} Flat collection of converted results from all sub-requests,
@@ -104,7 +105,6 @@ Function appendRequest($inParam : Object)
  *   but is a distinct public method — it orchestrates chunked batch dispatch whereas the
  *   inherited private method performs a single HTTP call.
  */
-Function sendRequestAndWaitResponse() : Collection
 	
 	var $collection : Collection:=[]
 	var $startIndex : Integer:=0
@@ -157,6 +157,7 @@ Function sendRequestAndWaitResponse() : Collection
 	// ----------------------------------------------------
 	
 	
+Function _generateBody($inBoundary : Text; $inRequests : Collection) : Text
 /**
  * @function _generateBody
  * @private
@@ -167,7 +168,6 @@ Function sendRequestAndWaitResponse() : Collection
  *   `--<boundary>` markers, including verb, URL, optional headers, and optional body;
  *   terminates with the `--<boundary>--` closing delimiter.
  */
-Function _generateBody($inBoundary : Text; $inRequests : Collection) : Text
 	
 	var $body : Text:=""
 	

@@ -9,6 +9,7 @@
 
 Class extends _GoogleBaseList
 
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -17,7 +18,6 @@ Class extends _GoogleBaseList
  * @param {Object} $inHeaders - Additional HTTP headers to include in each request
  *   (e.g. `{"X-Goog-Request-Reason": "..."}`)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
     
     Super($inProvider; {url: $inURL; elements: "people"; headers: $inHeaders})
     
@@ -26,12 +26,12 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
     // ----------------------------------------------------
     
     
+Function get users() : Collection
 /**
  * @function get users
  * @returns {Collection} Current page of raw Google People resource objects
  * @description Returns the person objects from the current page as delivered
  *   by the API; call `next()` to advance to the following page
  */
-Function get users() : Collection
     
     return This._internals._list

@@ -8,13 +8,13 @@
 
 Class extends _BaseList
 
+Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  * @param {Text} $inURL - Initial Graph API URL for the first page
  * @param {Object} $inHeaders - Additional HTTP headers (e.g. `ConsistencyLevel`)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
 	Super($inProvider)
 	
@@ -34,6 +34,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
 	// ----------------------------------------------------
 	
 	
+Function _getList($inURL : Text) : Boolean
 /**
  * @function _getList
  * @private
@@ -43,7 +44,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
  *   and sets `_internals._nextToken` to the `@odata.nextLink` URL when available.
  *   Also handles `@odata.count` to detect last page.
  */
-Function _getList($inURL : Text) : Boolean
 	
 	This.isLastPage:=False
 	This.success:=False

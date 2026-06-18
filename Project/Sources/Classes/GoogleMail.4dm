@@ -11,6 +11,7 @@ Class extends _GoogleAPI
 property mailType : Text
 property userId : Text
 
+Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
@@ -19,7 +20,6 @@ property userId : Text
  *     `"JMAP"` (4D mail object, default) or `"MIME"` (raw RFC 2822 blob)
  *   - `userId` {Text} — Gmail user ID; defaults to `"me"` (the authenticated user)
  */
-Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	Super($inProvider)
 	
@@ -31,6 +31,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	// Mark: - [Private]
 	
 	
+Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 /**
  * @function _postJSONMessage
  * @private
@@ -43,7 +44,6 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @description Posts a mail message directly as RFC 2822 content (no base64 encoding);
  *   uses the Gmail media upload endpoint
  */
-Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) : Object
 	
 	var $response : Object:=Null
 	
@@ -71,6 +71,7 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
 	// ----------------------------------------------------
 	
 	
+Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 /**
  * @function _postMailMIMEMessage
  * @private
@@ -83,7 +84,6 @@ Function _postJSONMessage($inURL : Text; $inMail : Object; $inHeader : Object) :
  * @description Base64-encodes the MIME content, wraps it in `{raw: ...}` JSON
  *   (plus optional `labelIds`), and POSTs it to the Gmail API
  */
-Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $requestBody : Text
 	var $headers : Object:={}
@@ -114,6 +114,7 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Co
 	// ----------------------------------------------------
 	
 	
+Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 /**
  * @function _postMessage
  * @private
@@ -128,7 +129,6 @@ Function _postMailMIMEMessage($inURL : Text; $inMail : Variant; $inLabelIds : Co
  * @description Dispatcher that routes mail POSTs to `_postMailMIMEMessage` based on
  *   `mailType`; validates the content type before dispatching
  */
-Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inLabelIds : Collection) : Object
 	
 	var $status : Object
 	var $labelIds : Collection:=Null
@@ -165,6 +165,7 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inL
 	// ----------------------------------------------------
 	
 	
+Function append($inMail : Variant; $inLabelIds : Collection) : Object
 /**
  * @function append
  * @param {Variant} $inMail - Mail to store; BLOB or Text (MIME) when `mailType` is
@@ -177,7 +178,6 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $inL
  *   `POST users/{userId}/messages/`; useful for importing existing messages or saving
  *   drafts with custom labels
  */
-Function append($inMail : Variant; $inLabelIds : Collection) : Object
 	
 	Super._clearErrorStack()
 	
@@ -196,6 +196,7 @@ Function append($inMail : Variant; $inLabelIds : Collection) : Object
 	// ----------------------------------------------------
 	
 	
+Function send($inMail : Variant) : Object
 /**
  * @function send
  * @param {Variant} $inMail - Mail to send; BLOB or Text (MIME) when `mailType` is
@@ -203,7 +204,6 @@ Function append($inMail : Variant; $inLabelIds : Collection) : Object
  * @returns {Object} Status object `{success; statusText}`
  * @description Sends a mail message via `POST users/{userId}/messages/send`
  */
-Function send($inMail : Variant) : Object
 	
 	Super._clearErrorStack()
 	
@@ -217,6 +217,7 @@ Function send($inMail : Variant) : Object
 	// ----------------------------------------------------
 	
 	
+Function delete($inMailId : Text; $permanently : Boolean) : Object
 /**
  * @function delete
  * @param {Text} $inMailId - Gmail message ID to delete; pushes error 10 when not a
@@ -226,7 +227,6 @@ Function send($inMail : Variant) : Object
  * @returns {Object} Status object `{success; statusText}`
  * @description Deletes a mail message, either permanently or by trashing it
  */
-Function delete($inMailId : Text; $permanently : Boolean) : Object
 	
 	Super._clearErrorStack()
 	
@@ -261,6 +261,7 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
 	// ----------------------------------------------------
 	
 	
+Function untrash($inMailId : Text) : Object
 /**
  * @function untrash
  * @param {Text} $inMailId - Gmail message ID to restore; pushes error 10 when not a
@@ -268,7 +269,6 @@ Function delete($inMailId : Text; $permanently : Boolean) : Object
  * @returns {Object} Status object `{success; statusText}`
  * @description Removes a message from Trash via `POST users/{userId}/messages/{id}/untrash`
  */
-Function untrash($inMailId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -299,6 +299,7 @@ Function untrash($inMailId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function getMailIds($inParameters : Object) : cs.GoogleMailIdList
 /**
  * @function getMailIds
  * @param {Object} $inParameters - Query options forwarded to `_getURLParamsFromObject`;
@@ -308,7 +309,6 @@ Function untrash($inMailId : Text) : Object
  *   use `next()` / `previous()` to navigate pages
  * @description Returns a `GoogleMailIdList` for the first page of matching messages
  */
-Function getMailIds($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	var $URL : Text:=Super._getURL()
@@ -321,6 +321,7 @@ Function getMailIds($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function getMail($inMailId : Text; $inParameters : Object) : Variant
 /**
  * @function getMail
  * @param {Text} $inMailId - Gmail message ID to fetch; pushes error 10 when not a
@@ -334,7 +335,6 @@ Function getMailIds($inParameters : Object) : Object
  * @description Fetches a single message via `GET users/{userId}/messages/{id}` and
  *   converts the response via `_extractRawMessage`
  */
-Function getMail($inMailId : Text; $inParameters : Object) : Variant
 	
 	Super._clearErrorStack()
 	
@@ -376,6 +376,7 @@ Function getMail($inMailId : Text; $inParameters : Object) : Variant
 	// ----------------------------------------------------
 	
 	
+Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 /**
  * @function getMails
  * @param {Collection} $inMailIds - Collection of Gmail message IDs (Text) or objects
@@ -387,7 +388,6 @@ Function getMail($inMailId : Text; $inParameters : Object) : Variant
  * @description Fetches multiple messages: uses a single `getMail` call for one ID,
  *   or a `_GoogleBatchRequest` for multiple IDs to reduce round-trips
  */
-Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	
 	var $result : Collection:=Null
 	
@@ -457,6 +457,7 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
 	// ----------------------------------------------------
 	
 	
+Function update($inMailIds : Collection; $inParameters : Object) : Object
 /**
  * @function update
  * @param {Collection} $inMailIds - Collection of Gmail message IDs (Text) or objects
@@ -470,7 +471,6 @@ Function getMails($inMailIds : Collection; $inParameters : Object) : Collection
  * @description Batch-modifies labels on up to 1000 messages via
  *   `POST users/{userId}/messages/batchModify`
  */
-Function update($inMailIds : Collection; $inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -521,6 +521,7 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function getLabelList($inParameters : Object) : Object
 /**
  * @function getLabelList
  * @param {Object} $inParameters - Options; recognised properties:
@@ -534,7 +535,6 @@ Function update($inMailIds : Collection; $inParameters : Object) : Object
  * @description Retrieves one or more labels; when `ids` are provided or `withCounters`
  *   is True, individual label details are fetched via a `_GoogleBatchRequest`
  */
-Function getLabelList($inParameters : Object) : Object
 	
 	Super._clearErrorStack()
 	var $URL : Text:=Super._getURL()
@@ -605,6 +605,7 @@ Function getLabelList($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function getLabel($inLabelId : Text) : Object
 /**
  * @function getLabel
  * @param {Text} $inLabelId - Gmail label ID to fetch; pushes error 10 when not a
@@ -613,7 +614,6 @@ Function getLabelList($inParameters : Object) : Object
  *   validation fails
  * @description Fetches a single label's details via `GET users/{userId}/labels/{labelId}`
  */
-Function getLabel($inLabelId : Text) : Object
 	
 	Case of 
 		: (Type($inLabelId)#Is text)
@@ -638,6 +638,7 @@ Function getLabel($inLabelId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function createLabel($inLabelInfo : Object) : Object
 /**
  * @function createLabel
  * @param {Object} $inLabelInfo - Label properties to create (e.g. `name`,
@@ -647,7 +648,6 @@ Function getLabel($inLabelId : Text) : Object
  *   is the created label resource on success
  * @description Creates a new label via `POST users/{userId}/labels`
  */
-Function createLabel($inLabelInfo : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -679,10 +679,10 @@ Function createLabel($inLabelInfo : Object) : Object
 	return This._returnStatus(($response#Null) ? {label: $response} : Null)
 	
 	
-	
 	// ----------------------------------------------------
 	
 	
+Function deleteLabel($inLabelId : Text) : Object
 /**
  * @function deleteLabel
  * @param {Text} $inLabelId - Gmail label ID to delete; pushes error 10 when not a
@@ -690,7 +690,6 @@ Function createLabel($inLabelInfo : Object) : Object
  * @returns {Object} Status object `{success; statusText}`
  * @description Permanently deletes a label via `DELETE users/{userId}/labels/{labelId}`
  */
-Function deleteLabel($inLabelId : Text) : Object
 	
 	Super._clearErrorStack()
 	
@@ -722,6 +721,7 @@ Function deleteLabel($inLabelId : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 /**
  * @function updateLabel
  * @param {Text} $inLabelId - Gmail label ID to update; pushes error 10 when not a
@@ -732,7 +732,6 @@ Function deleteLabel($inLabelId : Text) : Object
  *   is the updated label resource on success
  * @description Fully replaces a label's properties via `PUT users/{userId}/labels/{labelId}`
  */
-Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	
 	Super._clearErrorStack()
 	
@@ -774,6 +773,7 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function notifier($inParameters : Object) : cs.GoogleNotification
 /**
  * @function notifier
  * @param {Object} $inParameters - Notification options (see inline documentation):
@@ -785,7 +785,6 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
  *   Push mode requires a Google Cloud Pub/Sub topic (`topicName`); pull mode polls
  *   the Gmail history API at a configurable interval.
  */
-Function notifier($inParameters : Object) : cs.GoogleNotification
 	
 /*
 	The notification object can be started and stopped. When started, it monitors

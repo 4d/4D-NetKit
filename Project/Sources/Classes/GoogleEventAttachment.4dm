@@ -11,12 +11,12 @@ property mimeType : Text
 property iconLink : Text
 property contentBytes : 4D.Blob:=Null
 
+Class constructor($inAttachment : Object)
 /**
  * @constructor
  * @param {Object} $inAttachment - Raw attachment object from the Calendar API event response;
  *   expected properties: `fileUrl`, `title`, `mimeType`, `iconLink`
  */
-Class constructor($inAttachment : Object)
     
     This.fileUrl:=String($inAttachment.fileUrl)
     This.title:=String($inAttachment.title)
@@ -28,6 +28,7 @@ Class constructor($inAttachment : Object)
     // ----------------------------------------------------
     
     
+Function getContent() : 4D.Blob
 /**
  * @function getContent
  * @returns {4D.Blob} The attachment binary; `Null` if the download fails
@@ -35,7 +36,6 @@ Class constructor($inAttachment : Object)
  *   result in `contentBytes`; subsequent calls return the cached blob without
  *   making a new HTTP request
  */
-Function getContent() : 4D.Blob
     
     If (This.contentBytes=Null)
         var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.fileUrl; {dataType: "blob"}).wait())
@@ -50,13 +50,13 @@ Function getContent() : 4D.Blob
     // ----------------------------------------------------
 
 
+Function getIcon() : Picture
 /**
  * @function getIcon
  * @returns {Picture} The attachment icon as a 4D Picture; `Null` if the download fails
  * @description Downloads the icon image from `iconLink` and converts the blob to a
  *   4D Picture via `BLOB TO PICTURE`; not cached — a new HTTP request is made on each call
  */
-Function getIcon() : Picture
     
     var $icon : Picture:=Null
     var $request : 4D.HTTPRequest:=Try(4D.HTTPRequest.new(This.iconLink; {dataType: "blob"}).wait())

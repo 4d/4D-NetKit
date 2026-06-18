@@ -8,7 +8,8 @@
 
 shared singleton Class constructor()
 	
-
+	
+Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 /**
  * @function getResponse
  * @param {4D.IncomingMessage} $request - Incoming HTTP request from Google
@@ -21,7 +22,6 @@ shared singleton Class constructor()
  *     to `_processGmailNotification`
  *   See inline documentation for the expected payload formats
  */
-Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	
 /*
 	Handles incoming webhook requests from Google push notifications.
@@ -61,11 +61,13 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 				// Initial sync validation - respond 200
 				$outgoingResponse.setStatus(200)
 				$outgoingResponse.setBody("")
+				$outgoingResponse.setHeader("Content-Type"; "text/plain")
 			Else 
 				// Change notification - push to pending
 				This._processCalendarNotification($channelToken)
 				$outgoingResponse.setStatus(200)
 				$outgoingResponse.setBody("")
+				$outgoingResponse.setHeader("Content-Type"; "text/plain")
 			End if 
 			
 		Else 
@@ -75,10 +77,9 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 				This._processGmailNotification($text)
 			End if 
 			$outgoingResponse.setStatus(200)
-			$outgoingResponse.setBody("")
+			$outgoingResponse.setBody("{}")
+			$outgoingResponse.setHeader("Content-Type"; "application/json")
 		End if 
-		
-		$outgoingResponse.setHeader("Content-Type"; "text/plain")
 		
 	Else 
 		
@@ -97,6 +98,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 	// ----------------------------------------------------
 	
 	
+Function _processCalendarNotification($inState : Text)
 /**
  * @function _processCalendarNotification
  * @private
@@ -105,7 +107,6 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
  * @description Pushes a signal object to the monitor's pending queue in Storage
  *   so the monitoring loop can pick it up and query the Calendar API for changes
  */
-Function _processCalendarNotification($inState : Text)
 	
 /*
 	Processes a Calendar push notification.
@@ -133,6 +134,7 @@ Function _processCalendarNotification($inState : Text)
 	// ----------------------------------------------------
 	
 	
+Function _processGmailNotification($inBody : Variant)
 /**
  * @function _processGmailNotification
  * @private
@@ -143,7 +145,6 @@ Function _processCalendarNotification($inState : Text)
  *   matching monitor state via `_findStateByUserId`, and pushes a signal to
  *   the monitor's pending queue in Storage
  */
-Function _processGmailNotification($inBody : Variant)
 	
 /*
 	Processes a Gmail Pub/Sub push notification.
@@ -197,7 +198,7 @@ Function _processGmailNotification($inBody : Variant)
 	
 	// Find the matching state by userId/emailAddress
 	var $state : Text:=This._findStateByUserId($emailAddress)
-	
+
 	If (Length($state)>0)
 		Use (Storage.googleNotifications[$state])
 			If (Storage.googleNotifications[$state].pending#Null)
@@ -212,6 +213,7 @@ Function _processGmailNotification($inBody : Variant)
 	// ----------------------------------------------------
 	
 	
+Function _findStateByUserId($inUserId : Text) : Text
 /**
  * @function _findStateByUserId
  * @private
@@ -222,7 +224,6 @@ Function _processGmailNotification($inBody : Variant)
  *   `userId` matches `$inUserId`; used to route Pub/Sub notifications to the
  *   correct monitoring loop
  */
-Function _findStateByUserId($inUserId : Text) : Text
 	
 	// Look up the state key in Storage.googleNotifications by userId/emailAddress
 	
@@ -232,11 +233,24 @@ Function _findStateByUserId($inUserId : Text) : Text
 	
 	var $keys : Collection:=OB Keys(Storage.googleNotifications)
 	var $key : Text
+	var $meCandidates : Collection:=[]
 	
 	For each ($key; $keys)
-		If (String(Storage.googleNotifications[$key].userId)=$inUserId)
+		var $storedUserId : Text:=String(Storage.googleNotifications[$key].userId)
+		
+		If (Lowercase($storedUserId)=Lowercase($inUserId))
 			return $key
 		End if 
+		
+		// Keep a fallback candidate for monitors created with resource="me".
+		If ($storedUserId="me")
+			$meCandidates.push($key)
+		End if 
 	End for each 
+	
+	// Safe fallback only when there is no ambiguity.
+	If ($meCandidates.length=1)
+		return String($meCandidates[0])
+	End if 
 	
 	return ""

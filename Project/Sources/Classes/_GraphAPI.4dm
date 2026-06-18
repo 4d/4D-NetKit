@@ -8,11 +8,11 @@
 
 Class extends _BaseAPI
 
+Class constructor($inProvider : cs.OAuth2Provider)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider for authenticating requests
  */
-Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super($inProvider)
 	
@@ -23,6 +23,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+Function _copyGraphMessage($inMessage : Object) : Object
 /**
  * @function _copyGraphMessage
  * @private
@@ -34,7 +35,6 @@ Class constructor($inProvider : cs.OAuth2Provider)
  *   converting any typed attachment objects to plain Graph attachment objects.
  *   If `$inMessage` is not a `GraphMessage` instance it is returned as-is.
  */
-Function _copyGraphMessage($inMessage : Object) : Object
 	
 	If (OB Instance of($inMessage; cs.GraphMessage))
 		
@@ -76,6 +76,7 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function _loadFromObject($inObject : Object)
 /**
  * @function _loadFromObject
  * @private
@@ -84,7 +85,6 @@ Function _copyGraphMessage($inMessage : Object) : Object
  *   effectively hydrating the current instance with the API response data.
  *   No-op when `$inObject` is `Null` or empty.
  */
-Function _loadFromObject($inObject : Object)
 	
 	If (($inObject#Null) && (Not(OB Is empty($inObject))))
 		
@@ -101,6 +101,7 @@ Function _loadFromObject($inObject : Object)
 	// ----------------------------------------------------
 	
 	
+Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 /**
  * @function _getURLParamsFromObject
  * @private
@@ -116,7 +117,6 @@ Function _loadFromObject($inObject : Object)
  * @description Builds an OData query string from a parameter object.
  *   Overridden by `Office365Calendar` to add `startDateTime` and `endDateTime`.
  */
-Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text
 	
 	var $URLParams : cs._URL:=cs._URL.new()
 	

@@ -8,11 +8,11 @@
 Class extends _BaseClass
 
 
+Class constructor($inProvider : cs.OAuth2Provider)
 /**
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used to obtain access tokens
  */
-Class constructor($inProvider : cs.OAuth2Provider)
 	
 	Super()
 	
@@ -30,6 +30,7 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	// ----------------------------------------------------
 	
 	
+Function _getToken() : Object
 /**
  * @function _getToken
  * @private
@@ -37,7 +38,6 @@ Class constructor($inProvider : cs.OAuth2Provider)
  * @description Refreshes the token if needed via the OAuth2 provider, then returns it;
  *   propagates provider errors into the error stack and re-throws them
  */
-Function _getToken() : Object
 	
 	Try
 		If (OB Class(This._internals._oAuth2Provider)=cs.OAuth2Provider)
@@ -70,6 +70,7 @@ Function _getToken() : Object
 	// ----------------------------------------------------
 	
 	
+Function _getAccessToken() : Text
 /**
  * @function _getAccessToken
  * @private
@@ -77,7 +78,6 @@ Function _getToken() : Object
  * @description Calls _getToken() and extracts the access_token value;
  *   propagates errors and returns "" on failure
  */
-Function _getAccessToken() : Text
 	
 	Try
 		return String(This._getToken().access_token)
@@ -106,12 +106,12 @@ Function _getAccessToken() : Text
 	// ----------------------------------------------------
 	
 	
+Function _getAccessTokenType() : Text
 /**
  * @function _getAccessTokenType
  * @private
  * @returns {Text} The token type (e.g. "Bearer"); defaults to "Bearer" if not present in the token
  */
-Function _getAccessTokenType() : Text
 	
 	var $tokenType : Text
 	
@@ -151,6 +151,7 @@ Function _getAccessTokenType() : Text
 	// ----------------------------------------------------
 	
 	
+Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant) : Variant
 /**
  * @function _sendRequestAndWaitResponse
  * @private
@@ -162,7 +163,6 @@ Function _getAccessTokenType() : Text
  * @description Sends an authenticated HTTP request with the OAuth2 Bearer token and waits
  *   for the response; parses the body according to Content-Type; throws on non-2xx status
  */
-Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders : Object; $inBody : Variant) : Variant
 	
 	var $response : Variant:=Null
 	
@@ -277,12 +277,12 @@ Function _sendRequestAndWaitResponse($inMethod : Text; $inURL : Text; $inHeaders
 	// ----------------------------------------------------
 	
 	
+Function _getURL() : Text
 /**
  * @function _getURL
  * @private
  * @returns {Text} The base URL stored in the internals
  */
-Function _getURL() : Text
 	
 	return This._internals._URL
 	
@@ -290,11 +290,11 @@ Function _getURL() : Text
 	// ----------------------------------------------------
 	
 	
+Function _getOAuth2Provider() : cs.OAuth2Provider
 /**
  * @function _getOAuth2Provider
  * @private
  * @returns {cs.OAuth2Provider} The OAuth2 provider associated with this API client
  */
-Function _getOAuth2Provider() : cs.OAuth2Provider
 	
 	return This._internals._oAuth2Provider

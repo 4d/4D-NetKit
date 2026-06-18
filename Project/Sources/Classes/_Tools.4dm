@@ -12,11 +12,11 @@ property webLicenseAvailable : Boolean
 property notificationMode : Boolean
 
 
+singleton Class constructor()
 /**
  * @constructor
  * @description Initializes the singleton with default property values
  */
-singleton Class constructor()
 	
 	This.webServer:=WEB Server(Web server database)
 	This.isDebug:=False
@@ -25,11 +25,11 @@ singleton Class constructor()
 	This.notificationMode:=False
 	
 	
+Function init()
 /**
  * @function init
  * @description Detects and stores web license availability based on the current application type
  */
-Function init()
 	
 	If (Application type=4D Remote mode)
 		cs._Tools.me.webLicenseAvailable:=Is license available(4D Client Web license)
@@ -42,6 +42,7 @@ Function init()
 	// ----------------------------------------------------
 	
 	
+Function base64UrlSafeDecode($inBase64Encoded : Text) : Text
 /**
  * @function base64UrlSafeDecode
  * @param {Text} $inBase64Encoded - URL-safe Base64 encoded string
@@ -50,7 +51,6 @@ Function init()
  *   and adding = padding as needed
  * @example base64UrlSafeDecode("SGVsbG8gV29ybGQ") // → "Hello World"
  */
-Function base64UrlSafeDecode($inBase64Encoded : Text) : Text
 	
 /*
     Largely inspired by UTL_base64UrlSafeDecode.4dm 
@@ -107,6 +107,7 @@ Function base64UrlSafeDecode($inBase64Encoded : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function camelCase($inString : Text) : Text
 /**
  * @function camelCase
  * @param {Text} $inString - Input string
@@ -115,7 +116,6 @@ Function base64UrlSafeDecode($inBase64Encoded : Text) : Text
  * @example camelCase("hello world") // → "helloWorld"
  * @example camelCase("Content-Type") // → "contentType"
  */
-Function camelCase($inString : Text) : Text
 	
 	var $result : Text:=""
 	var $string : Text:=Lowercase($inString; *)
@@ -148,12 +148,12 @@ Function camelCase($inString : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 /**
  * @function convertToGraphAttachment
  * @param {cs.GraphAttachment} $inObject - GraphAttachment instance to convert
  * @returns {Object} microsoft.graph.fileAttachment object, or Null if $inObject is not a GraphAttachment
  */
-Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 	
 	var $result : Object:=Null
 	
@@ -177,7 +177,8 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 			$result.contentType:=String($inObject.type)
 		End if 
 		If (Not(OB Is defined($inObject; "contentBytes")))
-			var $blob : Blob:=$inObject.getContent()
+			// Calling .getContent() will populate the contentBytes property, so we need to call it at least once to ensure contentBytes is available for the GraphAttachment
+			$inObject.getContent()
 		End if 
 		$result.contentBytes:=$inObject.contentBytes
 		$result.size:=$inObject.size
@@ -191,12 +192,12 @@ Function convertToGraphAttachment($inObject : cs.GraphAttachment) : Object
 	// ----------------------------------------------------
 	
 	
+Function cleanGraphObject($inObject : Object) : Object
 /**
  * @function cleanGraphObject
  * @param {Object} $inObject - Object to clean
  * @returns {Object} Copy of $inObject with all @odata keys and Null values removed
  */
-Function cleanGraphObject($inObject : Object) : Object
 	
 	var $cleanObject : Object:=OB Copy($inObject)
 	var $keys : Collection:=OB Keys($cleanObject)
@@ -213,6 +214,7 @@ Function cleanGraphObject($inObject : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text
 /**
  * @function getHeaderValueParameter
  * @param {Text} $headerValue - Full header value string
@@ -221,7 +223,6 @@ Function cleanGraphObject($inObject : Object) : Object
  * @returns {Text} Parameter value, or $defaultValue if not found
  * @example getHeaderValueParameter("text/html; charset=utf-8"; "charset"; "utf-8") // → "utf-8"
  */
-Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaultValue : Text) : Text
 	
 	var $result : Text:=This.getParameterValue($headerValue; $paramName)
 	If (Length($result)=0)
@@ -234,6 +235,7 @@ Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaul
 	// ----------------------------------------------------
 	
 	
+Function getParameterValue($headerValue : Text; $paramName : Text) : Text
 /**
  * @function getParameterValue
  * @param {Text} $headerValue - Full header value string
@@ -242,7 +244,6 @@ Function getHeaderValueParameter($headerValue : Text; $paramName : Text; $defaul
  * @example getParameterValue("attachment; filename=\"report.pdf\""; "filename") // → "report.pdf"
  * @example getParameterValue("text/html; charset=utf-8"; "charset") // → "utf-8"
  */
-Function getParameterValue($headerValue : Text; $paramName : Text) : Text
 	
 	var $search : Text:=$paramName+"="
 	var $pos : Integer:=Position($search; $headerValue)
@@ -274,6 +275,7 @@ Function getParameterValue($headerValue : Text; $paramName : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function getJMAPAttribute($inKey : Text) : Text
 /**
  * @function getJMAPAttribute
  * @param {Text} $inKey - Raw email header or Gmail API key
@@ -281,7 +283,6 @@ Function getParameterValue($headerValue : Text; $paramName : Text) : Text
  * @example getJMAPAttribute("Subject") // → "subject"
  * @example getJMAPAttribute("From") // → "from"
  */
-Function getJMAPAttribute($inKey : Text) : Text
 	
 	Case of 
 		: ($inKey="id")
@@ -322,13 +323,13 @@ Function getJMAPAttribute($inKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function getDomainFromURL($inURL : Text) : Text
 /**
  * @function getDomainFromURL
  * @param {Text} $inURL - Full URL string
  * @returns {Text} Host (domain) component of the URL
  * @example getDomainFromURL("https://www.example.com/path") // → "www.example.com"
  */
-Function getDomainFromURL($inURL : Text) : Text
 	
 	var $URL : cs._URL:=cs._URL.new($inURL)
 	
@@ -338,13 +339,13 @@ Function getDomainFromURL($inURL : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function getPathFromURL($inURL : Text) : Text
 /**
  * @function getPathFromURL
  * @param {Text} $inURL - Full URL string
  * @returns {Text} Path component of the URL
  * @example getPathFromURL("https://www.example.com/path/to/resource") // → "/path/to/resource"
  */
-Function getPathFromURL($inURL : Text) : Text
 	
 	var $URL : cs._URL:=cs._URL.new($inURL)
 	
@@ -354,6 +355,7 @@ Function getPathFromURL($inURL : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function getPortFromURL($inURL : Text) : Integer
 /**
  * @function getPortFromURL
  * @param {Text} $inURL - Full URL string
@@ -361,7 +363,6 @@ Function getPathFromURL($inURL : Text) : Text
  * @example getPortFromURL("https://www.example.com:8443/path") // → 8443
  * @example getPortFromURL("https://www.example.com/path") // → 443
  */
-Function getPortFromURL($inURL : Text) : Integer
 	
 	var $URL : cs._URL:=cs._URL.new($inURL)
 	
@@ -371,6 +372,7 @@ Function getPortFromURL($inURL : Text) : Integer
 	// ----------------------------------------------------
 	
 	
+Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 /**
  * @function getURLParameterValue
  * @param {Text} $inURL - Full URL string
@@ -378,7 +380,6 @@ Function getPortFromURL($inURL : Text) : Integer
  * @returns {Text} Query parameter value, or "" if not found
  * @example getURLParameterValue("https://example.com?code=abc123"; "code") // → "abc123"
  */
-Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	
 	var $result : Text:=""
 	var $URL : cs._URL:=cs._URL.new($inURL)
@@ -394,6 +395,7 @@ Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function isEmailAddressHeader($inKey : Text) : Boolean
 /**
  * @function isEmailAddressHeader
  * @param {Text} $inKey - Email header field name
@@ -401,7 +403,6 @@ Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
  * @example isEmailAddressHeader("To") // → True
  * @example isEmailAddressHeader("Subject") // → False
  */
-Function isEmailAddressHeader($inKey : Text) : Boolean
 	
 	If (($inKey="From") || \
 		($inKey="Sender") || \
@@ -426,6 +427,7 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isLocalIP($inIPAddress : Text) : Boolean
 /**
  * @function isLocalIP
  * @param {Text} $inIPAddress - IP address or hostname to check
@@ -433,7 +435,6 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
  * @example isLocalIP("127.0.0.1") // → True
  * @example isLocalIP("8.8.8.8") // → False
  */
-Function isLocalIP($inIPAddress : Text) : Boolean
 	
 	If (Length($inIPAddress)=0)
 		return False
@@ -462,6 +463,7 @@ Function isLocalIP($inIPAddress : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isValidEmail($inEmail : Text) : Boolean
 /**
  * @function isValidEmail
  * @param {Text} $inEmail - Email address string to validate
@@ -469,7 +471,6 @@ Function isLocalIP($inIPAddress : Text) : Boolean
  * @example isValidEmail("jane.doe@example.com") // → True
  * @example isValidEmail("invalid") // → False
  */
-Function isValidEmail($inEmail : Text) : Boolean
 	
 	var $pattern : Text:="(?i)^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
 	return Match regex($pattern; $inEmail; 1)
@@ -478,6 +479,7 @@ Function isValidEmail($inEmail : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function isValidURL($inURL : Text) : Boolean
 /**
  * @function isValidURL
  * @param {Text} $inURL - URL string to validate
@@ -486,7 +488,6 @@ Function isValidEmail($inEmail : Text) : Boolean
  * @example isValidURL("ftp://files.example.com") // → False
  * @example isValidURL("/relative/path") // → False
  */
-Function isValidURL($inURL : Text) : Boolean
 	
 	var $URL : cs._URL:=cs._URL.new($inURL)
 	
@@ -496,6 +497,7 @@ Function isValidURL($inURL : Text) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function quoteString($inString : Text) : Text
 /**
  * @function quoteString
  * @param {Text} $inString - String to quote
@@ -503,7 +505,6 @@ Function isValidURL($inURL : Text) : Boolean
  * @example quoteString("hello") // → "\"hello\""
  * @example quoteString("\"already quoted\"") // → "\"already quoted\""
  */
-Function quoteString($inString : Text) : Text
 	
 	var $result : Text:=$inString
 	var $length : Integer:=Length($result)
@@ -523,12 +524,12 @@ Function quoteString($inString : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function retainFileObject($inParameter : Variant) : 4D.File
 /**
  * @function retainFileObject
  * @param {Variant} $inParameter - A 4D.File instance or a platform path string
  * @returns {4D.File} The file if it exists, or Null if the parameter is invalid or the file does not exist
  */
-Function retainFileObject($inParameter : Variant) : 4D.File
 	
 	If (Value type($inParameter)#Is undefined)
 		
@@ -552,26 +553,32 @@ Function retainFileObject($inParameter : Variant) : 4D.File
 	// ----------------------------------------------------
 	
 	
+Function startWebServer($inParameters : Object) : Object
 /**
  * @function startWebServer
  * @param {Object} $inParameters - Settings object
- * @param {Integer} [$inParameters.port=50993] - Port to listen on
+ * @param {Integer} [$inParameters.port=50993] - HTTPS port when useTLS=True, HTTP port when useTLS=False
+ * @param {Integer} [$inParameters.httpPort=80] - HTTP port when useTLS=True (both HTTP and HTTPS are enabled simultaneously)
  * @param {Boolean} [$inParameters.useTLS=False] - Enable TLS (HTTPS)
  * @param {Boolean} [$inParameters.enableDebugLog] - Enable web debug log
  * @param {4D.Folder|Text} [$inParameters.certificateFolder] - Folder containing cert.pem and key.pem
  * @param {4D.Folder|Text} [$inParameters.webFolder] - Web root folder
  * @returns {Object} {success: Boolean; error: Object|Null}
- * @description Starts the web server; stops and restarts it if settings have changed
+ * @description Starts the web server; stops and restarts it if settings have changed.
+ *   When useTLS=True, both HTTP (httpPort) and HTTPS (port) are enabled simultaneously.
  */
-Function startWebServer($inParameters : Object) : Object
 	
 	var $port : Integer:=(Num($inParameters.port)>0) ? Num($inParameters.port) : 50993
+	var $httpPort : Integer:=(Num($inParameters.httpPort)>0) ? Num($inParameters.httpPort) : 80
 	var $bIsSSL : Boolean:=(Value type($inParameters.useTLS)#Is undefined) ? Bool($inParameters.useTLS) : False
 	var $debugLog : Integer:=Bool($inParameters.enableDebugLog) ? wdl enable with all body parts : wdl disable web log
 	var $status : Object:={success: False; error: Null}
 	
 	If (This.webServer.isRunning)
-		If ((This.webServer.HTTPEnabled=$bIsSSL) || ($bIsSSL && (This.webServer.HTTPSPort#$port)) || (Not($bIsSSL) && (This.webServer.HTTPPort#$port)) || (This.webServer.debugLog#$debugLog))
+		If (Not(This.webServer.HTTPEnabled) \
+			|| ($bIsSSL && (Not(This.webServer.HTTPSEnabled) || (This.webServer.HTTPSPort#$port) || (This.webServer.HTTPPort#$httpPort))) \
+			|| (Not($bIsSSL) && (This.webServer.HTTPSEnabled || (This.webServer.HTTPPort#$port))) \
+			|| (This.webServer.debugLog#$debugLog))
 			If (This.notificationMode)
 				$status.error:=cs._Tools.me.makeError(17; Null)
 				return $status
@@ -583,10 +590,11 @@ Function startWebServer($inParameters : Object) : Object
 	
 	If (Not(This.webServer.isRunning))
 		var $settings : Object:={}
-		$settings.HTTPEnabled:=Not($bIsSSL)
+		$settings.HTTPEnabled:=True
 		$settings.HTTPSEnabled:=$bIsSSL
 		If ($bIsSSL)
 			$settings.HTTPSPort:=$port
+			$settings.HTTPPort:=$httpPort
 			// Force TLSv1.2 as minimum: observed that Microsoft Graph webhook callbacks fail to connect over TLSv1.3 only
 			$settings.minTLSVersion:=TLSv1_2
 			If (Not(OB Is defined($inParameters; "certificateFolder")))
@@ -649,11 +657,11 @@ Function startWebServer($inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function stopWebServer() : Boolean
 /**
  * @function stopWebServer
  * @returns {Boolean} True if the server is still running after the stop attempt, False if successfully stopped
  */
-Function stopWebServer() : Boolean
 	
 	If (This.webServer.isRunning)
 		This.webServer.stop()
@@ -665,13 +673,13 @@ Function stopWebServer() : Boolean
 	// ----------------------------------------------------
 	
 	
+Function trimSpaces($inText : Text) : Text
 /**
  * @function trimSpaces
  * @param {Text} $inText - String to trim
  * @returns {Text} String with leading and trailing spaces removed
  * @example trimSpaces("  hello  ") // → "hello"
  */
-Function trimSpaces($inText : Text) : Text
 	
 	var $startPos : Integer:=1
 	var $endPos : Integer:=Length($inText)
@@ -690,13 +698,13 @@ Function trimSpaces($inText : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function urlDecode($inURL : Text) : Text
 /**
  * @function urlDecode
  * @param {Text} $inURL - Percent-encoded URL string
  * @returns {Text} Decoded plain text
  * @example urlDecode("Hello%20World") // → "Hello World"
  */
-Function urlDecode($inURL : Text) : Text
 	
 /*
     Largely inspired from url_decode.4dm by Vincent de Lachaux
@@ -728,6 +736,7 @@ Function urlDecode($inURL : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function urlEncode($value : Text) : Text
 /**
  * @function urlEncode
  * @param {Text} $value - Plain text string to encode
@@ -735,7 +744,6 @@ Function urlDecode($inURL : Text) : Text
  * @example urlEncode("Hello World") // → "Hello%20World"
  * @example urlEncode("a=1&b=2") // → "a%3D1%26b%3D2"
  */
-Function urlEncode($value : Text) : Text
 	
 	var $i; $j : Integer
 	var $length : Integer:=Length($value)
@@ -777,6 +785,7 @@ Function urlEncode($value : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function makeError($inCode : Integer; $inParameters : Object) : Object
 /**
  * @function makeError
  * @param {Integer} $inCode - Error code (used to look up the localized message "ERR_4DNK_{code}")
@@ -784,7 +793,6 @@ Function urlEncode($value : Text) : Text
  * @returns {Object} {errCode: Integer; componentSignature: "4DNK"; message: Text}
  * @example makeError(7; {port: 50993}) // → {errCode: 7; componentSignature: "4DNK"; message: "..."}
  */
-Function makeError($inCode : Integer; $inParameters : Object) : Object
 	
 	var $description : Text:=Localized string("ERR_4DNK_"+String($inCode))
 	
@@ -803,6 +811,7 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inSuccess : Boolean) : Text
 /**
  * @function buildPageFromTemplate
  * @param {Text} $inTitle - Page title
@@ -811,7 +820,6 @@ Function makeError($inCode : Integer; $inParameters : Object) : Object
  * @param {Boolean} $inSuccess - True for a success page, False for an error page
  * @returns {Text} HTML response page built from the responseTemplate.html resource file
  */
-Function buildPageFromTemplate($inTitle : Text; $inMessage : Text; $inDetails : Text; $inSuccess : Boolean) : Text
 	var $responseTemplateFile : 4D.File:=Folder(fk resources folder).file("responseTemplate.html")
 	var $responseTemplateContent : Text:=$responseTemplateFile.getText()
 	var $responseBody : Text:=""

@@ -110,7 +110,7 @@ Else
 			
 			
 		: ($URL="/4dnk-google-notification@")
-			
+
 			// --- Google notification ---
 			// Calendar push: Google sends X-Goog-Channel-Token header with state identifier
 			// Gmail Pub/Sub push: Google sends JSON body with message.data (base64)
@@ -149,8 +149,7 @@ Else
 			
 			$statusLine:="X-STATUS: 200 OK"
 			WEB SET HTTP HEADER($statusLine)
-			WEB SEND TEXT(""; "text/plain")
-			
+			WEB SEND TEXT("{}"; "application/json")
 		Else 
 			
 			// Send a 404 status line

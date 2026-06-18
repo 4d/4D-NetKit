@@ -7,6 +7,7 @@
 
 Class extends _GraphBaseList
 
+Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 /**
  * @constructor
  * @param {cs.Office365Mail} $inMail - The `Office365Mail` client owning this list
@@ -15,7 +16,6 @@ Class extends _GraphBaseList
  * @param {Text} $inURL - Initial Graph API URL
  * @param {Object} $inHeaders - Additional HTTP headers
  */
-Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)
 	
 	Super($inProvider; $inURL; $inHeaders)
 	This._internals._mail:=$inMail
@@ -27,12 +27,12 @@ Class constructor($inMail : cs.Office365Mail; $inProvider : cs.OAuth2Provider; $
 	// ----------------------------------------------------
 	
 	
+Function get mails() : Collection
 /**
  * @function get mails
  * @returns {Collection} Current page as a `Collection` of `GraphMessage` instances;
  *   computed once and cached until the next page is loaded
  */
-Function get mails() : Collection
 	
 	If (This._internals._update)
 		
@@ -50,5 +50,3 @@ Function get mails() : Collection
 	
 	return This._internals._mails
 	
-	
-

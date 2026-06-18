@@ -8,6 +8,7 @@
 
 property key : 4D.CryptoKey
 
+Class constructor($inParam : Variant)
 /**
  * @constructor
  * @param {Variant} $inParam - Optional initial key:
@@ -15,7 +16,6 @@ property key : 4D.CryptoKey
  *   - `Text` — PEM-encoded key string
  *   - Any other type or empty — `key` property set to `Null`
  */
-Class constructor($inParam : Variant)
 	
 	This.key:=This._getCryptoKey($inParam)
 	
@@ -24,6 +24,7 @@ Class constructor($inParam : Variant)
 	// ----------------------------------------------------
 	
 	
+Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.CryptoKey
 /**
  * @function _getCryptoKey
  * @private
@@ -31,7 +32,6 @@ Class constructor($inParam : Variant)
  * @param {4D.CryptoKey} $inDefaultKey - Fallback key when `$inKey` is invalid
  * @returns {4D.CryptoKey} Resolved crypto key, or `Null` when no valid key is available
  */
-Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.CryptoKey
 	
 	var $key : 4D.CryptoKey
 	Case of 
@@ -57,6 +57,7 @@ Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.Cryp
 	// ----------------------------------------------------
 	
 	
+Function decode($inToken : Text) : Object
 /**
  * @function decode
  * @param {Text} $inToken - JWT string (`header.payload.signature`)
@@ -67,7 +68,6 @@ Function _getCryptoKey($inKey : Variant; $inDefaultKey : 4D.CryptoKey) : 4D.Cryp
  * @description Decodes a JWT without verifying its signature.
  *   Throws error 9 when `$inToken` is empty or not a text value.
  */
-Function decode($inToken : Text) : Object
 	
 	var $header : Object:=Null
 	var $payload : Object:=Null
@@ -98,6 +98,7 @@ Function decode($inToken : Text) : Object
 	// ----------------------------------------------------
 	
 	
+Function generate($inParams : Object; $inKey : Variant) : Text
 /**
  * @function generate
  * @param {Object} $inParams - JWT generation parameters:
@@ -113,7 +114,6 @@ Function decode($inToken : Text) : Object
  *   Throws error 16 when `alg` is `none`; error 15 when no valid key is available;
  *   error 9 when `$inParams.payload` is missing or empty.
  */
-Function generate($inParams : Object; $inKey : Variant) : Text
 	
 	var $result : Text:=""
 	
@@ -191,6 +191,7 @@ Function generate($inParams : Object; $inKey : Variant) : Text
 	// ----------------------------------------------------
 	
 	
+Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolean
 /**
  * @function validate
  * @param {Text} $inJWT - JWT string to validate
@@ -204,7 +205,6 @@ Function generate($inParams : Object; $inKey : Variant) : Text
  *   and `aud` claims. Throws error 16 when `alg` is `none`;
  *   error 15 when no valid key is available; error 9 when `$inJWT` is empty.
  */
-Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolean
 	
 	var $success : Boolean:=False
 	
@@ -263,6 +263,7 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
 	// ----------------------------------------------------
 	
 	
+Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
 /**
  * @function _hashHS
  * @private
@@ -272,7 +273,6 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
  * @description Implements HMAC signing (HS256 / HS512) using the standard
  *   HMAC construction: `HASH(K_opad || HASH(K_ipad || message))`
  */
-Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
 	
 	var $encodedHeader; $encodedPayload : Text
 	var $headerBlob; $payloadBlob; $intermediateBlob; $privateBlob; $dataBlob : Blob
@@ -334,6 +334,7 @@ Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 /**
  * @function _hashSign
  * @private
@@ -343,7 +344,6 @@ Function _hashHS($inJWT : Object; $inPrivateKey : Text) : Text
  *   empty string when no valid key is available (after throwing error 15)
  * @description Signs the JWT using `4D.CryptoKey.sign()` for RS256/RS512/PS256/PS512
  */
-Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 	
 	var $hash : Text
 	
@@ -383,6 +383,7 @@ Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
 	// ----------------------------------------------------
 	
 	
+Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 /**
  * @function _validateClaims
  * @private
@@ -395,7 +396,6 @@ Function _hashSign($inJWT : Object; $inCryptoKey : 4D.CryptoKey) : Text
  * @description Validates `exp` (expiration), `nbf` (not-before), `iss` (issuer),
  *   and `aud` (audience) claims against the current UTC time and provided options
  */
-Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	
 	var $success : Boolean:=True
 	
@@ -445,6 +445,7 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
 	// ----------------------------------------------------
 	
 	
+Function _throwError($inCode : Integer; $inParameters : Object)
 /**
  * @function _throwError
  * @private
@@ -453,7 +454,6 @@ Function _validateClaims($inPayload : Object; $inOptions : Object) : Boolean
  * @description Builds a NetKit error object via `_Tools.makeError`, marks it as deferred,
  *   and throws it
  */
-Function _throwError($inCode : Integer; $inParameters : Object)
 	
 	// Push error into errorStack and throw it
 	var $error : Object:=cs._Tools.me.makeError($inCode; $inParameters)
