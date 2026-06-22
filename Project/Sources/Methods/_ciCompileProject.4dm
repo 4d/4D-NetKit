@@ -50,7 +50,7 @@ var $failOnWarning : Boolean:=Bool($config.failOnWarning)
 var $reportPath : Text:=(Length(String($config.reportPath))>0) ? String($config.reportPath) : "ciCompileReport.json"
 
 // Delete previous result files to avoid stale data from a previous compilation
-var $reportFile : 4D.File:=Folder(fk database folder).file($reportPath)
+var $reportFile : 4D.File:=Folder(fk logs folder).file($reportPath)
 If ($reportFile.exists)
 	$reportFile.delete()
 End if 
