@@ -566,6 +566,9 @@ Function startWebServer($inParameters : Object) : Object
  * @returns {Object} {success: Boolean; error: Object|Null}
  * @description Starts the web server; stops and restarts it if settings have changed.
  *   When useTLS=True, both HTTP (httpPort) and HTTPS (port) are enabled simultaneously.
+ *   If the server is already running in notification mode with the same settings, the call
+ *   succeeds immediately without restarting. If settings have changed, error 17 is returned
+ *   to avoid disrupting active notification handlers.
  */
 	
 	var $port : Integer:=(Num($inParameters.port)>0) ? Num($inParameters.port) : 50993
