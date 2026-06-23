@@ -85,6 +85,10 @@
           <source>The web server cannot be restarted: active webhook notifications are registered and would be interrupted.</source>
           <target>Le serveur web ne peut pas être redémarré : des notifications webhook actives sont enregistrées et seraient interrompues.</target>
         </trans-unit>
+        <trans-unit resname="ERR_4DNK_18">
+          <source>The host web server rejects TLS 1.2 connections (minTLSVersion is set above TLSv1.2). Microsoft Graph webhook callbacks require TLS 1.2 — set the host web server's minTLSVersion to TLSv1.2.</source>
+          <target>Le serveur web hôte rejette les connexions TLS 1.2 (minTLSVersion est définie au-dessus de TLSv1.2). Les callbacks webhook Microsoft Graph nécessitent TLS 1.2 — définissez minTLSVersion à TLSv1.2 sur le serveur web hôte.</target>
+        </trans-unit>
         <trans-unit resname="OAuth2_Response_Title">
           <source>4D NetKit Component</source>
           <target>Composant 4D NetKit</target>

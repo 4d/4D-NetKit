@@ -259,7 +259,11 @@ Function _startPush($inState : Text) : Object
     // Ensure a web server is available for receiving notifications
     var $wsResult : Object:=cs._NotificationHelper.me.ensureWebServer(This._internals._endPoint)
     If (Not($wsResult.success))
-        This._throwError(7; {port: $wsResult.port})
+        If (Bool($wsResult.tlsVersionInsufficient))
+            This._throwError(18; Null)
+        Else 
+            This._throwError(7; {port: $wsResult.port})
+        End if 
         return This._returnStatus()
     End if 
     

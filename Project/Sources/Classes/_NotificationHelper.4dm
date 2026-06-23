@@ -316,6 +316,11 @@ Function ensureWebServer($inEndPoint : Text) : Object
     End if 
     
     If ($bUseHostDatabaseServer)
+        // When reusing the host HTTPS server, verify TLS 1.2 support is enabled.
+        // Microsoft Graph webhook callbacks require TLS 1.2 and fail if only TLS 1.3 is accepted.
+        If ($useTLS && ($hostDatabaseServer.minTLSVersion > TLSv1_2))
+            return {success: False; port: $port; tlsVersionInsufficient: True}
+        End if 
         return {success: True; port: $port}
     End if 
     
