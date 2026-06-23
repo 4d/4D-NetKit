@@ -28,6 +28,7 @@ property loginHint : Text
 property prompt : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used to sign JWT token
+property privateKeyId : Text  // Private key ID (kid in JWT header) used by Google service accounts
 property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
 property PKCEMethod : Text  // If S256: code_challenge = BASE64URL-ENCODE(SHA256(ASCII(code_verifier))), if Plain: code_challenge = code_verifier (S256 by default)
 
@@ -65,6 +66,7 @@ Class constructor($inParams : Object)
  *   - `prompt` {Text} — `"none"`, `"consent"`, or `"select_account"`
  *   - `clientEmail` {Text} — Service account email (Google service accounts)
  *   - `privateKey` {Text} — PEM private key for JWT signing
+ *   - `privateKeyId` {Text} — Private key ID from service account JSON (sets `kid` in JWT header)
  *   - `thumbprint` {Text} — Certificate thumbprint hex string (sets `x5t` in JWT)
  *   - `clientAssertionType` {Text} — Overrides default assertion type URI
  *   - `PKCEEnabled` {Boolean} — Enable PKCE (default `False`)
@@ -235,6 +237,12 @@ Class constructor($inParams : Object)
 	privateKey may be used used by Google services account to sign JWT token
 */
 			This.privateKey:=String($inParams.privateKey)
+			
+/*
+	privateKeyId used for Google services account in JWT header (kid field)
+	Founds in the service account JSON file as "private_key_id"
+*/
+			This.privateKeyId:=String($inParams.privateKeyId)
 			
 /*
 	_grantType used in Service mode to determine if we use a JWT or client_credentials
@@ -735,6 +743,9 @@ Function _getToken_Service() : Object
 		: (This._useJWTBearer())
 			
 			$options:={header: {alg: "RS256"; typ: "JWT"}}
+			If (Length(String(This.privateKeyId))>0)
+				$options.header.kid:=This.privateKeyId
+			End if 
 			$options.payload:={}
 			$options.payload.iss:=This.clientEmail
 			$options.payload.scope:=This.scope
