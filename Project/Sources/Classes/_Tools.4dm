@@ -284,40 +284,9 @@ Function getJMAPAttribute($inKey : Text) : Text
  * @example getJMAPAttribute("From") // → "from"
  */
 	
-	Case of 
-		: ($inKey="id")
-			return "id"
-		: ($inKey="threadId")
-			return "threadId"
-		: ($inKey="sizeEstimate")
-			return "size"
-		: ($inKey="snippet")
-			return "preview"
-		: ($inKey="Date")
-			return "receivedAt"
-		: ($inKey="Subject")
-			return "subject"
-		: ($inKey="labelIds")
-			return "mailboxIds"
-		: ($inKey="Message-Id")
-			return "messageId"
-		: ($inKey="From")
-			return "from"
-		: ($inKey="Sender")
-			return "sender"
-		: ($inKey="To")
-			return "to"
-		: ($inKey="Cc")
-			return "cc"
-		: ($inKey="Reply-To")
-			return "replyTo"
-		: ($inKey="In-Reply-To")
-			return "inReplyTo"
-		: ($inKey="Keywords")
-			return "keywords"
-	End case 
-	
-	return ""
+	var $mapping : Object:={id: "id"; threadId: "threadId"; sizeEstimate: "size"; snippet: "preview"; Date: "receivedAt"; Subject: "subject"; labelIds: "mailboxIds"; MessageId: "messageId"; From: "from"; Sender: "sender"; To: "to"; Cc: "cc"; ReplyTo: "replyTo"; InReplyTo: "inReplyTo"; Keywords: "keywords"}
+	var $key : Text:=Replace string($inKey; "-"; "")
+	return OB Is defined($mapping; $key) ? String($mapping[$key]) : ""
 	
 	
 	// ----------------------------------------------------
@@ -404,24 +373,8 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
  * @example isEmailAddressHeader("Subject") // → False
  */
 	
-	If (($inKey="From") || \
-		($inKey="Sender") || \
-		($inKey="Reply-To") || \
-		($inKey="To") || \
-		($inKey="Cc") || \
-		($inKey="BCc") || \
-		($inKey="Resent-From") || \
-		($inKey="Resent-Sender") || \
-		($inKey="Resent-Reply-To") || \
-		($inKey="Resent-To") || \
-		($inKey="Resent-Cc") || \
-		($inKey="Resent-BCc"))
-		
-		return True
-		
-	End if 
-	
-	return False
+	var $emailHeaders : Collection:=["From"; "Sender"; "Reply-To"; "To"; "Cc"; "Bcc"; "Resent-From"; "Resent-Sender"; "Resent-Reply-To"; "Resent-To"; "Resent-Cc"; "Resent-Bcc"]
+	return $emailHeaders.some("$1 = :1"; $inKey)
 	
 	
 	// ----------------------------------------------------
@@ -435,28 +388,23 @@ Function isLocalIP($inIPAddress : Text) : Boolean
  * @example isLocalIP("127.0.0.1") // → True
  * @example isLocalIP("8.8.8.8") // → False
  */
-	
+
+	var $sysInfo : Object:=System info
+	var $networkInterface : Object
+
 	If (Length($inIPAddress)=0)
 		return False
-	End if 
+	End if
 	If (($inIPAddress="127.0.0.1") || ($inIPAddress="::1") || ($inIPAddress="localhost"))
 		return True
-	End if 
-	
-	var $sysInfo : Object:=System info
-	var $networkInterfaces : Collection:=$sysInfo.networkInterfaces
-	var $networkInterface : Object
-	
-	For each ($networkInterface; $networkInterfaces)
-		var $ipAddresses : Collection:=$networkInterface.ipAddresses
-		var $ipAddress : Object
-		For each ($ipAddress; $ipAddresses)
-			If ($ipAddress.ip=$inIPAddress)
-				return True
-			End if 
-		End for each 
-	End for each 
-	
+	End if
+
+	For each ($networkInterface; $sysInfo.networkInterfaces)
+		If ($networkInterface.ipAddresses.query("ip == :1"; $inIPAddress).length > 0)
+			return True
+		End if
+	End for each
+
 	return False
 	
 	
