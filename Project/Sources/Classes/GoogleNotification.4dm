@@ -110,19 +110,19 @@ Function get expiration : Text
  *   `"2026-06-16T14:30:00Z"`);
  *   empty string when not started or when the subscription has no expiration
  */
-
+    
     var $expirationMs : Real:=This._internals._expirationMs
     If ($expirationMs<=0)
         return ""
     End if 
-
+    
     var $expirationSeconds : Integer:=$expirationMs\1000
     var $daysSinceEpoch : Integer:=$expirationSeconds\86400
     var $secondsInDay : Integer:=$expirationSeconds%86400
-
+    
     var $date : Date:=Add to date(!1970-01-01!; 0; 0; $daysSinceEpoch)
     var $time : Time:=$secondsInDay
-
+    
     return String(Date($date); ISO date GMT; Time($time))
     
     
@@ -183,7 +183,7 @@ Function start() : Object
     End if 
     
     Super._clearErrorStack()
-
+    
     // Avoid silent fallback to pull when Gmail push looks intended but is incomplete.
     If ((This._internals._type="mail") && (Length(This._internals._endPoint)>0) && (Length(This._internals._topicName)=0))
         This._throwError(2; {attribute: "topicName"})
@@ -310,7 +310,7 @@ Function _startMailPush($inState : Text) : Object
     var $userId : Text:=(Length(This._internals._resource)>0) ? This._internals._resource : "me"
     var $storedUserId : Text:=$userId
     var $url : Text:=Super._getURL()+"users/"+$userId+"/watch"
-
+    
     // If an endpoint is provided for Gmail push, ensure a web server is listening.
     If (Length(This._internals._endPoint)>0)
         var $wsResult : Object:=cs._NotificationHelper.me.ensureWebServer(This._internals._endPoint)
@@ -350,7 +350,7 @@ Function _startMailPush($inState : Text) : Object
                 $storedUserId:=String($profile.emailAddress)
             End if 
         End if 
-
+        
         // Store emailAddress/userId for matching push notifications
         Use (Storage.googleNotifications[$inState])
             Storage.googleNotifications[$inState].userId:=$storedUserId
@@ -855,8 +855,8 @@ Function _pollCalendarChanges() : Collection
     
     // Mark: - [Private] Common
     // ----------------------------------------------------
-
-
+    
+    
 Function _setExpirationFromGoogle($inExpiration : Variant)
 /**
  * @function _setExpirationFromGoogle
@@ -865,13 +865,13 @@ Function _setExpirationFromGoogle($inExpiration : Variant)
  * @description Stores the raw epoch milliseconds for internal renewal logic;
  *   the public ISO 8601 UTC/GMT string is computed on demand by `get expiration`
  */
-
+    
     var $expirationMs : Real:=Num($inExpiration)
     If ($expirationMs<=0)
         This._internals._expirationMs:=0
         return 
     End if 
-
+    
     This._internals._expirationMs:=$expirationMs
     
     

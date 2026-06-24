@@ -388,23 +388,23 @@ Function isLocalIP($inIPAddress : Text) : Boolean
  * @example isLocalIP("127.0.0.1") // → True
  * @example isLocalIP("8.8.8.8") // → False
  */
-
+	
 	var $sysInfo : Object:=System info
 	var $networkInterface : Object
-
+	
 	If (Length($inIPAddress)=0)
 		return False
-	End if
+	End if 
 	If (($inIPAddress="127.0.0.1") || ($inIPAddress="::1") || ($inIPAddress="localhost"))
 		return True
-	End if
-
+	End if 
+	
 	For each ($networkInterface; $sysInfo.networkInterfaces)
-		If ($networkInterface.ipAddresses.query("ip == :1"; $inIPAddress).length > 0)
+		If ($networkInterface.ipAddresses.query("ip == :1"; $inIPAddress).length>0)
 			return True
-		End if
-	End for each
-
+		End if 
+	End for each 
+	
 	return False
 	
 	
@@ -526,10 +526,10 @@ Function startWebServer($inParameters : Object) : Object
 	var $status : Object:={success: False; error: Null}
 	
 	If (This.webServer.isRunning)
-		If (Not(This.webServer.HTTPEnabled) \
-			|| ($bIsSSL && (Not(This.webServer.HTTPSEnabled) || (This.webServer.HTTPSPort#$port) || (This.webServer.HTTPPort#$httpPort))) \
-			|| (Not($bIsSSL) && (This.webServer.HTTPSEnabled || (This.webServer.HTTPPort#$port))) \
-			|| (This.webServer.debugLog#$debugLog))
+		If (Not(This.webServer.HTTPEnabled)\
+			 || ($bIsSSL && (Not(This.webServer.HTTPSEnabled) || (This.webServer.HTTPSPort#$port) || (This.webServer.HTTPPort#$httpPort)))\
+			 || (Not($bIsSSL) && (This.webServer.HTTPSEnabled || (This.webServer.HTTPPort#$port)))\
+			 || (This.webServer.debugLog#$debugLog))
 			If (This.notificationMode)
 				$status.error:=cs._Tools.me.makeError(17; Null)
 				return $status

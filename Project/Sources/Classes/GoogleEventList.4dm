@@ -33,8 +33,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     This._internals._events:=Null
     This._internals._update:=True
-
-
+    
+    
     // Mark: - [Public]
     // ----------------------------------------------------
     
@@ -61,4 +61,4 @@ Function get events() : Collection
     End if 
     
     return This._internals._events
- 
+    

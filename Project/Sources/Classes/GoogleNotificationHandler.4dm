@@ -198,7 +198,7 @@ Function _processGmailNotification($inBody : Variant)
 	
 	// Find the matching state by userId/emailAddress
 	var $state : Text:=This._findStateByUserId($emailAddress)
-
+	
 	If (Length($state)>0)
 		Use (Storage.googleNotifications[$state])
 			If (Storage.googleNotifications[$state].pending#Null)

@@ -25,8 +25,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
     
     // Mark: - [Private]
     // ----------------------------------------------------
-
-
+    
+    
 Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
 /**
  * @function _conformEventDateTime
@@ -94,8 +94,8 @@ Function _conformEvent($inObject : Object) : Object
     // Mark: - [Public]
     // Mark: - Calendars
     // ----------------------------------------------------
-
-
+    
+    
 Function getCalendar($inID : Text) : Object
 /**
  * @function getCalendar
@@ -183,8 +183,8 @@ Function getCalendars($inParameters : Object) : cs.GoogleCalendarList
     // Mark: - [Public]
     // Mark: - Events
     // ----------------------------------------------------
-
-
+    
+    
 Function getEvent($inParameters : Object) : cs.GoogleEvent
 /**
  * @function getEvent
@@ -515,8 +515,8 @@ Function updateEvent($inEvent : Object; $inParameters : Object) : Object
     
     // Mark: - Notifications
     // ----------------------------------------------------
-
-
+    
+    
 Function notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification
 /**
  * @function notifier

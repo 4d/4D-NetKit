@@ -10,9 +10,9 @@ singleton Class constructor()
     
     
     // Mark: - [Constructor helpers]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function parseCallbacks($inParameters : Object) : Object
 /**
  * @function parseCallbacks
@@ -67,9 +67,9 @@ Function parsePullInterval($inParameters : Object) : Integer
     
     
     // Mark: - [Storage management]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)
 /**
  * @function registerInStorage
@@ -177,9 +177,9 @@ Function isMonitorActive($inStorageKey : Text; $inState : Text) : Boolean
     
     
     // Mark: - [Monitor helpers]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
 /**
  * @function drainPendingItems
@@ -210,9 +210,9 @@ Function drainPendingItems($inStorageKey : Text; $inState : Text) : Collection
     
     
     // Mark: - [Callback dispatch]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks : Object; $inOwner : Object)
 /**
  * @function dispatchCallbacks
@@ -257,9 +257,9 @@ Function dispatchCallbacks($inItems : Collection; $inType : Text; $inCallbacks :
     
     
     // Mark: - [URL helpers]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Text) : Text
 /**
  * @function buildNotificationUrl
@@ -318,7 +318,7 @@ Function ensureWebServer($inEndPoint : Text) : Object
     If ($bUseHostDatabaseServer)
         // When reusing the host HTTPS server, verify TLS 1.2 support is enabled.
         // Microsoft Graph webhook callbacks require TLS 1.2 and fail if only TLS 1.3 is accepted.
-        If ($useTLS && ($hostDatabaseServer.minTLSVersion > TLSv1_2))
+        If ($useTLS && ($hostDatabaseServer.minTLSVersion>TLSv1_2))
             return {success: False; port: $port; tlsVersionInsufficient: True}
         End if 
         return {success: True; port: $port}
@@ -333,9 +333,9 @@ Function ensureWebServer($inEndPoint : Text) : Object
     
     
     // Mark: - [Caller context dispatch]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; $inFormula : 4D.Function; $inSelf : Object; $inItems : Collection)
 /**
  * @function callbackInCallerContext
@@ -348,11 +348,10 @@ Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; 
  *   uses `CALL FORM` when a form window was captured (preserves `Form`, `This`, etc.),
  *   otherwise falls back to `CALL WORKER` with the captured process name
  */
-
+    
     If ($inFormWindow>0)
         CALL FORM($inFormWindow; $inFormula; $inSelf; $inItems)
     Else 
         CALL WORKER($inWorkerName; $inFormula; $inSelf; $inItems)
     End if 
-
     

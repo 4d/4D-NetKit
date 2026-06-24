@@ -22,8 +22,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text)
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-
-
+	
+	
 Function get mailIds() : Collection
 /**
  * @function get mailIds
