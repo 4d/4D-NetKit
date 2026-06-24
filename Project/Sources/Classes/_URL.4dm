@@ -2,7 +2,7 @@
  * @class _URL
  * @description Parses and manages URL components according to RFC 3986
  * @example
- *   var $url := New object("_URL"; "https://user:pass@example.com:8080/path?key=value#hash")
+ *   var $url := cs._URL.new("https://user:pass@example.com:8080/path?key=value#hash")
  *   $url.host  // "example.com"
  *   $url.port  // 8080
  *   $url.addQueryParameter("page"; "1")
@@ -63,7 +63,7 @@ Function parse($inURL : Text)
  * @param {Text} $inURL - URL string to parse (RFC 3986)
  * @description Parses a URL string into its components
  * @example
- *   var $url := New object("_URL")
+ *   var $url := cs._URL.new()
  *   $url.parse("https://user:pass@example.com:8080/path?key=value#hash")
  * @see https://www.rfc-editor.org/rfc/rfc3986#appendix-B
  */

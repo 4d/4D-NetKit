@@ -2,7 +2,7 @@
  * @class _EmailAddress
  * @description Parses and manages email addresses with optional display name
  * @example
- *   var $email := New object("_EmailAddress"; "John Doe <john@example.com>")
+ *   var $email := cs._EmailAddress.new("John Doe <john@example.com>")
  *   $email.name   // "John Doe"
  *   $email.email  // "john@example.com"
  */
