@@ -240,16 +240,16 @@ Function validate($inJWT : Text; $inKey : Variant; $inOptions : Object) : Boolea
 					Else 
 						$cryptoKey:=This._getCryptoKey($inKey; This.key)
 						If ($cryptoKey#Null)
-						var $status : Object
-						var $message : Text:=$parts[0]+"."+$parts[1]
-						var $options : Object:={hash: (Substring($webToken.header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($webToken.header.alg="PS@"); encoding: "Base64URL"}
-						$signature:=$parts[2]
-						$status:=$cryptoKey.verify($message; $signature; $options)
-						$success:=$status.success
+							var $status : Object
+							var $message : Text:=$parts[0]+"."+$parts[1]
+							var $options : Object:={hash: (Substring($webToken.header.alg; 3)="256") ? SHA256 digest : SHA512 digest; pss: Bool($webToken.header.alg="PS@"); encoding: "Base64URL"}
+							$signature:=$parts[2]
+							$status:=$cryptoKey.verify($message; $signature; $options)
+							$success:=$status.success
 						Else 
 							This._throwError(15)  // The private or public key doesn't seem to be valid PEM.
 						End if 
-					End case
+				End case 
 				If ($success)
 					$success:=This._validateClaims($webToken.payload; $inOptions)
 				End if 

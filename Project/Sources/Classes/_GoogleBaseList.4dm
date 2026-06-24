@@ -45,8 +45,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	// Mark: - [Private]
 	// ----------------------------------------------------
-
-
+	
+	
 Function _getList($inPageToken : Text) : Boolean
 /**
  * @function _getList

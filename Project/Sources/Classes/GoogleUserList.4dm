@@ -18,14 +18,14 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
  * @param {Object} $inHeaders - Additional HTTP headers to include in each request
  *   (e.g. `{"X-Goog-Request-Reason": "..."}`)
  */
-    
-    Super($inProvider; {url: $inURL; elements: "people"; headers: $inHeaders})
-    
-    
-    // Mark: - [Public]
-    // ----------------------------------------------------
-    
-    
+   
+   Super($inProvider; {url: $inURL; elements: "people"; headers: $inHeaders})
+   
+   
+   // Mark: - [Public]
+   // ----------------------------------------------------
+   
+   
 Function get users() : Collection
 /**
  * @function get users
@@ -33,5 +33,5 @@ Function get users() : Collection
  * @description Returns the person objects from the current page as delivered
  *   by the API; call `next()` to advance to the following page
  */
-    
-    return This._internals._list
+   
+   return This._internals._list

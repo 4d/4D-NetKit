@@ -1017,4 +1017,3 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         End if 
         
     End if 
-    
