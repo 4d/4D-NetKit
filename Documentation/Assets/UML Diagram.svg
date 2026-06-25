@@ -278,7 +278,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='1492' y='2492'>+getCalendars($inParameters : Object) : cs.GoogleCalendarList</text>
 <text class='m' x='1492' y='2508'>+getEvent($inParameters : Object) : cs.GoogleEvent</text>
 <text class='m' x='1492' y='2524'>+getEvents($inParameters : Object) : cs.GoogleEventList</text>
-<text class='m' x='1492' y='2540'>+notifier($inParameters : Object; $inCalendarId : Text) : cs.GoogleNotification</text>
+<text class='m' x='1492' y='2540'>+notifier($inParameters : Object{; $inCalendarId : Text}) : cs.GoogleNotification</text>
 <text class='m' x='1492' y='2556'>+updateEvent($inEvent : Object; $inParameters : Object) : Object</text>
 <rect x='1240' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='1240' y1='3016' x2='1660' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
@@ -338,7 +338,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='1972' y='2572'>+getMail($inMailId : Text; $inParameters : Object) : Variant</text>
 <text class='m' x='1972' y='2588'>+getMailIds($inParameters : Object) : cs.GoogleMailIdList</text>
 <text class='m' x='1972' y='2604'>+getMails($inMailIds : Collection; $inParameters : Object) : Collection</text>
-<text class='m' x='1972' y='2620'>+notifier($inParameters : Object) : cs.GoogleNotification</text>
+<text class='m' x='1972' y='2620'>+notifier($inParameters : Object{; $inLabelId : Text}) : cs.GoogleNotification</text>
 <text class='m' x='1972' y='2636'>+send($inMail : Variant) : Object</text>
 <text class='m' x='1972' y='2652'>+untrash($inMailId : Text) : Object</text>
 <text class='m' x='1972' y='2668'>+update($inMailIds : Collection; $inParameters : Object) : Object</text>
@@ -616,7 +616,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='5332' y='2540'>+getCalendars($inParameters : Object) : cs.GraphCalendarList</text>
 <text class='m' x='5332' y='2556'>+getEvent($inParameters : Object) : cs.GraphEvent</text>
 <text class='m' x='5332' y='2572'>+getEvents($inParameters : Object) : cs.GraphEventList</text>
-<text class='m' x='5332' y='2588'>+notifier($inParameters : Object; $inCalendarId : Text) : cs.GraphNotification</text>
+<text class='m' x='5332' y='2588'>+notifier($inParameters : Object{; $inCalendarId : Text}) : cs.GraphNotification</text>
 <text class='m' x='5332' y='2604'>+updateEvent($inEvent : Object; $inParameters : Object) : Object</text>
 <rect x='5800' y='2316' width='420' height='124' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='5800' y1='2352' x2='6220' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
@@ -645,7 +645,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6292' y='2588'>+getMail($inMailId : Text; $inOptions : Object) : Variant</text>
 <text class='m' x='6292' y='2604'>+getMails($inParameters : Object) : cs.GraphMessageList</text>
 <text class='m' x='6292' y='2620'>+move($inMailId : Text; $inFolderId : Text) : Object</text>
-<text class='m' x='6292' y='2636'>+notifier($inParameters : Object; $inFolderId : Text) : cs.GraphNotification</text>
+<text class='m' x='6292' y='2636'>+notifier($inParameters : Object{; $inFolderId : Text}) : cs.GraphNotification</text>
 <text class='m' x='6292' y='2652'>+renameFolder($inFolderId : Text; $inNewFolderName : Text) : Object</text>
 <text class='m' x='6292' y='2668'>+reply($inMail : Object; $inMailId : Text; $bReplyAll : Boolean) : Object</text>
 <text class='m' x='6292' y='2684'>+send($inMail : Variant) : Object</text>
