@@ -111,6 +111,11 @@ Function get expiration : Text
  *   empty string when not started or when the subscription has no expiration
  */
     
+    // Pull mode has no server-side subscription expiration.
+    If (This._internals._mode="pull")
+        return ""
+    End if 
+    
     var $expirationMs : Real:=This._internals._expirationMs
     If ($expirationMs<=0)
         return ""
@@ -200,6 +205,8 @@ Function start() : Object
         If (This._internals._mode="push")
             $result:=This._startPush($state)
         Else 
+            // Pull mode has no server-side subscription expiration.
+            This._internals._expirationMs:=0
             $result:=This._startPull($state)
         End if 
     Catch
@@ -865,6 +872,12 @@ Function _setExpirationFromGoogle($inExpiration : Variant)
  * @description Stores the raw epoch milliseconds for internal renewal logic;
  *   the public ISO 8601 UTC/GMT string is computed on demand by `get expiration`
  */
+    
+    // Defensive guard: never keep expiration in pull mode.
+    If (This._internals._mode="pull")
+        This._internals._expirationMs:=0
+        return 
+    End if 
     
     var $expirationMs : Real:=Num($inExpiration)
     If ($expirationMs<=0)
