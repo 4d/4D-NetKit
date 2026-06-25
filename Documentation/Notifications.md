@@ -112,13 +112,14 @@ $status:=$notif.stop()
 
 ### API
 
-#### `Google.mail.notifier(param) → notificationObj`
+#### `Google.mail.notifier(param{; labelId}) → notificationObj`
 
 Creates a notification object for **Gmail** change notifications.
 
 | Parameter | Type | Description |
 |---|---|---|
 | `param` | Object | Callback and mode definitions (see below) |
+| `labelId` | Text | *(optional)* Single Gmail label ID shortcut. Internally added to `param.labelIds`. |
 
 #### `Google.calendar.notifier(param{; calendarId}) → notificationObj`
 
@@ -128,6 +129,8 @@ Creates a notification object for **Google Calendar** event change notifications
 |---|---|---|
 | `param` | Object | Callback and mode definitions (see below) |
 | `calendarId` | Text | *(optional)* Calendar ID to watch. If omitted, watches the primary calendar. |
+
+> `labelId` has no specific meaning for Google Calendar notifications. The optional second parameter is the `calendarId`.
 
 #### `param` attributes (Google)
 
@@ -220,6 +223,13 @@ $notif:=$google.mail.notifier({ \
     labelIds: ["INBOX"]; \
     onCreate: Formula(handleNewMail($1; $2)) \
 })
+$status:=$notif.start()
+
+// Push mode — Gmail notifications via Pub/Sub (single label shortcut)
+$notif:=$google.mail.notifier({ \
+    topicName: "projects/my-project/topics/gmail-notifications"; \
+    onCreate: Formula(handleNewMail($1; $2)) \
+}; "INBOX")
 $status:=$notif.start()
 
 // Pull mode — Calendar notifications (polling every 60 seconds)
