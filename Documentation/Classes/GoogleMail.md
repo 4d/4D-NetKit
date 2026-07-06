@@ -530,14 +530,14 @@ $status:=$google.mail.updateLabel($labelId; {name: "Backup January"})
 
 ### .notifier()
 
-**.notifier**( *param* : Object { ; *folderId* : Text } ) : [cs.NetKit.GoogleNotification](./GoogleNotification.md)
+**.notifier**( *param* : Object { ; *labelId* : Text } ) : [cs.NetKit.GoogleNotification](./GoogleNotification.md)
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | param | Object | -> | Callback and mode definitions (see below). |
-| folderId | Text | -> | *(optional)* Subscribe only to changes in that mail folder. If omitted, subscribe to all folders. |
+| labelId | Text | -> | *(optional)* Subscribe only to changes of items in this label. If omitted, subscribe to changes in all labels. |
 | Result | [cs.NetKit.GoogleNotification](./GoogleNotification.md) | <- | Notification object with `start()`, `stop()`, `expiration`, and `isStarted`. Call `start()` to begin monitoring. |
 
 #### Description
@@ -560,6 +560,7 @@ In *param*, you can pass the following properties:
 | onDelete | 4D.Function | Callback for a mail deletion *(optional)*. |
 | onModify | 4D.Function | Callback for a mail modification *(optional)*. |
 | timer | Integer | Polling interval in seconds for pull mode (default: 30) *(optional)*. |
+|topicName|Text|Google Cloud Pub/Sub topic used by the Gmail API to [push mailbox change notifications](https://developers.google.com/workspace/gmail/api/guides/push). The subscription must be created with the delivery type "Push", and the `endPoint` URL must include the "4dnk-google-notification" endpoint: "https://mydomain/4dnk-google-notification". Required when `endPoint` is specified. |
 
 Callback functions receive two parameters:
 

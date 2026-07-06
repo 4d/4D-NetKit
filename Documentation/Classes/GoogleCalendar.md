@@ -399,6 +399,36 @@ The returned [GoogleNotification](./GoogleNotification.md) object contains the f
 | stop() | 4D.Function | Stops the subscription. Returns a status object (`success`, `statusText`, `errors`). |
 | timer | Integer | Interval in seconds between delta query checks (pull mode). |
 
+
+### `endPoint` management
+
+Using an `endPoint`, you let Google call your application whenever a change occurs:
+
+```4d
+$parameter.endPoint:="https://mydomain.com/notifications"
+```
+
+- If the `endPoint` port is the same as the host port, the host web server is used automatically.
+- If no port is specified, standard ports (80 for HTTP, 443 for HTTPS) are used.
+- In any other case, the 4D NetKit component web server is used.
+
+When the `endPoint` uses the host web server, add the following entry to `Project/Sources/HTTPHandlers.json`:
+
+```json
+[
+  {
+    "class": "NetKit.GraphNotificationHandler",
+    "method": "getResponse",
+    "regexPattern": "/4dnk-graph-notification",
+    "verbs": "post"
+  }
+]
+```
+
+> If both a `calendar.notifier` and a `mail.notifier` are declared, they must use the same port.
+
+
+
 #### Example
 
 Calendar notifications via delta polling every 60 seconds (pull mode):
