@@ -49,4 +49,3 @@ Function get mails() : Collection
 	End if 
 	
 	return This._internals._mails
-	

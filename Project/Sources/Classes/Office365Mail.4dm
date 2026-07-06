@@ -163,6 +163,266 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 	return $status
 	
 	
+	// ----------------------------------------------------
+	
+	
+Function _computeBase64BinarySize($inBase64 : Text) : Integer
+/**
+ * @function _computeBase64BinarySize
+ * @private
+ * @param {Text} $inBase64 - Base64 content (optionally containing CR/LF)
+ * @returns {Integer} Decoded binary size in bytes
+ */
+	
+	var $encoded : Text:=Replace string(String($inBase64); "\r"; ""; *)
+	$encoded:=Replace string($encoded; "\n"; ""; *)
+	
+	var $encodedLength : Integer:=Length($encoded)
+	If ($encodedLength=0)
+		return 0
+	End if 
+	
+	var $padding : Integer:=0
+	If (($encodedLength>=2) && (Substring($encoded; $encodedLength-1; 2)="=="))
+		$padding:=2
+	Else 
+		If (Substring($encoded; $encodedLength; 1)="=")
+			$padding:=1
+		End if 
+	End if 
+	
+	return Int(($encodedLength/4)*3)-$padding
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _extractGraphMessageForSend($inMail : Object) : Object
+/**
+ * @function _extractGraphMessageForSend
+ * @private
+ * @param {Object} $inMail - Message payload (with or without `message` envelope)
+ * @returns {Object} Graph message object ready to be posted to `/messages`
+ */
+	
+	var $mailCopy : Object:=This._copyGraphMessage($inMail)
+	If (OB Is defined($mailCopy; "message") && (Value type($mailCopy.message)=Is object))
+		return $mailCopy.message
+	End if 
+	
+	return $mailCopy
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _isLargeFileAttachment($inAttachment : Object) : Boolean
+/**
+ * @function _isLargeFileAttachment
+ * @private
+ * @param {Object} $inAttachment - Graph attachment object
+ * @returns {Boolean} `True` when a file attachment exceeds 3 MiB
+ */
+	
+	If (Value type($inAttachment)#Is object)
+		return False
+	End if 
+	
+	var $odataType : Text:=Lowercase(String($inAttachment["@odata.type"]))
+	If (($odataType#"") && ($odataType#"#microsoft.graph.fileattachment"))
+		return False
+	End if 
+	
+	var $contentBytes : Text:=String($inAttachment.contentBytes)
+	If (Length($contentBytes)=0)
+		return False
+	End if 
+	
+	var $maxSimpleAttachmentSize : Integer:=3*1024*1024
+	return (This._computeBase64BinarySize($contentBytes)>$maxSimpleAttachmentSize)
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _hasLargeFileAttachment($inMail : Object) : Boolean
+/**
+ * @function _hasLargeFileAttachment
+ * @private
+ * @param {Object} $inMail - Message payload (with or without `message` envelope)
+ * @returns {Boolean} `True` when at least one attachment is larger than 3 MiB
+ */
+	
+	var $message : Object:=This._extractGraphMessageForSend($inMail)
+	If (Not(OB Is defined($message; "attachments")) || (Value type($message.attachments)#Is collection))
+		return False
+	End if 
+	
+	var $attachment : Object
+	For each ($attachment; $message.attachments)
+		If (This._isLargeFileAttachment($attachment))
+			return True
+		End if 
+	End for each 
+	
+	return False
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _uploadLargeFileAttachment($inMessageId : Text; $inAttachment : Object)
+/**
+ * @function _uploadLargeFileAttachment
+ * @private
+ * @param {Text} $inMessageId - Draft message ID
+ * @param {Object} $inAttachment - Graph fileAttachment object containing `contentBytes`
+ * @description Uploads an attachment through Graph upload session with chunked PUT requests.
+ */
+	
+	var $base64Content : Text:=Replace string(String($inAttachment.contentBytes); "\r"; ""; *)
+	$base64Content:=Replace string($base64Content; "\n"; ""; *)
+	var $totalSize : Integer:=This._computeBase64BinarySize($base64Content)
+	
+	If ($totalSize<=0)
+		This._throwError(13; {function: "office365.mail.send"; message: "Invalid attachment content."})
+	End if 
+	
+	var $URL : Text:=Super._getURL()
+	If (Length(String(This.userId))>0)
+		$URL+="users/"+This.userId
+	Else 
+		$URL+="me"
+	End if 
+	$URL+="/messages/"+$inMessageId+"/attachments/createUploadSession"
+	
+	var $headers : Object:={}
+	$headers["Content-Type"]:="application/json"
+	var $body : Object:={AttachmentItem: {attachmentType: "file"; name: String($inAttachment.name); size: $totalSize}}
+	If (Length(String($inAttachment.contentType))>0)
+		$body.AttachmentItem.contentType:=String($inAttachment.contentType)
+	End if 
+	
+	var $response : Object:=Super._sendRequestAndWaitResponse("POST"; $URL; $headers; JSON Stringify($body))
+	var $uploadURL : Text:=String($response.uploadUrl)
+	If (Length($uploadURL)=0)
+		This._throwError(13; {function: "office365.mail.send"; message: "Unable to create upload session for attachment."})
+	End if 
+	
+	var $chunkSize : Integer:=983040  // 960 KiB, multiple of 320 KiB and 3 bytes for safe Base64 chunking
+	var $base64ChunkSize : Integer:=1310720
+	var $offset : Integer:=0
+	var $base64Pos : Integer:=1
+	
+	While ($offset<$totalSize)
+		
+		var $currentChunkBase64 : Text
+		var $currentChunkSize : Integer
+		If (($offset+$chunkSize)<$totalSize)
+			$currentChunkBase64:=Substring($base64Content; $base64Pos; $base64ChunkSize)
+			$currentChunkSize:=$chunkSize
+			$base64Pos+=$base64ChunkSize
+		Else 
+			$currentChunkBase64:=Substring($base64Content; $base64Pos)
+			$currentChunkSize:=This._computeBase64BinarySize($currentChunkBase64)
+		End if 
+		
+		var $chunkBlob : Blob
+		BASE64 DECODE($currentChunkBase64; $chunkBlob)
+		
+		var $chunkHeaders : Object:={}
+		$chunkHeaders["Content-Type"]:="application/octet-stream"
+		$chunkHeaders["Content-Length"]:=String($currentChunkSize)
+		$chunkHeaders["Content-Range"]:="bytes "+String($offset)+"-"+String($offset+$currentChunkSize-1)+"/"+String($totalSize)
+		
+		// uploadUrl already contains an auth token; do not add Authorization header.
+		var $putRequest : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($uploadURL; {method: "PUT"; headers: $chunkHeaders; body: $chunkBlob; dataType: "auto"}).wait())
+		var $putStatus : Integer:=Num($putRequest.response.status)
+		If (Int($putStatus/100)#2)
+			var $statusText : Text:=String($putRequest.response.statusText)
+			var $message : Text
+			If (Value type($putRequest.response.body)=Is text)
+				$message:=$putRequest.response.body
+			Else 
+				If (Value type($putRequest.response.body)=Is object)
+					$message:=Try(JSON Stringify($putRequest.response.body))
+				Else 
+					$message:=Try(Convert to text($putRequest.response.body; "UTF-8"))
+				End if 
+			End if 
+			This._throwError(8; {status: $putStatus; explanation: $statusText; message: $message})
+		End if 
+		$offset+=$currentChunkSize
+		
+	End while 
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _sendMailWithLargeAttachments($inMail : Object) : Object
+/**
+ * @function _sendMailWithLargeAttachments
+ * @private
+ * @param {Object} $inMail - Microsoft Graph mail object (with or without `message` envelope)
+ * @returns {Object} Status object
+ * @description Sends messages containing large attachments by creating a draft,
+ *   uploading big files with upload sessions, then calling `/messages/{id}/send`.
+ */
+	
+	Try
+		var $message : Object:=This._extractGraphMessageForSend($inMail)
+		
+		var $attachments : Collection:=[]
+		If (OB Is defined($message; "attachments") && (Value type($message.attachments)=Is collection))
+			$attachments:=$message.attachments
+		End if 
+		
+		var $smallAttachments : Collection:=[]
+		var $largeAttachments : Collection:=[]
+		var $attachment : Object
+		For each ($attachment; $attachments)
+			If (This._isLargeFileAttachment($attachment))
+				$largeAttachments.push($attachment)
+			Else 
+				$smallAttachments.push($attachment)
+			End if 
+		End for each 
+		
+		var $draftMessage : Object:=OB Copy($message)
+		If ($attachments.length>0)
+			$draftMessage.attachments:=$smallAttachments
+		End if 
+		
+		var $draftStatus : Object:=This.append($draftMessage; "")
+		If (Not(Bool($draftStatus.success)))
+			return This._returnStatus()
+		End if 
+		
+		var $messageId : Text:=String($draftStatus.id)
+		If (Length($messageId)=0)
+			This._throwError(13; {function: "office365.mail.send"; message: "Draft message creation failed."})
+		End if 
+		
+		For each ($attachment; $largeAttachments)
+			This._uploadLargeFileAttachment($messageId; $attachment)
+		End for each 
+		
+		var $URL : Text:=Super._getURL()
+		If (Length(String(This.userId))>0)
+			$URL+="users/"+This.userId
+		Else 
+			$URL+="me"
+		End if 
+		$URL+="/messages/"+$messageId+"/send"
+		Super._sendRequestAndWaitResponse("POST"; $URL)
+		
+		return This._returnStatus({id: $messageId})
+	Catch
+		return This._returnStatus()
+	End try
+	
+	
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
@@ -509,10 +769,16 @@ Function send($inMail : Variant) : Object
  * @function send
  * @param {Variant} $inMail - Mail to send; type must match `mailType`
  * @returns {Object} Status object
- * @description Sends a mail message via `POST /me/sendMail`
+ * @description Sends a mail message via `POST /me/sendMail`.
+ *   For Microsoft Graph JSON payloads, attachments larger than 3 MiB are sent
+ *   through draft + upload session workflow before final send.
  */
 	
 	Super._clearErrorStack()
+	
+	If ((This.mailType="Microsoft") && (Value type($inMail)=Is object) && This._hasLargeFileAttachment($inMail))
+		return This._sendMailWithLargeAttachments($inMail)
+	End if 
 	
 	var $URL : Text:=Super._getURL()
 	If (Length(String(This.userId))>0)

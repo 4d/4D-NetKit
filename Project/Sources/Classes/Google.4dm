@@ -26,8 +26,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-
-
+	
+	
 Function get mail : cs.GoogleMail
 /**
  * @function get mail

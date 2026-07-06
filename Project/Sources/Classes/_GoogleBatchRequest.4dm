@@ -62,8 +62,8 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParam : Object)
 	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-
-
+	
+	
 Function appendRequest($inParam : Object)
 /**
  * @function appendRequest

@@ -119,8 +119,8 @@ Function _clearErrorStack()
  */
 	
 	This._internals._errorStack.clear()
-
-
+	
+	
 	// ----------------------------------------------------
 	
 	
@@ -132,8 +132,8 @@ Function _getStatusLine() : Text
  */
 	
 	return String(This._internals._statusLine)
-
-
+	
+	
 	// ----------------------------------------------------
 	
 	

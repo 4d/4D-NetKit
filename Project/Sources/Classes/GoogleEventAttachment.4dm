@@ -48,8 +48,8 @@ Function getContent() : 4D.Blob
     
     
     // ----------------------------------------------------
-
-
+    
+    
 Function getIcon() : Picture
 /**
  * @function getIcon

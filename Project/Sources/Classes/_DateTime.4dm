@@ -239,7 +239,7 @@ Function get year()->$year : Integer  // year
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function get month()->$month : Integer  // month
 /**
@@ -252,7 +252,7 @@ Function get month()->$month : Integer  // month
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function get day()->$day : Integer  // day of the month
 /**
@@ -266,6 +266,7 @@ Function get day()->$day : Integer  // day of the month
 	
 	// ----------------------------------------------------
 	
+	
 Function get hours()->$hours : Integer  // hours
 /**
  * @function get hours
@@ -277,7 +278,7 @@ Function get hours()->$hours : Integer  // hours
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function get minutes()->$minutes : Integer  // minutes
 /**
@@ -290,7 +291,7 @@ Function get minutes()->$minutes : Integer  // minutes
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function get seconds()->$seconds : Integer  // seconds
 /**
@@ -342,8 +343,8 @@ Function get monthName()->$monthName : Text  // month name
 	
 	
 	// ----------------------------------------------------
-
-
+	
+	
 Function get weekNumber()->$weekNumber : Integer
 /**
  * @function get weekNumber

@@ -24,8 +24,8 @@ Class constructor($inProvider : cs.OAuth2Provider)
 	
 	// ----------------------------------------------------
 	// Mark: - [Private]
-
-
+	
+	
 Function _get($inResourceName : Text; $inPersonFields : Variant) : Object
 /**
  * @function _get
@@ -147,8 +147,8 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	// Mark: - [Public]
 	// Mark: - Mails
 	// ----------------------------------------------------
-
-
+	
+	
 Function getCurrent($inPersonFields : Variant) : Object
 /**
  * @function getCurrent

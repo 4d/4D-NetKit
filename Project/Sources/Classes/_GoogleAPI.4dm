@@ -22,7 +22,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text)
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function _getURLParamsFromObject($inParameters : Object) : Text
 /**
@@ -77,7 +77,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
 	
 	
 	// ----------------------------------------------------
-
+	
 	
 Function _convertMailObjectToJMAP($inMail : Object) : Object
 /**

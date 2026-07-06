@@ -179,4 +179,3 @@ Function count($inParameters : Object) : cs.GraphUserList
 	$URLString:=$URL.toString()
 	
 	return cs.GraphUserList.new(This._getOAuth2Provider(); $URLString; $headers)
-	

@@ -773,12 +773,14 @@ Function updateLabel($inLabelId : Text; $inLabelInfo : Object) : Object
 	// ----------------------------------------------------
 	
 	
-Function notifier($inParameters : Object) : cs.GoogleNotification
+Function notifier($inParameters : Object; $inLabelId : Text) : cs.GoogleNotification
 /**
  * @function notifier
  * @param {Object} $inParameters - Notification options (see inline documentation):
  *   `onCreate`, `onDelete`, `onModify` callbacks; optional `topicName` (Pub/Sub topic
  *   for push mode); optional `labelIds` filter; optional `timer` (seconds) for pull mode
+ * @param {Text} $inLabelId - Optional Gmail label ID shortcut; when provided,
+ *   it is appended to `labelIds`
  * @returns {cs.GoogleNotification} Notification object with `start()`, `stop()`,
  *   `expiration`, and `isStarted`; call `start()` to begin monitoring
  * @description Factory that creates a `GoogleNotification` for Gmail change monitoring.
@@ -801,6 +803,7 @@ Function notifier($inParameters : Object) : cs.GoogleNotification
 	    $inParameters.onModify : 4D.Function - Called when a mail is modified. Receives {eventType; IDs}.
 	    $inParameters.topicName : Text - Google Cloud Pub/Sub topic name for push mode.
 	    $inParameters.labelIds : Collection - Optional. Label IDs to filter notifications.
+	    $inLabelId : Text - Optional. Convenience shortcut for one label ID.
 	    $inParameters.timer : Integer - Optional. Polling interval in seconds for pull mode (default: 30).
 	
 	Returns:
@@ -808,6 +811,18 @@ Function notifier($inParameters : Object) : cs.GoogleNotification
 	
 	See: https://developers.google.com/gmail/api/guides/push
 */
+	
+	If (Length(String($inLabelId))>0)
+		If (($inParameters=Null) || (Value type($inParameters)#Is object))
+			$inParameters:={}
+		End if 
+		If (Value type($inParameters.labelIds)#Is collection)
+			$inParameters.labelIds:=[]
+		End if 
+		If ($inParameters.labelIds.indexOf($inLabelId)<0)
+			$inParameters.labelIds.push($inLabelId)
+		End if 
+	End if 
 	
 	var $userId : Text:=(Length(String(This.userId))>0) ? This.userId : "me"
 	

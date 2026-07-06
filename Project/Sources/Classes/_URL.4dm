@@ -2,7 +2,7 @@
  * @class _URL
  * @description Parses and manages URL components according to RFC 3986
  * @example
- *   var $url := New object("_URL"; "https://user:pass@example.com:8080/path?key=value#hash")
+ *   var $url := cs._URL.new("https://user:pass@example.com:8080/path?key=value#hash")
  *   $url.host  // "example.com"
  *   $url.port  // 8080
  *   $url.addQueryParameter("page"; "1")
@@ -33,9 +33,9 @@ Class constructor($inParam : Variant)
     
     
     // Mark: - [Private]
-	// ----------------------------------------------------
-
-
+    // ----------------------------------------------------
+    
+    
 Function _init()
 /**
  * @function _init
@@ -55,15 +55,15 @@ Function _init()
     
     // Mark: - [Public]
     // ----------------------------------------------------
-
-
+    
+    
 Function parse($inURL : Text)
 /**
  * @function parse
  * @param {Text} $inURL - URL string to parse (RFC 3986)
  * @description Parses a URL string into its components
  * @example
- *   var $url := New object("_URL")
+ *   var $url := cs._URL.new()
  *   $url.parse("https://user:pass@example.com:8080/path?key=value#hash")
  * @see https://www.rfc-editor.org/rfc/rfc3986#appendix-B
  */
@@ -274,8 +274,8 @@ Function toJSON() : Object
     
     
     // -----------------------------------------------------------
-
-
+    
+    
 Function fromJSON($inURL : Object)
 /**
  * @function fromJSON
@@ -343,8 +343,8 @@ Function addQueryParameter( ...  : Variant)
     
     
     // -----------------------------------------------------------
-
-
+    
+    
 Function getQueryString() : Text
 /**
  * @function getQueryString
@@ -359,8 +359,8 @@ Function getQueryString() : Text
     
     
     // -----------------------------------------------------------
-
-
+    
+    
 Function getDefaultPort() : Integer
 /**
  * @function getDefaultPort
@@ -380,8 +380,8 @@ Function getDefaultPort() : Integer
     
     // Mark: - Getters/Setters
     // -----------------------------------------------------------
-
-
+    
+    
 Function get query() : Text
 /**
  * @function get query
@@ -405,7 +405,7 @@ Function get query() : Text
     
     
     // -----------------------------------------------------------
-
+    
     
 Function set query($inQueryString : Text)
 /**
@@ -419,7 +419,7 @@ Function set query($inQueryString : Text)
     
     
     // -----------------------------------------------------------
-
+    
     
 Function get port() : Integer
 /**
@@ -436,7 +436,7 @@ Function get port() : Integer
     
     
     // -----------------------------------------------------------
-
+    
     
 Function set port($inPort : Integer)
 /**
@@ -451,7 +451,7 @@ Function set port($inPort : Integer)
     
     
     // -----------------------------------------------------------
-
+    
     
 Function get path() : Text
 /**
@@ -464,7 +464,7 @@ Function get path() : Text
     
     
     // -----------------------------------------------------------
-
+    
     
 Function set path($inPath : Text)
 /**
@@ -482,7 +482,7 @@ Function set path($inPath : Text)
     
     // Mark: - Utility Methods
     // -----------------------------------------------------------
-
+    
     
 Function isValid() : Boolean
 /**
@@ -495,7 +495,7 @@ Function isValid() : Boolean
     
     
     // -----------------------------------------------------------
-
+    
     
 Function isAbsolute() : Boolean
 /**
@@ -508,7 +508,7 @@ Function isAbsolute() : Boolean
     
     
     // -----------------------------------------------------------
-
+    
     
 Function clone() : Object
 /**
@@ -537,7 +537,7 @@ Function clone() : Object
     
     
     // -----------------------------------------------------------
-
+    
     
 Function clear()
 /**
@@ -549,9 +549,9 @@ Function clear()
     
     
     // -----------------------------------------------------------
-
     
-Function removeQueryParameter( ... : Variant) : Boolean
+    
+Function removeQueryParameter( ...  : Variant) : Boolean
 /**
  * @function removeQueryParameter
  * @param {Text} $paramName - Name of query parameter to remove
@@ -600,7 +600,7 @@ Function removeQueryParameter( ... : Variant) : Boolean
     
     // -----------------------------------------------------------
     
-
+    
 Function hasQueryParameter($paramName : Text) : Boolean
 /**
  * @function hasQueryParameter

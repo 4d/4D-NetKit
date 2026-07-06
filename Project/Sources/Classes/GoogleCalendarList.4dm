@@ -16,14 +16,14 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @param {Object} $inParameters - `_GoogleBaseList` parameters object;
  *   pass at minimum `{url: Text}` pointing to the `calendarList.list` endpoint
  */
-
+	
 	Super($inProvider; $inParameters)
-
-
+	
+	
 	// Mark: - [Public]
 	// ----------------------------------------------------
-
-
+	
+	
 Function get calendars() : Collection
 /**
  * @function get calendars
@@ -31,5 +31,5 @@ Function get calendars() : Collection
  * @description Returns the raw calendar objects from the current page as delivered
  *   by the API; call `next()` to advance to the following page
  */
-    
-    return This._internals._list
+	
+	return This._internals._list
