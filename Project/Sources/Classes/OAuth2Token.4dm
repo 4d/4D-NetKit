@@ -1,8 +1,8 @@
 /**
  * @class OAuth2Token
  * @description Wraps an OAuth2 access token and its expiration timestamp.
- *   Can be constructed from a parameter object, a raw JSON response string,
- *   or a URL-encoded response string.
+ *   Built from a parameter object; raw JSON and URL-encoded responses are
+ *   handled through dedicated private loader methods.
  */
 
 property token : Object
@@ -55,8 +55,21 @@ Function _loadFromObject($inObject : Object)
 		If (OB Is defined($inObject; "tokenExpiration") && ($inObject.tokenExpiration#Null))
 			This.tokenExpiration:=$inObject.tokenExpiration
 		Else 
-			var $expires_in : Integer:=(Current time+0)+Num($inObject.token.expires_in)
-			This.tokenExpiration:=String(Current date; ISO date; Time($expires_in))
+			var $expiresInDelta : Integer:=Num($inObject.token.expires_in)
+			If ($expiresInDelta<0)
+				$expiresInDelta:=0
+			End if 
+			var $expires_in : Integer:=(Current time+0)+$expiresInDelta
+			var $expirationDate : Date:=Current date
+			var $secondsInDay : Integer:=(24*60*60)
+			
+			// Keep date/time coherent when expires_in pushes the time into next day(s)
+			While ($expires_in>=$secondsInDay)
+				$expires_in:=$expires_in-$secondsInDay
+				$expirationDate:=$expirationDate+1
+			End while 
+			
+			This.tokenExpiration:=String($expirationDate; ISO date; Time($expires_in))
 		End if 
 		
 	End if 
@@ -109,6 +122,28 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
 	// ----------------------------------------------------
 	
 	
+Function _normalizeExpirationString($inExpiration : Text) : Text
+/**
+ * @function _normalizeExpirationString
+ * @private
+ * @param {Text} $inExpiration - Expiration text to normalize
+ * @returns {Text} ISO-like `YYYY-MM-DDTHH:MM:SS` when possible; empty text otherwise
+ * @description Trims whitespace and removes common trailing timezone/fraction parts
+ *   so `Date()` / `Time()` comparisons stay deterministic
+ */
+	
+	var $result : Text:=Trim($inExpiration)
+	
+	If ((Length($result)>19) && (Position("T"; $result)=11))
+		$result:=Substring($result; 1; 19)
+	End if 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _Expired($inParams : Text) : Boolean
 /**
  * @function _Expired
@@ -120,7 +155,7 @@ Function _Expired($inParams : Text) : Boolean
  */
 	
 	var $result : Boolean:=True
-	var $expiration : Text:=Choose((Count parameters>0); $inParams; This.tokenExpiration)
+	var $expiration : Text:=This._normalizeExpirationString(Choose((Count parameters>0); $inParams; This.tokenExpiration))
 	
 	If (Length($expiration)>0)
 		Case of 
