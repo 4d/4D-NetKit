@@ -417,9 +417,9 @@ When the `endPoint` uses the host web server, add the following entry to `Projec
 ```json
 [
   {
-    "class": "NetKit.GraphNotificationHandler",
+    "class": "NetKit.GoogleNotificationHandler",
     "method": "getResponse",
-    "regexPattern": "/4dnk-graph-notification",
+    "regexPattern": "/4dnk-google-notification",
     "verbs": "post"
   }
 ]
