@@ -3,7 +3,7 @@
 		"class": "OAuth2Authorization",
 		"method": "getResponse",
 		"regexPattern": "/authorize",
-		"verbs": "get"
+		"verbs": "get,post"
 	},
 	{
 		"class": "GraphNotificationHandler",

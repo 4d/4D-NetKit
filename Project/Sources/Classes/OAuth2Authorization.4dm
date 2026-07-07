@@ -12,7 +12,7 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
 /**
  * @function getResponse
  * @param {4D.IncomingMessage} $request - Incoming HTTP request from the browser
- *   (redirect from the authorization server with `?code=` or `?error=` query params)
+ *   (redirect from the authorization server with query params or form POST body)
  * @returns {4D.OutgoingMessage} HTML page or 302 redirect on success;
  *   403 when `_authorize` returns `False`; 500 when `$request` is `Null`
  * @description Extracts `state` from the URL, calls `_authorize()` to store the
@@ -25,12 +25,41 @@ Function getResponse($request : 4D.IncomingMessage) : 4D.OutgoingMessage
     If ($request#Null)
         
         var $state : Text:=cs._Tools.me.getURLParameterValue($request.url; "state")
-        var $redirectURI : Text:=($request.urlPath.length>0) ? "/"+$request.urlPath[0]+"/@" : $request.url
-        var $options : Object:={state: $state; redirectURI: $redirectURI}
+        var $requestPath : Text:=cs._Tools.me.getPathFromURL($request.url)+"@"
+        var $options : Object:={state: $state; redirectURI: $requestPath}
         var $response : Object:={}
+        var $oauthResult : Object:=Null
         
         If (Value type($request.urlQuery)=Is object)
-            $options.result:=OB Copy($request.urlQuery; ck shared)
+            var $queryKeys : Collection:=OB Keys($request.urlQuery)
+            If ($queryKeys.length>0)
+                $oauthResult:=New shared object
+                var $queryKey : Text
+                Use ($oauthResult)
+                    For each ($queryKey; $queryKeys)
+                        $oauthResult[$queryKey]:=$request.urlQuery[$queryKey]
+                    End for each 
+                End use 
+            End if 
+        End if 
+        If ($oauthResult=Null)
+            // form_post returns OAuth2 params in the request body, not in URL query
+            var $contentType : Text:=Lowercase(String($request.getHeader("Content-Type")))
+            If (Position("application/x-www-form-urlencoded"; $contentType)=1)
+                var $requestBody : Text:=$request.getText()
+                If (Length($requestBody)>0)
+                    $oauthResult:=cs._Tools.me.parseFormURLEncoded($requestBody)
+                End if 
+            End if 
+        End if 
+        
+        If (Value type($oauthResult)=Is object)
+            $options.result:=$oauthResult
+        End if 
+        
+        If ((Value type($oauthResult)=Is object) && OB Is defined($oauthResult; "state") && (Length(String($oauthResult.state))>0))
+            $state:=String($oauthResult.state)
+            $options.state:=$state
         End if 
         
         If (_authorize($options; $response))

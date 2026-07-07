@@ -186,7 +186,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='1492' y='314'>+parsePullInterval($inParameters : Object) : Integer</text>
 <text class='m' x='1492' y='330'>+registerInStorage($inStorageKey : Text; $inState : Text; $inExtraFields : Object)</text>
 <text class='m' x='1492' y='346'>+signalStop($inStorageKey : Text; $inState : Text)</text>
-<rect x='1960' y='132' width='420' height='556' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<rect x='1960' y='132' width='420' height='572' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='1960' y1='168' x2='2380' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='1972' y='156'>_Tools</text>
 <text class='m' x='1972' y='186'>+isDebug : Boolean</text>
@@ -207,19 +207,20 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='1972' y='420'>+getPathFromURL($inURL : Text) : Text</text>
 <text class='m' x='1972' y='436'>+getPortFromURL($inURL : Text) : Integer</text>
 <text class='m' x='1972' y='452'>+getURLParameterValue($inURL : Text; $inParamName : Text) : Text</text>
-<text class='m' x='1972' y='468'>+init()</text>
-<text class='m' x='1972' y='484'>+isEmailAddressHeader($inKey : Text) : Boolean</text>
-<text class='m' x='1972' y='500'>+isLocalIP($inIPAddress : Text) : Boolean</text>
-<text class='m' x='1972' y='516'>+isValidEmail($inEmail : Text) : Boolean</text>
-<text class='m' x='1972' y='532'>+isValidURL($inURL : Text) : Boolean</text>
-<text class='m' x='1972' y='548'>+makeError($inCode : Integer; $inParameters : Object) : Object</text>
-<text class='m' x='1972' y='564'>+quoteString($inString : Text) : Text</text>
-<text class='m' x='1972' y='580'>+retainFileObject($inParameter : Variant) : 4D.File</text>
-<text class='m' x='1972' y='596'>+startWebServer($inParameters : Object) : Object</text>
-<text class='m' x='1972' y='612'>+stopWebServer() : Boolean</text>
-<text class='m' x='1972' y='628'>+trimSpaces($inText : Text) : Text</text>
-<text class='m' x='1972' y='644'>+urlDecode($inURL : Text) : Text</text>
-<text class='m' x='1972' y='660'>+urlEncode($value : Text) : Text</text>
+<text class='m' x='1972' y='468'>+parseFormURLEncoded($inFormBody : Text) : Object</text>
+<text class='m' x='1972' y='484'>+init()</text>
+<text class='m' x='1972' y='500'>+isEmailAddressHeader($inKey : Text) : Boolean</text>
+<text class='m' x='1972' y='516'>+isLocalIP($inIPAddress : Text) : Boolean</text>
+<text class='m' x='1972' y='532'>+isValidEmail($inEmail : Text) : Boolean</text>
+<text class='m' x='1972' y='548'>+isValidURL($inURL : Text) : Boolean</text>
+<text class='m' x='1972' y='564'>+makeError($inCode : Integer; $inParameters : Object) : Object</text>
+<text class='m' x='1972' y='580'>+quoteString($inString : Text) : Text</text>
+<text class='m' x='1972' y='596'>+retainFileObject($inParameter : Variant) : 4D.File</text>
+<text class='m' x='1972' y='612'>+startWebServer($inParameters : Object) : Object</text>
+<text class='m' x='1972' y='628'>+stopWebServer() : Boolean</text>
+<text class='m' x='1972' y='644'>+trimSpaces($inText : Text) : Text</text>
+<text class='m' x='1972' y='660'>+urlDecode($inURL : Text) : Text</text>
+<text class='m' x='1972' y='676'>+urlEncode($value : Text) : Text</text>
 <rect x='2440' y='132' width='420' height='572' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='2440' y1='168' x2='2860' y2='168' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='2452' y='156'>_URL</text>

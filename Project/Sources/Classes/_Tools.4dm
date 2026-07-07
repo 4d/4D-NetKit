@@ -364,6 +364,59 @@ Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
 	// ----------------------------------------------------
 	
 	
+Function parseFormURLEncoded($inFormBody : Text) : Object
+/**
+ * @function parseFormURLEncoded
+ * @param {Text} $inFormBody - Body encoded as `application/x-www-form-urlencoded`
+ * @returns {Object} Shared object containing decoded key/value pairs
+ * @description Decodes URL-encoded form payloads (`a=1&b=2`) including `+` to space
+ *   conversion, suitable for OAuth2 `response_mode=form_post` callbacks.
+ */
+	
+	var $result : Object:=New shared object()
+	var $cursor : Integer:=1
+	var $bodyLen : Integer:=Length($inFormBody)
+	
+	While ($cursor<=$bodyLen)
+		var $ampPos : Integer:=Position("&"; $inFormBody; $cursor)
+		var $pair : Text
+		If ($ampPos=0)
+			$pair:=Substring($inFormBody; $cursor)
+			$cursor:=$bodyLen+1
+		Else 
+			$pair:=Substring($inFormBody; $cursor; $ampPos-$cursor)
+			$cursor:=$ampPos+1
+		End if 
+		
+		If (Length($pair)>0)
+			var $eqPos : Integer:=Position("="; $pair)
+			var $rawName : Text
+			var $rawValue : Text
+			
+			If ($eqPos>0)
+				$rawName:=Substring($pair; 1; $eqPos-1)
+				$rawValue:=Substring($pair; $eqPos+1)
+			Else 
+				$rawName:=$pair
+				$rawValue:=""
+			End if 
+			
+			var $name : Text:=This.urlDecode(Replace string($rawName; "+"; " "))
+			If (Length($name)>0)
+				var $value : Text:=This.urlDecode(Replace string($rawValue; "+"; " "))
+				Use ($result)
+					$result[$name]:=$value
+				End use 
+			End if 
+		End if 
+	End while 
+	
+	return $result
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function isEmailAddressHeader($inKey : Text) : Boolean
 /**
  * @function isEmailAddressHeader

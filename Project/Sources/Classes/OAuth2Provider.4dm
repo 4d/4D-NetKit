@@ -26,6 +26,7 @@ property authenticationErrorPage : Variant
 property accessType : Text
 property loginHint : Text
 property prompt : Text
+property _responseMode : Text
 property clientEmail : Text  // clientMail used by Google services account used
 property privateKey : Text  // privateKey may be used used to sign JWT token
 property PKCEEnabled : Boolean  // if true, PKCE is used for OAuth 2.0 authentication and token requests (false by default)
@@ -63,6 +64,7 @@ Class constructor($inParams : Object)
  *   - `accessType` {Text} — `"online"` (default) or `"offline"` (Google refresh token)
  *   - `loginHint` {Text} — Pre-fill the email field (Google)
  *   - `prompt` {Text} — `"none"`, `"consent"`, or `"select_account"`
+ *   - `responseMode` {Text} — `"query"` or `"form_post"` (optional)
  *   - `clientEmail` {Text} — Service account email (Google service accounts)
  *   - `privateKey` {Text} — PEM private key for JWT signing
  *   - `thumbprint` {Text} — Certificate thumbprint hex string (sets `x5t` in JWT)
@@ -224,6 +226,11 @@ Class constructor($inParams : Object)
 				(String($inParams.prompt)="consent") || \
 				(String($inParams.prompt)="select_account"))
 				This.prompt:=String($inParams.prompt)
+			End if 
+			
+			var $responseMode : Text:=Lowercase(String($inParams.responseMode))
+			If (($responseMode="query") || ($responseMode="form_post"))
+				This._responseMode:=$responseMode
 			End if 
 			
 /*
@@ -1120,6 +1127,8 @@ Function get authenticateURI() : Text
  * @description Builds the authorization URL from the configured `_authenticateURI`
  *   (or defaults for Google/Microsoft). Appends PKCE parameters when `PKCEEnabled`
  *   is `True`; otherwise appends `access_type`, `login_hint`, and `prompt` when set.
+ *   Adds `response_mode` only when explicitly configured.
+ *   Supported values are `query` and `form_post`.
  */
 	
 	var $authenticateURI : Text
@@ -1149,7 +1158,10 @@ Function get authenticateURI() : Text
 			$urlParams.addQueryParameter("scope"; cs._Tools.me.urlEncode($scope))
 		End if 
 		$urlParams.addQueryParameter("state"; cs._Tools.me.urlEncode(String($state)))
-		$urlParams.addQueryParameter("response_mode"; "query")
+		var $responseMode : Text:=This.responseMode
+		If (Length($responseMode)>0)
+			$urlParams.addQueryParameter("response_mode"; $responseMode)
+		End if 
 		$urlParams.addQueryParameter("redirect_uri"; cs._Tools.me.urlEncode($redirectURI))
 		If (This.PKCEEnabled)
 			$urlParams.addQueryParameter("code_challenge"; This._generateCodeChallenge(This.codeVerifier))
@@ -1173,6 +1185,23 @@ Function get authenticateURI() : Text
 	End if 
 	
 	return $authenticateURI
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get responseMode() : Text
+/**
+ * @function get responseMode
+ * @returns {Text} OAuth2 response mode (`query` or `form_post`)
+ * @description Returns the configured response mode, or empty when not configured.
+ */
+	
+	If (Length(String(This._responseMode))>0)
+		return This._responseMode
+	End if 
+	
+	return ""
 	
 	
 	// ----------------------------------------------------

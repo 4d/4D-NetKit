@@ -22,6 +22,45 @@
 var $redirectURI : Text
 var $state : Text:=cs._Tools.me.getURLParameterValue($1; "state")
 var $statusLine : Text
+var $oauthResult : Object:=Null
+
+// Parse OAuth parameters as early as possible (query or form_post body)
+ARRAY TEXT($oauthHeaderNames; 0)
+ARRAY TEXT($oauthHeaderValues; 0)
+WEB GET VARIABLES($oauthHeaderNames; $oauthHeaderValues)
+
+If (Size of array($oauthHeaderNames)>0)
+	var $iOAuth : Integer
+	$oauthResult:=New shared object
+	Use ($oauthResult)
+		For ($iOAuth; 1; Size of array($oauthHeaderNames))
+			$oauthResult[$oauthHeaderNames{$iOAuth}]:=$oauthHeaderValues{$iOAuth}
+		End for 
+	End use 
+Else 
+	// response_mode=form_post: parameters are in body, not in URL query
+	WEB GET HTTP HEADER($oauthHeaderNames; $oauthHeaderValues)
+	
+	var $oauthHeaderIndex : Integer
+	var $oauthContentType : Text:=""
+	For ($oauthHeaderIndex; 1; Size of array($oauthHeaderNames))
+		If (Lowercase($oauthHeaderNames{$oauthHeaderIndex})="content-type")
+			$oauthContentType:=Lowercase($oauthHeaderValues{$oauthHeaderIndex})
+		End if 
+	End for 
+	
+	If (Position("application/x-www-form-urlencoded"; $oauthContentType)=1)
+		var $oauthRequestBody : Text
+		WEB GET HTTP BODY($oauthRequestBody)
+		If (Length($oauthRequestBody)>0)
+			$oauthResult:=cs._Tools.me.parseFormURLEncoded($oauthRequestBody)
+		End if 
+	End if 
+End if 
+
+If ((Value type($oauthResult)=Is object) && OB Is defined($oauthResult; "state") && (Length(String($oauthResult.state))>0))
+	$state:=String($oauthResult.state)
+End if 
 
 If ((Storage.requests#Null) && OB Is defined(Storage.requests; $state))
 	$redirectURI:=String(Storage.requests[$state].redirectURI)
@@ -33,21 +72,13 @@ End if
 If ($URL=$redirectURI)
 	
 	var $options : Object:={redirectURI: $redirectURI; state: $state}
-	
-	ARRAY TEXT($names; 0)
-	ARRAY TEXT($values; 0)
-	WEB GET VARIABLES($names; $values)
-	
-	If (Size of array($names)>0)
-		
-		var $i : Integer
-		var $result : Object:=New shared object
-		Use ($result)
-			For ($i; 1; Size of array($names))
-				$result[$names{$i}]:=$values{$i}
-			End for 
-		End use 
-		$options.result:=$result
+	var $hasOAuthParams : Boolean:=((Value type($oauthResult)=Is object) && (OB Keys($oauthResult).length>0))
+	If ($hasOAuthParams)
+		$options.result:=$oauthResult
+		If (OB Is defined($oauthResult; "state") && (Length(String($oauthResult.state))>0))
+			$state:=String($oauthResult.state)
+			$options.state:=$state
+		End if 
 	End if 
 	
 	var $response : Object:={}
@@ -62,8 +93,8 @@ If ($URL=$redirectURI)
 		Else 
 			
 			$responseBody:=$response.body
-			var $contentType : Text:=$response.contentType
-			WEB SEND TEXT($responseBody; $contentType)
+			var $responseContentType : Text:=$response.contentType
+			WEB SEND TEXT($responseBody; $responseContentType)
 		End if 
 	Else 
 		
