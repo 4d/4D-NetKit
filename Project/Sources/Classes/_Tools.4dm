@@ -245,29 +245,34 @@ Function getParameterValue($headerValue : Text; $paramName : Text) : Text
  * @example getParameterValue("text/html; charset=utf-8"; "charset") // → "utf-8"
  */
 	
-	var $search : Text:=$paramName+"="
-	var $pos : Integer:=Position($search; $headerValue)
+	var $wantedName : Text:=Lowercase(Trim($paramName); *)
+	var $headerLength : Integer:=Length($headerValue)
+	var $segmentStart : Integer:=1
+	var $inQuotes : Boolean:=False
+	var $i : Integer
 	
-	If ($pos>0)
-		var $valueStart : Integer:=$pos+Length($search)
-		var $firstChar : Text:=Substring($headerValue; $valueStart; 1)
-		
-		If ($firstChar="\"")
-			// Quoted value: extract between the two double-quotes
-			$valueStart+=1
-			var $closeQuote : Integer:=Position("\""; $headerValue; $valueStart)
-			If ($closeQuote>0)
-				return Substring($headerValue; $valueStart; $closeQuote-$valueStart)
+	For ($i; 1; $headerLength+1)
+		If ($i<=$headerLength)
+			If ($headerValue[[$i]]="\"")
+				$inQuotes:=Not($inQuotes)
 			End if 
-		Else 
-			// Unquoted value: ends at ';' or end of string
-			var $end : Integer:=Position(";"; $headerValue; $valueStart)
-			If ($end=0)
-				$end:=Length($headerValue)+1
-			End if 
-			return Trim(Substring($headerValue; $valueStart; $end-$valueStart))
 		End if 
-	End if 
+		If (($i>$headerLength) || (($headerValue[[$i]]=";") && (Not($inQuotes))))
+			var $segment : Text:=Trim(Substring($headerValue; $segmentStart; $i-$segmentStart))
+			var $eqPos : Integer:=Position("="; $segment)
+			If ($eqPos>1)
+				var $currentName : Text:=Lowercase(Trim(Substring($segment; 1; $eqPos-1)); *)
+				If ($currentName=$wantedName)
+					var $rawValue : Text:=Trim(Substring($segment; $eqPos+1))
+					If ((Length($rawValue)>=2) && ($rawValue[[1]]="\"") && ($rawValue[[Length($rawValue)]]="\""))
+						return Substring($rawValue; 2; Length($rawValue)-2)
+					End if 
+					return $rawValue
+				End if 
+			End if 
+			$segmentStart:=$i+1
+		End if 
+	End for 
 	
 	return ""
 	
@@ -427,7 +432,7 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
  */
 	
 	var $emailHeaders : Collection:=["From"; "Sender"; "Reply-To"; "To"; "Cc"; "Bcc"; "Resent-From"; "Resent-Sender"; "Resent-Reply-To"; "Resent-To"; "Resent-Cc"; "Resent-Bcc"]
-	return $emailHeaders.some("$1 = :1"; $inKey)
+	return $emailHeaders.some("$1 = :1"; Trim($inKey))
 	
 	
 	// ----------------------------------------------------
@@ -508,13 +513,12 @@ Function quoteString($inString : Text) : Text
  */
 	
 	var $result : Text:=$inString
-	var $length : Integer:=Length($result)
 	
-	If ($length>0)
+	If (Length($result)>0)
 		If ($result[[1]]#"\"")
 			$result:="\""+$result
 		End if 
-		If ($result[[$length]]#"\"")
+		If ($result[[Length($result)]]#"\"")
 			$result+="\""
 		End if 
 	End if 
@@ -676,32 +680,6 @@ Function stopWebServer() : Boolean
 	
 	// ----------------------------------------------------
 	
-	
-Function trimSpaces($inText : Text) : Text
-/**
- * @function trimSpaces
- * @param {Text} $inText - String to trim
- * @returns {Text} String with leading and trailing spaces removed
- * @example trimSpaces("  hello  ") // → "hello"
- */
-	
-	var $startPos : Integer:=1
-	var $endPos : Integer:=Length($inText)
-	
-	While (($startPos<=$endPos) && ($inText[[$startPos]]=" "))
-		$startPos+=1
-	End while 
-	
-	While (($endPos>=$startPos) && ($inText[[$endPos]]=" "))
-		$endPos-=1
-	End while 
-	
-	return Substring($inText; $startPos; $endPos-$startPos+1)
-	
-	
-	// ----------------------------------------------------
-	
-	
 Function urlDecode($inURL : Text) : Text
 /**
  * @function urlDecode
@@ -715,17 +693,28 @@ Function urlDecode($inURL : Text) : Text
     See: https://github.com/4d/4D-SVG project
 */
 	var $i : Integer
-	var $hexValues : Text:="123456789ABCDEF"
+	var $hexValues : Text:="0123456789ABCDEF"
 	var $urlLength : Integer:=Length($inURL)
 	var $result : Text:=""
 	
 	For ($i; 1; $urlLength; 1)
 		
 		If ($inURL[[$i]]="%")
-			
-			var $c : Integer:=(Position(Substring($inURL; $i+1; 1); $hexValues)*16)+(Position(Substring($inURL; $i+2; 1); $hexValues))
-			$result+=Char($c)
-			$i+=2
+			If (($i+2)<=$urlLength)
+				var $h1 : Text:=Uppercase(Substring($inURL; $i+1; 1); *)
+				var $h2 : Text:=Uppercase(Substring($inURL; $i+2; 1); *)
+				var $p1 : Integer:=Position($h1; $hexValues)
+				var $p2 : Integer:=Position($h2; $hexValues)
+				If (($p1>0) && ($p2>0))
+					var $c : Integer:=($p1-1)*16+($p2-1)
+					$result+=Char($c)
+					$i+=2
+				Else 
+					$result+="%"
+				End if 
+			Else 
+				$result+="%"
+			End if 
 			
 		Else 
 			

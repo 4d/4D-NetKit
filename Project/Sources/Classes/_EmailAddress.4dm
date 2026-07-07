@@ -26,7 +26,7 @@ Class constructor($inName : Text; $inAddress : Text)
 		Else 
 			
 			This.name:=This._normalizeDisplayName($inName)
-			This.email:=cs._Tools.me.trimSpaces($inAddress)
+			This.email:=Trim($inAddress)
 	End case 
 	
 	
@@ -55,7 +55,7 @@ Function _normalizeDisplayName($inName : Text) : Text
  * @returns {Text} Normalized display name (trimmed, optional surrounding quotes removed)
  */
 	
-	var $name : Text:=cs._Tools.me.trimSpaces($inName)
+	var $name : Text:=Trim($inName)
 	If (Length($name)>=2)
 		If ((Character code($name[[1]])=34) && (Character code($name[[Length($name)]])=34))
 			$name:=Substring($name; 2; Length($name)-2)
@@ -78,7 +78,7 @@ Function fromString($inValue : Text)
 	
 	This._init()
 	
-	var $value : Text:=cs._Tools.me.trimSpaces($inValue)
+	var $value : Text:=Trim($inValue)
 	var $email : Text:=""
 	If (Length($value)=0)
 		return 
@@ -90,7 +90,7 @@ Function fromString($inValue : Text)
 	If (($startMailPos>0) && ($endMailPos>$startMailPos))
 		
 		This.name:=This._normalizeDisplayName(Substring($value; 1; $startMailPos-1))
-		$email:=cs._Tools.me.trimSpaces(Substring($value; $startMailPos+1; $endMailPos-$startMailPos-1))
+		$email:=Trim(Substring($value; $startMailPos+1; $endMailPos-$startMailPos-1))
 		If (cs._Tools.me.isValidEmail($email))
 			This.email:=$email
 		End if 
