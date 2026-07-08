@@ -76,6 +76,94 @@ Function _copyGraphMessage($inMessage : Object) : Object
 	// ----------------------------------------------------
 	
 	
+Function _validateGraphMessageProperties($inPayload : Object; $inFunction : Text) : Boolean
+/**
+ * @function _validateGraphMessageProperties
+ * @private
+ * @param {Object} $inPayload - Graph message object or request envelope (`{message: ...}`)
+ * @param {Text} $inFunction - Caller function name for error reporting
+ * @returns {Boolean} `True` when all properties are supported; otherwise `False`
+ * @description Validates mail payload keys before sending to Microsoft Graph.
+ *   Adds an error to the stack for each unsupported property (for example `attachment`
+ *   instead of `attachments`).
+ */
+	
+	var $isValid : Boolean:=True
+	
+	If (($inPayload#Null) && (Value type($inPayload)=Is object))
+		
+		var $message : Object
+		var $allowedPayloadKeys : Object:={message: True; saveToSentItems: True; comment: True}
+		If (OB Is defined($inPayload; "message") && (Value type($inPayload.message)=Is object))
+			$message:=$inPayload.message
+			
+			var $payloadKey : Text
+			For each ($payloadKey; OB Keys($inPayload))
+				If (Not(OB Is defined($allowedPayloadKeys; $payloadKey)))
+					This._pushError(12; {function: $inFunction; message: "Unsupported property \""+$payloadKey+"\" in mail payload."})
+					$isValid:=False
+				End if 
+			End for each 
+		Else 
+			$message:=$inPayload
+		End if 
+		
+		var $messageKey : Text
+		For each ($messageKey; OB Keys($message))
+			var $isAllowed : Boolean:=False
+			Case of 
+				: ($messageKey="attachments")
+				: ($messageKey="bccRecipients")
+				: ($messageKey="body")
+				: ($messageKey="bodyPreview")
+				: ($messageKey="categories")
+				: ($messageKey="ccRecipients")
+				: ($messageKey="changeKey")
+				: ($messageKey="conversationId")
+				: ($messageKey="conversationIndex")
+				: ($messageKey="createdDateTime")
+				: ($messageKey="extensions")
+				: ($messageKey="flag")
+				: ($messageKey="from")
+				: ($messageKey="hasAttachments")
+				: ($messageKey="id")
+				: ($messageKey="importance")
+				: ($messageKey="inferenceClassification")
+				: ($messageKey="internetMessageHeaders")
+				: ($messageKey="internetMessageId")
+				: ($messageKey="isDeliveryReceiptRequested")
+				: ($messageKey="isDraft")
+				: ($messageKey="isRead")
+				: ($messageKey="isReadReceiptRequested")
+				: ($messageKey="lastModifiedDateTime")
+				: ($messageKey="multiValueExtendedProperties")
+				: ($messageKey="parentFolderId")
+				: ($messageKey="receivedDateTime")
+				: ($messageKey="replyTo")
+				: ($messageKey="sender")
+				: ($messageKey="sentDateTime")
+				: ($messageKey="singleValueExtendedProperties")
+				: ($messageKey="subject")
+				: ($messageKey="toRecipients")
+				: ($messageKey="uniqueBody")
+				: ($messageKey="webLink")
+					$isAllowed:=True
+			End case 
+			
+			If (Not($isAllowed))
+				This._pushError(12; {function: $inFunction; message: "Unsupported property \""+$messageKey+"\" in mail object."})
+				$isValid:=False
+			End if 
+		End for each 
+		
+	End if 
+	
+	return $isValid
+	
+	
+	// ----------------------------------------------------
+	
+	
 Function _loadFromObject($inObject : Object)
 /**
  * @function _loadFromObject
