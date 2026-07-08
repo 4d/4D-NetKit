@@ -432,7 +432,7 @@ Function isEmailAddressHeader($inKey : Text) : Boolean
  */
 	
 	var $emailHeaders : Collection:=["From"; "Sender"; "Reply-To"; "To"; "Cc"; "Bcc"; "Resent-From"; "Resent-Sender"; "Resent-Reply-To"; "Resent-To"; "Resent-Cc"; "Resent-Bcc"]
-	return $emailHeaders.some("$1 = :1"; Trim($inKey))
+	return $emailHeaders.some(Formula($1.value=$2); Trim($inKey))
 	
 	
 	// ----------------------------------------------------
