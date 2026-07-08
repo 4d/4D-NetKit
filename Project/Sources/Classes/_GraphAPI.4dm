@@ -118,7 +118,7 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
  *   Overridden by `Office365Calendar` to add `startDateTime` and `endDateTime`.
  */
 	
-	var $URLParams : cs._URL:=cs._URL.new()
+	var $URLParams : cs.URL:=cs.URL.new()
 	
 	If ((Value type($inParameters.search)=Is text) && (Length(String($inParameters.search))>0))
 		$URLParams.addQueryParameter("$search"; $inParameters.search)

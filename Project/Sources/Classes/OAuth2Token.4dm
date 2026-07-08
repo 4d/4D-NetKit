@@ -105,7 +105,7 @@ Function _loadFromURLEncodedResponse($inResponseString : Text)
  *   to `_loadFromObject`
  */
 	
-	var $URL : cs._URL:=cs._URL.new()
+	var $URL : cs.URL:=cs.URL.new()
 	$URL.parseQuery($inResponseString)
 	var $token : Object:={}
 	var $iter : Object

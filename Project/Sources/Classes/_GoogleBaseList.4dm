@@ -61,7 +61,7 @@ Function _getList($inPageToken : Text) : Boolean
  *   On HTTP error the error stack is populated and `False` is returned.
  */
 	
-	var $URL : cs._URL:=cs._URL.new(This._internals._URL)
+	var $URL : cs.URL:=cs.URL.new(This._internals._URL)
 	
 	If (Length(String($inPageToken))>0)
 		$URL.addQueryParameter("pageToken"; $inPageToken)

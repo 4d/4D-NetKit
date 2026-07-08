@@ -305,7 +305,7 @@ Function getDomainFromURL($inURL : Text) : Text
  * @example getDomainFromURL("https://www.example.com/path") // → "www.example.com"
  */
 	
-	var $URL : cs._URL:=cs._URL.new($inURL)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
 	return $URL.host
 	
@@ -321,7 +321,7 @@ Function getPathFromURL($inURL : Text) : Text
  * @example getPathFromURL("https://www.example.com/path/to/resource") // → "/path/to/resource"
  */
 	
-	var $URL : cs._URL:=cs._URL.new($inURL)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
 	return $URL.path
 	
@@ -338,7 +338,7 @@ Function getPortFromURL($inURL : Text) : Integer
  * @example getPortFromURL("https://www.example.com/path") // → 443
  */
 	
-	var $URL : cs._URL:=cs._URL.new($inURL)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
 	return $URL.port
 	
@@ -356,7 +356,7 @@ Function getURLParameterValue($inURL : Text; $inParamName : Text) : Text
  */
 	
 	var $result : Text:=""
-	var $URL : cs._URL:=cs._URL.new($inURL)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	var $foundParam : Object:=$URL.queryParams.find(Formula($1.value.name=$2); $inParamName)
 	
 	If ((Value type($foundParam)=Is object) && (OB Is defined($foundParam; "value")))
@@ -495,7 +495,7 @@ Function isValidURL($inURL : Text) : Boolean
  * @example isValidURL("/relative/path") // → False
  */
 	
-	var $URL : cs._URL:=cs._URL.new($inURL)
+	var $URL : cs.URL:=cs.URL.new($inURL)
 	
 	return (((Length($URL.scheme)>0) && ($URL.scheme="http@")) && (Length($URL.host)>0))
 	

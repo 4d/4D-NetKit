@@ -112,7 +112,7 @@ Function list($inParameters : Object) : cs.GraphUserList
  */
 	
 	var $headers : Object
-	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")
+	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
 	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)
@@ -155,7 +155,7 @@ Function count($inParameters : Object) : cs.GraphUserList
  */
 	
 	var $headers : Object
-	var $URL : cs._URL:=cs._URL.new(This._getURL()+"users")
+	var $URL : cs.URL:=cs.URL.new(This._getURL()+"users")
 	var $URLString : Text
 	
 	If (Length(String($inParameters.search))>0)

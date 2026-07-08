@@ -1,8 +1,8 @@
 /**
- * @class _URL
+ * @class URL
  * @description Parses and manages URL components according to RFC 3986
  * @example
- *   var $url := cs._URL.new("https://user:pass@example.com:8080/path?key=value#hash")
+ *   var $url := cs.URL.new("https://user:pass@example.com:8080/path?key=value#hash")
  *   $url.host  // "example.com"
  *   $url.port  // 8080
  *   $url.addQueryParameter("page"; "1")
@@ -63,7 +63,7 @@ Function parse($inURL : Text)
  * @param {Text} $inURL - URL string to parse (RFC 3986)
  * @description Parses a URL string into its components
  * @example
- *   var $url := cs._URL.new()
+ *   var $url := cs.URL.new()
  *   $url.parse("https://user:pass@example.com:8080/path?key=value#hash")
  * @see https://www.rfc-editor.org/rfc/rfc3986#appendix-B
  */
@@ -517,7 +517,7 @@ Function clone() : Object
  * @description Creates a complete copy of the URL object
  */
     
-    var $cloned : cs._URL:=cs._URL.new("")
+    var $cloned : cs.URL:=cs.URL.new("")
     $cloned.scheme:=This.scheme
     $cloned.username:=This.username
     $cloned.password:=This.password

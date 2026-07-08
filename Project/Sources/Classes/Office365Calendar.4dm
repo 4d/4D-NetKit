@@ -41,26 +41,26 @@ Function _getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : T
  *   `startDateTime` and `endDateTime` parameters; other OData params are forwarded to `Super`
  */
     
-    var $URL : cs._URL:=cs._URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
+    var $URL : cs.URL:=cs.URL.new(Super._getURLParamsFromObject($inParameters; $inCount))
     var $startDateTime : Text:=""
     var $endDateTime : Text:=""
-    var $dateTime : cs._DateTime
+    var $dateTime : cs.DateTime
     
     Case of 
         : (Value type($inParameters.startDateTime)=Is text)
-            $dateTime:=cs._DateTime.new($inParameters.startDateTime)
+            $dateTime:=cs.DateTime.new($inParameters.startDateTime)
             $startDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.startDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $dateTime:=cs._DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
+            $dateTime:=cs.DateTime.new(Date($inParameters.startDateTime.date); Time($inParameters.startDateTime.time))
             $startDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
     Case of 
         : (Value type($inParameters.endDateTime)=Is text)
-            $dateTime:=cs._DateTime.new($inParameters.endDateTime)
+            $dateTime:=cs.DateTime.new($inParameters.endDateTime)
             $endDateTime:=$dateTime.getDateTimeURLParameter()
         : (Value type($inParameters.endDateTime)=Is object)  // It assumes that object value is like {date: "2020-01-01"; time: "00:00:00"}
-            $dateTime:=cs._DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
+            $dateTime:=cs.DateTime.new(Date($inParameters.endDateTime.date); Time($inParameters.endDateTime.time))
             $endDateTime:=$dateTime.getDateTimeURLParameter()
     End case 
     
@@ -89,14 +89,14 @@ Function _conformEventDateTime($inObject : Object; $inName : Text) : Object
  *   accepted by the Microsoft Graph API; delegates to `_DateTime`
  */
     
-    var $dateTime : cs._DateTime
+    var $dateTime : cs.DateTime
     var $timeZone : Text:=((Value type($inObject[$inName].timeZone)=Is text) && (Length($inObject[$inName].timeZone)>0)) ? String($inObject[$inName].timeZone) : ""
     Case of 
         : (Value type($inObject[$inName].dateTime)=Is text)
-            $dateTime:=cs._DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
+            $dateTime:=cs.DateTime.new({dateTime: $inObject[$inName].dateTime; timeZone: $timeZone})
             return $dateTime.getGraphDateTime()
         : ((Value type($inObject[$inName].date)=Is date) && (Value type($inObject[$inName].time)#Is undefined))
-            $dateTime:=cs._DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
+            $dateTime:=cs.DateTime.new({date: $inObject[$inName].date; time: $inObject[$inName].time; timeZone: $timeZone})
             return $dateTime.getGraphDateTime()
     End case 
     

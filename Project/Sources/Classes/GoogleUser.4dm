@@ -86,7 +86,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
  *   parameters; builds the query string for `listDirectoryPeople` requests
  */
 	
-	var $urlParams : cs._URL:=cs._URL.new()
+	var $urlParams : cs.URL:=cs.URL.new()
 	var $personFields : Text
 	var $sources : Collection:=Null
 	var $mergeSources : Collection:=Null

@@ -22,16 +22,13 @@
 			"_BaseAPI",
 			"_BaseClass",
 			"_BaseList",
-			"_DateTime",
-			"_EmailAddress",
 			"_GoogleAPI",
 			"_GoogleBaseList",
 			"_GoogleBatchRequest",
 			"_GraphAPI",
 			"_GraphBaseList",
 			"_NotificationHelper",
-			"_Tools",
-			"_URL"
+			"_Tools"
 		]
 	},
 	"Private Methods": {
@@ -43,6 +40,9 @@
 	},
 	"Public Classes": {
 		"classes": [
+			"DateTime",
+			"EmailAddress",
+			"URL",
 			"Google",
 			"GoogleCalendar",
 			"GoogleCalendarList",

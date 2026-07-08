@@ -40,7 +40,7 @@ Function _getURLParamsFromObject($inParameters : Object) : Text
  *   structured options object; invalid `format` values are normalised to `"raw"`
  */
 	
-	var $URLParams : cs._URL:=cs._URL.new()
+	var $URLParams : cs.URL:=cs.URL.new()
 	
 	If (Length(String($inParameters.search))>0)
 		$URLParams.addQueryParameter("q"; cs._Tools.me.urlEncode($inParameters.search))
@@ -95,7 +95,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 	var $result : Object:={}
 	var $keys : Collection:=OB Keys($inMail)
 	var $key; $name; $string : Text
-	var $email : cs._EmailAddress
+	var $email : cs.EmailAddress
 	
 	For each ($key; $keys)
 		$name:=cs._Tools.me.getJMAPAttribute($key)
@@ -127,7 +127,7 @@ Function _convertMailObjectToJMAP($inMail : Object) : Object
 								End if 
 							: (cs._Tools.me.isEmailAddressHeader($header.name))
 								If (Length($header.value)>0)
-									$email:=cs._EmailAddress.new($header.value)
+									$email:=cs.EmailAddress.new($header.value)
 									$result[$name]:=$email
 								End if 
 							Else 

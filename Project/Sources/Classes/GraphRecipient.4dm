@@ -15,7 +15,7 @@ Class constructor($inAddress : Text; $inName : Text)
  *   `{code: 2; component: "4DNK"; attribute: "address"}` when the address is invalid.
  */
 	
-	var $parsed : cs._EmailAddress:=cs._EmailAddress.new($inName; $inAddress)
+	var $parsed : cs.EmailAddress:=cs.EmailAddress.new($inName; $inAddress)
 	If ($parsed.isValid())
 		
 		This.emailAddress:={address: $parsed.email}

@@ -615,7 +615,7 @@ Function _getToken_SignedIn($bUseRefreshToken : Boolean) : Object
  */
 	
 	var $result : Object:=Null
-	var $params : cs._URL:=cs._URL.new()
+	var $params : cs.URL:=cs.URL.new()
 	var $bSendRequest : Boolean:=True
 	If ($bUseRefreshToken)
 		
@@ -733,7 +733,7 @@ Function _getToken_Service() : Object
  */
 	
 	var $result : Object:=Null
-	var $params : cs._URL:=cs._URL.new()
+	var $params : cs.URL:=cs.URL.new()
 	var $jwt : cs.JWT:=cs.JWT.new(This.privateKey)
 	var $options : Object
 	var $bearer : Text
@@ -1150,7 +1150,7 @@ Function get authenticateURI() : Text
 		var $scope : Text:=This.scope
 		var $state : Text:=This.state
 		var $redirectURI : Text:=This.redirectURI
-		var $urlParams : cs._URL:=cs._URL.new()
+		var $urlParams : cs.URL:=cs.URL.new()
 		
 		$urlParams.addQueryParameter("client_id"; This.clientId)
 		$urlParams.addQueryParameter("response_type"; "code")

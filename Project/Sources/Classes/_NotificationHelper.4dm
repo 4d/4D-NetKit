@@ -275,7 +275,7 @@ Function buildNotificationUrl($inEndPoint : Text; $inPath : Text; $inState : Tex
         return ""
     End if 
     
-    var $url : cs._URL:=cs._URL.new($inEndPoint)
+    var $url : cs.URL:=cs.URL.new($inEndPoint)
     $url.path:=$inPath
     $url.queryParams:=[]
     $url.ref:=""

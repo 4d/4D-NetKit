@@ -491,8 +491,8 @@ Function _initialDeltaSyncWithKnownIds() : Text
     
     // calendarView/delta requires startDateTime and endDateTime.
     If (This._internals._type="event")
-        var $now : cs._DateTime:=cs._DateTime.new()
-        var $end : cs._DateTime:=cs._DateTime.new()
+        var $now : cs.DateTime:=cs.DateTime.new()
+        var $end : cs.DateTime:=cs.DateTime.new()
         $end.addTime(365*86400)  // 1 year window
         $url+="?startDateTime="+String($now.date; ISO date GMT; $now.time)+"&endDateTime="+String($end.date; ISO date GMT; $end.time)
     Else 
@@ -840,7 +840,7 @@ Function _computeExpiration($inMinutes : Integer) : Text
  * @returns {Text} ISO 8601 date-time string (UTC) for the subscription `expirationDateTime`
  */
     
-    var $dt : cs._DateTime:=cs._DateTime.new()
+    var $dt : cs.DateTime:=cs.DateTime.new()
     $dt.addTime($inMinutes*60)
     
     return String($dt.date; ISO date GMT; $dt.time)
@@ -995,8 +995,8 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
         return 
     End if 
     
-    var $expirationDT : cs._DateTime:=cs._DateTime.new(This._internals._expiration)
-    var $nowDT : cs._DateTime:=cs._DateTime.new()
+    var $expirationDT : cs.DateTime:=cs.DateTime.new(This._internals._expiration)
+    var $nowDT : cs.DateTime:=cs.DateTime.new()
     
     var $expirationSeconds : Integer:=($expirationDT.date-$nowDT.date)*86400+($expirationDT.time-$nowDT.time)
     

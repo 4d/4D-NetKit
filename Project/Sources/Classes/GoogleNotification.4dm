@@ -1072,7 +1072,7 @@ Function _renewIfNeeded($inThresholdSeconds : Integer)
     var $expirationSeconds : Real:=$expirationMs/1000
     
     // Compute current UTC epoch seconds
-    var $nowDT : cs._DateTime:=cs._DateTime.new()
+    var $nowDT : cs.DateTime:=cs.DateTime.new()
     var $nowEpochSeconds : Real:=($nowDT.date-!1970-01-01!)*86400+$nowDT.time
     
     var $remainingSeconds : Real:=$expirationSeconds-$nowEpochSeconds

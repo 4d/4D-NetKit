@@ -1,7 +1,7 @@
 // Largely inspired by https://github.com/4d-depot/DateTimeClass
 
 /**
- * @class _DateTime
+ * @class DateTime
  * @description Wraps a 4D date and time into a single object with timezone support;
  *   provides serialization helpers for Microsoft Graph and Google Calendar API formats.
  *   Constructor accepts: no args (current), Date, Time, timestamp string,
@@ -17,13 +17,13 @@ Class constructor( ...  : Variant)
  * @constructor
  * @param {...Variant} - Variadic; see class description for accepted signatures
  * @example
- *   var $dt : cs.NetKit._DateTime
- *   $dt:=cs.NetKit._DateTime.new()                            // current date+time
- *   $dt:=cs.NetKit._DateTime.new(!2026-06-03!)                // date only
- *   $dt:=cs.NetKit._DateTime.new(?09:30:00?)                  // time only
- *   $dt:=cs.NetKit._DateTime.new("2026-06-03T09:30:00.000Z")  // ISO timestamp
- *   $dt:=cs.NetKit._DateTime.new(!2026-06-03!; ?09:30:00?)    // date + time
- *   $dt:=cs.NetKit._DateTime.new("2026-06-03T09:30:00Z"; "America/New_York")  // with timezone
+ *   var $dt : cs.NetKit.DateTime
+ *   $dt:=cs.NetKit.DateTime.new()                            // current date+time
+ *   $dt:=cs.NetKit.DateTime.new(!2026-06-03!)                // date only
+ *   $dt:=cs.NetKit.DateTime.new(?09:30:00?)                  // time only
+ *   $dt:=cs.NetKit.DateTime.new("2026-06-03T09:30:00.000Z")  // ISO timestamp
+ *   $dt:=cs.NetKit.DateTime.new(!2026-06-03!; ?09:30:00?)    // date + time
+ *   $dt:=cs.NetKit.DateTime.new("2026-06-03T09:30:00Z"; "America/New_York")  // with timezone
  */
 	
 	Case of 
@@ -379,7 +379,7 @@ Function isNull()->$result : Boolean
  * @returns {Boolean} True when both `date` and `time` are zero/empty (i.e. no meaningful value was set)
  * @description Useful to detect an instance built from an incomplete or missing object
  * @example
- *   var $dt : cs.NetKit._DateTime:=cs.NetKit._DateTime.new({})
+ *   var $dt : cs.NetKit.DateTime:=cs.NetKit.DateTime.new({})
  *   $dt.isNull()  // True
  */
 	
@@ -389,10 +389,10 @@ Function isNull()->$result : Boolean
 	// ----------------------------------------------------
 	
 	
-Function isBefore($other : cs.NetKit._DateTime)->$result : Boolean
+Function isBefore($other : cs.NetKit.DateTime)->$result : Boolean
 /**
  * @function isBefore
- * @param {cs.NetKit._DateTime} $other - The other _DateTime instance to compare against
+ * @param {cs.NetKit.DateTime} $other - The other DateTime instance to compare against
  * @returns {Boolean} True if this instance represents a point in time strictly before `$other`
  * @description Compares by converting both instances to a number of seconds since
  *   1970-01-01 (epoch). Timezone is not taken into account; comparison is based on the
@@ -409,10 +409,10 @@ Function isBefore($other : cs.NetKit._DateTime)->$result : Boolean
 	// ----------------------------------------------------
 	
 	
-Function isAfter($other : cs.NetKit._DateTime)->$result : Boolean
+Function isAfter($other : cs.NetKit.DateTime)->$result : Boolean
 /**
  * @function isAfter
- * @param {cs.NetKit._DateTime} $other - The other _DateTime instance to compare against
+ * @param {cs.NetKit.DateTime} $other - The other DateTime instance to compare against
  * @returns {Boolean} True if this instance represents a point in time strictly after `$other`
  * @description Compares by converting both instances to a number of seconds since
  *   1970-01-01 (epoch). Timezone is not taken into account; comparison is based on the
