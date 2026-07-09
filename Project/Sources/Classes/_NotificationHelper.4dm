@@ -354,4 +354,3 @@ Function callbackInCallerContext($inFormWindow : Integer; $inWorkerName : Text; 
     Else 
         CALL WORKER($inWorkerName; $inFormula; $inSelf; $inItems)
     End if 
-    
