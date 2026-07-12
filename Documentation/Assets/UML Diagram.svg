@@ -27,12 +27,14 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <path class='edge' d='M 3130 2176 L 3130 2225 L 1210 2267 L 1210 2316'/>
 <path class='edge' d='M 3610 2080 L 3610 2129 L 1690 2267 L 1690 2316'/>
 <path class='edge' d='M 250 2436 L 250 2485 L 1450 2931 L 1450 2980'/>
+<path class='edge' d='M 250 2436 L 250 2485 L 970 2931 L 970 2980'/>
 <path class='edge' d='M 250 368 L 250 417 L 3610 795 L 3610 844'/>
 <path class='edge' d='M 250 2436 L 250 2485 L 1930 2931 L 1930 2980'/>
 <path class='edge' d='M 3610 2080 L 3610 2129 L 2170 2267 L 2170 2316'/>
 <path class='edge' d='M 250 2436 L 250 2485 L 2410 2931 L 2410 2980'/>
 <path class='edge' d='M 3610 2080 L 3610 2129 L 2650 2267 L 2650 2316'/>
 <path class='edge' d='M 3610 2080 L 3610 2129 L 3130 2267 L 3130 2316'/>
+<path class='edge' d='M 3610 2080 L 3610 2129 L 3130 2471 L 3130 2520'/>
 <path class='edge' d='M 250 2436 L 250 2485 L 2890 2931 L 2890 2980'/>
 <path class='edge' d='M 4090 2080 L 4090 2129 L 3610 2267 L 3610 2316'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 3370 2931 L 3370 2980'/>
@@ -49,6 +51,8 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <path class='edge' d='M 4090 2080 L 4090 2129 L 6010 2267 L 6010 2316'/>
 <path class='edge' d='M 4090 2080 L 4090 2129 L 6490 2267 L 6490 2316'/>
 <path class='edge' d='M 4090 2080 L 4090 2129 L 6970 2267 L 6970 2316'/>
+<path class='edge' d='M 4090 2080 L 4090 2129 L 6970 2471 L 6970 2520'/>
+<path class='edge' d='M 1210 2436 L 1210 2485 L 6250 2931 L 6250 2980'/>
 <rect x='2920' y='844' width='420' height='188' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='2920' y1='880' x2='3340' y2='880' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='2932' y='868'>_BaseAPI</text>
@@ -265,6 +269,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='2932' y='228'>+get calendar : cs.GoogleCalendar</text>
 <text class='m' x='2932' y='244'>+get mail : cs.GoogleMail</text>
 <text class='m' x='2932' y='260'>+get user : cs.GoogleUser</text>
+<text class='m' x='2932' y='276'>+get drive : cs.GoogleDrive</text>
 <rect x='1480' y='2316' width='420' height='268' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='1480' y1='2352' x2='1900' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='1492' y='2340'>GoogleCalendar</text>
@@ -392,6 +397,21 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='2932' y='2418'>+get($inResourceName : Text; $inPersonFields : Variant) : Object</text>
 <text class='m' x='2932' y='2434'>+getCurrent($inPersonFields : Variant) : Object</text>
 <text class='m' x='2932' y='2450'>+list($inParameters : Object) : cs.GoogleUserList</text>
+<rect x='2920' y='2520' width='420' height='220' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='2920' y1='2556' x2='3340' y2='2556' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='2932' y='2544'>GoogleDrive</text>
+<text class='m' x='2932' y='2574'>+userId : Text</text>
+<line x1='2930' y1='2585' x2='3330' y2='2585' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='2932' y='2600'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='2932' y='2616'>+getFile($inParameters : Object) : 4D.Blob</text>
+<text class='m' x='2932' y='2632'>+getItem($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2648'>+list($inParameters : Object) : cs.GoogleDriveFileList</text>
+<text class='m' x='2932' y='2664'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<rect x='760' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='760' y1='3016' x2='1180' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='772' y='3004'>GoogleDriveFileList</text>
+<text class='m' x='772' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='772' y='3050'>+get files() : Collection</text>
 <rect x='2680' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='2680' y1='3016' x2='3100' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='2692' y='3004'>GoogleUserList</text>
@@ -590,7 +610,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6292' y='260'>-_loadFromResponse($inResponseString : Text)</text>
 <text class='m' x='6292' y='276'>-_loadFromURLEncodedResponse($inResponseString : Text)</text>
 <text class='m' x='6292' y='292'>+constructor($inParams : Object)</text>
-<rect x='6760' y='132' width='420' height='172' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<rect x='6760' y='132' width='420' height='188' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='6760' y1='168' x2='7180' y2='168' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='6772' y='156'>Office365</text>
 <text class='m' x='6772' y='186'>-_internals : Object</text>
@@ -598,8 +618,9 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6772' y='212'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
 <text class='m' x='6772' y='228'>+get calendar : cs.Office365Calendar</text>
 <text class='m' x='6772' y='244'>+get category : cs.Office365Category</text>
-<text class='m' x='6772' y='260'>+get mail : cs.Office365Mail</text>
-<text class='m' x='6772' y='276'>+get user : cs.Office365User</text>
+<text class='m' x='6772' y='260'>+get drive : cs.Office365Drive</text>
+<text class='m' x='6772' y='276'>+get mail : cs.Office365Mail</text>
+<text class='m' x='6772' y='292'>+get user : cs.Office365User</text>
 <rect x='5320' y='2316' width='420' height='316' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='5320' y1='2352' x2='5740' y2='2352' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='5332' y='2340'>Office365Calendar</text>
@@ -660,4 +681,21 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6772' y='2418'>+get($inID : Text; $inSelect : Text) : Object</text>
 <text class='m' x='6772' y='2434'>+getCurrent($inSelect : Text) : Object</text>
 <text class='m' x='6772' y='2450'>+list($inParameters : Object) : cs.GraphUserList</text>
+<rect x='6760' y='2520' width='420' height='252' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6760' y1='2556' x2='7180' y2='2556' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6772' y='2544'>Office365Drive</text>
+<text class='m' x='6772' y='2574'>+driveId : Text</text>
+<text class='m' x='6772' y='2590'>+userId : Text</text>
+<line x1='6770' y1='2601' x2='7170' y2='2601' stroke='#16a34a' stroke-opacity='0.35'/>
+<text class='m' x='6772' y='2616'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
+<text class='m' x='6772' y='2632'>+getFile($inParameters : Object) : 4D.Blob</text>
+<text class='m' x='6772' y='2648'>+getItem($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2664'>+list($inParameters : Object) : cs.GraphDriveItemList</text>
+<text class='m' x='6772' y='2680'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<text class='m' x='6772' y='2696'>+uploadLargeFile($inParameters : Object; $inContent : Variant) : Object</text>
+<rect x='6040' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
+<line x1='6040' y1='3016' x2='6460' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
+<text class='cn' x='6052' y='3004'>GraphDriveItemList</text>
+<text class='m' x='6052' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : Object)</text>
+<text class='m' x='6052' y='3050'>+get items() : Collection</text>
 </svg>

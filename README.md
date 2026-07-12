@@ -11,6 +11,7 @@ With 4D NetKit you can:
 * **Authenticate** to Microsoft and Google identity platforms using OAuth 2.0, in both `signedIn` (Authorization Code, interactive) and `service` (Client Credentials / JWT Bearer, unattended) modes — including PKCE, refresh tokens, and certificate-based client assertions.
 * **Send and manage emails**: send, reply, append, move, copy, update, and delete messages; manage folders and labels; read messages in MIME, JMAP (4D mail object), or native Microsoft format.
 * **Manage calendars and events**: list calendars, and create, read, update, and delete events, including attachments and attendees.
+* **Manage files in Drive**: list folders/files, download content, and upload files with Microsoft Graph Drive.
 * **Read user profiles**: query individual users or paginated user directories.
 * **Organize items**: read Outlook master categories (Microsoft).
 * **Receive change notifications**: monitor mailbox and calendar changes through push/pull notifiers.
@@ -55,9 +56,10 @@ For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Gra
 | Page | Description |
 |------|-------------|
 | [New Office365 provider](Documentation/Methods/New%20Office365%20provider.md) | Method that instantiates an `Office365` object. |
-| [Office365](Documentation/Classes/Office365.md) | Entry-point facade exposing the `mail`, `calendar`, `user`, and `category` clients. |
+| [Office365](Documentation/Classes/Office365.md) | Entry-point facade exposing the `mail`, `calendar`, `user`, `category`, and `drive` clients. |
 | [Office365Mail](Documentation/Classes/Office365Mail.md) | Send, read, move, copy, reply, update, and delete messages; manage folders. |
 | [Office365Calendar](Documentation/Classes/Office365Calendar.md) | Manage calendars and events. |
+| [Office365Drive](Documentation/Classes/Office365Drive.md) | List drive items, download files, and upload files. |
 | [Office365User](Documentation/Classes/Office365User.md) | Read Azure AD user profiles. |
 | [Office365Category](Documentation/Classes/Office365Category.md) | Read Outlook master categories. |
 
@@ -65,10 +67,11 @@ For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Gra
 
 | Page | Description |
 |------|-------------|
-| [Google](Documentation/Classes/Google.md) | Entry-point facade exposing the `mail`, `calendar`, and `user` clients. |
+| [Google](Documentation/Classes/Google.md) | Entry-point facade exposing the `mail`, `calendar`, `user`, and `drive` clients. |
 | [GoogleMail](Documentation/Classes/GoogleMail.md) | Send, read, and manage Gmail messages and labels. |
 | [GoogleCalendar](Documentation/Classes/GoogleCalendar.md) | Manage Google calendars and events. |
 | [GoogleUser](Documentation/Classes/GoogleUser.md) | Read Google user profiles (People API). |
+| [GoogleDrive](Documentation/Classes/GoogleDrive.md) | List files, read metadata, download files, and upload files in Google Drive. |
 
 ### Notifications
 

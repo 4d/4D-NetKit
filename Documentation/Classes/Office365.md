@@ -8,6 +8,7 @@ The `Office365` class is the entry point for calling the [Microsoft Graph API](h
 * [`mail`](./Office365Mail.md) — create, move, send, and manage emails and folders
 * [`calendar`](./Office365Calendar.md) — manage calendars and events
 * [`category`](./Office365Category.md) — read Outlook master categories
+* [`drive`](./Office365Drive.md) — list, download, and upload files in OneDrive/SharePoint drives
 
 Each client is instantiated on first access and reused for subsequent calls.
 
@@ -43,6 +44,7 @@ The returned `Office365` object exposes the following properties, each giving ac
 |mail|[Office365Mail](./Office365Mail.md)|Microsoft Graph mail client: read, send, move, copy, reply, update, and delete messages and folders.|
 |calendar|[Office365Calendar](./Office365Calendar.md)|Microsoft Graph calendar client: manage calendars and events.|
 |category|[Office365Category](./Office365Category.md)|Microsoft Graph category client: read Outlook master categories.|
+|drive|[Office365Drive](./Office365Drive.md)|Microsoft Graph drive client: list drive items and upload/download files.|
 
 
 ## See also
@@ -51,4 +53,5 @@ The returned `Office365` object exposes the following properties, each giving ac
 [Office365Mail](./Office365Mail.md)<br/>
 [Office365Calendar](./Office365Calendar.md)<br/>
 [Office365Category](./Office365Category.md)<br/>
+[Office365Drive](./Office365Drive.md)<br/>
 [OAuth2Provider](./OAuth2Provider.md#oauth2provider-class)<br/>

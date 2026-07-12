@@ -1,7 +1,8 @@
 /**
  * @class Google
  * @description Facade providing lazy-initialised access to Google API clients:
- *   `mail` (`GoogleMail`), `user` (`GoogleUser`), and `calendar` (`GoogleCalendar`).
+ *   `mail` (`GoogleMail`), `user` (`GoogleUser`), `calendar` (`GoogleCalendar`),
+ *   and `drive` (`GoogleDrive`).
  *   Clients are instantiated on first access and reused for subsequent calls.
  *
  * @example
@@ -21,7 +22,7 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  *   - `userId` {Text} — Gmail user ID (defaults to `"me"`)
  */
 	
-	This._internals:={_oAuth2Provider: $inProvider; _parameters: $inParameters; _mail: Null; _user: Null; _calendar: Null}
+	This._internals:={_oAuth2Provider: $inProvider; _parameters: $inParameters; _mail: Null; _user: Null; _calendar: Null; _drive: Null}
 	
 	
 	// Mark: - [Public]
@@ -71,3 +72,19 @@ Function get calendar : cs.GoogleCalendar
 		This._internals._calendar:=cs.GoogleCalendar.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
 	return This._internals._calendar
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get drive : cs.GoogleDrive
+/**
+ * @function get drive
+ * @returns {cs.GoogleDrive} Lazy-initialised `GoogleDrive` client; the same
+ *   instance is returned on every subsequent call
+ */
+	
+	If (This._internals._drive=Null)
+		This._internals._drive:=cs.GoogleDrive.new(This._internals._oAuth2Provider; This._internals._parameters)
+	End if 
+	return This._internals._drive

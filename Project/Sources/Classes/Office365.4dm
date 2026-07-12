@@ -2,7 +2,7 @@
  * @class Office365
  * @description Facade providing lazy-initialised access to Microsoft Graph API clients:
  *   `user` (`Office365User`), `mail` (`Office365Mail`), `calendar` (`Office365Calendar`),
- *   and `category` (`Office365Category`).
+ *   `category` (`Office365Category`), and `drive` (`Office365Drive`).
  *   Clients are instantiated on first access and reused for subsequent calls.
  *
  * @example
@@ -17,12 +17,13 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @constructor
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used by all Microsoft Graph API clients
  * @param {Object} $inParameters - Configuration forwarded to `Office365Mail`, `Office365Calendar`,
- *   and `Office365Category`; recognised properties:
+ *   `Office365Category`, and `Office365Drive`; recognised properties:
  *   - `mailType` {Text} — Mail format: `"Microsoft"` (default), `"JMAP"`, or `"MIME"`
  *   - `userId` {Text} — Graph user ID or UPN (defaults to the authenticated user)
+ *   - `driveId` {Text} — Graph drive ID (defaults to the user's default drive)
  */
 	
-	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _calendar: Null; _category: Null; _parameters: $inParameters}
+	This._internals:={_oAuth2Provider: $inProvider; _user: Null; _mail: Null; _calendar: Null; _category: Null; _drive: Null; _parameters: $inParameters}
 	
 	
 	// Mark: - [Public]
@@ -88,3 +89,19 @@ Function get category : cs.Office365Category
 		This._internals._category:=cs.Office365Category.new(This._internals._oAuth2Provider; This._internals._parameters)
 	End if 
 	return This._internals._category
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function get drive : cs.Office365Drive
+/**
+ * @function get drive
+ * @returns {cs.Office365Drive} Lazy-initialised `Office365Drive` client; the same instance
+ *   is returned on every subsequent call
+ */
+	
+	If (This._internals._drive=Null)
+		This._internals._drive:=cs.Office365Drive.new(This._internals._oAuth2Provider; This._internals._parameters)
+	End if 
+	return This._internals._drive

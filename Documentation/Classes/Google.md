@@ -7,6 +7,7 @@ The `Google` class is the entry point for accessing Google APIs in 4D NetKit. It
 * [`mail`](./GoogleMail.md) — send, read, and manage Gmail messages and labels
 * [`user`](./GoogleUser.md) — read Google user profiles (People API)
 * [`calendar`](./GoogleCalendar.md) — manage Google calendars and events
+* [`drive`](./GoogleDrive.md) — list, download, and upload Google Drive files
 
 Each client is instantiated on first access and reused for subsequent calls.
 
@@ -58,6 +59,7 @@ The returned `Google` object exposes the following properties, each giving acces
 |mail|[GoogleMail](./GoogleMail.md)|Gmail API client: send, read, delete, and manage messages and labels.|
 |user|[GoogleUser](./GoogleUser.md)|Google People API client: read user profiles.|
 |calendar|[GoogleCalendar](./GoogleCalendar.md)|Google Calendar API client: manage calendars and events.|
+|drive|[GoogleDrive](./GoogleDrive.md)|Google Drive API client: list files, read metadata, download, and upload content.|
 
 ### Example
 
@@ -77,4 +79,5 @@ $google:=cs.NetKit.Google.new($oAuth2; {mailType: "MIME"})
 [GoogleMail](./GoogleMail.md)<br/>
 [GoogleUser](./GoogleUser.md)<br/>
 [GoogleCalendar](./GoogleCalendar.md)<br/>
+[GoogleDrive](./GoogleDrive.md)<br/>
 [OAuth2Provider](./OAuth2Provider.md#oauth2provider-class)<br/>

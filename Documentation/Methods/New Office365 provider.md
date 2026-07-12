@@ -21,6 +21,8 @@ In *param*, you can pass an object that specifies the following options:
 |Property|Type|Description|
 |---------|---|------|
 |mailType|Text|Indicates the Mail type to use to send and receive emails. Possible types are: <br/>- "MIME"<br/>- "JMAP"<br/>- "Microsoft" (default)|
+|userId|Text|Microsoft Graph user identifier (id or userPrincipalName) used in Service mode for all Office365 clients.|
+|driveId|Text|Optional Microsoft Graph drive identifier used by the `drive` client. If omitted, the default drive is used.|
 
 ## Returned object
 
@@ -32,6 +34,10 @@ The returned `Office365` object contains the following properties:
 ||send()|Function|Sends the emails|
 ||type|Text|(read-only) Mail type used to send and receive emails. Default is "Microsoft", can bet set using the `mailType` option|
 ||userId|Text|User identifier, used to identify the user in Service mode. Can be the `id` or the `userPrincipalName`|
+|drive||Object|Drive handling object|
+||list()|Function|Lists files and folders from Microsoft Graph Drive|
+||getFile()|Function|Downloads a file from Microsoft Graph Drive|
+||uploadFile()|Function|Uploads a file to Microsoft Graph Drive|
 
 
 ## Example 1
