@@ -13,18 +13,18 @@ Class constructor($inProvider : cs.OAuth2Provider; $inURL : Text; $inHeaders : O
  * @param {Text} $inURL - Initial Graph API URL
  * @param {Object} $inHeaders - Additional HTTP headers
  */
-	
-	Super($inProvider; $inURL; $inHeaders)
-	
-	
-	// Mark: - [Public]
-	// ----------------------------------------------------
-	
-	
+    
+    Super($inProvider; $inURL; $inHeaders)
+    
+    
+    // Mark: - [Public]
+    // ----------------------------------------------------
+    
+    
 Function get items() : Collection
 /**
  * @function get items
  * @returns {Collection} The current page of drive item objects
  */
-	
-	return This._internals._list
+    
+    return This._internals._list

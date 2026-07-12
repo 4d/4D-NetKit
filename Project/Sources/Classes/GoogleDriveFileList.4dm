@@ -13,18 +13,18 @@ Class constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)
  * @param {cs.OAuth2Provider} $inProvider - OAuth2 provider used for token retrieval
  * @param {Object} $inParameters - `_GoogleBaseList` parameters object
  */
-	
-	Super($inProvider; $inParameters)
-	
-	
-	// Mark: - [Public]
-	// ----------------------------------------------------
-	
-	
+    
+    Super($inProvider; $inParameters)
+    
+    
+    // Mark: - [Public]
+    // ----------------------------------------------------
+    
+    
 Function get files() : Collection
 /**
  * @function get files
  * @returns {Collection} Current page of raw Google Drive file objects
  */
-	
-	return This._internals._list
+    
+    return This._internals._list

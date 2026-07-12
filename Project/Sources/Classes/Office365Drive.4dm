@@ -496,11 +496,11 @@ Function uploadFile($inParameters : Object; $inContent : Variant) : Object
     End try
     
     return $status
-	
-	
+    
+    
     // ----------------------------------------------------
-	
-	
+    
+    
 Function uploadLargeFile($inParameters : Object; $inContent : Variant) : Object
 /**
  * @function uploadLargeFile
@@ -515,22 +515,22 @@ Function uploadLargeFile($inParameters : Object; $inContent : Variant) : Object
  * @returns {Object} Status object; includes uploaded item info when available
  * @description Uploads file content using Graph upload-session mode (chunked PUT requests).
  */
-	
+    
     Super._clearErrorStack()
-	
+    
     var $status : Object
-	
+    
     Try
         var $uploadBlob : Blob:=This._extractUploadBlob($inContent; "office365.drive.uploadLargeFile")
         var $target : Object:=This._buildUploadDestination($inParameters; "office365.drive.uploadLargeFile")
         var $destination : Text:=String($target.destination)
         var $fileName : Text:=String($target.fileName)
-		
+        
         var $conflict : Text:=Lowercase(String($inParameters.conflictBehavior))
         If (($conflict#"rename") && ($conflict#"fail"))
             $conflict:="replace"
         End if 
-		
+        
         var $chunkSize : Integer:=1638400  // 1.5625 MiB (5 * 320 KiB)
         If (Value type($inParameters.chunkSize)#Is undefined)
             $chunkSize:=Num($inParameters.chunkSize)
@@ -538,10 +538,10 @@ Function uploadLargeFile($inParameters : Object; $inContent : Variant) : Object
         If ($chunkSize<=0)
             $chunkSize:=1638400
         End if 
-		
+        
         $status:=This._uploadBySession($destination; $fileName; $conflict; $uploadBlob; $chunkSize)
     Catch
         $status:=This._returnStatus()
     End try
-	
+    
     return $status
