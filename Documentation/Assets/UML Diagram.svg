@@ -37,18 +37,18 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <path class='edge' d='M 4090 2080 L 4090 2129 L 3610 2267 L 3610 2316'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 3370 2931 L 3370 2980'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 3850 2931 L 3850 2980'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 4090 2267 L 4090 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 4090 2267 L 4090 2316'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 4330 2931 L 4330 2980'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 4810 2931 L 4810 2980'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 4570 2267 L 4570 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 4570 2267 L 4570 2316'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 5290 2931 L 5290 2980'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 5050 2267 L 5050 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 5050 2267 L 5050 2316'/>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 5770 2931 L 5770 2980'/>
 <path class='edge' d='M 250 368 L 250 417 L 4090 795 L 4090 844'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 5530 2267 L 5530 2316'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 6010 2267 L 6010 2316'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 6490 2267 L 6490 2316'/>
-<path class='edge' d='M 4090 2080 L 4090 2129 L 6970 2267 L 6970 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 5530 2267 L 5530 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 6010 2267 L 6010 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 6490 2267 L 6490 2316'/>
+<path class='edge' d='M 4090 2112 L 4090 2161 L 6970 2267 L 6970 2316'/>
 <rect x='2920' y='844' width='420' height='188' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='2920' y1='880' x2='3340' y2='880' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='2932' y='868'>_BaseAPI</text>
@@ -160,13 +160,15 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='532' y='2540'>+appendRequest($inParam : Object)</text>
 <text class='m' x='532' y='2556'>+constructor($inProvider : cs.OAuth2Provider; $inParam : Object)</text>
 <text class='m' x='532' y='2572'>+sendRequestAndWaitResponse() : Collection</text>
-<rect x='3880' y='1940' width='420' height='140' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
+<rect x='3880' y='1940' width='420' height='172' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='3880' y1='1976' x2='4300' y2='1976' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='3892' y='1964'>_GraphAPI</text>
 <text class='m' x='3892' y='1994'>-_copyGraphMessage($inMessage : Object) : Object</text>
 <text class='m' x='3892' y='2010'>-_getURLParamsFromObject($inParameters : Object; $inCount : Boolean) : Text</text>
 <text class='m' x='3892' y='2026'>-_loadFromObject($inObject : Object)</text>
-<text class='m' x='3892' y='2042'>+constructor($inProvider : cs.OAuth2Provider)</text>
+<text class='m' x='3892' y='2042'>-_validateGraphMessageProperties($inPayload : Object; $inFunction : Text) : Boolean</text>
+<text class='m' x='3892' y='2058'>-_validateJMAPMessageProperties($inMail : Object; $inFunction : Text) : Boolean</text>
+<text class='m' x='3892' y='2074'>+constructor($inProvider : cs.OAuth2Provider)</text>
 <rect x='1000' y='2316' width='420' height='120' rx='10' ry='10' fill='#fee2e2' stroke='#dc2626' stroke-width='1.2'/>
 <line x1='1000' y1='2352' x2='1420' y2='2352' stroke='#dc2626' stroke-opacity='0.5'/>
 <text class='cn' x='1012' y='2340'>_GraphBaseList</text>
@@ -631,7 +633,7 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6292' y='2370'>+mailType : Text</text>
 <text class='m' x='6292' y='2386'>+userId : Text</text>
 <line x1='6290' y1='2397' x2='6690' y2='2397' stroke='#16a34a' stroke-opacity='0.35'/>
-<text class='m' x='6292' y='2412'>-_postJSONMessage($inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object</text>
+<text class='m' x='6292' y='2412'>-_postJSONMessage($inFunction : Text; $inURL : Text; $inMail : Object; $bSkipMessageEncapsulation : Boolean; $inHeaders : Object) : Object</text>
 <text class='m' x='6292' y='2428'>-_postMailMIMEMessage($inURL : Text; $inMail : Variant) : Object</text>
 <text class='m' x='6292' y='2444'>-_postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSkipMessageEncapsulation : Boolean; $inHeader : Object) : Object</text>
 <text class='m' x='6292' y='2460'>+append($inMail : Variant; $inFolderId : Text) : Object</text>

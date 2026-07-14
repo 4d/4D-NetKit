@@ -596,49 +596,6 @@ The `event` object used with Microsoft Calendar methods includes the following m
 
 ## Mail 
 
-### Mail validation architecture
-
-When sending or appending a mail message, `Office365Mail` routes the payload through format-specific validation before the HTTP call is made. The diagram below shows the class relationships and the validation flow.
-
-```mermaid
-classDiagram
-    class _GraphAPI {
-        +_validateGraphMessageProperties(payload, function) Boolean
-        +_validateJMAPMessageProperties(mail, function) Boolean
-        +_copyGraphMessage(message) Object
-        +_loadFromObject(object)
-        +_getURLParamsFromObject(parameters, count) Text
-    }
-
-    class Office365Mail {
-        +mailType : Text
-        +userId : Text
-        +send(mail, options) Object
-        +append(mail, folderId) Object
-        +update(mailId, mail) Object
-        +reply(mailId, mail, options) Object
-        -_postMessage(function, url, mail, skipEncap, headers) Object
-        -_postJSONMessage(function, url, mail, skipEncap, headers) Object
-        -_postMailMIMEMessage(url, mail) Object
-    }
-
-    _GraphAPI <|-- Office365Mail
-
-    note for Office365Mail "_postMessage dispatch:\n• mailType=Microsoft → _validateGraphMessageProperties → _postJSONMessage\n• mailType=JMAP     → _validateJMAPMessageProperties → _postMailMIMEMessage\n• mailType=MIME     → _postMailMIMEMessage (no validation)"
-```
-
-#### Supported Microsoft Graph message properties
-
-The `_validateGraphMessageProperties` method accepts these Microsoft Graph [message resource](https://learn.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0) keys:
-
-`attachments`, `bccRecipients`, `body`, `bodyPreview`, `categories`, `ccRecipients`, `changeKey`, `conversationId`, `conversationIndex`, `createdDateTime`, `extensions`, `flag`, `from`, `hasAttachments`, `id`, `importance`, `inferenceClassification`, `internetMessageHeaders`, `internetMessageId`, `isDeliveryReceiptRequested`, `isDraft`, `isRead`, `isReadReceiptRequested`, `lastModifiedDateTime`, `multiValueExtendedProperties`, `parentFolderId`, `receivedDateTime`, `replyTo`, `sender`, `sentDateTime`, `singleValueExtendedProperties`, `subject`, `toRecipients`, `uniqueBody`, `webLink`
-
-#### Supported JMAP message properties
-
-The `_validateJMAPMessageProperties` method accepts these 4D email object (RFC 8621) keys:
-
-`from`, `to`, `cc`, `bcc`, `replyTo`, `sender`, `subject`, `sentAt`, `receivedAt`, `textBody`, `htmlBody`, `bodyValues`, `attachments`, `keywords`, `headers`, `messageId`, `inReplyTo`, `references`, `id`, `threadId`, `preview`, `size`, `hasAttachment`, `mailboxIds`
-
 ### Office365.mail.append()
 
 **Office365.mail.append**( *email* : Object ; *folderId* : Text) : Object
