@@ -85,7 +85,8 @@ Function _validateGraphMessageProperties($inPayload : Object; $inFunction : Text
  * @returns {Boolean} `True` when all properties are supported; otherwise `False`
  * @description Validates mail payload keys before sending to Microsoft Graph.
  *   Adds an error to the stack for each unsupported property (for example `attachment`
- *   instead of `attachments`).
+ *   instead of `attachments`). Uses a Collection-based lookup for O(1)-style
+ *   maintainability and readability over a `Case of` chain.
  */
 	
 	var $isValid : Boolean:=True
@@ -108,50 +109,62 @@ Function _validateGraphMessageProperties($inPayload : Object; $inFunction : Text
 			$message:=$inPayload
 		End if 
 		
+		var $allowedMessageKeys : Collection:=New collection(\
+			"attachments"; "bccRecipients"; "body"; "bodyPreview"; \
+			"categories"; "ccRecipients"; "changeKey"; "conversationId"; \
+			"conversationIndex"; "createdDateTime"; "extensions"; "flag"; \
+			"from"; "hasAttachments"; "id"; "importance"; "inferenceClassification"; \
+			"internetMessageHeaders"; "internetMessageId"; "isDeliveryReceiptRequested"; \
+			"isDraft"; "isRead"; "isReadReceiptRequested"; "lastModifiedDateTime"; \
+			"multiValueExtendedProperties"; "parentFolderId"; "receivedDateTime"; \
+			"replyTo"; "sender"; "sentDateTime"; "singleValueExtendedProperties"; \
+			"subject"; "toRecipients"; "uniqueBody"; "webLink")
+		
 		var $messageKey : Text
 		For each ($messageKey; OB Keys($message))
-			var $isAllowed : Boolean:=False
-			Case of 
-				: ($messageKey="attachments")
-				: ($messageKey="bccRecipients")
-				: ($messageKey="body")
-				: ($messageKey="bodyPreview")
-				: ($messageKey="categories")
-				: ($messageKey="ccRecipients")
-				: ($messageKey="changeKey")
-				: ($messageKey="conversationId")
-				: ($messageKey="conversationIndex")
-				: ($messageKey="createdDateTime")
-				: ($messageKey="extensions")
-				: ($messageKey="flag")
-				: ($messageKey="from")
-				: ($messageKey="hasAttachments")
-				: ($messageKey="id")
-				: ($messageKey="importance")
-				: ($messageKey="inferenceClassification")
-				: ($messageKey="internetMessageHeaders")
-				: ($messageKey="internetMessageId")
-				: ($messageKey="isDeliveryReceiptRequested")
-				: ($messageKey="isDraft")
-				: ($messageKey="isRead")
-				: ($messageKey="isReadReceiptRequested")
-				: ($messageKey="lastModifiedDateTime")
-				: ($messageKey="multiValueExtendedProperties")
-				: ($messageKey="parentFolderId")
-				: ($messageKey="receivedDateTime")
-				: ($messageKey="replyTo")
-				: ($messageKey="sender")
-				: ($messageKey="sentDateTime")
-				: ($messageKey="singleValueExtendedProperties")
-				: ($messageKey="subject")
-				: ($messageKey="toRecipients")
-				: ($messageKey="uniqueBody")
-				: ($messageKey="webLink")
-					$isAllowed:=True
-			End case 
-			
-			If (Not($isAllowed))
+			If ($allowedMessageKeys.indexOf($messageKey)<0)
 				This._pushError(12; {function: $inFunction; message: "Unsupported property \""+$messageKey+"\" in mail object."})
+				$isValid:=False
+			End if 
+		End for each 
+		
+	End if 
+	
+	return $isValid
+	
+	
+	// ----------------------------------------------------
+	
+	
+Function _validateJMAPMessageProperties($inMail : Object; $inFunction : Text) : Boolean
+/**
+ * @function _validateJMAPMessageProperties
+ * @private
+ * @param {Object} $inMail - 4D JMAP email object (as produced by `MAIL Convert from MIME`)
+ * @param {Text} $inFunction - Caller function name for error reporting
+ * @returns {Boolean} `True` when all properties are valid RFC 8621 / 4D JMAP properties;
+ *   otherwise `False`
+ * @description Validates a JMAP mail object against the set of properties supported by
+ *   4D's `MAIL Convert to MIME` command (RFC 8621). Adds an error to the stack for each
+ *   unsupported property.
+ */
+	
+	var $isValid : Boolean:=True
+	
+	If (($inMail#Null) && (Value type($inMail)=Is object))
+		
+		var $allowedKeys : Collection:=New collection(\
+			"from"; "to"; "cc"; "bcc"; "replyTo"; "sender"; \
+			"subject"; "sentAt"; "receivedAt"; \
+			"textBody"; "htmlBody"; "bodyValues"; \
+			"attachments"; "keywords"; "headers"; \
+			"messageId"; "inReplyTo"; "references"; \
+			"id"; "threadId"; "preview"; "size"; "hasAttachment"; "mailboxIds")
+		
+		var $key : Text
+		For each ($key; OB Keys($inMail))
+			If ($allowedKeys.indexOf($key)<0)
+				This._pushError(12; {function: $inFunction; message: "Unsupported property \""+$key+"\" in JMAP mail object."})
 				$isValid:=False
 			End if 
 		End for each 

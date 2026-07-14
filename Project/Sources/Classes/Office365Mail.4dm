@@ -133,7 +133,9 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
  * @param {Object} $inHeader - Additional HTTP headers forwarded to `_postJSONMessage`
  * @returns {Object} Status object
  * @description Dispatches to `_postJSONMessage` or `_postMailMIMEMessage` based on `mailType`
- *   and the actual type of `$inMail`; throws error 10 on type mismatch
+ *   and the actual type of `$inMail`; throws error 10 on type mismatch.
+ *   JMAP objects are validated via `_validateJMAPMessageProperties` before conversion;
+ *   Microsoft Graph objects are validated via `_validateGraphMessageProperties`.
  */
 	
 	var $status : Object
@@ -151,7 +153,11 @@ Function _postMessage($inFunction : Text; $inURL : Text; $inMail : Variant; $bSk
 				$status:=This._postMailMIMEMessage($inURL; $inMail)
 				
 			: ((This.mailType="JMAP") && (Value type($inMail)=Is object))
-				$status:=This._postMailMIMEMessage($inURL; $inMail)
+				If (This._validateJMAPMessageProperties($inMail; $inFunction))
+					$status:=This._postMailMIMEMessage($inURL; $inMail)
+				Else 
+					$status:=This._returnStatus()
+				End if 
 				
 			: ((This.mailType="Microsoft") && (Value type($inMail)=Is object))
 				$status:=This._postJSONMessage($inFunction; $inURL; $inMail; $bSkipMessageEncapsulation; $inHeader)
