@@ -688,3 +688,124 @@ Function copy($inParameters : Object) : Object
     End try
     
     return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function search($inParameters : Object) : cs.GraphDriveItemList
+/**
+ * @function search
+ * @param {Object} $inParameters - Search options:
+ *   - `query` {Text} - Search query text (required)
+ *   - `top` {Integer} - Max results per page
+ *   - `select` {Text|Collection} - OData `$select`
+ *   - `orderBy` {Text} - OData `$orderby`
+ * @returns {cs.GraphDriveItemList} Pageable list of matching drive items
+ * @description Searches for drive items matching a text query.
+ */
+    
+    Super._clearErrorStack()
+    
+    var $query : Text:=String($inParameters.query)
+    If (Length($query)=0)
+        $query:=String($inParameters.search)
+    End if 
+    
+    var $URL : Text:=This._getURL()+This._getDrivePath()+"/root/search(q='"+cs._Tools.me.urlEncode($query)+"')"
+    
+    var $params : Object:={}
+    If (Value type($inParameters.top)#Is undefined)
+        $params.top:=$inParameters.top
+    End if 
+    If (Value type($inParameters.select)#Is undefined)
+        $params.select:=$inParameters.select
+    End if 
+    If (Length(String($inParameters.orderBy))>0)
+        $params.orderBy:=$inParameters.orderBy
+    End if 
+    $URL+=Super._getURLParamsFromObject($params)
+    
+    var $headers : Object:={ConsistencyLevel: "eventual"}
+    return cs.GraphDriveItemList.new(This._getOAuth2Provider(); $URL; $headers; This._getDrivePath())
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function share($inParameters : Object) : Object
+/**
+ * @function share
+ * @param {Object} $inParameters - Sharing options:
+ *   - `itemId` {Text} - Item ID (required, or use `path`)
+ *   - `path` {Text} - Item path (alternative to `itemId`)
+ *   - `type` {Text} - Link type: `view` (default) or `edit`
+ *   - `scope` {Text} - Link scope: `anonymous` (default) or `organization`
+ *   - `password` {Text} - Optional link password
+ *   - `expirationDateTime` {Text} - Optional expiration (ISO 8601)
+ * @returns {Object} Status object with `link` (URL) property
+ * @description Creates a sharing link for a drive item.
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        var $URL : Text:=This._getURL()+This._getDrivePath()+This._getItemPath($inParameters; "office365.drive.share")+"/createLink"
+        
+        var $type : Text:=Lowercase(String($inParameters.type))
+        If ($type#"edit")
+            $type:="view"
+        End if 
+        
+        var $scope : Text:=Lowercase(String($inParameters.scope))
+        If ($scope#"organization")
+            $scope:="anonymous"
+        End if 
+        
+        var $body : Object:={type: $type; scope: $scope}
+        If (Length(String($inParameters.password))>0)
+            $body.password:=String($inParameters.password)
+        End if 
+        If (Length(String($inParameters.expirationDateTime))>0)
+            $body.expirationDateTime:=String($inParameters.expirationDateTime)
+        End if 
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("POST"; $URL; Null; $body)
+        var $info : Object:={}
+        If (Value type($response)=Is object)
+            If (Value type($response.link)=Is object)
+                $info.link:=String($response.link.webUrl)
+                $info.type:=String($response.link.type)
+                $info.scope:=String($response.link.scope)
+            End if 
+            If (Length(String($response.id))>0)
+                $info.id:=String($response.id)
+            End if 
+        End if 
+        $status:=This._returnStatus($info)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function getShareLink($inParameters : Object) : Object
+/**
+ * @function getShareLink
+ * @param {Object} $inParameters - Item selector:
+ *   - `itemId` {Text} - Item ID (required, or use `path`)
+ *   - `path` {Text} - Item path (alternative to `itemId`)
+ * @returns {Object} Status object with `link` property (anonymous view URL)
+ * @description Creates an anonymous view link for a drive item (convenience shortcut for `.share()`).
+ */
+    
+    var $params : Object:=OB Copy($inParameters)
+    $params.type:="view"
+    $params.scope:="anonymous"
+    return This.share($params)

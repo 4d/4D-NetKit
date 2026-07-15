@@ -588,3 +588,138 @@ Function copy($inParameters : Object) : Object
     End try
     
     return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function search($inParameters : Object) : cs.GoogleDriveFileList
+/**
+ * @function search
+ * @param {Object} $inParameters - Search options:
+ *   - `query` {Text} - Full-text search query (required)
+ *   - `top` {Integer} - Max results per page
+ *   - `orderBy` {Text} - Sort expression
+ *   - `fields` {Text} - Response projection
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {cs.GoogleDriveFileList} Paginated list of matching files
+ * @description Searches for files matching a full-text query. The query is combined
+ *   with `fullText contains` filter. For advanced queries, use `.list({search: ...})` directly.
+ */
+    
+    Super._clearErrorStack()
+    
+    var $query : Text:=String($inParameters.query)
+    If (Length($query)=0)
+        $query:=String($inParameters.search)
+    End if 
+    
+    var $listParams : Object:={}
+    $listParams.search:="fullText contains '"+Replace string($query; "'"; "\\'")+"'"
+    If (Value type($inParameters.top)#Is undefined)
+        $listParams.top:=$inParameters.top
+    End if 
+    If (Length(String($inParameters.orderBy))>0)
+        $listParams.orderBy:=$inParameters.orderBy
+    End if 
+    If (Length(String($inParameters.fields))>0)
+        $listParams.fields:=$inParameters.fields
+    End if 
+    $listParams.supportsAllDrives:=Bool($inParameters.supportsAllDrives)
+    $listParams.includeItemsFromAllDrives:=Bool($inParameters.supportsAllDrives)
+    
+    return This.list($listParams)
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function share($inParameters : Object) : Object
+/**
+ * @function share
+ * @param {Object} $inParameters - Sharing options:
+ *   - `itemId` {Text} - File/folder ID (required)
+ *   - `role` {Text} - Permission role: `reader` (default), `writer`, or `commenter`
+ *   - `type` {Text} - Grantee type: `anyone` (default), `user`, or `domain`
+ *   - `emailAddress` {Text} - Email address (required when type is `user`)
+ *   - `domain` {Text} - Domain (required when type is `domain`)
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with `link` property (webViewLink)
+ * @description Creates a sharing permission on a file or folder.
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Not(This._isValidGoogleFileId(String($inParameters.itemId))))
+            This._throwError(9; {which: "\"itemId\""; function: "google.drive.share"})
+        End if 
+        
+        var $role : Text:=Lowercase(String($inParameters.role))
+        If (($role#"writer") && ($role#"commenter"))
+            $role:="reader"
+        End if 
+        
+        var $type : Text:=Lowercase(String($inParameters.type))
+        If (($type#"user") && ($type#"domain"))
+            $type:="anyone"
+        End if 
+        
+        var $permission : Object:={role: $role; type: $type}
+        If (($type="user") && (Length(String($inParameters.emailAddress))>0))
+            $permission.emailAddress:=String($inParameters.emailAddress)
+        End if 
+        If (($type="domain") && (Length(String($inParameters.domain))>0))
+            $permission.domain:=String($inParameters.domain)
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId)+"/permissions")
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        
+        var $permHeaders : Object:={}
+        $permHeaders["Content-Type"]:="application/json"
+        Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $permHeaders; JSON Stringify($permission))
+        
+        // Fetch webViewLink
+        var $metaURL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId))
+        $metaURL.addQueryParameter("fields"; "webViewLink")
+        $metaURL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $metaHeaders : Object:={Accept: "application/json"}
+        var $meta : Object:=Super._sendRequestAndWaitResponse("GET"; $metaURL.toString(); $metaHeaders)
+        
+        var $info : Object:={}
+        If (Value type($meta)=Is object)
+            $info.link:=String($meta.webViewLink)
+        End if 
+        $info.role:=$role
+        $info.type:=$type
+        $status:=This._returnStatus($info)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function getShareLink($inParameters : Object) : Object
+/**
+ * @function getShareLink
+ * @param {Object} $inParameters - Item selector:
+ *   - `itemId` {Text} - File/folder ID (required)
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with `link` property (public view URL)
+ * @description Creates an anonymous reader permission and returns the sharing link
+ *   (convenience shortcut for `.share()`).
+ */
+    
+    var $params : Object:={}
+    $params.itemId:=String($inParameters.itemId)
+    $params.role:="reader"
+    $params.type:="anyone"
+    $params.supportsAllDrives:=Bool($inParameters.supportsAllDrives)
+    return This.share($params)

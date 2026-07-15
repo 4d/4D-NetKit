@@ -408,10 +408,13 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='2932' y='2648'>+delete($inParameters : Object) : Object</text>
 <text class='m' x='2932' y='2664'>+getFile($inParameters : Object) : 4D.Blob</text>
 <text class='m' x='2932' y='2680'>+getItem($inParameters : Object) : cs.GoogleDriveItem</text>
-<text class='m' x='2932' y='2696'>+list($inParameters : Object) : cs.GoogleDriveFileList</text>
-<text class='m' x='2932' y='2712'>+move($inParameters : Object) : Object</text>
-<text class='m' x='2932' y='2728'>+rename($inParameters : Object) : Object</text>
-<text class='m' x='2932' y='2744'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<text class='m' x='2932' y='2696'>+getShareLink($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2712'>+list($inParameters : Object) : cs.GoogleDriveFileList</text>
+<text class='m' x='2932' y='2728'>+move($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2744'>+rename($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2760'>+search($inParameters : Object) : cs.GoogleDriveFileList</text>
+<text class='m' x='2932' y='2776'>+share($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2792'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
 <rect x='280' y='2980' width='420' height='104' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='280' y1='3016' x2='700' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='292' y='3004'>GoogleDriveItem</text>
@@ -705,10 +708,13 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6772' y='2664'>+delete($inParameters : Object) : Object</text>
 <text class='m' x='6772' y='2680'>+getFile($inParameters : Object) : 4D.Blob</text>
 <text class='m' x='6772' y='2696'>+getItem($inParameters : Object) : cs.GraphDriveItem</text>
-<text class='m' x='6772' y='2712'>+list($inParameters : Object) : cs.GraphDriveItemList</text>
-<text class='m' x='6772' y='2728'>+move($inParameters : Object) : Object</text>
-<text class='m' x='6772' y='2744'>+rename($inParameters : Object) : Object</text>
-<text class='m' x='6772' y='2760'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<text class='m' x='6772' y='2712'>+getShareLink($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2728'>+list($inParameters : Object) : cs.GraphDriveItemList</text>
+<text class='m' x='6772' y='2744'>+move($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2760'>+rename($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2776'>+search($inParameters : Object) : cs.GraphDriveItemList</text>
+<text class='m' x='6772' y='2792'>+share($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2808'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
 <rect x='6040' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='6040' y1='3016' x2='6460' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='6052' y='3004'>GraphDriveItemList</text>

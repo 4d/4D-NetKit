@@ -26,6 +26,9 @@ This class provides basic operations:
 * [.move()](#move)
 * [.rename()](#rename)
 * [.copy()](#copy)
+* [.search()](#search)
+* [.share()](#share)
+* [.getShareLink()](#getsharelink)
 
 ## Properties
 
@@ -286,6 +289,80 @@ In *param*, pass:
 | supportsAllDrives | Boolean | Enables shared-drive support. |
 
 > **Note:** Google Drive does not support copying folders, only files.
+
+### .search()
+
+**.search**( *param* : Object ) : cs.GoogleDriveFileList
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Search options. |
+| Result | [cs.GoogleDriveFileList](./GoogleDriveFileList.md) | <- | Paginated list of matching files. |
+
+#### Description
+
+`.search()` searches for files matching a full-text query using `fullText contains`. For advanced Drive queries, use `.list({search: ...})` directly.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| query | Text | **Required.** Search text. |
+| top | Integer | Max results per page. |
+| orderBy | Text | Sort expression. |
+| fields | Text | Response projection. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+### .share()
+
+**.share**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Sharing options. |
+| Result | Object | <- | [Status object](#status-object) with `link` URL. |
+
+#### Description
+
+`.share()` creates a sharing permission on a file or folder and returns the sharing link.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | **Required.** File/folder ID. |
+| role | Text | Permission role: `reader` (default), `writer`, or `commenter`. |
+| type | Text | Grantee type: `anyone` (default), `user`, or `domain`. |
+| emailAddress | Text | Email (required when type is `user`). |
+| domain | Text | Domain (required when type is `domain`). |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+The returned status object includes:
+
+| Property | Type | Description |
+|---|---|---|
+| link | Text | The sharing URL (webViewLink). |
+| role | Text | Permission role granted. |
+| type | Text | Grantee type. |
+
+### .getShareLink()
+
+**.getShareLink**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Item selector (`itemId`). |
+| Result | Object | <- | [Status object](#status-object) with `link` URL. |
+
+#### Description
+
+`.getShareLink()` creates an anonymous reader permission and returns the sharing link. This is a convenience shortcut for `.share({role: "reader"; type: "anyone"})`.
 
 ## Status object
 

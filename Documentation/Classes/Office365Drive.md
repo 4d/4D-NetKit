@@ -26,6 +26,9 @@ This class provides file operations:
 * [.move()](#move)
 * [.rename()](#rename)
 * [.copy()](#copy)
+* [.search()](#search)
+* [.share()](#share)
+* [.getShareLink()](#getsharelink)
 
 ## Properties
 
@@ -245,7 +248,80 @@ In *param*, pass:
 | itemId | Text | Item ID to copy (or use `path`). |
 | path | Text | Item path to copy (alternative to `itemId`). |
 | destinationId | Text | **Required.** Destination folder ID. |
-| name | Text | New name for the copy (optional; keeps original if omitted). |
+| name | Text | **Required.** New name for the copy (optional for `.copy()`). |
+
+### .search()
+
+**.search**( *param* : Object ) : cs.GraphDriveItemList
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Search options. |
+| Result | [cs.GraphDriveItemList](./GraphDriveItemList.md) | <- | Pageable list of matching items. |
+
+#### Description
+
+`.search()` searches for drive items matching a text query.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| query | Text | **Required.** Search text. |
+| top | Integer | Max results per page. |
+| select | Text \| Collection | OData `$select`. |
+| orderBy | Text | OData `$orderby`. |
+
+### .share()
+
+**.share**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Sharing options. |
+| Result | Object | <- | [Status object](#status-object) with `link` URL. |
+
+#### Description
+
+`.share()` creates a sharing link for a drive item.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | Item ID (or use `path`). |
+| path | Text | Item path (alternative to `itemId`). |
+| type | Text | Link type: `view` (default) or `edit`. |
+| scope | Text | Link scope: `anonymous` (default) or `organization`. |
+| password | Text | Optional link password. |
+| expirationDateTime | Text | Optional expiration (ISO 8601). |
+
+The returned status object includes:
+
+| Property | Type | Description |
+|---|---|---|
+| link | Text | The sharing URL. |
+| type | Text | Link type. |
+| scope | Text | Link scope. |
+
+### .getShareLink()
+
+**.getShareLink**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Item selector (`itemId` or `path`). |
+| Result | Object | <- | [Status object](#status-object) with `link` URL. |
+
+#### Description
+
+`.getShareLink()` creates an anonymous view link for a drive item. This is a convenience shortcut for `.share({type: "view"; scope: "anonymous"})`.
 
 ## Status object
 
