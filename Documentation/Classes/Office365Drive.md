@@ -21,7 +21,6 @@ This class provides file operations:
 * [.getItem()](#getitem)
 * [.getFile()](#getfile)
 * [.uploadFile()](#uploadfile)
-* [.uploadLargeFile()](#uploadlargefile)
 
 ## Properties
 
@@ -51,18 +50,18 @@ An `Office365Drive` object exposes the following properties:
 
 ### .getItem()
 
-**.getItem**( *param* : Object ) : Object
+**.getItem**( *param* : Object ) : cs.GraphDriveItem
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | param | Object | -> | Item selector (`itemId` or `path`) and optional `select`. |
-| Result | Object | <- | Drive item metadata object, or `Null` on failure. |
+| Result | [cs.GraphDriveItem](./GraphDriveItem.md) | <- | Drive item with `.getContent()` method, or `Null` on failure. |
 
 #### Description
 
-`.getItem()` returns metadata for a file or folder.
+`.getItem()` returns a [`GraphDriveItem`](./GraphDriveItem.md) object for a file or folder. Call `.getContent()` on the returned object to download the file bytes.
 
 ### .getFile()
 
@@ -132,42 +131,6 @@ $status:=$office365.drive.uploadFile({path: "Documents/big-report.zip"}; $blob)
 
 // Force upload session for resilient large upload
 $status:=$office365.drive.uploadFile({path: "Documents/video.mp4"; useUploadSession: True; chunkSize: 3276800}; $videoBlob)
-```
-
-### .uploadLargeFile()
-
-**.uploadLargeFile**( *param* : Object ; *content* : Variant ) : Object
-
-#### Parameters
-
-| Parameter | Type | | Description |
-|---|---|:---:|---|
-| param | Object | -> | Destination and behavior options. |
-| content | Variant | -> | File content (`Text`, native `Blob`, or `4D.Blob`). |
-| Result | Object | <- | [Status object](#status-object) with uploaded item information when available. |
-
-#### Description
-
-`.uploadLargeFile()` uploads file content using Microsoft Graph upload session mode only (chunked upload).
-
-In *param*, you can pass:
-
-| Property | Type | Description |
-|---|---|---|
-| path | Text | Destination path including filename (for example: `Documents/video.mp4`). |
-| fileName | Text | Filename to upload (used when `path` is not provided). |
-| folderId | Text | Parent folder item ID. |
-| folderPath | Text | Parent folder path relative to root. |
-| conflictBehavior | Text | Conflict policy: `replace` (default), `rename`, or `fail`. |
-| chunkSize | Integer | Chunk size in bytes. Should be a multiple of `327680` (320 KiB). Default: `1638400`. |
-
-#### Example
-
-```4d
-$status:=$office365.drive.uploadLargeFile({path: "Documents/very-large-video.mp4"; chunkSize: 3276800}; $videoBlob)
-If (Not($status.success))
-	ALERT($status.statusText)
-End if
 ```
 
 ## Status object

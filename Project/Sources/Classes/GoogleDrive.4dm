@@ -209,20 +209,20 @@ Function list($inParameters : Object) : cs.GoogleDriveFileList
     $URL.addQueryParameter("fields"; $fields)
     
     var $headers : Object:={Accept: "application/json"}
-    return cs.GoogleDriveFileList.new(This._getOAuth2Provider(); {url: $URL.toString(); elements: "files"; headers: $headers})
+    return cs.GoogleDriveFileList.new(This._getOAuth2Provider(); {url: $URL.toString(); elements: "files"; headers: $headers}; This._getURL())
     
     
     // ----------------------------------------------------
     
     
-Function getItem($inParameters : Object) : Object
+Function getItem($inParameters : Object) : cs.GoogleDriveItem
 /**
  * @function getItem
  * @param {Object} $inParameters - File selector/options:
  *   - `itemId` {Text} - File ID (required)
  *   - `fields` {Text} - Response projection
  *   - `supportsAllDrives` {Boolean} - Include shared drives support
- * @returns {Object} Drive file metadata, or `Null` on error
+ * @returns {cs.GoogleDriveItem} Drive file item with `getContent()` method, or `Null` on error
  */
     
     Super._clearErrorStack()
@@ -238,7 +238,10 @@ Function getItem($inParameters : Object) : Object
         $URL.addQueryParameter("fields"; $fields)
         
         var $headers : Object:={Accept: "application/json"}
-        return Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers)
+        var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers)
+        If (Value type($response)=Is object)
+            return cs.GoogleDriveItem.new(This._getOAuth2Provider(); This._getURL(); $response)
+        End if 
     Catch
         // Errors are already in _errorStack via _throwError
     End try

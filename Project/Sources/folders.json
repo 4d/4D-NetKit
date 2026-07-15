@@ -48,6 +48,7 @@
 			"GoogleCalendarList",
 			"GoogleDrive",
 			"GoogleDriveFileList",
+			"GoogleDriveItem",
 			"GoogleEvent",
 			"GoogleEventAttachment",
 			"GoogleEventList",
@@ -60,6 +61,7 @@
 			"GraphAttachment",
 			"GraphCalendarList",
 			"GraphCategoryList",
+			"GraphDriveItem",
 			"GraphDriveItemList",
 			"GraphEvent",
 			"GraphEventList",
@@ -87,6 +89,5 @@
 			"New OAuth2 provider",
 			"New Office365 provider"
 		]
-	},
-	"trash": {}
+	}
 }

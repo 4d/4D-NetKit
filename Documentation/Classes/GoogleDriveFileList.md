@@ -10,7 +10,7 @@ A `GoogleDriveFileList` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
-| files | Collection | Collection of Google Drive file objects on the current page. |
+| files | Collection | Collection of [`GoogleDriveItem`](./GoogleDriveItem.md) objects on the current page. Each item exposes `.getContent()` to download file bytes. |
 | isLastPage | Boolean | `true` if the last page of results has been reached. |
 | page | Integer | Current page number. Starts at `1`. |
 | next() | 4D.Function | Loads the next page and increments `page` by 1. Returns `true` if successful, `false` if no additional pages are available. |
@@ -22,4 +22,5 @@ A `GoogleDriveFileList` object exposes the following properties:
 ## See also
 
 * [GoogleDrive](./GoogleDrive.md)
+* [GoogleDriveItem](./GoogleDriveItem.md)
 * [Google](./Google.md)

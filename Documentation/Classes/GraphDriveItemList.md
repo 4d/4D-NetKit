@@ -10,7 +10,7 @@ A `GraphDriveItemList` object exposes the following properties:
 
 | Property | Type | Description |
 |---|---|---|
-| items | Collection | Collection of `driveItem` objects on the current page. |
+| items | Collection | Collection of [`GraphDriveItem`](./GraphDriveItem.md) objects on the current page. Each item exposes `.getContent()` to download file bytes. |
 | isLastPage | Boolean | `true` if the last page of results has been reached. |
 | page | Integer | Current page number. Starts at `1`. |
 | next() | 4D.Function | Loads the next page and increments `page` by 1. Returns `true` if successful, `false` if no additional pages are available. |
@@ -22,4 +22,5 @@ A `GraphDriveItemList` object exposes the following properties:
 ## See also
 
 * [Office365Drive](./Office365Drive.md)
+* [GraphDriveItem](./GraphDriveItem.md)
 * [Office365](./Office365.md)

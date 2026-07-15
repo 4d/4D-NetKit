@@ -355,20 +355,20 @@ Function list($inParameters : Object) : cs.GraphDriveItemList
     
     $URL+=Super._getURLParamsFromObject($inParameters)
     
-    return cs.GraphDriveItemList.new(This._getOAuth2Provider(); $URL; $headers)
+    return cs.GraphDriveItemList.new(This._getOAuth2Provider(); $URL; $headers; This._getDrivePath())
     
     
     // ----------------------------------------------------
     
     
-Function getItem($inParameters : Object) : Object
+Function getItem($inParameters : Object) : cs.GraphDriveItem
 /**
  * @function getItem
  * @param {Object} $inParameters - Item selector and options:
  *   - `itemId` {Text} - Drive item ID
  *   - `path` {Text} - Relative path from root (alternative to `itemId`)
  *   - `select` {Text|Collection} - OData `$select`
- * @returns {Object} Cleaned drive item metadata, or `Null` on error
+ * @returns {cs.GraphDriveItem} Drive item with `getContent()` method, or `Null` on error
  * @description Fetches drive item metadata.
  */
     
@@ -380,7 +380,7 @@ Function getItem($inParameters : Object) : Object
         
         var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL)
         If (Value type($response)=Is object)
-            return cs._Tools.me.cleanGraphObject($response)
+            return cs.GraphDriveItem.new(This._getOAuth2Provider(); This._getDrivePath(); cs._Tools.me.cleanGraphObject($response))
         End if 
     Catch
         // Errors are already in _errorStack via _throwError
@@ -490,55 +490,6 @@ Function uploadFile($inParameters : Object; $inContent : Variant) : Object
         Else 
             $status:=This._uploadSimple($destination; $conflict; $uploadBlob)
         End if 
-    Catch
-        $status:=This._returnStatus()
-    End try
-    
-    return $status
-    
-    
-    // ----------------------------------------------------
-    
-    
-Function uploadLargeFile($inParameters : Object; $inContent : Variant) : Object
-/**
- * @function uploadLargeFile
- * @param {Object} $inParameters - Upload destination options:
- *   - `path` {Text} - Destination path including filename (required unless `fileName` is set)
- *   - `fileName` {Text} - File name (used with `folderId` or at root)
- *   - `folderId` {Text} - Parent folder item ID (optional)
- *   - `folderPath` {Text} - Parent folder path from root (optional)
- *   - `conflictBehavior` {Text} - `replace` (default), `rename`, or `fail`
- *   - `chunkSize` {Integer} - Chunk size in bytes (should be a multiple of 320 KiB)
- * @param {Variant} $inContent - File content as `Text`, native `Blob`, or `4D.Blob`
- * @returns {Object} Status object; includes uploaded item info when available
- * @description Uploads file content using Graph upload-session mode (chunked PUT requests).
- */
-    
-    Super._clearErrorStack()
-    
-    var $status : Object
-    
-    Try
-        var $uploadBlob : Blob:=This._extractUploadBlob($inContent; "office365.drive.uploadLargeFile")
-        var $target : Object:=This._buildUploadDestination($inParameters; "office365.drive.uploadLargeFile")
-        var $destination : Text:=String($target.destination)
-        var $fileName : Text:=String($target.fileName)
-        
-        var $conflict : Text:=Lowercase(String($inParameters.conflictBehavior))
-        If (($conflict#"rename") && ($conflict#"fail"))
-            $conflict:="replace"
-        End if 
-        
-        var $chunkSize : Integer:=1638400  // 1.5625 MiB (5 * 320 KiB)
-        If (Value type($inParameters.chunkSize)#Is undefined)
-            $chunkSize:=Num($inParameters.chunkSize)
-        End if 
-        If ($chunkSize<=0)
-            $chunkSize:=1638400
-        End if 
-        
-        $status:=This._uploadBySession($destination; $fileName; $conflict; $uploadBlob; $chunkSize)
     Catch
         $status:=This._returnStatus()
     End try

@@ -62,18 +62,18 @@ In *param*, you can pass:
 
 ### .getItem()
 
-**.getItem**( *param* : Object ) : Object
+**.getItem**( *param* : Object ) : cs.GoogleDriveItem
 
 #### Parameters
 
 | Parameter | Type | | Description |
 |---|---|:---:|---|
 | param | Object | -> | File selector (`itemId`) and optional options. |
-| Result | Object | <- | File metadata object, or `Null` on failure. |
+| Result | [cs.GoogleDriveItem](./GoogleDriveItem.md) | <- | Drive file item with `.getContent()` method, or `Null` on failure. |
 
 #### Description
 
-`.getItem()` returns metadata for a Google Drive file.
+`.getItem()` returns a [`GoogleDriveItem`](./GoogleDriveItem.md) object for a Google Drive file. Call `.getContent()` on the returned object to download the file bytes.
 
 In *param*, pass:
 
