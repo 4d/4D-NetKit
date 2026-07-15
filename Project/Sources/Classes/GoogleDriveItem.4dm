@@ -12,6 +12,8 @@ property mimeType : Text
 property size : Integer
 property modifiedTime : Text
 property webViewLink : Text
+property thumbnailLink : Text
+
 
 Class constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text; $inObject : Object)
 /**
