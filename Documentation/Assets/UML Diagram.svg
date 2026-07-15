@@ -403,15 +403,21 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='2932' y='2574'>+userId : Text</text>
 <line x1='2930' y1='2585' x2='3330' y2='2585' stroke='#16a34a' stroke-opacity='0.35'/>
 <text class='m' x='2932' y='2600'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
-<text class='m' x='2932' y='2616'>+getFile($inParameters : Object) : 4D.Blob</text>
-<text class='m' x='2932' y='2632'>+getItem($inParameters : Object) : cs.GoogleDriveItem</text>
-<text class='m' x='2932' y='2648'>+list($inParameters : Object) : cs.GoogleDriveFileList</text>
-<text class='m' x='2932' y='2664'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<text class='m' x='2932' y='2616'>+copy($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2632'>+createFolder($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2648'>+delete($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2664'>+getFile($inParameters : Object) : 4D.Blob</text>
+<text class='m' x='2932' y='2680'>+getItem($inParameters : Object) : cs.GoogleDriveItem</text>
+<text class='m' x='2932' y='2696'>+list($inParameters : Object) : cs.GoogleDriveFileList</text>
+<text class='m' x='2932' y='2712'>+move($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2728'>+rename($inParameters : Object) : Object</text>
+<text class='m' x='2932' y='2744'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
 <rect x='280' y='2980' width='420' height='104' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='280' y1='3016' x2='700' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='292' y='3004'>GoogleDriveItem</text>
 <text class='m' x='292' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inBaseURL : Text; $inObject : Object)</text>
 <text class='m' x='292' y='3050'>+getContent() : 4D.Blob</text>
+<text class='m' x='292' y='3066'>+getThumbnail() : 4D.Blob</text>
 <path class='edge' d='M 250 2436 L 250 2485 L 490 2931 L 490 2980'/>
 <rect x='760' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='760' y1='3016' x2='1180' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
@@ -694,10 +700,15 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='m' x='6772' y='2590'>+userId : Text</text>
 <line x1='6770' y1='2601' x2='7170' y2='2601' stroke='#16a34a' stroke-opacity='0.35'/>
 <text class='m' x='6772' y='2616'>+constructor($inProvider : cs.OAuth2Provider; $inParameters : Object)</text>
-<text class='m' x='6772' y='2632'>+getFile($inParameters : Object) : 4D.Blob</text>
-<text class='m' x='6772' y='2648'>+getItem($inParameters : Object) : cs.GraphDriveItem</text>
-<text class='m' x='6772' y='2664'>+list($inParameters : Object) : cs.GraphDriveItemList</text>
-<text class='m' x='6772' y='2680'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
+<text class='m' x='6772' y='2632'>+copy($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2648'>+createFolder($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2664'>+delete($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2680'>+getFile($inParameters : Object) : 4D.Blob</text>
+<text class='m' x='6772' y='2696'>+getItem($inParameters : Object) : cs.GraphDriveItem</text>
+<text class='m' x='6772' y='2712'>+list($inParameters : Object) : cs.GraphDriveItemList</text>
+<text class='m' x='6772' y='2728'>+move($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2744'>+rename($inParameters : Object) : Object</text>
+<text class='m' x='6772' y='2760'>+uploadFile($inParameters : Object; $inContent : Variant) : Object</text>
 <rect x='6040' y='2980' width='420' height='120' rx='10' ry='10' fill='#dcfce7' stroke='#16a34a' stroke-width='1.2'/>
 <line x1='6040' y1='3016' x2='6460' y2='3016' stroke='#16a34a' stroke-opacity='0.5'/>
 <text class='cn' x='6052' y='3004'>GraphDriveItemList</text>
@@ -708,5 +719,6 @@ text { font-family: 'Segoe UI', Arial, sans-serif; }
 <text class='cn' x='6532' y='3004'>GraphDriveItem</text>
 <text class='m' x='6532' y='3034'>+constructor($inProvider : cs.OAuth2Provider; $inDrivePath : Text; $inObject : Object)</text>
 <text class='m' x='6532' y='3050'>+getContent() : 4D.Blob</text>
+<text class='m' x='6532' y='3066'>+getThumbnail($inSize : Text) : 4D.Blob</text>
 <path class='edge' d='M 1210 2436 L 1210 2485 L 6730 2931 L 6730 2980'/>
 </svg>

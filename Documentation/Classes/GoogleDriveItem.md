@@ -9,6 +9,7 @@
 ### Functions
 
 * [.getContent()](#getcontent)
+* [.getThumbnail()](#getthumbnail)
 
 ## Properties
 
@@ -69,7 +70,31 @@ If ($item#Null)
 End if
 ```
 
-## See also
+### .getThumbnail()
 
-* [GoogleDrive](./GoogleDrive.md)
+**.getThumbnail**() : 4D.Blob
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| Result | 4D.Blob | <- | Thumbnail image content; empty blob for folders or on error. |
+
+#### Description
+
+`.getThumbnail()` downloads the thumbnail image for the drive item. Uses `thumbnailLink` from the item metadata if available; otherwise fetches it first via `GET /drive/v3/files/{id}?fields=thumbnailLink`.
+
+Returns an empty `4D.Blob` if the item is a folder or has no `id`.
+
+> **Note:** `thumbnailLink` is short-lived. If you need to download thumbnails long after fetching metadata, call `.getThumbnail()` which re-fetches the link automatically.
+
+#### Example
+
+```4d
+var $item : cs.NetKit.GoogleDriveItem:=$google.drive.getItem({itemId: "abc123"})
+var $thumb : 4D.Blob:=$item.getThumbnail()
+File("/PACKAGE/thumb.jpg").setContent($thumb)
+```
+
+## See also
 * [Google](./Google.md)

@@ -355,3 +355,236 @@ Function uploadFile($inParameters : Object; $inContent : Variant) : Object
     End try
     
     return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function createFolder($inParameters : Object) : Object
+/**
+ * @function createFolder
+ * @param {Object} $inParameters - Folder creation options:
+ *   - `name` {Text} - Folder name (required)
+ *   - `parents` {Collection} - Parent folder IDs (optional; defaults to root)
+ *   - `folderId` {Text} - Single parent folder ID (shortcut when `parents` is omitted)
+ *   - `fields` {Text} - Response projection
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with created folder info (id, name, webViewLink)
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        var $folderName : Text:=String($inParameters.name)
+        If (Length($folderName)=0)
+            This._throwError(9; {which: "\"name\""; function: "google.drive.createFolder"})
+        End if 
+        
+        var $metadata : Object:={}
+        $metadata.name:=$folderName
+        $metadata.mimeType:="application/vnd.google-apps.folder"
+        
+        If (Value type($inParameters.parents)=Is collection)
+            $metadata.parents:=$inParameters.parents
+        Else 
+            If (Length(String($inParameters.folderId))>0)
+                $metadata.parents:=[String($inParameters.folderId)]
+            End if 
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files")
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $fields : Text:=(Length(String($inParameters.fields))>0) ? String($inParameters.fields) : "id,name,mimeType,webViewLink"
+        $URL.addQueryParameter("fields"; $fields)
+        
+        var $headers : Object:={}
+        $headers["Content-Type"]:="application/json"
+        var $response : Variant:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; JSON Stringify($metadata))
+        $status:=This._makeUploadStatus($response; Null)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function delete($inParameters : Object) : Object
+/**
+ * @function delete
+ * @param {Object} $inParameters - Item selector:
+ *   - `itemId` {Text} - File/folder ID (required)
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object (success/failure)
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Not(This._isValidGoogleFileId(String($inParameters.itemId))))
+            This._throwError(9; {which: "\"itemId\""; function: "google.drive.delete"})
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId))
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        
+        Super._sendRequestAndWaitResponse("DELETE"; $URL.toString())
+        $status:=This._returnStatus()
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function move($inParameters : Object) : Object
+/**
+ * @function move
+ * @param {Object} $inParameters - Move options:
+ *   - `itemId` {Text} - File/folder ID to move (required)
+ *   - `destinationId` {Text} - Destination parent folder ID (required)
+ *   - `fields` {Text} - Response projection
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with updated file info
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Not(This._isValidGoogleFileId(String($inParameters.itemId))))
+            This._throwError(9; {which: "\"itemId\""; function: "google.drive.move"})
+        End if 
+        If (Length(String($inParameters.destinationId))=0)
+            This._throwError(9; {which: "\"destinationId\""; function: "google.drive.move"})
+        End if 
+        
+        // Get current parents to remove them
+        var $getURL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId))
+        $getURL.addQueryParameter("fields"; "parents")
+        $getURL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $getHeaders : Object:={Accept: "application/json"}
+        var $current : Object:=Super._sendRequestAndWaitResponse("GET"; $getURL.toString(); $getHeaders)
+        
+        var $removeParents : Text:=""
+        If ((Value type($current)=Is object) && (Value type($current.parents)=Is collection))
+            $removeParents:=$current.parents.join(",")
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId))
+        $URL.addQueryParameter("addParents"; String($inParameters.destinationId))
+        If (Length($removeParents)>0)
+            $URL.addQueryParameter("removeParents"; $removeParents)
+        End if 
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $fields : Text:=(Length(String($inParameters.fields))>0) ? String($inParameters.fields) : "id,name,mimeType,parents,webViewLink"
+        $URL.addQueryParameter("fields"; $fields)
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("PATCH"; $URL.toString())
+        $status:=This._makeUploadStatus($response; Null)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function rename($inParameters : Object) : Object
+/**
+ * @function rename
+ * @param {Object} $inParameters - Rename options:
+ *   - `itemId` {Text} - File/folder ID to rename (required)
+ *   - `name` {Text} - New name (required)
+ *   - `fields` {Text} - Response projection
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with updated file info
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Not(This._isValidGoogleFileId(String($inParameters.itemId))))
+            This._throwError(9; {which: "\"itemId\""; function: "google.drive.rename"})
+        End if 
+        var $newName : Text:=String($inParameters.name)
+        If (Length($newName)=0)
+            This._throwError(9; {which: "\"name\""; function: "google.drive.rename"})
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId))
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $fields : Text:=(Length(String($inParameters.fields))>0) ? String($inParameters.fields) : "id,name,mimeType,webViewLink"
+        $URL.addQueryParameter("fields"; $fields)
+        
+        var $headers : Object:={}
+        $headers["Content-Type"]:="application/json"
+        var $response : Variant:=Super._sendRequestAndWaitResponse("PATCH"; $URL.toString(); $headers; JSON Stringify({name: $newName}))
+        $status:=This._makeUploadStatus($response; Null)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function copy($inParameters : Object) : Object
+/**
+ * @function copy
+ * @param {Object} $inParameters - Copy options:
+ *   - `itemId` {Text} - File ID to copy (required)
+ *   - `name` {Text} - Name for the copy (optional; keeps original if omitted)
+ *   - `destinationId` {Text} - Destination parent folder ID (optional; same folder if omitted)
+ *   - `fields` {Text} - Response projection
+ *   - `supportsAllDrives` {Boolean} - Include shared drives support
+ * @returns {Object} Status object with copied file info
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Not(This._isValidGoogleFileId(String($inParameters.itemId))))
+            This._throwError(9; {which: "\"itemId\""; function: "google.drive.copy"})
+        End if 
+        
+        var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode($inParameters.itemId)+"/copy")
+        $URL.addQueryParameter("supportsAllDrives"; Bool($inParameters.supportsAllDrives) ? "true" : "false")
+        var $fields : Text:=(Length(String($inParameters.fields))>0) ? String($inParameters.fields) : "id,name,mimeType,webViewLink,size"
+        $URL.addQueryParameter("fields"; $fields)
+        
+        var $body : Object:={}
+        If (Length(String($inParameters.name))>0)
+            $body.name:=String($inParameters.name)
+        End if 
+        If (Length(String($inParameters.destinationId))>0)
+            $body.parents:=[String($inParameters.destinationId)]
+        End if 
+        
+        var $headers : Object:={}
+        $headers["Content-Type"]:="application/json"
+        var $response : Variant:=Super._sendRequestAndWaitResponse("POST"; $URL.toString(); $headers; JSON Stringify($body))
+        $status:=This._makeUploadStatus($response; Null)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status

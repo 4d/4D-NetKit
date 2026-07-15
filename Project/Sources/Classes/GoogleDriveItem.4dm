@@ -72,3 +72,54 @@ Function getContent() : 4D.Blob
     End try
     
     return $result
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function getThumbnail() : 4D.Blob
+/**
+ * @function getThumbnail
+ * @returns {4D.Blob} Thumbnail image content; empty blob on error
+ * @description Downloads the thumbnail image for the drive item.
+ *   Uses `thumbnailLink` from the item metadata. If not present, fetches it first
+ *   via `GET /drive/v3/files/{id}?fields=thumbnailLink`.
+ */
+    
+    var $result : 4D.Blob:=4D.Blob.new()
+    
+    If ((Length(String(This.id))=0) || (String(This.mimeType)="application/vnd.google-apps.folder"))
+        return $result
+    End if 
+    
+    Try
+        var $thumbLink : Text:=String(This.thumbnailLink)
+        
+        // Fetch thumbnailLink if not in metadata
+        If (Length($thumbLink)=0)
+            var $URL : cs._URL:=cs._URL.new(This._getURL()+"files/"+cs._Tools.me.urlEncode(This.id))
+            $URL.addQueryParameter("fields"; "thumbnailLink")
+            $URL.addQueryParameter("supportsAllDrives"; "false")
+            var $headers : Object:={Accept: "application/json"}
+            var $meta : Object:=Super._sendRequestAndWaitResponse("GET"; $URL.toString(); $headers)
+            If (Value type($meta)=Is object)
+                $thumbLink:=String($meta.thumbnailLink)
+                This.thumbnailLink:=$thumbLink
+            End if 
+        End if 
+        
+        If (Length($thumbLink)>0)
+            // thumbnailLink is a short-lived authenticated URL — fetch with token
+            var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $thumbLink)
+            Case of 
+                : (OB Instance of($response; 4D.Blob))
+                    $result:=$response
+                : (Value type($response)=Is BLOB)
+                    $result:=4D.Blob.new($response)
+            End case 
+        End if 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
+    
+    return $result

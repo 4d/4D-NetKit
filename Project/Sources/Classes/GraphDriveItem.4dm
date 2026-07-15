@@ -63,3 +63,43 @@ Function getContent() : 4D.Blob
     End try
     
     return $result
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function getThumbnail($inSize : Text) : 4D.Blob
+/**
+ * @function getThumbnail
+ * @param {Text} $inSize - Thumbnail size: "small", "medium" (default), or "large"
+ * @returns {4D.Blob} Thumbnail image content; empty blob on error or for folders
+ * @description Downloads a thumbnail image for the drive item via
+ *   `GET /drive/items/{id}/thumbnails/0/{size}/content`
+ */
+    
+    var $result : 4D.Blob:=4D.Blob.new()
+    
+    If ((Length(String(This.id))=0) || (OB Is defined(This; "folder")))
+        return $result
+    End if 
+    
+    var $size : Text:=Lowercase(String($inSize))
+    If (($size#"small") && ($size#"large"))
+        $size:="medium"
+    End if 
+    
+    Try
+        var $URL : Text:=This._getURL()+This._internals._drivePath+"/items/"+This.id+"/thumbnails/0/"+$size+"/content"
+        var $response : Variant:=Super._sendRequestAndWaitResponse("GET"; $URL)
+        
+        Case of 
+            : (OB Instance of($response; 4D.Blob))
+                $result:=$response
+            : (Value type($response)=Is BLOB)
+                $result:=4D.Blob.new($response)
+        End case 
+    Catch
+        // Errors are already in _errorStack via _throwError
+    End try
+    
+    return $result

@@ -495,3 +495,196 @@ Function uploadFile($inParameters : Object; $inContent : Variant) : Object
     End try
     
     return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function createFolder($inParameters : Object) : Object
+/**
+ * @function createFolder
+ * @param {Object} $inParameters - Folder creation options:
+ *   - `name` {Text} - Folder name (required)
+ *   - `parentId` {Text} - Parent folder item ID (optional; defaults to root)
+ *   - `parentPath` {Text} - Parent folder path relative to root (optional)
+ *   - `conflictBehavior` {Text} - `fail` (default), `replace`, or `rename`
+ * @returns {Object} Status object with created folder info (id, name, webUrl)
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        var $folderName : Text:=String($inParameters.name)
+        If (Length($folderName)=0)
+            This._throwError(9; {which: "\"name\""; function: "office365.drive.createFolder"})
+        End if 
+        
+        var $conflict : Text:=Lowercase(String($inParameters.conflictBehavior))
+        If (($conflict#"replace") && ($conflict#"rename"))
+            $conflict:="fail"
+        End if 
+        
+        var $URL : Text:=This._getURL()+This._getDrivePath()
+        If (Length(String($inParameters.parentId))>0)
+            $URL+="/items/"+cs._Tools.me.urlEncode($inParameters.parentId)+"/children"
+        Else 
+            var $parentPath : Text:=This._sanitizePath(String($inParameters.parentPath))
+            If (Length($parentPath)>0)
+                $URL+="/root:/"+$parentPath+":/children"
+            Else 
+                $URL+="/root/children"
+            End if 
+        End if 
+        
+        var $body : Object:={}
+        $body.name:=$folderName
+        $body.folder:={}
+        $body["@microsoft.graph.conflictBehavior"]:=$conflict
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("POST"; $URL; Null; $body)
+        $status:=This._makeUploadStatus($response)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function delete($inParameters : Object) : Object
+/**
+ * @function delete
+ * @param {Object} $inParameters - Item selector:
+ *   - `itemId` {Text} - Item ID (required, or use `path`)
+ *   - `path` {Text} - Item path relative to root (alternative to `itemId`)
+ * @returns {Object} Status object (success/failure)
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        var $URL : Text:=This._getURL()+This._getDrivePath()+This._getItemPath($inParameters; "office365.drive.delete")
+        Super._sendRequestAndWaitResponse("DELETE"; $URL)
+        $status:=This._returnStatus()
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function move($inParameters : Object) : Object
+/**
+ * @function move
+ * @param {Object} $inParameters - Move options:
+ *   - `itemId` {Text} - Item ID to move (required, or use `path`)
+ *   - `path` {Text} - Item path to move (alternative to `itemId`)
+ *   - `destinationId` {Text} - Destination folder ID (required)
+ * @returns {Object} Status object with updated item info
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Length(String($inParameters.destinationId))=0)
+            This._throwError(9; {which: "\"destinationId\""; function: "office365.drive.move"})
+        End if 
+        
+        var $URL : Text:=This._getURL()+This._getDrivePath()+This._getItemPath($inParameters; "office365.drive.move")
+        var $body : Object:={parentReference: {id: String($inParameters.destinationId)}}
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("PATCH"; $URL; Null; $body)
+        $status:=This._makeUploadStatus($response)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function rename($inParameters : Object) : Object
+/**
+ * @function rename
+ * @param {Object} $inParameters - Rename options:
+ *   - `itemId` {Text} - Item ID to rename (required, or use `path`)
+ *   - `path` {Text} - Item path to rename (alternative to `itemId`)
+ *   - `name` {Text} - New name (required)
+ * @returns {Object} Status object with updated item info
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        var $newName : Text:=String($inParameters.name)
+        If (Length($newName)=0)
+            This._throwError(9; {which: "\"name\""; function: "office365.drive.rename"})
+        End if 
+        
+        var $URL : Text:=This._getURL()+This._getDrivePath()+This._getItemPath($inParameters; "office365.drive.rename")
+        var $body : Object:={name: $newName}
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("PATCH"; $URL; Null; $body)
+        $status:=This._makeUploadStatus($response)
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status
+    
+    
+    // ----------------------------------------------------
+    
+    
+Function copy($inParameters : Object) : Object
+/**
+ * @function copy
+ * @param {Object} $inParameters - Copy options:
+ *   - `itemId` {Text} - Item ID to copy (required, or use `path`)
+ *   - `path` {Text} - Item path to copy (alternative to `itemId`)
+ *   - `destinationId` {Text} - Destination folder ID (required)
+ *   - `name` {Text} - New name for the copy (optional; keeps original name if omitted)
+ * @returns {Object} Status object
+ */
+    
+    Super._clearErrorStack()
+    
+    var $status : Object
+    
+    Try
+        If (Length(String($inParameters.destinationId))=0)
+            This._throwError(9; {which: "\"destinationId\""; function: "office365.drive.copy"})
+        End if 
+        
+        var $URL : Text:=This._getURL()+This._getDrivePath()+This._getItemPath($inParameters; "office365.drive.copy")+"/copy"
+        var $body : Object:={parentReference: {id: String($inParameters.destinationId)}}
+        If (Length(String($inParameters.name))>0)
+            $body.name:=String($inParameters.name)
+        End if 
+        
+        var $response : Variant:=Super._sendRequestAndWaitResponse("POST"; $URL; Null; $body)
+        If (Value type($response)=Is object)
+            $status:=This._makeUploadStatus($response)
+        Else 
+            $status:=This._returnStatus()
+        End if 
+    Catch
+        $status:=This._returnStatus()
+    End try
+    
+    return $status

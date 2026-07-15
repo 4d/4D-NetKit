@@ -21,6 +21,11 @@ This class provides basic operations:
 * [.getItem()](#getitem)
 * [.getFile()](#getfile)
 * [.uploadFile()](#uploadfile)
+* [.createFolder()](#createfolder)
+* [.delete()](#delete)
+* [.move()](#move)
+* [.rename()](#rename)
+* [.copy()](#copy)
 
 ## Properties
 
@@ -159,6 +164,128 @@ $status:=$google.drive.uploadFile({name: "notes.txt"; mimeType: "text/plain"}; "
 // Update existing file content
 $status:=$google.drive.uploadFile({fileId: $fileId; mimeType: "application/pdf"}; $pdfBlob)
 ```
+
+### .createFolder()
+
+**.createFolder**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Folder creation options. |
+| Result | Object | <- | [Status object](#status-object) with created folder info. |
+
+#### Description
+
+`.createFolder()` creates a new folder in Google Drive.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| name | Text | **Required.** Folder name. |
+| parents | Collection | Parent folder IDs (defaults to root). |
+| folderId | Text | Single parent folder ID (shortcut when `parents` is omitted). |
+| fields | Text | Response projection. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+### .delete()
+
+**.delete**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Item selector. |
+| Result | Object | <- | [Status object](#status-object). |
+
+#### Description
+
+`.delete()` permanently deletes a file or folder from Google Drive.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | **Required.** File/folder ID to delete. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+### .move()
+
+**.move**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Move options. |
+| Result | Object | <- | [Status object](#status-object) with updated file info. |
+
+#### Description
+
+`.move()` moves a file or folder to a different parent folder. The item is removed from its current parent(s) and added to the destination.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | **Required.** File/folder ID to move. |
+| destinationId | Text | **Required.** Destination parent folder ID. |
+| fields | Text | Response projection. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+### .rename()
+
+**.rename**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Rename options. |
+| Result | Object | <- | [Status object](#status-object) with updated file info. |
+
+#### Description
+
+`.rename()` renames a file or folder.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | **Required.** File/folder ID to rename. |
+| name | Text | **Required.** New name. |
+| fields | Text | Response projection. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+### .copy()
+
+**.copy**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Copy options. |
+| Result | Object | <- | [Status object](#status-object) with copied file info. |
+
+#### Description
+
+`.copy()` copies a file to a destination folder.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | **Required.** File ID to copy. |
+| name | Text | Name for the copy (optional; keeps original if omitted). |
+| destinationId | Text | Destination parent folder ID (optional; same folder if omitted). |
+| fields | Text | Response projection. |
+| supportsAllDrives | Boolean | Enables shared-drive support. |
+
+> **Note:** Google Drive does not support copying folders, only files.
 
 ## Status object
 

@@ -21,6 +21,11 @@ This class provides file operations:
 * [.getItem()](#getitem)
 * [.getFile()](#getfile)
 * [.uploadFile()](#uploadfile)
+* [.createFolder()](#createfolder)
+* [.delete()](#delete)
+* [.move()](#move)
+* [.rename()](#rename)
+* [.copy()](#copy)
 
 ## Properties
 
@@ -132,6 +137,115 @@ $status:=$office365.drive.uploadFile({path: "Documents/big-report.zip"}; $blob)
 // Force upload session for resilient large upload
 $status:=$office365.drive.uploadFile({path: "Documents/video.mp4"; useUploadSession: True; chunkSize: 3276800}; $videoBlob)
 ```
+
+### .createFolder()
+
+**.createFolder**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Folder creation options. |
+| Result | Object | <- | [Status object](#status-object) with created folder info. |
+
+#### Description
+
+`.createFolder()` creates a new folder in the drive.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| name | Text | **Required.** Folder name. |
+| parentId | Text | Parent folder item ID. Defaults to root. |
+| parentPath | Text | Parent folder path relative to root (alternative to `parentId`). |
+| conflictBehavior | Text | `fail` (default), `replace`, or `rename`. |
+
+### .delete()
+
+**.delete**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Item selector (`itemId` or `path`). |
+| Result | Object | <- | [Status object](#status-object). |
+
+#### Description
+
+`.delete()` permanently deletes a file or folder from the drive.
+
+### .move()
+
+**.move**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Move options. |
+| Result | Object | <- | [Status object](#status-object) with updated item info. |
+
+#### Description
+
+`.move()` moves a file or folder to a different parent folder.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | Item ID to move (or use `path`). |
+| path | Text | Item path to move (alternative to `itemId`). |
+| destinationId | Text | **Required.** Destination folder ID. |
+
+### .rename()
+
+**.rename**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Rename options. |
+| Result | Object | <- | [Status object](#status-object) with updated item info. |
+
+#### Description
+
+`.rename()` renames a file or folder.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | Item ID to rename (or use `path`). |
+| path | Text | Item path to rename (alternative to `itemId`). |
+| name | Text | **Required.** New name. |
+
+### .copy()
+
+**.copy**( *param* : Object ) : Object
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| param | Object | -> | Copy options. |
+| Result | Object | <- | [Status object](#status-object). |
+
+#### Description
+
+`.copy()` copies a file to a destination folder.
+
+In *param*, pass:
+
+| Property | Type | Description |
+|---|---|---|
+| itemId | Text | Item ID to copy (or use `path`). |
+| path | Text | Item path to copy (alternative to `itemId`). |
+| destinationId | Text | **Required.** Destination folder ID. |
+| name | Text | New name for the copy (optional; keeps original if omitted). |
 
 ## Status object
 

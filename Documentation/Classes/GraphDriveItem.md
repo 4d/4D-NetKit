@@ -9,6 +9,7 @@
 ### Functions
 
 * [.getContent()](#getcontent)
+* [.getThumbnail()](#getthumbnail)
 
 ## Properties
 
@@ -70,8 +71,31 @@ If ($item#Null)
 End if
 ```
 
-## See also
+### .getThumbnail()
 
-* [Office365Drive](./Office365Drive.md)
+**.getThumbnail**( *size* : Text ) : 4D.Blob
+
+#### Parameters
+
+| Parameter | Type | | Description |
+|---|---|:---:|---|
+| size | Text | -> | Thumbnail size: `"small"`, `"medium"` (default), or `"large"`. |
+| Result | 4D.Blob | <- | Thumbnail image content; empty blob for folders or on error. |
+
+#### Description
+
+`.getThumbnail()` downloads a thumbnail image for the drive item via `GET /drive/items/{id}/thumbnails/0/{size}/content`.
+
+Returns an empty `4D.Blob` if the item is a folder or has no `id`.
+
+#### Example
+
+```4d
+var $item : cs.NetKit.GraphDriveItem:=$office.drive.getItem({path: "photo.jpg"})
+var $thumb : 4D.Blob:=$item.getThumbnail("large")
+File("/PACKAGE/thumb.jpg").setContent($thumb)
+```
+
+## See also
 * [GraphDriveItemList](./GraphDriveItemList.md)
 * [Office365](./Office365.md)
