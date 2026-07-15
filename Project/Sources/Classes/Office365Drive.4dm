@@ -260,12 +260,9 @@ Function _uploadBySession($inDestination : Text; $inFileName : Text; $inConflict
     var $item : Object:={}
     $item["@microsoft.graph.conflictBehavior"]:=$inConflict
     $item.name:=$inFileName
-    $item.size:=$totalSize
     var $body : Object:={item: $item}
     
-    var $headers : Object:={}
-    $headers["Content-Type"]:="application/json"
-    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; This._getURL()+This._getDrivePath()+$sessionPath; $headers; JSON Stringify($body))
+    var $response : Object:=Super._sendRequestAndWaitResponse("POST"; This._getURL()+This._getDrivePath()+$sessionPath; Null; $body)
     var $uploadURL : Text:=String($response.uploadUrl)
     If (Length($uploadURL)=0)
         This._throwError(13; {function: "office365.drive.uploadFile"; message: "Unable to create upload session."})
@@ -285,15 +282,20 @@ Function _uploadBySession($inDestination : Text; $inFileName : Text; $inConflict
         End if 
         
         var $chunkBlob : Blob
+        SET BLOB SIZE($chunkBlob; 0)
         COPY BLOB($inUploadBlob; $chunkBlob; $offset; 0; $currentChunkSize)
         
         var $chunkHeaders : Object:={}
         $chunkHeaders["Content-Type"]:="application/octet-stream"
-        $chunkHeaders["Content-Length"]:=String($currentChunkSize)
         $chunkHeaders["Content-Range"]:="bytes "+String($offset)+"-"+String($offset+$currentChunkSize-1)+"/"+String($totalSize)
         
         // uploadUrl already contains auth data; do not add Authorization header.
-        var $putRequest : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($uploadURL; {method: "PUT"; headers: $chunkHeaders; body: $chunkBlob; dataType: "auto"}).wait())
+        // Build options object step-by-step (not inline) to preserve Blob binary identity.
+        var $chunkOptions : Object:={headers: {}}
+        $chunkOptions.headers:=OB Copy($chunkHeaders)
+        $chunkOptions.method:="PUT"
+        $chunkOptions.body:=$chunkBlob
+        var $putRequest : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($uploadURL; $chunkOptions).wait())
         var $putStatus : Integer:=Num($putRequest.response.status)
         If (Int($putStatus/100)#2)
             var $statusText : Text:=String($putRequest.response.statusText)
