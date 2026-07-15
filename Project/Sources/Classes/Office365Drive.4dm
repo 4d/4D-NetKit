@@ -273,6 +273,7 @@ Function _uploadBySession($inDestination : Text; $inFileName : Text; $inConflict
         $chunkSize:=1638400  // 1.5625 MiB, multiple of 320 KiB as recommended by Microsoft Graph.
     End if 
     
+    var $uploadBlob4D : 4D.Blob:=4D.Blob.new($inUploadBlob)
     var $offset : Integer:=0
     var $lastResponse : Object
     While ($offset<$totalSize)
@@ -280,10 +281,6 @@ Function _uploadBySession($inDestination : Text; $inFileName : Text; $inConflict
         If (($offset+$currentChunkSize)>$totalSize)
             $currentChunkSize:=$totalSize-$offset
         End if 
-        
-        var $chunkBlob : Blob
-        SET BLOB SIZE($chunkBlob; 0)
-        COPY BLOB($inUploadBlob; $chunkBlob; $offset; 0; $currentChunkSize)
         
         var $chunkHeaders : Object:={}
         $chunkHeaders["Content-Type"]:="application/octet-stream"
@@ -294,7 +291,7 @@ Function _uploadBySession($inDestination : Text; $inFileName : Text; $inConflict
         var $chunkOptions : Object:={headers: {}}
         $chunkOptions.headers:=OB Copy($chunkHeaders)
         $chunkOptions.method:="PUT"
-        $chunkOptions.body:=$chunkBlob
+        $chunkOptions.body:=$uploadBlob4D.slice($offset; $offset+$currentChunkSize)
         var $putRequest : 4D.HTTPRequest:=Try(4D.HTTPRequest.new($uploadURL; $chunkOptions).wait())
         var $putStatus : Integer:=Num($putRequest.response.status)
         If (Int($putStatus/100)#2)
