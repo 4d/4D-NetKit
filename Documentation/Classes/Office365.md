@@ -14,7 +14,7 @@ Each client is instantiated on first access and reused for subsequent calls.
 These operations can be performed after a valid token request (see [OAuth2Provider](./OAuth2Provider.md#oauth2provider-class)).
 
 The `Office365` class can be instantiated in two ways:
-* by calling the [`New Office365 provider`](../Methods/New%20Office365%20provider.md) method
+* by calling the [`New Office365 provider`](../Methods/New-Office365-provider.md) method
 * by calling the `cs.NetKit.Office365.new()` function
 
 **Warning:** Shared objects are not supported by the 4D NetKit API.
@@ -31,7 +31,7 @@ The `Office365` class can be instantiated in two ways:
 
 The `Office365` class can be instantiated using the `New Office365 provider` method.
 
-See [New Office365 provider](../Methods/New%20Office365%20provider.md) for the complete method documentation.
+See [New Office365 provider](../Methods/New-Office365-provider.md) for the complete method documentation.
 
 ### Returned object
 

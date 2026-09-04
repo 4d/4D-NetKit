@@ -1,10 +1,18 @@
 # Office365User Class
 
+An `Office365User` object is accessed via the `user` property of an [Office365](./Office365.md) object, i.e. `$office365.user`.
+
+Example: 
+
+```4d
+$userList1:=$Office365.user.list()
+```
+
+
 ## Overview
 
 `Office365User` is the Microsoft Graph API client for querying Azure AD users. It wraps the `/users` and `/me` endpoints and lets you retrieve user profiles either individually or as a paginated list.
 
-An `Office365User` object is accessed via the `user` property of an [Office365](./Office365.md) object: `$office365.user`.
 
 ## Table of Contents
 
