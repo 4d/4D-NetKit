@@ -46,7 +46,7 @@ For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Gra
 
 | Page | Description |
 |------|-------------|
-| [New OAuth2 provider](Documentation/Methods/New%20OAuth2%20provider.md) | Method that instantiates an `OAuth2Provider` object. |
+| [New OAuth2 provider](Documentation/Methods/New-OAuth2-provider.md) | Method that instantiates an `OAuth2Provider` object. |
 | [OAuth2Provider](Documentation/Classes/OAuth2Provider.md) | Core OAuth 2.0 client: token acquisition, refresh, PKCE, and JWT generation. |
 | [JWT](Documentation/Classes/JWT.md) | Create, sign, and verify JSON Web Tokens. |
 
@@ -54,21 +54,21 @@ For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Gra
 
 | Page | Description |
 |------|-------------|
-| [New Office365 provider]({% link Documentation/Methods/New%20Office365%20provider.md %}) | Method that instantiates an `Office365` object. |
-| [Office365](Documentation/Classes/Office365.md) | Entry-point facade exposing the `mail`, `calendar`, `user`, and `category` clients. |
-| [Office365Mail](Documentation/Classes/Office365Mail.md) | Send, read, move, copy, reply, update, and delete messages; manage folders. |
-| [Office365Calendar](Documentation/Classes/Office365Calendar.md) | Manage calendars and events. |
-| [Office365User](Documentation/Classes/Office365User.md) | Read Azure AD user profiles. |
-| [Office365Category](Documentation/Classes/Office365Category.md) | Read Outlook master categories. |
+| [New Office365 provider](Documentation/Methods/New-Office365-provider.md) | Method that instantiates a `cs.Netkit.Office365` object |
+| [Office365](Documentation/Classes/Office365.md) | Entry-point interface exposing the `mail`, `calendar`, `user`, and `category` clients (see below). |
+| [Office365Mail](Documentation/Classes/Office365Mail.md) | `$office365.mail`: Send, read, move, copy, reply, update, and delete messages; manage folders. |
+| [Office365Calendar](Documentation/Classes/Office365Calendar.md) | `$office365.calendar`: Manage calendars and events. |
+| [Office365User](Documentation/Classes/Office365User.md) | `$office365.user`: Read Azure AD user profiles. |
+| [Office365Category](Documentation/Classes/Office365Category.md) | `$office365.category`: Read Outlook master categories. |
 
 ### Google Workspace
 
 | Page | Description |
 |------|-------------|
-| [Google](Documentation/Classes/Google.md) | Entry-point facade exposing the `mail`, `calendar`, and `user` clients. |
-| [GoogleMail](Documentation/Classes/GoogleMail.md) | Send, read, and manage Gmail messages and labels. |
-| [GoogleCalendar](Documentation/Classes/GoogleCalendar.md) | Manage Google calendars and events. |
-| [GoogleUser](Documentation/Classes/GoogleUser.md) | Read Google user profiles (People API). |
+| [Google](Documentation/Classes/Google.md) | Entry-point interface exposing the `mail`, `calendar`, and `user` clients (see below). |
+| [GoogleMail](Documentation/Classes/GoogleMail.md) | `$google.mail`: Send, read, and manage Gmail messages and labels. |
+| [GoogleCalendar](Documentation/Classes/GoogleCalendar.md) | `$google.calendar`: Manage Google calendars and events. |
+| [GoogleUser](Documentation/Classes/GoogleUser.md) | `$google.user`: Read Google user profiles (People API). |
 
 ### Notifications
 

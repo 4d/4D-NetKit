@@ -30,9 +30,9 @@ This class can be instantiated in two ways:
 
 ## **New OAuth2 provider**
 
-The [`New OAuth2 provider`](../Methods/New%20OAuth2%20provider.md) method instantiates an object of the `OAuth2Provider` class that holds authentication information.
+The [`New OAuth2 provider`](../Methods/New-OAuth2-provider.md) method instantiates an object of the `OAuth2Provider` class that holds authentication information.
 
-For a full description of the method, its parameters, the available properties of `paramObj`, the returned object and examples, please refer to the [`New OAuth2 provider`](../Methods/New%20OAuth2%20provider.md) method page.
+For a full description of the method, its parameters, the available properties of `paramObj`, the returned object and examples, please refer to the [`New OAuth2 provider`](../Methods/New-OAuth2-provider.md) method page.
 
 
 ## OAuth2ProviderObject.getToken()
@@ -67,7 +67,7 @@ If the token has expired:
 
 When requesting access on behalf of a user ("signedIn" mode) the command opens a web browser to request authorization.
 
-In "signedIn" mode, when `.getToken()` is called, a web server included in 4D NetKit starts automatically on the port specified in the [redirectURI parameter](../Methods/New%20OAuth2%20provider.md) to intercept the provider's authorization response and display it in the browser.
+In "signedIn" mode, when `.getToken()` is called, a web server included in 4D NetKit starts automatically on the port specified in the [redirectURI parameter](../Methods/New-OAuth2-provider.md) to intercept the provider's authorization response and display it in the browser.
 
 
 

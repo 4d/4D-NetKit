@@ -1,10 +1,18 @@
 # Office365Calendar Class
 
+An `Office365Calendar` object is accessed via the `calendar` property of an [Office365](./Office365.md) object, i.e. `$office365.calendar`.
+
+Example:
+
+```4d
+$calendarList:=$Office365.calendar.getCalendars()
+```
+
+
 ## Overview
 
 `Office365Calendar` is the Microsoft Graph API client for calendar and event management within 4D NetKit. It supports reading, creating, updating, and deleting calendars and events, with optional `calendarId` and `userId` scoping.
 
-An `Office365Calendar` object is accessed via the `calendar` property of an [Office365](./Office365.md) object: `$office365.calendar`.
 
 Event date/time values are accepted as ISO text, `{date; time}` objects, or Graph `{dateTime; timeZone}` objects.
 

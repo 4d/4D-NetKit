@@ -55,9 +55,9 @@ The returned `Google` object exposes the following properties, each giving acces
 
 |Property|Type|Description|
 |----|---|------|
-|mail|[GoogleMail](./GoogleMail.md)|Gmail API client: send, read, delete, and manage messages and labels.|
-|user|[GoogleUser](./GoogleUser.md)|Google People API client: read user profiles.|
-|calendar|[GoogleCalendar](./GoogleCalendar.md)|Google Calendar API client: manage calendars and events.|
+|mail|cs.NetKit.[GoogleMail](./GoogleMail.md)|Gmail API client: send, read, delete, and manage messages and labels.|
+|user|cs.NetKit.[GoogleUser](./GoogleUser.md)|Google People API client: read user profiles.|
+|calendar|cs.NetKit.[GoogleCalendar](./GoogleCalendar.md)|Google Calendar API client: manage calendars and events.|
 
 ### Example
 
