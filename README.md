@@ -54,8 +54,7 @@ For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Gra
 
 | Page | Description |
 |------|-------------|
-| [New Office365 provider](Documentation/Methods/New%20Office365%20provider.md) | Method that instantiates an `Office365` object. |
-| [New Office365 provider]({% link Documentation/Methods/New Office365 provider.md %}) | Method that instantiates an `Office365` object. |
+| [New Office365 provider](Documentation/Methods/New Office365 provider.md) | Method that instantiates an `Office365` object. |
 | [Office365](Documentation/Classes/Office365.md) | Entry-point facade exposing the `mail`, `calendar`, `user`, and `category` clients. |
 | [Office365Mail](Documentation/Classes/Office365Mail.md) | Send, read, move, copy, reply, update, and delete messages; manage folders. |
 | [Office365Calendar](Documentation/Classes/Office365Calendar.md) | Manage calendars and events. |
