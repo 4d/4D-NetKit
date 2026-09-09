@@ -38,7 +38,7 @@ $office365:=New Office365 provider($oauth2)
 $office365.mail.send($mail)
 ```
 
-For a complete walkthrough, see the [Tutorial: Authenticate to the Microsoft Graph API in service mode](Documentation/Tutorial.md).
+For a complete walkthrough in **service mode**, see the [Tutorial: Authenticate to the Microsoft Graph API in service mode](Documentation/Tutorial.md).
 
 ## Documentation
 
