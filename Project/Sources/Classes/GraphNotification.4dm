@@ -576,14 +576,41 @@ Function _pollDeltaUsingChangeTypeStreams() : Collection
  *   enabled change type streams
  * @description Polls each delta stream (one per enabled changeType) and merges results.
  *   Used for mail, where Graph supports `changeType` filtering on delta queries.
+ *   The same item can be reported by several streams: duplicates are removed, and an
+ *   item deleted during this poll is only reported as `"deleted"`.
  */
     
-    var $items : Collection:=[]
+    var $polled : Collection:=[]
     var $changeTypes : Collection:=This._computePullChangeTypes()
     var $changeType : Text
     
     For each ($changeType; $changeTypes)
-        $items.combine(This._pollDeltaForChangeType($changeType))
+        $polled.combine(This._pollDeltaForChangeType($changeType))
+    End for each 
+    
+    // Collect the IDs deleted during this poll, whatever stream reported them
+    var $deletedIds : Object:={}
+    var $item : Object
+    For each ($item; $polled)
+        If ($item.changeType="deleted")
+            $deletedIds[$item.resourceId]:=True
+        End if 
+    End for each 
+    
+    var $items : Collection:=[]
+    var $seen : Object:={}
+    For each ($item; $polled)
+        // A deleted item must not also be dispatched as created or updated
+        If (($item.changeType#"deleted") && (Bool($deletedIds[$item.resourceId])))
+            continue
+        End if 
+        var $key : Text:=$item.changeType+"|"+$item.resourceId
+        If (Not(Bool($seen[$key])))
+            $seen[$key]:=True
+            If (This._shouldDispatchPullChangeType($item.changeType))
+                $items.push($item)
+            End if 
+        End if 
     End for each 
     
     return $items
@@ -622,7 +649,9 @@ Function _pollDeltaForChangeType($inChangeType : Text) : Collection
                         If (Length(String($entry.id))>0)
                             var $item : Object:={}
                             $item.resourceId:=String($entry.id)
-                            $item.changeType:=$inChangeType
+                            // Graph emits @removed entries on every filtered stream (created and
+                            // updated too) when a message is deleted or moved out of the folder.
+                            $item.changeType:=($entry["@removed"]#Null) ? "deleted" : $inChangeType
                             $items.push($item)
                         End if 
                     End for each 
