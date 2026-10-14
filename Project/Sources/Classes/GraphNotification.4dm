@@ -415,27 +415,34 @@ Function _initialDeltaSync($inChangeType : Text) : Text
 /**
  * @function _initialDeltaSync
  * @private
- * @param {Text} $inChangeType - Graph changeType to track: `"created"`, `"updated"`,
+ * @param {Text} $inChangeType - Mail change type stream to initialize: `"created"`, `"updated"`,
  *   or `"deleted"`
  * @returns {Text} Delta link URL to use for subsequent polls; empty string on failure
- * @description Performs an initial delta sync with `$deltatoken=latest` to obtain
- *   a `deltaLink` for tracking future changes of one type.
- *   Used only for resources that support `changeType` filtering (currently mail).
- *   See inline comment for details.
+ * @description Requests a mail deltaLink using `$deltatoken=latest` to avoid enumerating
+ *   existing messages during initialization.
+ *   Created and updated streams use the corresponding Graph `changeType` filter.
+ *   The deleted stream is unfiltered; `_pollDeltaForChangeType` retains only its
+ *   `@removed` entries. Each stream has its own `deltaLink`.
  */
     
 /*
-    Performs initial delta sync to obtain a deltaLink for tracking future mail changes
-    for one Graph changeType: created, updated or deleted.
+     Initializes one mail stream with $deltatoken=latest rather than a full initial sync,
+     following pagination if returned. This shortcut is not documented for message delta.
     
-    This is used only for resources where Microsoft Graph supports changeType filtering
-    on delta queries, currently mail messages in this class.
+    The deletion stream deliberately omits changeType=deleted to track removals
+    through folder-level synchronization. Initial response items are discarded;
+    only the deltaLink is kept for subsequent polls.
 */
     
     var $deltaResource : Text:=(Length(This._internals._deltaResource)>0) ? This._internals._deltaResource : This._internals._resource
-    var $url : Text:=Super._getURL()+$deltaResource+"/delta?$select=id&changeType="+$inChangeType+"&$deltatoken=latest"
+    var $url : Text:=Super._getURL()+$deltaResource+"/delta?$select=id"
     var $deltaLink : Text:=""
     var $headers : Object:={Prefer: "odata.maxpagesize=999"}
+    
+    If ($inChangeType#"deleted")
+        $url+="&changeType="+$inChangeType
+    End if 
+    $url+="&$deltatoken=latest"
     
     Try
         
@@ -572,10 +579,13 @@ Function _pollDeltaUsingChangeTypeStreams() : Collection
 /**
  * @function _pollDeltaUsingChangeTypeStreams
  * @private
- * @returns {Collection} Combined collection of `{resourceId; changeType}` from all
- *   enabled change type streams
- * @description Polls each delta stream (one per enabled changeType) and merges results.
- *   Used for mail, where Graph supports `changeType` filtering on delta queries.
+ * @returns {Collection} Deduplicated `{resourceId; changeType}` items whose change type
+ *   has a registered callback
+ * @description Polls each enabled mail stream and merges its results. Created and updated
+ *   streams are filtered; the deletion stream is unfiltered and retains only removals.
+ *   A deletion from any stream suppresses created/updated items for the same ID in this
+ *   poll, even without an onDelete callback. Duplicate `(changeType, resourceId)` pairs
+ *   are discarded, and `_shouldDispatchPullChangeType` filters the remaining items.
  */
     
     var $items : Collection:=[]
@@ -586,7 +596,32 @@ Function _pollDeltaUsingChangeTypeStreams() : Collection
         $items.combine(This._pollDeltaForChangeType($changeType))
     End for each 
     
-    return $items
+    var $deletedIds : Object:={}
+    var $item : Object
+    
+    For each ($item; $items)
+        If ($item.changeType="deleted")
+            $deletedIds[$item.resourceId]:=True
+        End if 
+    End for each 
+    
+    var $result : Collection:=[]
+    var $seen : Object:={created: {}; updated: {}; deleted: {}}
+    var $seenForType : Object
+    
+    For each ($item; $items)
+        If (($item.changeType="deleted") | ($deletedIds[$item.resourceId]#True))
+            If (This._shouldDispatchPullChangeType($item.changeType))
+                $seenForType:=$seen[$item.changeType]
+                If ($seenForType[$item.resourceId]#True)
+                    $seenForType[$item.resourceId]:=True
+                    $result.push($item)
+                End if 
+            End if 
+        End if 
+    End for each 
+    
+    return $result
     
     
     // ----------------------------------------------------
@@ -599,8 +634,11 @@ Function _pollDeltaForChangeType($inChangeType : Text) : Collection
  * @param {Text} $inChangeType - The change type stream to poll: `"created"`, `"updated"`,
  *   or `"deleted"`
  * @returns {Collection} Collection of `{resourceId; changeType}` objects found on this stream
- * @description Follows the delta link for one change type, paginating until the new
- *   delta link is returned; updates `_internals._deltaLinks[$inChangeType]`
+ * @description Follows one mail stream's delta link through all pages and updates
+ *   `_internals._deltaLinks[$inChangeType]`. Entries with `@removed` are classified as
+ *   deleted regardless of their source stream. Other entries inherit the stream's type,
+ *   except in the unfiltered deletion stream, where they are ignored. Pagination and
+ *   token advancement continue even when all entries on a page are ignored.
  */
     
     var $items : Collection:=[]
@@ -619,16 +657,16 @@ Function _pollDeltaForChangeType($inChangeType : Text) : Collection
                 If (Value type($response["value"])=Is collection)
                     var $entry : Object
                     For each ($entry; $response["value"])
-                        If (Length(String($entry.id))>0)
+                        If ((Length(String($entry.id))>0) && (($inChangeType#"deleted") || ($entry["@removed"]#Null)))
                             var $item : Object:={}
                             $item.resourceId:=String($entry.id)
-                            $item.changeType:=$inChangeType
+                            $item.changeType:=($entry["@removed"]#Null) ? "deleted" : $inChangeType
                             $items.push($item)
                         End if 
                     End for each 
                 End if 
                 
-                // Follow pagination or get new deltaLink for this changeType.
+                // Follow pagination or save the new deltaLink for this stream.
                 If (Length(String($response["@odata.nextLink"]))>0)
                     $url:=String($response["@odata.nextLink"])
                 Else 
