@@ -18,12 +18,6 @@ jobs:
         fetch-depth: 0
         lfs: true 
 
-    # Ensure `shell: bash` resolves to Git Bash rather than the WSL launcher (C:\Windows\System32\bash.exe)
-    - name: Use Git Bash
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: Add-Content -Path $env:GITHUB_PATH -Value "$env:ProgramFiles\Git\bin"
-
     - name: Build
       uses: 4d/build4d-action@ec67c1a1b83b8f43bc5114169dc40e57faf680d3 # main
       with:
