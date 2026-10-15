@@ -10,3 +10,5 @@ updates:
           - "*"
     commit-message:
       prefix: "ci"
+    ignore:
+      - dependency-name: "4d/gitlabsync-action"
