@@ -21,7 +21,7 @@ jobs:
       contents: write # for tag and release creation
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0  # Fetch all history and tags
         ref: ${{ github.ref }}
@@ -29,7 +29,7 @@ jobs:
     
     - name: Create Release Tag
       id: create_tag
-      uses: 4d/auto-increment-tag-action@v2
+      uses: 4d/auto-increment-tag-action@52815f3fce9c27f3c73b62cf781eb9099ab8a94c # v2
       with:
         tag_prefix: "${{ inputs.tag_prefix }}"
         tag_suffix: "${{ inputs.tag_suffix }}"
@@ -39,7 +39,7 @@ jobs:
     - name: Create GitHub Release
       if: steps.create_tag.outputs.tag_created == 'true'
       id: create_release
-      uses: 4d/action-gh-release@v2.3.2
+      uses: 4d/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
       with:
         tag_name: ${{ steps.create_tag.outputs.tag }}
         name: ${{ steps.create_tag.outputs.tag }}

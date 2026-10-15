@@ -10,10 +10,10 @@ jobs:
       GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
       - name: ⬇️ Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ⬇️ Checkout postBuild
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: 4d/${{secrets.POST_BUILD_REPO}}
           token: ${{secrets.PAT_TOKEN}}
@@ -23,7 +23,7 @@ jobs:
 
       - name: BuildAndPackage
         id: build-package
-        uses: 4d/build4d-action@main
+        uses: 4d/build4d-action@ec67c1a1b83b8f43bc5114169dc40e57faf680d3 # main
         with:
           actions: "release"
           product-line: vcs
@@ -36,7 +36,7 @@ jobs:
           LOGIN_KEYCHAIN_PASSWORD: "${{ secrets.KEYCHAIN }}"
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: "${{ github.event.repository.name }}.zip"
           path: "build/${{ github.event.repository.name }}.zip"
@@ -52,7 +52,7 @@ jobs:
       contents: write # for release deletion
     steps:
       - name: 📄 Checkout repository
-        uses: "actions/checkout@v5"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Remove release
@@ -72,11 +72,11 @@ jobs:
       contents: write # for asset upload
     steps:
       - name: 📄 Checkout repository
-        uses: "actions/checkout@v5"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Download packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: "${{ github.event.repository.name }}.zip"
           path: artifact

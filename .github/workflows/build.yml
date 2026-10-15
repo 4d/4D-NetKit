@@ -13,13 +13,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
         lfs: true 
 
     - name: Build
-      uses: 4d/build4d-action@main
+      uses: 4d/build4d-action@ec67c1a1b83b8f43bc5114169dc40e57faf680d3 # main
       with:
         product-line: vcs
         version: vcs
@@ -30,13 +30,13 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64]
     name: Git Repo Sync
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
         lfs: true 
 
     - name: Get Internal Sync action
-      uses: actions/checkout@v6
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: 4d/gitlabsync-action
         ref: main
