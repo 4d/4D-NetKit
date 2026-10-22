@@ -23,7 +23,7 @@ jobs:
 
       - name: BuildAndPackage
         id: build-package
-        uses: 4d/build4d-action@ec67c1a1b83b8f43bc5114169dc40e57faf680d3 # main
+        uses: 4d/build4d-action@2bc5c2f132320fec6859dfab7ba8a519518d3157 # main
         with:
           actions: "release"
           product-line: vcs
