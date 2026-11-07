@@ -4,11 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "4d/gitlabsync-action"
+      - dependency-name: "4d/build4d-action"
     groups:
       github-actions:
         patterns:
           - "*"
     commit-message:
       prefix: "ci"
-    ignore:
-      - dependency-name: "4d/gitlabsync-action"
